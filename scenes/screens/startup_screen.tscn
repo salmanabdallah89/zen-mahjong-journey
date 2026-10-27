@@ -1,0 +1,130 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/screens/startup_screen.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_golden_sakura.png" id="2_bg"]
+[ext_resource type="Script" path="res://scripts/components/safe_area_container.gd" id="3_safe"]
+
+[sub_resource type="Gradient" id="Gradient_top"]
+offsets = PackedFloat32Array(0, 0.55, 1)
+colors = PackedColorArray(0.9647059, 0.93333334, 0.8745098, 0.55, 0.9647059, 0.93333334, 0.8745098, 0.25, 0.9647059, 0.93333334, 0.8745098, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture_top"]
+gradient = SubResource("Gradient_top")
+width = 8
+height = 256
+fill_to = Vector2(0, 1)
+
+[sub_resource type="Gradient" id="Gradient_bottom"]
+colors = PackedColorArray(0.15294118, 0.23137255, 0.3137255, 0, 0.15294118, 0.23137255, 0.3137255, 0.55)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture_bottom"]
+gradient = SubResource("Gradient_bottom")
+width = 8
+height = 256
+fill_to = Vector2(0, 1)
+
+[node name="StartupScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="TopContrast" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+anchor_bottom = 0.45
+grow_horizontal = 2
+mouse_filter = 2
+texture = SubResource("GradientTexture_top")
+expand_mode = 1
+
+[node name="BottomContrast" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 0.6
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+texture = SubResource("GradientTexture_bottom")
+expand_mode = 1
+
+[node name="SafeArea" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3_safe")
+
+[node name="Layout" type="VBoxContainer" parent="SafeArea"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="TopSpacer" type="Control" parent="SafeArea/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.3
+mouse_filter = 2
+
+[node name="TitleBlock" type="VBoxContainer" parent="SafeArea/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = -6
+alignment = 1
+
+[node name="ZenLabel" type="Label" parent="SafeArea/Layout/TitleBlock"]
+layout_mode = 2
+theme_type_variation = &"TitleAccentLabel"
+text = "Zen"
+horizontal_alignment = 1
+
+[node name="MahjongLabel" type="Label" parent="SafeArea/Layout/TitleBlock"]
+layout_mode = 2
+theme_type_variation = &"TitleLabel"
+text = "MAHJONG"
+horizontal_alignment = 1
+
+[node name="JourneyLabel" type="Label" parent="SafeArea/Layout/TitleBlock"]
+layout_mode = 2
+theme_type_variation = &"SubtitleLabel"
+text = "JOURNEY"
+horizontal_alignment = 1
+
+[node name="MidSpacer" type="Control" parent="SafeArea/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="PlayButton" type="Button" parent="SafeArea/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(620, 150)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Play"
+
+[node name="BottomSpacer" type="Control" parent="SafeArea/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.35
+mouse_filter = 2

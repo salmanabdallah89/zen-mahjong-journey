@@ -1,0 +1,832 @@
+{
+  "product": "Zen Mahjong Journey",
+  "asset_pack_version": "1.0",
+  "palette": {
+    "ivory": "#F6EEDF",
+    "sage": "#91A88C",
+    "sakura": "#E8B4BD",
+    "gold": "#C7A56A",
+    "forest": "#354F44",
+    "night": "#273B50"
+  },
+  "screens_are_reference_only": true,
+  "backgrounds_are_flat_images": true,
+  "files": [
+    {
+      "path": "backgrounds/bg_misty_temple.png",
+      "size": [
+        941,
+        1672
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "backgrounds/bg_sakura_garden.png",
+      "size": [
+        941,
+        1672
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "backgrounds/bg_bamboo_forest.png",
+      "size": [
+        941,
+        1672
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "backgrounds/bg_moonlight_sanctuary.png",
+      "size": [
+        941,
+        1672
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "backgrounds/bg_golden_sakura.png",
+      "size": [
+        941,
+        1672
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "progression/node_available.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "progression/node_complete.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "progression/node_locked.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "effects/petal_07.png",
+      "size": [
+        96,
+        96
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "effects/petal_05.png",
+      "size": [
+        96,
+        96
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "effects/petal_02.png",
+      "size": [
+        96,
+        96
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "effects/petal_00.png",
+      "size": [
+        96,
+        96
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "effects/petal_06.png",
+      "size": [
+        96,
+        96
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "effects/petal_04.png",
+      "size": [
+        96,
+        96
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "effects/petal_03.png",
+      "size": [
+        96,
+        96
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "effects/petal_01.png",
+      "size": [
+        96,
+        96
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "branding/app_icon_concept.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "branding/app_icon_preview_512.png",
+      "size": [
+        512,
+        512
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_characters_6.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_characters_9.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_bamboo_4.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_bamboo_7.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_dragons_red.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_winds_north.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_characters_7.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_dragons_green.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_characters_4.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_characters_2.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_seasons_winter.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_seasons_autumn.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_bamboo_6.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_characters_1.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_winds_east.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_flowers_bamboo.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_dots_1.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_dots_6.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_dots_4.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_winds_west.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_characters_5.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_dots_9.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_dots_7.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_dots_3.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_winds_south.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_bamboo_2.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_flowers_chrysanthemum.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_characters_3.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_dots_5.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_bamboo_3.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_seasons_summer.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_dots_2.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_characters_8.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_bamboo_9.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_seasons_spring.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_bamboo_5.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_bamboo_1.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_flowers_orchid.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_dragons_white.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_bamboo_8.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_flowers_plum.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/faces/tile_dots_8.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/backs/tile_back_night.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/backs/tile_back_forest.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "tiles/backs/tile_back_sage.png",
+      "size": [
+        192,
+        240
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/panels/panel_hud_empty.png",
+      "size": [
+        850,
+        130
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/panels/panel_header_empty.png",
+      "size": [
+        900,
+        160
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/panels/panel_reward_empty.png",
+      "size": [
+        600,
+        180
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/panels/panel_modal_empty.png",
+      "size": [
+        780,
+        1050
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/icons/icon_plus.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/icons/icon_trophy.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/icons/icon_lock.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/icons/icon_gift.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/icons/icon_back.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/icons/icon_info.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/icons/icon_calendar.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/icons/icon_pause.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/icons/icon_check.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/icons/icon_shop.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/icons/icon_settings.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/icons/icon_close.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/icons/icon_undo.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/icons/icon_sound_on.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/icons/icon_music.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/icons/icon_hint.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/icons/icon_home.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/icons/icon_sound_off.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/icons/icon_replay.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/icons/icon_heart.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/icons/icon_coin.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/icons/icon_shuffle.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/icons/icon_star.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/icons/icon_play.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/icons/icon_next.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/buttons/btn_small_secondary_empty.png",
+      "size": [
+        220,
+        100
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/buttons/btn_secondary_empty.png",
+      "size": [
+        480,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/buttons/btn_small_primary_empty.png",
+      "size": [
+        220,
+        100
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/buttons/btn_circle_empty.png",
+      "size": [
+        128,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "ui/buttons/btn_primary_empty.png",
+      "size": [
+        480,
+        128
+      ],
+      "type": "runtime_asset"
+    },
+    {
+      "path": "screens/reference_only/level_complete_mockup.png",
+      "size": [
+        941,
+        1672
+      ],
+      "type": "reference"
+    },
+    {
+      "path": "screens/reference_only/gameplay_screen_mockup.png",
+      "size": [
+        941,
+        1672
+      ],
+      "type": "reference"
+    },
+    {
+      "path": "screens/reference_only/journey_screen_mockup.png",
+      "size": [
+        941,
+        1672
+      ],
+      "type": "reference"
+    },
+    {
+      "path": "screens/reference_only/home_screen_mockup.png",
+      "size": [
+        941,
+        1672
+      ],
+      "type": "reference"
+    },
+    {
+      "path": "screens/reference_only/asset_style_reference.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "type": "reference"
+    }
+  ]
+}

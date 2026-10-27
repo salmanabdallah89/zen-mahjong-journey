@@ -1,0 +1,36 @@
+# Godot 4 editor cache and imported resources (regenerated on open)
+.godot/
+.import/
+
+# Android build template installed by Project > Install Android Build Template
+/android/
+
+# Export output
+/build/
+/export/
+*.apk
+*.aab
+*.apks
+*.idsig
+*.pck
+*.zip
+
+# Signing keys and secrets - never commit
+*.keystore
+*.jks
+*.p12
+export_credentials.cfg
+.env
+
+# Godot editor / crash artifacts
+*.translation
+*.tmp
+mono_crash.*.json
+logs/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
