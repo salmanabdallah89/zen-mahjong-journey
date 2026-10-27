@@ -1,6 +1,7 @@
 [gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/screens/startup_screen.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/components/audio_settings.tscn" id="5_settings"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/bg_golden_sakura.png" id="2_bg"]
 [ext_resource type="Script" path="res://scripts/components/safe_area_container.gd" id="3_safe"]
 [ext_resource type="PackedScene" path="res://scenes/components/collection_picker.tscn" id="4_picker"]
@@ -137,6 +138,19 @@ size_flags_horizontal = 4
 theme_type_variation = &"SecondaryButton"
 text = "Tile Collection"
 
+[node name="ButtonGap2" type="Control" parent="SafeArea/Layout"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="SettingsButton" type="Button" parent="SafeArea/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(620, 136)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"SecondaryButton"
+text = "Settings"
+
 [node name="BottomSpacer" type="Control" parent="SafeArea/Layout"]
 layout_mode = 2
 size_flags_vertical = 3
@@ -144,6 +158,11 @@ size_flags_stretch_ratio = 0.35
 mouse_filter = 2
 
 [node name="CollectionPicker" parent="." instance=ExtResource("4_picker")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+
+[node name="AudioSettings" parent="." instance=ExtResource("5_settings")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 1

@@ -1,0 +1,177 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/components/audio_settings_panel.gd" id="1_panel"]
+
+[node name="AudioSettings" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_panel")
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.15294118, 0.23137255, 0.3137255, 0.7)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Panel" type="PanelContainer" parent="Center"]
+custom_minimum_size = Vector2(900, 0)
+layout_mode = 2
+theme_type_variation = &"ModalPanel"
+
+[node name="Content" type="VBoxContainer" parent="Center/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 30
+
+[node name="Title" type="Label" parent="Center/Panel/Content"]
+layout_mode = 2
+theme_type_variation = &"DialogTitleLabel"
+text = "Settings"
+horizontal_alignment = 1
+
+[node name="MusicRow" type="VBoxContainer" parent="Center/Panel/Content"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="MusicHeader" type="HBoxContainer" parent="Center/Panel/Content/MusicRow"]
+layout_mode = 2
+
+[node name="MusicLabel" type="Label" parent="Center/Panel/Content/MusicRow/MusicHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"DialogBodyLabel"
+text = "Music"
+
+[node name="MusicValue" type="Label" parent="Center/Panel/Content/MusicRow/MusicHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HudCaptionLabel"
+theme_override_font_sizes/font_size = 34
+text = "70%"
+
+[node name="MusicSlider" type="HSlider" parent="Center/Panel/Content/MusicRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 0.7
+
+[node name="SfxRow" type="VBoxContainer" parent="Center/Panel/Content"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="SfxHeader" type="HBoxContainer" parent="Center/Panel/Content/SfxRow"]
+layout_mode = 2
+
+[node name="SfxLabel" type="Label" parent="Center/Panel/Content/SfxRow/SfxHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"DialogBodyLabel"
+text = "Sound Effects"
+
+[node name="SfxValue" type="Label" parent="Center/Panel/Content/SfxRow/SfxHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HudCaptionLabel"
+theme_override_font_sizes/font_size = 34
+text = "70%"
+
+[node name="SfxSlider" type="HSlider" parent="Center/Panel/Content/SfxRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 0.7
+
+[node name="AmbienceRow" type="VBoxContainer" parent="Center/Panel/Content"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="AmbienceHeader" type="HBoxContainer" parent="Center/Panel/Content/AmbienceRow"]
+layout_mode = 2
+
+[node name="AmbienceLabel" type="Label" parent="Center/Panel/Content/AmbienceRow/AmbienceHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"DialogBodyLabel"
+text = "Nature Ambience"
+
+[node name="AmbienceValue" type="Label" parent="Center/Panel/Content/AmbienceRow/AmbienceHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HudCaptionLabel"
+theme_override_font_sizes/font_size = 34
+text = "70%"
+
+[node name="AmbienceSlider" type="HSlider" parent="Center/Panel/Content/AmbienceRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 0.7
+
+[node name="VibrationRow" type="HBoxContainer" parent="Center/Panel/Content"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="VibrationLabel" type="Label" parent="Center/Panel/Content/VibrationRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"DialogBodyLabel"
+text = "Vibration"
+
+[node name="VibrationToggle" type="Button" parent="Center/Panel/Content/VibrationRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(250, 110)
+layout_mode = 2
+theme_type_variation = &"ToggleButton"
+toggle_mode = true
+text = "Off"
+
+[node name="MuteRow" type="HBoxContainer" parent="Center/Panel/Content"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="MuteLabel" type="Label" parent="Center/Panel/Content/MuteRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"DialogBodyLabel"
+text = "All Sound"
+
+[node name="MuteToggle" type="Button" parent="Center/Panel/Content/MuteRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(250, 110)
+layout_mode = 2
+theme_type_variation = &"ToggleButton"
+toggle_mode = true
+text = "Off"
+
+[node name="Gap" type="Control" parent="Center/Panel/Content"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="BackButton" type="Button" parent="Center/Panel/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(560, 136)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Back"

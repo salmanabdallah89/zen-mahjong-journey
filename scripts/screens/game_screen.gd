@@ -38,6 +38,7 @@ var _blocked_explanations := 0
 @onready var _toast_label: Label = %ToastLabel
 @onready var _dialog: ModalDialog = %Dialog
 @onready var _picker: CollectionPicker = %CollectionPicker
+@onready var _settings: AudioSettingsPanel = %AudioSettings
 
 
 func _ready() -> void:
@@ -46,10 +47,15 @@ func _ready() -> void:
 	_hint_button.pressed.connect(_on_hint_pressed)
 	_shuffle_button.pressed.connect(_on_shuffle_pressed)
 	_undo_button.pressed.connect(_on_undo_pressed)
+	# These buttons play their own sound, and only when the action succeeds.
+	for button in [_hint_button, _shuffle_button, _undo_button]:
+		button.set_meta("custom_sound", true)
 	_toast.hide()
 	_dialog.hide()
 	_picker.hide()
 	_picker.closed.connect(_on_picker_closed)
+	_settings.hide()
+	_settings.closed.connect(_on_picker_closed)
 	TileCollectionManager.collection_changed.connect(_on_collection_changed)
 	_start_level()
 
@@ -68,6 +74,8 @@ func _start_level() -> void:
 		GameSession.go_home()
 		return
 	_background.texture = load(_level.background_path())
+	AudioManager.play_music("gameplay")
+	AudioManager.set_ambience(AudioCatalog.AMBIENCE_FOR_BACKGROUND.get(_level.background, AudioCatalog.MENU_AMBIENCE))
 	var geometry := _level.load_layout().build_geometry()
 	var deal := BoardGenerator.generate(geometry, _level.face_pool(), _level.deal_seed)
 	if not deal.ok:
@@ -91,7 +99,7 @@ func _start_level() -> void:
 
 
 func _on_tile_pressed(index: int) -> void:
-	if _dialog.visible or _picker.visible or _model.is_cleared():
+	if _dialog.visible or _picker.visible or _settings.visible or _model.is_cleared():
 		return
 	if not _model.is_free(index):
 		_explain_blocked(index)
@@ -104,12 +112,14 @@ func _on_tile_pressed(index: int) -> void:
 		_remove_pair(_selected, index)
 		return
 	_set_selected(index)
+	AudioManager.play_sfx("tile_select")
 
 
 ## Shakes a blocked tile and outlines what is blocking it, including tiles
 ## hidden beneath raised ones. The first few times, a message says why.
 func _explain_blocked(index: int) -> void:
 	_board.tile(index).play_blocked_nudge()
+	AudioManager.play_sfx("tile_blocked")
 	var blockers := _model.blockers(index)
 	var covered := false
 	var hidden_blocker := false
@@ -144,6 +154,10 @@ func _remove_pair(a: int, b: int) -> void:
 	_board.play_removal(a, b)
 	_board.refresh_free_states()
 	_update_hud()
+	AudioManager.vibrate()
+	# The last pair is celebrated by the level-complete sound instead.
+	if not _model.is_cleared():
+		AudioManager.play_sfx("tile_match")
 	if _model.is_cleared():
 		_show_level_complete.call_deferred()
 	elif not _model.has_moves():
@@ -171,6 +185,7 @@ func _on_hint_pressed() -> void:
 	_board.set_highlight(pair.x, TileView.Highlight.HINT)
 	_board.set_highlight(pair.y, TileView.Highlight.HINT)
 	_hints_used += 1
+	AudioManager.play_sfx("hint")
 
 
 func _on_shuffle_pressed() -> void:
@@ -183,6 +198,7 @@ func _on_shuffle_pressed() -> void:
 	_undo_stack.append({"kind": UndoKind.SHUFFLE, "faces": _model.faces.duplicate()})
 	_model.set_faces(result.faces)
 	_shuffles += 1
+	AudioManager.play_sfx("shuffle")
 	_set_selected(-1)
 	_clear_hint()
 	_board.refresh_all()
@@ -194,6 +210,7 @@ func _on_undo_pressed() -> void:
 	if _undo_stack.is_empty():
 		return
 	var entry: Dictionary = _undo_stack.pop_back()
+	AudioManager.play_sfx("undo")
 	_set_selected(-1)
 	_clear_hint()
 	if entry["kind"] == UndoKind.MATCH:
@@ -237,9 +254,14 @@ func _open_pause_menu() -> void:
 	_pause_began_ms = Time.get_ticks_msec()
 	_dialog.open("Paused", "Level %d · %s" % [_level.number, _level.title])
 	_dialog.add_action("Resume", _resume, true)
+	_dialog.add_action("Settings", _open_settings)
 	_dialog.add_action("Tile Collection", _open_collection_picker)
 	_dialog.add_action("Restart", _restart)
 	_dialog.add_action("Home", GameSession.go_home)
+
+
+func _open_settings() -> void:
+	_settings.open("Return to Game")
 
 
 func _open_collection_picker() -> void:
@@ -283,6 +305,8 @@ func _show_no_moves() -> void:
 
 
 func _show_level_complete() -> void:
+	AudioManager.play_sfx("level_complete")
+	AudioManager.duck_music_for(3.0)
 	var seconds := int((Time.get_ticks_msec() - _started_ms - _paused_ms) / 1000.0)
 	var summary := "%s cleared in %d:%02d\n%s · %s · %s" % [
 		_level.title, floori(seconds / 60.0), seconds % 60, _count(_matches, "match", "matches"),

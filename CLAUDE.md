@@ -18,7 +18,8 @@ GODOT --headless --editor --path . --quit   # editor opens: no script/resource e
 GODOT --headless --path . --quit-after 120  # main scene runs
 GODOT --headless --path . -s res://tests/run_tests.gd                      # unit tests (exit 1 on failure)
 GODOT --headless --path . res://tests/integration/playthrough_test.tscn    # plays levels via simulated clicks
-GODOT --path . res://tests/visual/capture_screens.tscn -- <scratch_dir>    # screenshots at 3 screen shapes; look at them
+GODOT --headless --path . res://tests/integration/audio_test.tscn         # music, sound events, settings
+GODOT --path . --audio-driver Dummy res://tests/visual/capture_screens.tscn -- <scratch_dir>    # screenshots; look at them
 ```
 Grep the output for `ERROR`, `WARNING`, `SCRIPT ERROR`, `Parse Error`. The unit runner cannot
 detect a `SCRIPT ERROR` raised inside a test, so grep its output as well. A fresh clone shows
@@ -141,6 +142,11 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
   `TileCollectionManager` (selection, save/restore, cache, `collection_changed`, Classic fallback).
   The board never depends on the collection. Full design: `docs/TILE_COLLECTIONS.md`. Fixture
   collections in `tests/fixtures/collections/` are test-only stand-ins; never ship or show them.
+- **Audio:** autoload `AudioManager` (buses Master/Music/Ambience/SFX/UI in
+  `default_bus_layout.tres`; sound ids in `AudioCatalog`). Call `AudioManager.play_sfx(id)` only
+  after an action succeeds. Buttons get a click automatically; set meta `custom_sound` on buttons
+  that play their own sound. Headless runs don't start playback (no device) but keep all state.
+  File checklist: `docs/AUDIO_ASSETS.md`.
 - **Randomness:** only `RandomNumberGenerator` seeded from level data. Never `randi()`,
   `Array.shuffle()` or other global-RNG calls in core code, or deals stop being reproducible.
 - **GDScript pitfall:** a Packed*Array stored in a Dictionary/Array is a copy. Appending to the
@@ -164,6 +170,8 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
 2c. ✅ Tile collections: architecture, six manifests, picker (start screen + pause), save/restore,
    fallbacks, tests. Premium pack integrated: Animals, Alphabet, Mixed enabled; Fruits and
    Vegetables unavailable until look-alike symbols are replaced (docs/TILE_COLLECTIONS.md).
+2d. ✅ Audio: AudioManager, buses, settings panel (menu + pause), all sound events wired, tests.
+   Generated SFX + waterfall/wind; music and birds awaiting files (docs/AUDIO_ASSETS.md).
 3. Home screen (Play / Daily Challenge / Journey Map / Settings / Shop as real Controls).
 4. Journey map with progression nodes, save/load of progress.
 5. Settings (music, SFX, vibration), audio, petal effects.

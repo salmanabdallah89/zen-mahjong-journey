@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=25 format=3]
+[gd_resource type="Theme" load_steps=30 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/ui/buttons/btn_primary_empty.png" id="1_primary"]
 [ext_resource type="Texture2D" path="res://assets/ui/buttons/btn_secondary_empty.png" id="2_secondary"]
@@ -186,6 +186,60 @@ corner_radius_bottom_left = 28
 shadow_color = Color(0.93, 0.76, 0.42, 0.55)
 shadow_size = 18
 
+[sub_resource type="StyleBoxFlat" id="Slider_track"]
+content_margin_top = 14.0
+content_margin_bottom = 14.0
+bg_color = Color(0.86, 0.8, 0.68, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.78039217, 0.64705884, 0.41568628, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="Slider_fill"]
+content_margin_top = 14.0
+content_margin_bottom = 14.0
+bg_color = Color(0.20784314, 0.30980393, 0.26666668, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.78039217, 0.64705884, 0.41568628, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="Gradient" id="Grabber_gradient"]
+offsets = PackedFloat32Array(0, 0.62, 0.7, 0.86, 0.92)
+colors = PackedColorArray(1, 0.93, 0.72, 1, 0.93, 0.76, 0.42, 1, 0.78, 0.6, 0.32, 1, 0.78, 0.6, 0.32, 1, 0.78, 0.6, 0.32, 0)
+
+[sub_resource type="GradientTexture2D" id="Grabber_texture"]
+gradient = SubResource("Grabber_gradient")
+width = 64
+height = 64
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="StyleBoxFlat" id="Toggle_on"]
+bg_color = Color(0.20784314, 0.30980393, 0.26666668, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.93, 0.76, 0.42, 1)
+corner_radius_top_left = 40
+corner_radius_top_right = 40
+corner_radius_bottom_right = 40
+corner_radius_bottom_left = 40
+content_margin_left = 24.0
+content_margin_right = 24.0
+
 [resource]
 default_font = SubResource("SystemFont_body")
 default_font_size = 44
@@ -282,3 +336,19 @@ CollectionCard/styles/hover = SubResource("Card_normal")
 CollectionCard/styles/hover_pressed = SubResource("Card_pressed")
 CollectionCard/styles/normal = SubResource("Card_normal")
 CollectionCard/styles/pressed = SubResource("Card_pressed")
+HSlider/icons/grabber = SubResource("Grabber_texture")
+HSlider/icons/grabber_highlight = SubResource("Grabber_texture")
+HSlider/styles/grabber_area = SubResource("Slider_fill")
+HSlider/styles/grabber_area_highlight = SubResource("Slider_fill")
+HSlider/styles/slider = SubResource("Slider_track")
+ToggleButton/base_type = &"Button"
+ToggleButton/colors/font_color = Color(0.20784314, 0.30980393, 0.26666668, 1)
+ToggleButton/colors/font_hover_color = Color(0.20784314, 0.30980393, 0.26666668, 1)
+ToggleButton/colors/font_pressed_color = Color(0.9647059, 0.93333334, 0.8745098, 1)
+ToggleButton/colors/font_hover_pressed_color = Color(0.9647059, 0.93333334, 0.8745098, 1)
+ToggleButton/font_sizes/font_size = 44
+ToggleButton/styles/focus = SubResource("Focus_empty")
+ToggleButton/styles/hover = SubResource("Card_normal")
+ToggleButton/styles/hover_pressed = SubResource("Toggle_on")
+ToggleButton/styles/normal = SubResource("Card_normal")
+ToggleButton/styles/pressed = SubResource("Toggle_on")

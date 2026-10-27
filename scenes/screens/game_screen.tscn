@@ -1,6 +1,7 @@
 [gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://scripts/screens/game_screen.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/components/audio_settings.tscn" id="11_settings"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/bg_golden_sakura.png" id="2_bg"]
 [ext_resource type="Script" path="res://scripts/components/safe_area_container.gd" id="3_safe"]
 [ext_resource type="Script" path="res://scripts/components/board_view.gd" id="4_board"]
@@ -248,6 +249,11 @@ visible = false
 layout_mode = 1
 
 [node name="CollectionPicker" parent="." instance=ExtResource("10_picker")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+
+[node name="AudioSettings" parent="." instance=ExtResource("11_settings")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 1

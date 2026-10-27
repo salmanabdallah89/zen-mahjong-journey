@@ -53,6 +53,13 @@ func _capture_collections() -> void:
 	start_picker.highlight("fruits")
 	await _wait(0.2)
 	await _save("phone_9x16_collection_picker_needs_fixes")
+	start_picker.hide()
+	await _save("phone_9x16_startup_menu")
+	var settings: AudioSettingsPanel = startup.get_node("%AudioSettings")
+	settings.open()
+	await _wait(0.4)
+	await _save("phone_9x16_settings")
+	settings.hide()
 	startup.queue_free()
 	await _frames(2)
 
