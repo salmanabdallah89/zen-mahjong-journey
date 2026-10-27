@@ -94,7 +94,8 @@ tests/unit/        test_*.gd run by tests/run_tests.gd (TestCase base in tests/t
 tests/integration/ playthrough_test.tscn: plays the real game screen with simulated clicks
 tests/visual/      capture_screens.tscn: screenshot tool
 themes/            Theme resources
-docs/              reference material + KNOWN_ISSUES.md, ignored by Godot
+data/tile_art/     tile art collection manifests (classic_v1.json is the temporary pack)
+docs/              reference material, KNOWN_ISSUES.md, TILE_ART_SPEC.md, ignored by Godot
 ```
 Export note (for the Android step): JSON in `data/` is not a Godot resource. Add `data/*` to the
 export preset's "non-resource files" filter, and exclude `tests/*` from the export.
@@ -116,8 +117,12 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
 
 ## Architecture
 - **Core (`scripts/core/`, no Nodes, fully unit-tested):**
-  - `TileCatalog`: face IDs, suits, match groups (flowers match any flower, seasons any season),
-    texture paths, and the art-verified flag.
+  - `TileCatalog`: face IDs, suits, match groups (flowers match any flower, seasons any season).
+    Rules only, no art.
+  - `TileArtSet`: the active tile art collection, loaded from a manifest in `data/tile_art/` chosen
+    by project setting `zen_mahjong/tiles/art_set`. Maps face ID to PNG, gives image/body/face
+    rects, grid overlap, layer raise and which faces are unverified. Spec: `docs/TILE_ART_SPEC.md`.
+    Never hardcode tile PNG paths or tile pixel sizes anywhere else.
   - `BoardLayout`: loads and validates JSON shapes. `BoardGeometry` holds positions in
     half-tile units (a tile covers x..x+2, y..y+2 on layer z) plus precomputed cover/left/right
     neighbours.
@@ -134,8 +139,11 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
 - **GDScript pitfall:** a Packed*Array stored in a Dictionary/Array is a copy. Appending to the
   fetched value does not update the container. Use plain `Array` values for grouping.
 - **Views:** `BoardView` builds `TileView`s (draw order: z, then y, then x; each layer shifted
-  up-left) and scales the board to fit its rect. `TileView` hit-tests only the top face of the
-  art and stops taking input as soon as its removal starts.
+  up-left), adds a soft backdrop and an effects layer, and scales the board to fit
+  (`MAX_FACE_WIDTH` caps small boards, `FIT_WIDTH`/`FIT_HEIGHT` keep the garden visible).
+  `TileView` layers: drop shadow, then the face, an ivory veil (blocked) and a glow (gold =
+  selected with lift, sakura pulse = hint). It hit-tests only `face_rect` and stops taking input
+  as soon as its removal starts. `MatchBurst` plays the gold flash and petals on a match.
 - **Screen:** `game_screen.gd` orchestrates the model, view, HUD, tools, undo stack and dialogs.
   Rules stay in the core.
 - Add new autoloads (SaveManager, AudioManager, a router with fades) only when a feature needs them.
@@ -144,6 +152,8 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
 1. ✅ Project setup, portrait config, theme, startup screen.
 2. ✅ Milestone 1: playable solitaire with 10 seeded, verified levels, HUD, Hint / Shuffle / Undo,
    pause, level complete, unit + integration tests.
+2b. ✅ Board polish (depth, shadows, ivory veil, gold glow, match effects, sizing) and the tile art
+   manifest system. Premium tile art pending from the artist.
 3. Home screen (Play / Daily Challenge / Journey Map / Settings / Shop as real Controls).
 4. Journey map with progression nodes, save/load of progress.
 5. Settings (music, SFX, vibration), audio, petal effects.
@@ -151,8 +161,8 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
 7. Monetization (AdMob), only when explicitly requested.
 
 ## Known asset issues
-See `docs/KNOWN_ISSUES.md`. In short: 24 tile faces (characters, winds, red/green dragons) have
-missing CJK glyphs and are excluded from boards via `TileCatalog.UNVERIFIED_ART_SUITS`, with the
-white dragon pending review. `icon_shuffle.png` is broken (vector stand-in in use), several other
+See `docs/KNOWN_ISSUES.md`. In short: 15 tile faces (characters, winds, red/green dragons) have
+missing CJK glyphs and are excluded from boards through `unverified_faces` in the tile art
+manifest, with the white dragon also held back pending review. `icon_shuffle.png` is broken (vector stand-in in use), several other
 icons don't match their names, the logo is only baked into `bg_sakura_garden.png`, and no
 fonts or audio are supplied.

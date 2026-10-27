@@ -32,9 +32,10 @@ func test_difficulty_increases() -> void:
 func test_levels_use_only_verified_art() -> void:
 	for level in LevelCatalog.levels():
 		var pool := level.face_pool()
+		assert_true(_suit_count(pool) >= 3, "level %d mixes at least three suits" % level.number)
 		assert_false(pool.is_empty(), "level %d has faces" % level.number)
 		for face in pool:
-			assert_true(TileCatalog.is_art_verified(face), "level %d avoids defective art (%s)" % [level.number, face])
+			assert_true(TileArtSet.active().is_verified(face), "level %d avoids defective art (%s)" % [level.number, face])
 		assert_true(ResourceLoader.exists(level.background_path()), "level %d background exists" % level.number)
 
 
@@ -79,3 +80,10 @@ func _distinct(faces: PackedStringArray) -> int:
 	for face in faces:
 		seen[face] = true
 	return seen.size()
+
+
+func _suit_count(faces: PackedStringArray) -> int:
+	var suits := {}
+	for face in faces:
+		suits[TileCatalog.suit_of(face)] = true
+	return suits.size()

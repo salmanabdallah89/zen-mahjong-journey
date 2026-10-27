@@ -107,9 +107,3 @@ func test_available_matches_lists_free_pairs_only() -> void:
 	var matches := model.available_matches()
 	assert_eq(matches.size(), 1, "only the two free ends form a match")
 	assert_eq(matches[0], Vector2i(0, 2), "the free ends")
-
-
-func test_all_face_textures_exist() -> void:
-	for face in TileCatalog.all_faces():
-		assert_true(ResourceLoader.exists(TileCatalog.face_texture_path(face)), "texture for %s" % face)
-	assert_eq(TileCatalog.all_faces().size(), 42, "42 face IDs")

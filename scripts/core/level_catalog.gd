@@ -17,8 +17,17 @@ class LevelDefinition extends RefCounted:
 	func load_layout() -> BoardLayout:
 		return BoardLayout.load_json(layout_path)
 
-	func face_pool() -> PackedStringArray:
-		return TileCatalog.faces_for_suits(suits)
+	## Faces this level deals from: its suits, minus any face whose artwork the
+	## active tile collection marks as unverified.
+	## Changing a face's verified flag changes the deals of levels using its suit.
+	func face_pool(art: TileArtSet = null) -> PackedStringArray:
+		if art == null:
+			art = TileArtSet.active()
+		var pool := PackedStringArray()
+		for face in TileCatalog.faces_for_suits(suits):
+			if art.is_verified(face):
+				pool.append(face)
+		return pool
 
 	func background_path() -> String:
 		return BACKGROUND_PATTERN % background

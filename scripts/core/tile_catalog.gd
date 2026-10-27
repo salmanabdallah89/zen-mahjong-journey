@@ -1,11 +1,8 @@
 class_name TileCatalog
 extends RefCounted
-## Every tile face the game knows: its suit, match group, art and whether that
-## art has been verified as correct. Face IDs are the PNG names without the
-## "tile_" prefix (e.g. "bamboo_3", "winds_east").
-
-const FACE_TEXTURE_PATTERN := "res://assets/tiles/faces/tile_%s.png"
-const BACK_TEXTURE_PATTERN := "res://assets/tiles/backs/tile_back_%s.png"
+## The rules side of tile faces: every face ID, its suit and its match group.
+## Face IDs are suit_rank strings (e.g. "bamboo_3", "winds_east"). Artwork is
+## not described here. TileArtSet maps face IDs to images.
 
 ## Suits whose tiles match any other tile of the same suit (not just copies).
 const GROUP_MATCH_SUITS: PackedStringArray = ["flowers", "seasons"]
@@ -22,11 +19,6 @@ const SUIT_FACES := {
 	"flowers": ["flowers_plum", "flowers_orchid", "flowers_chrysanthemum", "flowers_bamboo"],
 	"seasons": ["seasons_spring", "seasons_summer", "seasons_autumn", "seasons_winter"],
 }
-
-## Suits whose supplied art is known to be wrong: the CJK glyph rendered as an
-## empty box. They are excluded from generated boards until the art is
-## replaced (see docs/KNOWN_ISSUES.md). Remove a suit here once its art is fixed.
-const UNVERIFIED_ART_SUITS: PackedStringArray = ["characters", "winds", "dragons"]
 
 
 static func all_faces() -> PackedStringArray:
@@ -55,27 +47,12 @@ static func faces_match(a: String, b: String) -> bool:
 	return match_group(a) == match_group(b)
 
 
-static func is_art_verified(face_id: String) -> bool:
-	return not UNVERIFIED_ART_SUITS.has(suit_of(face_id))
-
-
-## Faces available for boards built from the given suits. Faces with
-## unverified art are left out unless explicitly requested.
-static func faces_for_suits(suits: PackedStringArray, include_unverified := false) -> PackedStringArray:
+static func faces_for_suits(suits: PackedStringArray) -> PackedStringArray:
 	var result := PackedStringArray()
 	for suit in suits:
 		if not SUIT_FACES.has(suit):
 			push_error("TileCatalog: unknown suit '%s'" % suit)
 			continue
 		for face: String in SUIT_FACES[suit]:
-			if include_unverified or is_art_verified(face):
-				result.append(face)
+			result.append(face)
 	return result
-
-
-static func face_texture_path(face_id: String) -> String:
-	return FACE_TEXTURE_PATTERN % face_id
-
-
-static func back_texture_path(style: String) -> String:
-	return BACK_TEXTURE_PATTERN % style

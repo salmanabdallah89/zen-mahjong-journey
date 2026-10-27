@@ -53,3 +53,7 @@ renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
 textures/canvas_textures/default_texture_filter=1
 environment/defaults/default_clear_color=Color(0.20784314, 0.30980393, 0.26666668, 1)
+
+[zen_mahjong]
+
+tiles/art_set="res://data/tile_art/classic_v1.json"

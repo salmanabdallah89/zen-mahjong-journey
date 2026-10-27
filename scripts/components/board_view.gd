@@ -1,22 +1,27 @@
 class_name BoardView
 extends Control
-## Renders a BoardModel as TileView nodes and scales the whole board to fit
-## whatever space this Control is given. Forwards tile presses by index.
+## Renders a BoardModel as TileView nodes and scales the whole board to fit the
+## space this Control is given, leaving the garden visible around it. Tile
+## spacing and layer raise come from the active TileArtSet. Forwards tile
+## presses by index and plays match effects.
 
 signal tile_pressed(index: int)
 
 const TILE_SCENE := preload("res://scenes/components/tile_view.tscn")
-## Distance between half-tile grid steps, in tile-art pixels. Slightly less
-## than the face size so neighbouring tiles sit snugly over each other's edge.
-const HALF_STEP := Vector2(80, 100)
-## Each layer is drawn up and to the left so stacks read as raised.
-const LAYER_SHIFT := Vector2(-12, -16)
-const MAX_SCALE := 1.25
-const FIT_PADDING := 0.96
+const BURST_SCENE := preload("res://scenes/components/match_burst.tscn")
+## Largest on-screen width of a tile's top face, in canvas pixels. Keeps small
+## boards from filling the screen.
+const MAX_FACE_WIDTH := 148.0
+## Share of the available width / height the board may use.
+const FIT_WIDTH := 0.9
+const FIT_HEIGHT := 0.94
 
 var _model: BoardModel
+var _art: TileArtSet
 var _tiles: Array[TileView] = []
 var _layer: Control
+var _backdrop: TextureRect
+var _effects: Control
 var _content := Rect2()
 
 
@@ -26,6 +31,7 @@ func _ready() -> void:
 
 func show_board(model: BoardModel) -> void:
 	_model = model
+	_art = TileArtSet.active()
 	if _layer:
 		_layer.queue_free()
 	_layer = Control.new()
@@ -35,25 +41,48 @@ func show_board(model: BoardModel) -> void:
 
 	_tiles.clear()
 	_tiles.resize(model.tile_count())
+	var top_layer := 0
+	for p in model.geometry.positions:
+		top_layer = maxi(top_layer, p.z)
 	var order := range(model.tile_count())
 	order.sort_custom(_draws_before)
+
+	_backdrop = TextureRect.new()
+	_backdrop.texture = _backdrop_texture()
+	_backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_layer.add_child(_backdrop)
+
 	_content = Rect2()
 	for i: int in order:
-		var tile: TileView = TILE_SCENE.instantiate()
-		tile.index = i
-		tile.position = tile_origin(i)
-		tile.pressed.connect(_on_tile_pressed)
-		_layer.add_child(tile)
-		_tiles[i] = tile
-		var rect := Rect2(tile.position, TileView.TILE_SIZE)
+		var view: TileView = TILE_SCENE.instantiate()
+		view.index = i
+		view.position = tile_origin(i)
+		view.pressed.connect(_on_tile_pressed)
+		_layer.add_child(view)
+		view.set_layer(model.geometry.positions[i].z, top_layer)
+		_tiles[i] = view
+		var rect := Rect2(view.position + _art.body_rect.position, _art.body_rect.size)
 		_content = rect if _content.size == Vector2.ZERO else _content.merge(rect)
+
+	var pad := _content.size * 0.18
+	_backdrop.position = _content.position - pad
+	_backdrop.size = _content.size + pad * 2.0
+
+	_effects = Control.new()
+	_effects.name = "Effects"
+	_effects.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_effects.z_index = 2
+	_layer.add_child(_effects)
+
 	refresh_all()
 	_fit()
 
 
 func tile_origin(index: int) -> Vector2:
 	var p := _model.geometry.positions[index]
-	return Vector2(p.x * HALF_STEP.x, p.y * HALF_STEP.y) + LAYER_SHIFT * p.z
+	var step := _art.half_step()
+	return Vector2(p.x * step.x, p.y * step.y) + _art.layer_shift * p.z
 
 
 func tile(index: int) -> TileView:
@@ -68,11 +97,11 @@ func refresh_all() -> void:
 			view.hide()
 			continue
 		view.reset_visual()
-		view.set_face(_face_texture(_model.face_of(i)))
-	refresh_free_states()
+		view.set_face(_art.face_texture(_model.face_of(i)))
+		view.set_free(_model.is_free(i), false)
 
 
-## Updates only the blocked/free tint of tiles still on the board.
+## Updates only the blocked/free look of tiles still on the board.
 func refresh_free_states() -> void:
 	for i in _tiles.size():
 		if not _model.is_removed(i):
@@ -90,22 +119,31 @@ func clear_highlights() -> void:
 
 
 func play_removal(a: int, b: int) -> void:
-	_tiles[a].play_removal()
-	_tiles[b].play_removal()
+	for i in [a, b]:
+		var view := _tiles[i]
+		view.play_removal()
+		var burst: Node2D = BURST_SCENE.instantiate()
+		burst.position = view.position + view.face_center()
+		_effects.add_child(burst)
 
 
 func play_restore(a: int, b: int) -> void:
 	for i in [a, b]:
-		_tiles[i].set_face(_face_texture(_model.face_of(i)))
+		_tiles[i].set_face(_art.face_texture(_model.face_of(i)))
 		_tiles[i].play_restore()
 	refresh_free_states()
+
+
+## On-screen width of one tile's top face, in canvas pixels.
+func face_width_on_screen() -> float:
+	return _layer.scale.x * _art.face_rect.size.x if _layer else 0.0
 
 
 func _fit() -> void:
 	if not _layer or _content.size == Vector2.ZERO or size.x <= 0.0 or size.y <= 0.0:
 		return
-	var fit := minf(size.x / _content.size.x, size.y / _content.size.y) * FIT_PADDING
-	var board_scale := minf(fit, MAX_SCALE)
+	var fit := minf(size.x * FIT_WIDTH / _content.size.x, size.y * FIT_HEIGHT / _content.size.y)
+	var board_scale := minf(fit, MAX_FACE_WIDTH / _art.face_rect.size.x)
 	_layer.scale = Vector2(board_scale, board_scale)
 	_layer.position = (size - _content.size * board_scale) / 2.0 - _content.position * board_scale
 
@@ -122,8 +160,20 @@ func _draws_before(a: int, b: int) -> bool:
 	return pa.x < pb.x
 
 
-func _face_texture(face_id: String) -> Texture2D:
-	return load(TileCatalog.face_texture_path(face_id))
+## Soft dark pool of shade under the board so tiles stand out from busy art.
+static func _backdrop_texture() -> GradientTexture2D:
+	var gradient := Gradient.new()
+	gradient.offsets = PackedFloat32Array([0.0, 0.55, 1.0])
+	gradient.colors = PackedColorArray([Color(0.1, 0.14, 0.13, 0.42),
+		Color(0.1, 0.14, 0.13, 0.26), Color(0.1, 0.14, 0.13, 0.0)])
+	var texture := GradientTexture2D.new()
+	texture.gradient = gradient
+	texture.fill = GradientTexture2D.FILL_RADIAL
+	texture.fill_from = Vector2(0.5, 0.5)
+	texture.fill_to = Vector2(1.0, 0.5)
+	texture.width = 128
+	texture.height = 128
+	return texture
 
 
 func _on_tile_pressed(view: TileView) -> void:

@@ -24,6 +24,8 @@ func _ready() -> void:
 	await _test_tools_and_pause(3)
 	await _test_full_playthrough(10)
 	await _test_responsive_layout(10)
+	await _test_small_board_keeps_margins(1)
+	await _test_alternate_art_set(2)
 	for failure in _failures:
 		print("  FAIL  " + failure)
 	print("playthrough: %d checks, %d failed" % [_checks, _failures.size()])
@@ -133,9 +135,9 @@ func _test_responsive_layout(level_number: int) -> void:
 		var model: BoardModel = screen.get("_model")
 		for i in model.tile_count():
 			var view := board.tile(i)
-			var r := view.get_global_transform() * Rect2(Vector2.ZERO, TileView.TILE_SIZE)
+			var r := view.get_global_transform() * TileArtSet.active().body_rect
 			tiles_rect = r if tiles_rect.size == Vector2.ZERO else tiles_rect.merge(r)
-		var tile_width := board.tile(0).get_global_transform().get_scale().x * TileView.FACE_RECT.size.x
+		var tile_width := board.face_width_on_screen()
 		_check(board_rect.grow(1.0).encloses(tiles_rect), "%s: all tiles inside the board area" % shape)
 		_check(not tiles_rect.intersects(hud.get_global_rect()), "%s: tiles clear of the HUD" % shape)
 		_check(not tiles_rect.intersects(toolbar.get_global_rect()), "%s: tiles clear of the toolbar" % shape)
@@ -144,6 +146,54 @@ func _test_responsive_layout(level_number: int) -> void:
 	_frame.size = SCREEN_SHAPES[0]
 	screen.queue_free()
 	await _frames(2)
+
+
+func _test_small_board_keeps_margins(level_number: int) -> void:
+	var screen := await _open_level(level_number)
+	var board: BoardView = screen.get_node("%Board")
+	for shape in SCREEN_SHAPES:
+		_frame.size = shape
+		await _frames(3)
+		_check(board.face_width_on_screen() <= BoardView.MAX_FACE_WIDTH + 0.5,
+			"%s: level %d tiles capped at %.0f px" % [shape, level_number, BoardView.MAX_FACE_WIDTH])
+		var model: BoardModel = screen.get("_model")
+		var tiles_rect := Rect2()
+		for i in model.tile_count():
+			var r := board.tile(i).get_global_transform() * TileArtSet.active().body_rect
+			tiles_rect = r if tiles_rect.size == Vector2.ZERO else tiles_rect.merge(r)
+		_check(tiles_rect.size.x <= shape.x * 0.9, "%s: garden visible beside the board" % shape)
+		var center_offset := absf(tiles_rect.get_center().x - shape.x / 2.0)
+		_check(center_offset < 4.0, "%s: board centred (%.1f px off)" % [shape, center_offset])
+	_frame.size = SCREEN_SHAPES[0]
+	screen.queue_free()
+	await _frames(2)
+
+
+## Swaps in a differently laid out tile collection and plays a level through,
+## proving art can be replaced without touching gameplay code.
+func _test_alternate_art_set(level_number: int) -> void:
+	var original := TileArtSet.active()
+	var alt := TileArtSet.load_manifest("res://tests/fixtures/alt_tile_art.json")
+	TileArtSet.set_active(alt)
+	var screen := await _open_level(level_number)
+	var board: BoardView = screen.get_node("%Board")
+	var model: BoardModel = screen.get("_model")
+	var raised := -1
+	for i in model.tile_count():
+		if model.geometry.positions[i].z > 0:
+			raised = i
+			break
+	var p := model.geometry.positions[raised]
+	var expected := Vector2(p.x * alt.half_step().x, p.y * alt.half_step().y) + alt.layer_shift * p.z
+	_check(board.tile(raised).position == expected, "alternate art: layout uses its spacing and layer raise")
+	var deal := _expected_deal(level_number)
+	for pair in deal.solution:
+		await _click_tile(screen, pair.x)
+		await _click_tile(screen, pair.y)
+	_check(model.is_cleared(), "alternate art: level %d still playable by clicking" % level_number)
+	screen.queue_free()
+	await _frames(2)
+	TileArtSet.set_active(original)
 
 
 func _open_level(level_number: int) -> Control:
@@ -162,7 +212,7 @@ func _expected_deal(level_number: int) -> BoardGenerator.Result:
 func _click_tile(screen: Control, index: int) -> void:
 	var board: BoardView = screen.get_node("%Board")
 	var view := board.tile(index)
-	await _click_at(view.get_global_transform() * TileView.FACE_RECT.get_center())
+	await _click_at(view.get_global_transform() * view.face_center())
 
 
 func _click_control(control: Control) -> void:

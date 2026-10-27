@@ -25,8 +25,44 @@ func _ready() -> void:
 		if shape == "phone_9x16":
 			for level in [3, 5, 8, 10]:
 				await _capture_level(shape, level, false)
+	get_window().size = SHAPES["phone_9x16"]
+	await _measure_frame_times(10)
 	print("Screenshots written to ", ProjectSettings.globalize_path(_out_dir))
 	get_tree().quit()
+
+
+## Plays matches on a level for a few seconds while timing every frame, then
+## prints average FPS and the slowest frame. Vsync stays on, as on devices.
+func _measure_frame_times(number: int) -> void:
+	GameSession.current_level = number
+	var screen: Control = GAME_SCENE.instantiate()
+	add_child(screen)
+	await _wait(0.5)
+	var level := LevelCatalog.get_level(number)
+	var deal := BoardGenerator.generate(level.load_layout().build_geometry(), level.face_pool(), level.deal_seed)
+	var frame_times: Array[float] = []
+	var last := Time.get_ticks_usec()
+	var next_move := 0
+	var started := last
+	while Time.get_ticks_usec() - started < 6_000_000:
+		await get_tree().process_frame
+		var now := Time.get_ticks_usec()
+		frame_times.append((now - last) / 1000.0)
+		last = now
+		# One match every ~0.3 s keeps tweens and particles running throughout.
+		if next_move < deal.solution.size() and frame_times.size() % 18 == 0:
+			screen.call("_on_tile_pressed", deal.solution[next_move].x)
+			screen.call("_on_tile_pressed", deal.solution[next_move].y)
+			next_move += 1
+	frame_times.sort()
+	var total := 0.0
+	for t in frame_times:
+		total += t
+	var p99 := frame_times[int(frame_times.size() * 0.99)]
+	print("PERF level %d: %d frames, avg %.1f fps, 99th pct frame %.1f ms, worst %.1f ms, %d matches" % [
+		number, frame_times.size(), 1000.0 * frame_times.size() / total, p99, frame_times[-1], next_move])
+	screen.queue_free()
+	await _frames(2)
 
 
 func _capture_startup(shape: String) -> void:
@@ -53,6 +89,17 @@ func _capture_level(shape: String, number: int, with_states: bool) -> void:
 		screen.call("_on_tile_pressed", matches[-1].x)
 		await _wait(0.3)
 		await _save("%s_level%02d_selected" % [shape, number])
+		var level_def := LevelCatalog.get_level(number)
+		var first: Vector2i = BoardGenerator.generate(level_def.load_layout().build_geometry(),
+			level_def.face_pool(), level_def.deal_seed).solution[0]
+		screen.call("_set_selected", -1)
+		screen.call("_on_tile_pressed", first.x)
+		screen.call("_on_tile_pressed", first.y)
+		await _wait(0.16)
+		await _save("%s_level%02d_match_effect" % [shape, number])
+		await _wait(0.6)
+		screen.call("_on_undo_pressed")
+		await _wait(0.3)
 		screen.call("_open_pause_menu")
 		await _wait(0.4)
 		await _save("%s_level%02d_paused" % [shape, number])

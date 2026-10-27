@@ -1,0 +1,17 @@
+{
+	"_comment": "Test fixture: a different tile collection layout (other spacing, layer raise, file mapping) reusing the v1 PNGs, used to prove collections can be swapped without code changes.",
+	"id": "test_alt",
+	"name": "Test alternate collection",
+	"image_size": [192, 240],
+	"body_rect": [8, 8, 172, 220],
+	"face_rect": [8, 8, 162, 204],
+	"grid_overlap": [-6, -6],
+	"layer_shift": [-20, -26],
+	"face_folder": "res://assets/tiles/faces/",
+	"face_file_pattern": "tile_{face}.png",
+	"face_overrides": {"bamboo_1": "res://assets/tiles/faces/tile_bamboo_1.png"},
+	"unverified_faces": [],
+	"back_folder": "res://assets/tiles/backs/",
+	"back_file_pattern": "tile_back_{style}.png",
+	"backs": ["forest"]
+}

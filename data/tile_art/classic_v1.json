@@ -1,0 +1,22 @@
+{
+	"_comment": "Temporary tile collection from asset pack v1. See docs/TILE_ART_SPEC.md for the format and for how to install a replacement collection.",
+	"id": "classic_v1",
+	"name": "Asset pack v1 (temporary)",
+	"image_size": [192, 240],
+	"body_rect": [8, 8, 172, 220],
+	"face_rect": [8, 8, 162, 204],
+	"grid_overlap": [2, 4],
+	"layer_shift": [-12, -18],
+	"face_folder": "res://assets/tiles/faces/",
+	"face_file_pattern": "tile_{face}.png",
+	"face_overrides": {},
+	"unverified_faces": [
+		"characters_1", "characters_2", "characters_3", "characters_4", "characters_5",
+		"characters_6", "characters_7", "characters_8", "characters_9",
+		"winds_east", "winds_south", "winds_west", "winds_north",
+		"dragons_red", "dragons_green", "dragons_white"
+	],
+	"back_folder": "res://assets/tiles/backs/",
+	"back_file_pattern": "tile_back_{style}.png",
+	"backs": ["forest", "night", "sage"]
+}

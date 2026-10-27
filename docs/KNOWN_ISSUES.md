@@ -7,7 +7,7 @@ code changes are needed beyond the flags noted below.
 ## 1. Mahjong tiles with missing CJK glyphs (replacement pending)
 
 The pack's generator could not render Chinese characters, so an empty box (□, "tofu") was drawn
-where the glyph should be. 24 face images are affected; 1 more needs review.
+where the glyph should be. 15 face images are affected (9 characters, 4 winds, 2 dragons); the white dragon needs review.
 
 | Face file | Should show | Currently shows |
 |-----------|-------------|-----------------|
@@ -21,13 +21,15 @@ where the glyph should be. 24 face images are affected; 1 more needs review.
 | `tile_dragons_white.png` | white dragon (blank/framed) | green square frame — **review**: may be intended, but matches the defective style |
 
 How the game handles this today:
-- `TileCatalog.UNVERIFIED_ART_SUITS` lists `characters`, `winds`, `dragons`. Generated boards
-  exclude those faces, so the 10 introductory levels use only bamboo, dots, flowers and seasons.
+- The active tile collection's manifest (`data/tile_art/classic_v1.json`) lists these 16 faces
+  under `unverified_faces`. Generated boards exclude them. Levels already request characters,
+  dragons and winds, so they appear automatically once corrected art is installed and flagged
+  verified.
 - Nothing is substituted. No font-rendered or redrawn glyph is shown in place of the art.
-- `tests/unit/test_levels.gd::test_levels_use_only_verified_art` enforces this.
+- `test_levels.gd::test_levels_use_only_verified_art` and `test_tile_art.gd` enforce this.
 
-When corrected art arrives: replace the PNGs in `assets/tiles/faces/`, review them, remove the
-suit from `UNVERIFIED_ART_SUITS`, then add the suit to levels in `data/levels/levels.json`.
+When corrected art arrives, follow `docs/TILE_ART_SPEC.md`: install it as a new collection
+(or replace these PNGs under the same names), then remove the faces from `unverified_faces`.
 
 ## 2. UI icons
 

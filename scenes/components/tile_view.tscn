@@ -3,27 +3,34 @@
 [ext_resource type="Script" path="res://scripts/components/tile_view.gd" id="1_tile"]
 
 [node name="TileView" type="Control"]
-custom_minimum_size = Vector2(192, 240)
 layout_mode = 3
 anchors_preset = 0
-offset_right = 192.0
-offset_bottom = 240.0
 script = ExtResource("1_tile")
 
-[node name="Face" type="TextureRect" parent="."]
+[node name="Shadow" type="Panel" parent="."]
 unique_name_in_owner = true
 layout_mode = 0
-offset_right = 192.0
-offset_bottom = 240.0
 mouse_filter = 2
 
-[node name="Outline" type="Panel" parent="."]
+[node name="Lift" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+mouse_filter = 2
+
+[node name="Face" type="TextureRect" parent="Lift"]
+unique_name_in_owner = true
+texture_filter = 4
+layout_mode = 0
+mouse_filter = 2
+
+[node name="Veil" type="Panel" parent="Lift"]
+unique_name_in_owner = true
+layout_mode = 0
+mouse_filter = 2
+
+[node name="Glow" type="Panel" parent="Lift"]
 unique_name_in_owner = true
 visible = false
 z_index = 1
 layout_mode = 0
-offset_left = 8.0
-offset_top = 8.0
-offset_right = 170.0
-offset_bottom = 212.0
 mouse_filter = 2
