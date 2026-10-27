@@ -1,5 +1,5 @@
 {
-	"_comment": "Introductory levels in order. Faces the active tile art set marks as unverified (data/tile_art/*.json) are filtered out at deal time, so characters, dragons and winds appear automatically once corrected art is installed.",
+	"_comment": "Introductory levels in order. Faces the active tile art set marks as unverified (data/tile_art/*.json) are filtered out at deal time, so characters, dragons and winds appear automatically once corrected art is installed. time_limit: seconds on the clock; mistakes: how many non-matching pairs the player may pick before the level is lost.",
 	"levels": [
 		{
 			"title": "Lotus Pond",
@@ -12,7 +12,9 @@
 				"dragons",
 				"flowers"
 			],
-			"background": "bg_golden_sakura"
+			"background": "bg_golden_sakura",
+			"time_limit": 180,
+			"mistakes": 5
 		},
 		{
 			"title": "Stepping Stones",
@@ -25,7 +27,9 @@
 				"dragons",
 				"flowers"
 			],
-			"background": "bg_golden_sakura"
+			"background": "bg_golden_sakura",
+			"time_limit": 210,
+			"mistakes": 5
 		},
 		{
 			"title": "Bamboo Grove",
@@ -39,7 +43,9 @@
 				"flowers",
 				"seasons"
 			],
-			"background": "bg_bamboo_forest"
+			"background": "bg_bamboo_forest",
+			"time_limit": 240,
+			"mistakes": 5
 		},
 		{
 			"title": "Quiet Path",
@@ -53,7 +59,9 @@
 				"flowers",
 				"seasons"
 			],
-			"background": "bg_bamboo_forest"
+			"background": "bg_bamboo_forest",
+			"time_limit": 270,
+			"mistakes": 4
 		},
 		{
 			"title": "Pagoda",
@@ -67,7 +75,9 @@
 				"flowers",
 				"seasons"
 			],
-			"background": "bg_misty_temple"
+			"background": "bg_misty_temple",
+			"time_limit": 300,
+			"mistakes": 4
 		},
 		{
 			"title": "Mountain Shrine",
@@ -81,7 +91,9 @@
 				"flowers",
 				"seasons"
 			],
-			"background": "bg_misty_temple"
+			"background": "bg_misty_temple",
+			"time_limit": 330,
+			"mistakes": 4
 		},
 		{
 			"title": "Koi Garden",
@@ -96,7 +108,9 @@
 				"seasons",
 				"winds"
 			],
-			"background": "bg_golden_sakura"
+			"background": "bg_golden_sakura",
+			"time_limit": 360,
+			"mistakes": 4
 		},
 		{
 			"title": "Evening Lanterns",
@@ -111,7 +125,9 @@
 				"seasons",
 				"winds"
 			],
-			"background": "bg_moonlight_sanctuary"
+			"background": "bg_moonlight_sanctuary",
+			"time_limit": 390,
+			"mistakes": 3
 		},
 		{
 			"title": "Moon Bridge",
@@ -126,7 +142,9 @@
 				"seasons",
 				"winds"
 			],
-			"background": "bg_moonlight_sanctuary"
+			"background": "bg_moonlight_sanctuary",
+			"time_limit": 420,
+			"mistakes": 3
 		},
 		{
 			"title": "Temple Summit",
@@ -141,7 +159,9 @@
 				"seasons",
 				"winds"
 			],
-			"background": "bg_misty_temple"
+			"background": "bg_misty_temple",
+			"time_limit": 480,
+			"mistakes": 3
 		}
 	]
 }

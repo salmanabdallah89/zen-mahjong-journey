@@ -19,6 +19,8 @@ place under the exact name below and it is used automatically. No code change is
 | `assets/audio/sfx/sfx_hint.wav` | ✅ generated | WAV | 1.6 s | Wind-chime flurry (A6 D7 B6 E7) |
 | `assets/audio/sfx/sfx_shuffle.wav` | ✅ generated | WAV | 0.7 s | Bamboo rattle (six knocks) over a soft whoosh |
 | `assets/audio/sfx/sfx_undo.wav` | ✅ generated | WAV | 1.0 s | Koto-style pluck stepping down (A5 to F#5) |
+| `assets/audio/sfx/sfx_mistake.wav` | ✅ generated | WAV | 0.5 s | Two dull off-key wood knocks: a wrong pair |
+| `assets/audio/sfx/sfx_level_failed.wav` | ✅ generated | WAV | 2.3 s | Gentle koto line falling to low D, soft bell |
 | `assets/audio/sfx/sfx_button_click.wav` | ✅ generated | WAV | 0.08 s | Tiny bamboo tick |
 | `assets/audio/sfx/sfx_level_complete.wav` | ✅ generated | WAV | 3.7 s | Bell run up the scale resolving on a D chord with a low koto D |
 | `assets/audio/sfx/sfx_reward.wav` | ✅ generated | WAV | 1.20 s | Bright double chime. **Not triggered yet:** the game has no rewards |

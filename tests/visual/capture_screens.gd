@@ -26,10 +26,47 @@ func _ready() -> void:
 			for level in [3, 5, 8, 10]:
 				await _capture_level(shape, level, false)
 	get_window().size = SHAPES["phone_9x16"]
+	await _capture_losing()
 	await _capture_collections()
 	await _measure_frame_times(10)
 	print("Screenshots written to ", ProjectSettings.globalize_path(_out_dir))
 	get_tree().quit()
+
+
+## Hearts, a mistake, the low-time warning and both loss popups.
+func _capture_losing() -> void:
+	GameSession.current_level = 4
+	var screen: Control = GAME_SCENE.instantiate()
+	add_child(screen)
+	await _wait(0.5)
+	var model: BoardModel = screen.get("_model")
+	var free := model.free_tiles()
+	var wrong := Vector2i(-1, -1)
+	for a in free:
+		for b in free:
+			if wrong.x < 0 and a != b and not TileCatalog.faces_match(model.faces[a], model.faces[b]):
+				wrong = Vector2i(a, b)
+	screen.call("_on_tile_pressed", wrong.x)
+	screen.call("_on_tile_pressed", wrong.y)
+	screen.set("_time_left", 24.0)
+	await _wait(0.5)
+	await _save("phone_9x16_mistake_low_time")
+	screen.set("_time_left", 0.1)
+	await _wait(0.6)
+	await _save("phone_9x16_out_of_time")
+	(screen.get_node("%Dialog") as ModalDialog).close()
+	screen.call("_restart")
+	await _wait(0.3)
+	for i in model.tile_count():
+		if int(screen.call("hearts_left")) <= 0:
+			break
+		screen.call("_on_tile_pressed", wrong.x)
+		screen.call("_on_tile_pressed", wrong.y)
+		await _wait(0.05)
+	await _wait(0.5)
+	await _save("phone_9x16_too_many_mistakes")
+	screen.queue_free()
+	await _frames(2)
 
 
 ## The collection picker and every enabled collection on real boards, plus

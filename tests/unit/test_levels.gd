@@ -2,6 +2,17 @@ extends TestCase
 ## The shipped introductory levels.
 
 
+func test_every_level_has_time_and_mistake_limits() -> void:
+	var previous_time := 0
+	for level in LevelCatalog.levels():
+		var pairs := level.load_layout().tile_count() / 2.0
+		assert_true(level.time_limit > 0 and level.mistake_limit > 0, "level %d has a clock and hearts" % level.number)
+		assert_true(level.time_limit / pairs >= 7.0,
+			"level %d allows at least 7 s per pair (%.1f)" % [level.number, level.time_limit / pairs])
+		assert_true(level.time_limit >= previous_time, "level %d gives no less time than the one before" % level.number)
+		previous_time = level.time_limit
+
+
 func test_ten_levels_defined() -> void:
 	assert_eq(LevelCatalog.count(), 10, "ten introductory levels")
 

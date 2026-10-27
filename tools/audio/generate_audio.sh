@@ -64,6 +64,10 @@ voice sfx_undo 0.9 "$(koto 880 0 0.8)+$(koto 739.99 0.11 0.8)" -5
 RUN="$(bell 587.33 0 0.5 3)+$(bell 659.26 0.09 0.5 3)+$(bell 739.99 0.18 0.5 3)+$(bell 880 0.27 0.5 3)+$(bell 987.77 0.36 0.5 3)+$(bell 1174.66 0.45 0.5 3)"
 CHORD="$(bell 587.33 0.62 0.6 1.3)+$(bell 880 0.62 0.5 1.3)+$(bell 1174.66 0.62 0.5 1.4)+$(koto 293.66 0.62 0.6)"
 voice sfx_level_complete 3.6 "$RUN+$CHORD" -3
+# Mistake: two dull off-key knocks (deliberately outside the melody's key).
+voice sfx_mistake 0.35 "$(wood 330 0 1)+$(wood 311 0.08 0.9)" -5
+# Level failed: a gentle koto line falling to the low D (A F# E D), soft bell.
+voice sfx_level_failed 2.2 "$(koto 880 0 0.7)+$(koto 739.99 0.2 0.7)+$(koto 659.26 0.4 0.7)+$(koto 587.33 0.62 0.8)+$(bell 293.66 0.62 0.35 1.6)" -6
 # Shuffle: a bamboo rattle (six irregular knocks) over a soft whoosh.
 voice .shuffle_knocks 0.6 "$(wood 1320 0 0.8)+$(wood 1050 0.05 0.7)+$(wood 1480 0.10 0.8)+$(wood 990 0.17 0.7)+$(wood 1250 0.23 0.7)+$(wood 1110 0.31 0.6)" -6
 ffmpeg -loglevel error -y -f lavfi -i "anoisesrc=c=pink:r=$R:d=0.6:a=0.5:seed=7" \

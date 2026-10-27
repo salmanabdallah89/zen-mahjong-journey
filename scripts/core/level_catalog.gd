@@ -11,6 +11,10 @@ class LevelDefinition extends RefCounted:
 	var title: String = ""
 	var layout_path: String = ""
 	var deal_seed: int = 0
+	## Seconds on the clock; the level is lost when it reaches zero.
+	var time_limit: int = 300
+	## Non-matching pairs the player may pick; the last one loses the level.
+	var mistake_limit: int = 3
 	var suits: PackedStringArray = PackedStringArray()
 	var background: String = ""
 
@@ -67,4 +71,6 @@ static func _load() -> void:
 		level.deal_seed = int(entry.get("seed", level.number))
 		level.suits = PackedStringArray(entry.get("suits", []))
 		level.background = str(entry.get("background", "bg_golden_sakura"))
+		level.time_limit = int(entry.get("time_limit", 300))
+		level.mistake_limit = int(entry.get("mistakes", 3))
 		_levels.append(level)

@@ -36,6 +36,8 @@ const EFFECTS := {
 	"shuffle": ["res://assets/audio/sfx/sfx_shuffle.wav", "SFX", 0.0, 0.25, 1],
 	"undo": ["res://assets/audio/sfx/sfx_undo.wav", "SFX", 0.0, 0.1, 2],
 	"level_complete": ["res://assets/audio/sfx/sfx_level_complete.wav", "SFX", 0.0, 1.0, 1],
+	"mistake": ["res://assets/audio/sfx/sfx_mistake.wav", "SFX", 0.0, 0.2, 1],
+	"level_failed": ["res://assets/audio/sfx/sfx_level_failed.wav", "SFX", 0.0, 1.0, 1],
 	"reward": ["res://assets/audio/sfx/sfx_reward.wav", "SFX", 0.0, 0.3, 1],
 	"unlock": ["res://assets/audio/sfx/sfx_unlock.wav", "SFX", 0.0, 0.5, 1],
 	"button_click": ["res://assets/audio/sfx/sfx_button_click.wav", "UI", 0.03, 0.04, 2],

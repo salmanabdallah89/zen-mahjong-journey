@@ -170,6 +170,9 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
 2c. ✅ Tile collections: architecture, six manifests, picker (start screen + pause), save/restore,
    fallbacks, tests. Premium pack integrated: Animals, Alphabet, Mixed and Fruits (plum held
    back) enabled; Vegetables unavailable until look-alikes are replaced (docs/TILE_COLLECTIONS.md).
+2e. ✅ Lose conditions: per-level countdown (`time_limit`) and mistake hearts (`mistakes`) in
+   levels.json; a mistake = picking two free tiles that don't match (blocked taps and deselecting
+   are free); clock runs only while playing; Out of Time / Too Many Mistakes → Retry / Home.
 2d. ✅ Audio: AudioManager, buses, settings panel (menu + pause), all sound events wired, tests.
    Generated SFX + waterfall/wind; music and birds awaiting files (docs/AUDIO_ASSETS.md).
 3. Home screen (Play / Daily Challenge / Journey Map / Settings / Shop as real Controls).

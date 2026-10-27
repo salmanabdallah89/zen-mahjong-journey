@@ -35,6 +35,7 @@ func _ready() -> void:
 	await _test_alternate_art_set(2)
 	await _test_tile_collections(2)
 	await _test_premium_collections(5)
+	await _test_time_and_mistakes(2)
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(ISOLATED_SETTINGS))
 	for failure in _failures:
 		print("  FAIL  " + failure)
@@ -372,6 +373,85 @@ func _test_premium_collections(level_number: int) -> void:
 	manager.select("classic")
 	screen.queue_free()
 	await _frames(2)
+
+
+## Losing: the clock counts down only while playing, non-matching pairs cost
+## hearts, and running out of either ends the level with Retry / Home.
+func _test_time_and_mistakes(level_number: int) -> void:
+	var level := LevelCatalog.get_level(level_number)
+	var screen := await _open_level(level_number)
+	var model: BoardModel = screen.get("_model")
+	var time_label: Label = screen.get_node("%TimeValue")
+	var dialog: ModalDialog = screen.get_node("%Dialog")
+	_check(time_label.text == "%d:%02d" % [level.time_limit / 60, level.time_limit % 60], "clock starts at the level's limit (%s)" % time_label.text)
+	_check((screen.get_node("%Hearts") as Control).get_child_count() == level.mistake_limit, "one heart per allowed mistake")
+	var start := float(screen.get("_time_left"))
+	await get_tree().create_timer(1.1).timeout
+	var after := float(screen.get("_time_left"))
+	_check(start - after > 0.9 and start - after < 1.5, "clock counts down while playing (%.2f s)" % (start - after))
+	await _click_control(screen.get_node("%PauseButton"))
+	var paused_at := float(screen.get("_time_left"))
+	await get_tree().create_timer(0.8).timeout
+	_check(absf(float(screen.get("_time_left")) - paused_at) < 0.05, "clock stops while paused")
+	(_dialog_button(dialog, "Resume") as Button).emit_signal("pressed")
+	await _frames(2)
+
+	# A wrong pair costs a heart; re-tapping the selected tile is free.
+	var wrong := _non_matching_free_pair(model)
+	_check(wrong.x >= 0, "board has two free tiles that don't match")
+	await _click_tile(screen, wrong.x)
+	await _click_tile(screen, wrong.x)
+	_check(int(screen.get("_mistakes")) == 0, "deselecting is not a mistake")
+	await _click_tile(screen, wrong.x)
+	await _click_tile(screen, wrong.y)
+	_check(int(screen.get("_mistakes")) == 1, "a non-matching pair is a mistake")
+	_check(int(screen.get("_selected")) == -1, "a mistake clears the selection")
+	_check(int(screen.call("hearts_left")) == level.mistake_limit - 1, "a heart is spent")
+	var blocked := -1
+	for i in model.tile_count():
+		if not model.is_removed(i) and not model.is_free(i):
+			blocked = i
+			break
+	await _click_tile(screen, blocked)
+	_check(int(screen.get("_mistakes")) == 1, "tapping a blocked tile is not a mistake")
+	await _click_control(screen.get_node("%UndoButton"))
+	_check(int(screen.get("_mistakes")) == 1, "undo does not refund a mistake")
+
+	for i in level.mistake_limit - 1:
+		await get_tree().create_timer(0.25).timeout
+		await _click_tile(screen, wrong.x)
+		await _click_tile(screen, wrong.y)
+	_check(dialog.visible and (dialog.get_node("%Title") as Label).text == "Too Many Mistakes", "last heart loses the level")
+	_check(_dialog_button(dialog, "Retry") != null and _dialog_button(dialog, "Home") != null, "loss offers Retry and Home")
+	var frozen := float(screen.get("_time_left"))
+	await get_tree().create_timer(0.5).timeout
+	_check(absf(float(screen.get("_time_left")) - frozen) < 0.05, "clock stops after losing")
+	await _click_control(_dialog_button(dialog, "Retry"))
+	await _frames(2)
+	_check(int(screen.get("_mistakes")) == 0 and not bool(screen.get("_failed")), "retry restores every heart")
+	_check(float(screen.get("_time_left")) > level.time_limit - 1.0, "retry restores the clock")
+	var retried: BoardModel = screen.get("_model")
+	_check(retried.remaining == retried.tile_count(), "retry deals the full board again")
+
+	# Running out of time loses the level.
+	screen.set("_time_left", 0.3)
+	await get_tree().create_timer(0.6).timeout
+	_check(dialog.visible and (dialog.get_node("%Title") as Label).text == "Out of Time", "clock reaching zero loses the level")
+	_check(time_label.text == "0:00", "clock shows 0:00")
+	var deal := _expected_deal(level_number)
+	await _click_tile(screen, deal.solution[0].x)
+	_check(int(screen.get("_selected")) == -1, "board is locked after losing")
+	screen.queue_free()
+	await _frames(2)
+
+
+func _non_matching_free_pair(model: BoardModel) -> Vector2i:
+	var free := model.free_tiles()
+	for a in free:
+		for b in free:
+			if a != b and not TileCatalog.faces_match(model.faces[a], model.faces[b]):
+				return Vector2i(a, b)
+	return Vector2i(-1, -1)
 
 
 func _all_tiles_have_art(board: BoardView, model: BoardModel) -> bool:

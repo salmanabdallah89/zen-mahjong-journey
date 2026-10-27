@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://scripts/components/safe_area_container.gd" id="3_safe"]
 [ext_resource type="Script" path="res://scripts/components/board_view.gd" id="4_board"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/icon_pause.png" id="5_pause"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/icon_heart.png" id="12_heart"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/icon_hint.png" id="6_hint"]
 [ext_resource type="Script" path="res://scripts/components/shuffle_glyph.gd" id="7_shuffle"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/icon_undo.png" id="8_undo"]
@@ -79,23 +80,23 @@ theme_type_variation = &"HudPanel"
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="TilesBox" type="VBoxContainer" parent="SafeArea/Layout/Hud/Row"]
-custom_minimum_size = Vector2(210, 0)
+[node name="TimeBox" type="VBoxContainer" parent="SafeArea/Layout/Hud/Row"]
+custom_minimum_size = Vector2(180, 0)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_constants/separation = -6
 
-[node name="TilesValue" type="Label" parent="SafeArea/Layout/Hud/Row/TilesBox"]
+[node name="TimeValue" type="Label" parent="SafeArea/Layout/Hud/Row/TimeBox"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"HudValueLabel"
-text = "0"
+text = "0:00"
 horizontal_alignment = 1
 
-[node name="TilesCaption" type="Label" parent="SafeArea/Layout/Hud/Row/TilesBox"]
+[node name="TimeCaption" type="Label" parent="SafeArea/Layout/Hud/Row/TimeBox"]
 layout_mode = 2
 theme_type_variation = &"HudCaptionLabel"
-text = "TILES LEFT"
+text = "TIME"
 horizontal_alignment = 1
 
 [node name="LevelBox" type="VBoxContainer" parent="SafeArea/Layout/Hud/Row"]
@@ -119,8 +120,26 @@ text = "LEVEL"
 horizontal_alignment = 1
 text_overrun_behavior = 3
 
+[node name="TilesBox" type="VBoxContainer" parent="SafeArea/Layout/Hud/Row"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = -6
+
+[node name="TilesValue" type="Label" parent="SafeArea/Layout/Hud/Row/TilesBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HudValueLabel"
+text = "0"
+horizontal_alignment = 1
+
+[node name="TilesCaption" type="Label" parent="SafeArea/Layout/Hud/Row/TilesBox"]
+layout_mode = 2
+theme_type_variation = &"HudCaptionLabel"
+text = "TILES"
+horizontal_alignment = 1
+
 [node name="PauseBox" type="HBoxContainer" parent="SafeArea/Layout/Hud/Row"]
-custom_minimum_size = Vector2(210, 0)
 layout_mode = 2
 alignment = 2
 
@@ -134,6 +153,20 @@ theme_type_variation = &"CircleButton"
 icon = ExtResource("5_pause")
 icon_alignment = 1
 expand_icon = true
+
+[node name="MistakesPanel" type="PanelContainer" parent="SafeArea/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+theme_type_variation = &"ToastPanel"
+
+[node name="Hearts" type="HBoxContainer" parent="SafeArea/Layout/MistakesPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 2
+alignment = 1
 
 [node name="Board" type="Control" parent="SafeArea/Layout"]
 unique_name_in_owner = true

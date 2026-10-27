@@ -38,6 +38,7 @@ func _ready() -> void:
 	await _test_settings_sliders_and_persistence()
 	await _test_rapid_tapping()
 	await _test_match_melody()
+	await _test_loss_sounds()
 	await _test_backgrounding()
 	for track: String in AudioCatalog.MUSIC.values():
 		AudioManager.use_stream(track, null)
@@ -313,6 +314,32 @@ func _test_match_melody() -> void:
 	await _wait(0.3)
 	await _click(screen.get_node("%ShuffleButton"))
 	_check(AudioManager.melody_step() == -1, "a shuffle restarts the melody")
+	screen.queue_free()
+	await _frames(2)
+
+
+## A wrong pair plays the mistake knock; losing plays the falling koto once.
+func _test_loss_sounds() -> void:
+	GameSession.current_level = 1
+	var screen: Control = GAME_SCENE.instantiate()
+	_frame.add_child(screen)
+	await _frames(3)
+	var model: BoardModel = screen.get("_model")
+	var free := model.free_tiles()
+	var wrong := Vector2i(-1, -1)
+	for a in free:
+		for b in free:
+			if wrong.x < 0 and a != b and not TileCatalog.faces_match(model.faces[a], model.faces[b]):
+				wrong = Vector2i(a, b)
+	var seq := AudioManager.event_seq
+	screen.call("_on_tile_pressed", wrong.x)
+	screen.call("_on_tile_pressed", wrong.y)
+	_check(AudioManager.count_played("mistake", seq) == 1, "a wrong pair plays the mistake sound")
+	_check(AudioManager.count_requested("tile_select", seq) == 1, "only the first tile played the select sound")
+	seq = AudioManager.event_seq
+	screen.set("_time_left", 0.2)
+	await _wait(0.5)
+	_check(AudioManager.count_played("level_failed", seq) == 1, "losing plays the level-failed sound once")
 	screen.queue_free()
 	await _frames(2)
 
