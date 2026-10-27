@@ -38,8 +38,9 @@ func test_every_shipped_collection_loads() -> void:
 
 func test_symbol_counts_cover_levels() -> void:
 	var library := TileCollectionLibrary.discover()
-	for collection_id in ["animals", "vegetables", "mixed"]:
+	for collection_id in ["animals", "mixed"]:
 		assert_eq(library.get_collection(collection_id).symbol_count(), 36, "%s can cover every match group" % collection_id)
+	assert_eq(library.get_collection("vegetables").symbol_count(), 23, "vegetables has 23 while 13 copies are held back")
 	assert_eq(library.get_collection("fruits").symbol_count(), 35, "fruits has 35 while plum is held back")
 	assert_eq(library.get_collection("alphabet").symbol_count(), 26, "alphabet has A-Z")
 	for level in LevelCatalog.levels():
@@ -58,16 +59,14 @@ func test_classic_is_complete_and_maps_every_face() -> void:
 
 func test_premium_collections_validated() -> void:
 	var library := TileCollectionLibrary.discover()
-	for collection_id in ["animals", "alphabet", "mixed", "fruits"]:
+	for collection_id in ["animals", "alphabet", "mixed", "fruits", "vegetables"]:
 		var collection := library.get_collection(collection_id)
 		assert_true(collection.is_complete(TileArtSet.active()),
 			"%s is enabled: %s" % [collection_id, ", ".join(collection.validate(TileArtSet.active()))])
-	for collection_id in ["vegetables"]:
-		var collection := library.get_collection(collection_id)
-		assert_true(collection.has_all_files(), "%s files are installed" % collection_id)
-		assert_false(collection.is_complete(TileArtSet.active()), "%s stays unavailable" % collection_id)
-		var built := TileSkin.build(collection, TileArtSet.active(), _level_faces(1), 1, _load)
-		assert_true(built.skin == null, "%s cannot be shown" % collection_id)
+	# A collection with two files holding the same picture is refused.
+	var lookalike := TileCollection.load_manifest(FIXTURES + "test_lookalike.json")
+	assert_true(lookalike.has_all_files() and not lookalike.is_complete(TileArtSet.active()), "look-alike fixture is refused")
+	assert_true(TileSkin.build(lookalike, TileArtSet.active(), _level_faces(1), 1, _load).skin == null, "look-alike fixture cannot be shown")
 
 
 func test_reused_drawings_are_detected() -> void:
@@ -82,10 +81,19 @@ func test_reused_drawings_are_detected() -> void:
 		"symbols": [{"id": "fig", "file": fruits.symbol_paths[fruits.symbol_ids.find("fig")]},
 			{"id": "plum", "file": "res://assets/collections/fruits/fruit_31_plum.png"}]})
 	assert_true(" ".join(with_plum.validate(TileArtSet.active())).contains("look the same"), "fruits: plum still looks like fig")
-	var veg_errors := "\n".join(library.get_collection("vegetables").validate(TileArtSet.active()))
-	for pair in [["red_pepper", "green_pepper"], ["radish", "chili"], ["cabbage", "lettuce"]]:
-		assert_true(veg_errors.contains("'%s' and '%s' look the same" % pair), "vegetables: %s flagged" % " / ".join(pair))
-	assert_eq(library.get_collection("vegetables").validate(TileArtSet.active()).size(), 23, "23 look-alike vegetable pairs")
+	var vegetables := library.get_collection("vegetables")
+	assert_true(vegetables.validate(TileArtSet.active()).is_empty(), "vegetables: no look-alikes left with 13 copies held back")
+	assert_eq(vegetables.held_back.size(), 13, "vegetables: 13 copies held back")
+	# The held-back copies really are look-alikes of the symbols that stay.
+	var pairs := [["kale", "asparagus"], ["cabbage", "lettuce"], ["leek", "spinach"], ["cauliflower", "broccoli"],
+		["zucchini", "cucumber"], ["radish", "chili"], ["red_pepper", "green_pepper"]]
+	for pair in pairs:
+		var copy := TileCollection.from_dict({"id": "veg_pair", "kind": "symbols", "tile_style": vegetables.tile_style_path,
+			"body": vegetables.body_path, "symbol_region": [56, 34, 144, 140], "symbols": [
+				{"id": pair[0], "file": "res://assets/collections/vegetables/%s" % _vegetable_file(pair[0])},
+				{"id": pair[1], "file": vegetables.symbol_paths[vegetables.symbol_ids.find(pair[1])]}]})
+		assert_true(" ".join(copy.validate(TileArtSet.active())).contains("look the same"),
+			"vegetables: %s is still the same picture as %s" % pair)
 
 
 func test_similar_but_different_letters_pass() -> void:
@@ -127,7 +135,7 @@ func test_flowers_share_one_symbol_in_symbol_collections() -> void:
 
 func test_no_two_match_groups_look_alike() -> void:
 	var library := _library()
-	for collection_id in ["classic", "animals", "alphabet", "mixed", "fruits", "test_symbols", "test_mixed"]:
+	for collection_id in ["classic", "animals", "alphabet", "mixed", "fruits", "vegetables", "test_symbols", "test_mixed"]:
 		var collection := library.get_collection(collection_id)
 		for level in LevelCatalog.levels():
 			var faces := _level_faces(level.number)
@@ -163,6 +171,13 @@ func test_validator_rejects_identical_pictures_under_different_names() -> void:
 			{"id": "sound_off", "file": "res://assets/ui/icons/icon_sound_off.png"}]})
 	var errors := collection.validate(TileArtSet.active())
 	assert_true(not errors.is_empty() and errors[0].contains("same picture"), "duplicate picture caught: %s" % ", ".join(errors))
+
+
+func _vegetable_file(symbol_id: String) -> String:
+	for file in DirAccess.get_files_at("res://assets/collections/vegetables/"):
+		if file.ends_with("_%s.png" % symbol_id):
+			return file
+	return ""
 
 
 func test_fixed_assignment_with_fewer_symbols_than_groups() -> void:

@@ -110,13 +110,14 @@ the tile style `data/tile_art/ivory_body_v1.json` (256 × 320, face 8,6 232 × 2
 | Alphabet | ✅ enabled | 26 distinct letters, board-ordered (boards with more than 26 groups show Classic) |
 | Mixed | ✅ enabled | 36 distinct. The pack's `mixed_27_vegetables_07.png` (red pepper) is the same picture as green pepper, so the manifest uses `vegetables/vegetable_10_potato.png` in its place |
 | Fruits | ✅ enabled | 35 distinct symbols. Batch 1 fixed 10; **plum is held back** (`held_back_symbols`) because it is still the same picture as fig |
-| Vegetables | ⛔ unavailable | 23 look-alike pairs, same cause |
+| Vegetables | ✅ enabled | 23 distinct symbols; **13 copies held back** (`held_back_symbols`) until replaced |
 
 Look-alike groups (each needs distinct art before the collection can be enabled):
 - Fruits: plum is held back (it is the same purple circle as fig); everything else is distinct.
-- Vegetables: asparagus = kale = turnip = spring onion = okra; cabbage = lettuce = bok choy =
-  brussels sprouts; spinach = leek = celery; broccoli = cauliflower; cucumber = zucchini;
-  radish = chili; red pepper = green pepper (drawn green).
+- Vegetables: held back because each is the same drawing as a symbol that stays: kale, turnip,
+  spring onion, okra (= asparagus seedling); cabbage, bok choy, brussels sprouts (= lettuce);
+  leek, celery (= spinach herb); cauliflower (= broccoli); zucchini (= cucumber); radish
+  (= chili); red pepper (= green pepper).
 
 Stand-in pictures that pass the automatic check but should be reviewed by a person: plain
 coloured circles (fruits: fig/plum, pomegranate, passionfruit; vegetables: beetroot, yellow
@@ -130,7 +131,7 @@ assignment gives each group past the end the lowest symbol the board doesn't use
 stays deterministic. When `fruit_31_plum.png` is replaced, remove `"plum"` from Fruits'
 `held_back_symbols` and run the tests.
 
-To enable Vegetables, replace the look-alike PNGs **under the same file names**
+To bring a held-back symbol back, replace its PNG **under the same file name**
 (`fruit_09_lime.png` etc.) and run the tests. The validator then passes and the collection
 appears in the picker with no manifest or code change.
 

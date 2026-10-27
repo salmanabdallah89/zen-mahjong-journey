@@ -168,8 +168,8 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
 2b. ✅ Board polish (depth, shadows, ivory veil, gold glow, match effects, sizing) and the tile art
    manifest system. Premium tile art pending from the artist.
 2c. ✅ Tile collections: architecture, six manifests, picker (start screen + pause), save/restore,
-   fallbacks, tests. Premium pack integrated: Animals, Alphabet, Mixed and Fruits (plum held
-   back) enabled; Vegetables unavailable until look-alikes are replaced (docs/TILE_COLLECTIONS.md).
+   fallbacks, tests. Premium pack integrated: all six collections enabled; Fruits holds back
+   plum and Vegetables 13 look-alike copies until replaced (docs/TILE_COLLECTIONS.md).
 2e. ✅ Lose conditions: per-level countdown (`time_limit`) and mistake hearts (`mistakes`) in
    levels.json; a mistake = picking two free tiles that don't match (blocked taps and deselecting
    are free); clock runs only while playing; Out of Time / Too Many Mistakes → Retry / Home.

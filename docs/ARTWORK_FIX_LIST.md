@@ -39,6 +39,10 @@ plum held back (`held_back_symbols` in `data/collections/fruits.json`). Send a d
 
 ### Vegetables: 14 files
 
+Vegetables is **enabled** with 13 of these held back (`held_back_symbols` in
+`data/collections/vegetables.json`); asparagus keeps the seedling picture for now. Replacing a
+file under its name brings that vegetable back: remove its id from `held_back_symbols`.
+
 | File | Should show | Currently |
 |------|-------------|-----------|
 | `vegetable_19_asparagus.png` | asparagus spears | seedling drawing |

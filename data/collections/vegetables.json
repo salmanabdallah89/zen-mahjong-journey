@@ -1,7 +1,7 @@
 {
 	"id": "vegetables",
 	"name": "Vegetables",
-	"version": 2,
+	"version": 3,
 	"order": 4,
 	"kind": "symbols",
 	"assignment": "fixed",
@@ -18,6 +18,22 @@
 		140
 	],
 	"source": "ZenMahjongJourney_PremiumCollections v1 (pictograms based on Noto Color Emoji; see assets/collections/LICENSES.md)",
+	"_held_back_symbols": "Left out until corrected art arrives: each is the same drawing as a symbol that stays (seedling = asparagus, leafy green = lettuce, herb = spinach, broccoli, cucumber, chili, green pepper). Remove an id here once its PNG is replaced (see docs/ARTWORK_FIX_LIST.md).",
+	"held_back_symbols": [
+		"kale",
+		"turnip",
+		"spring_onion",
+		"okra",
+		"cabbage",
+		"bok_choy",
+		"brussels_sprouts",
+		"leek",
+		"celery",
+		"cauliflower",
+		"zucchini",
+		"radish",
+		"red_pepper"
+	],
 	"symbols": [
 		{
 			"id": "carrot",

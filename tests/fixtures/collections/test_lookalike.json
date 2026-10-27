@@ -1,0 +1,21 @@
+{
+	"_comment": "TEST FIXTURE ONLY: two different files that hold the same picture (a real pack defect), so the collection must be refused with 'needs fixes'.",
+	"id": "test_lookalike",
+	"name": "Test Lookalike",
+	"version": 1,
+	"order": 95,
+	"kind": "symbols",
+	"description": "Test fixture.",
+	"body": "res://assets/tiles/backs/tile_back_sage.png",
+	"symbol_padding": 0.18,
+	"symbols": [
+		{
+			"id": "music",
+			"file": "res://assets/ui/icons/icon_music.png"
+		},
+		{
+			"id": "sound_off",
+			"file": "res://assets/ui/icons/icon_sound_off.png"
+		}
+	]
+}
