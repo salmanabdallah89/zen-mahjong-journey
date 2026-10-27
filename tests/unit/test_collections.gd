@@ -72,15 +72,16 @@ func test_premium_collections_validated() -> void:
 func test_reused_drawings_are_detected() -> void:
 	# Known defects in the premium pack: the same drawing with only the caption changed.
 	var library := TileCollectionLibrary.discover()
-	var fruit_errors := "
-".join(library.get_collection("fruits").validate(TileArtSet.active()))
-	for pair in [["lime", "melon"], ["fig", "plum"], ["cherries", "lychee"], ["peach", "nectarine"]]:
-		assert_true(fruit_errors.contains("'%s' and '%s' look the same" % pair), "fruits: %s flagged" % " / ".join(pair))
-	var veg_errors := "
-".join(library.get_collection("vegetables").validate(TileArtSet.active()))
+	var fruit_errors := "\n".join(library.get_collection("fruits").validate(TileArtSet.active()))
+	assert_true(fruit_errors.contains("'fig' and 'plum' look the same"), "fruits: fig / plum still flagged (plum not replaced yet)")
+	# Fixed by fruit batch 1: these must never be flagged again.
+	for fixed in ["lime", "papaya", "cantaloupe", "grapefruit", "tangerine", "lychee", "redcurrant",
+			"raspberry", "blackberry", "nectarine"]:
+		assert_false(fruit_errors.contains("'%s'" % fixed), "fruits: %s no longer looks like another fruit" % fixed)
+	var veg_errors := "\n".join(library.get_collection("vegetables").validate(TileArtSet.active()))
 	for pair in [["red_pepper", "green_pepper"], ["radish", "chili"], ["cabbage", "lettuce"]]:
 		assert_true(veg_errors.contains("'%s' and '%s' look the same" % pair), "vegetables: %s flagged" % " / ".join(pair))
-	assert_eq(library.get_collection("fruits").validate(TileArtSet.active()).size(), 16, "16 look-alike fruit pairs")
+	assert_eq(library.get_collection("fruits").validate(TileArtSet.active()).size(), 1, "1 look-alike fruit pair left (fig / plum)")
 	assert_eq(library.get_collection("vegetables").validate(TileArtSet.active()).size(), 23, "23 look-alike vegetable pairs")
 
 

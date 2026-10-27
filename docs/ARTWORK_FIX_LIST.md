@@ -17,21 +17,24 @@ once every picture is distinct, the game enables the collection automatically.
 
 ## Must replace (the game stays locked until these are distinct)
 
-### Fruits: 11 files
+### Fruits: 11 files (10 done in batch 1, plum still needed)
+
+Batch 1 (`docs/reference/fruit_fixes_batch1/`) replaced 10 of these. They pass the look-alike
+check. Only **`fruit_31_plum.png`** is still required before Fruits can be enabled.
 
 | File | Should show | Currently |
 |------|-------------|-----------|
-| `fruit_09_lime.png` | lime | melon drawing |
-| `fruit_21_papaya.png` | papaya | melon drawing |
-| `fruit_27_cantaloupe.png` | cantaloupe (cut, orange flesh, to differ from melon) | melon drawing |
-| `fruit_32_grapefruit.png` | grapefruit (halved, pink) | orange drawing |
-| `fruit_33_tangerine.png` | tangerine (small, with leaf) | orange drawing |
-| `fruit_24_lychee.png` | lychee (bumpy red shell) | cherries drawing |
-| `fruit_35_redcurrant.png` | redcurrant (cluster on a stem) | cherries drawing |
-| `fruit_25_raspberry.png` | raspberry | strawberry drawing |
-| `fruit_26_blackberry.png` | blackberry | blueberries drawing |
-| `fruit_34_nectarine.png` | nectarine (smooth, red-yellow) | peach drawing |
-| `fruit_31_plum.png` | plum | plain purple circle (same as fig) |
+| ✅ `fruit_09_lime.png` | lime | melon drawing |
+| ✅ `fruit_21_papaya.png` | papaya | melon drawing |
+| ✅ `fruit_27_cantaloupe.png` | cantaloupe (cut, orange flesh, to differ from melon) | melon drawing |
+| ✅ `fruit_32_grapefruit.png` | grapefruit (halved, pink) | orange drawing |
+| ✅ `fruit_33_tangerine.png` | tangerine (small, with leaf) | orange drawing |
+| ✅ `fruit_24_lychee.png` | lychee (bumpy red shell) | cherries drawing |
+| ✅ `fruit_35_redcurrant.png` | redcurrant (cluster on a stem) | cherries drawing |
+| ✅ `fruit_25_raspberry.png` | raspberry | strawberry drawing |
+| ✅ `fruit_26_blackberry.png` | blackberry | blueberries drawing |
+| ✅ `fruit_34_nectarine.png` | nectarine (smooth, red-yellow) | peach drawing |
+| ❌ `fruit_31_plum.png` | plum | plain purple circle (same as fig) |
 
 ### Vegetables: 14 files
 
@@ -54,6 +57,17 @@ once every picture is distinct, the game enables the collection automatically.
 
 All five seedling files are listed because the seedling drawing isn't right for any of them.
 Lettuce, spinach (see below), broccoli, cucumber, chili and green pepper keep their current pictures.
+
+## Review notes after batch 1 (70 px tiles, `docs/screenshots/fruits_70px_after_batch1.png`)
+
+These pass the automatic check but could confuse players on small phones:
+
+- **Tangerine vs orange:** both are an orange citrus with a leaf; only the drawing style differs.
+  Consider showing the tangerine peeled or in segments.
+- **Red round fruits:** apple, nectarine, persimmon (drawn as a tomato) and pomegranate (a plain
+  red circle) are all red and round with a little green on top.
+- **Mixed styles:** the batch 1 fruits are painterly and detailed; the rest of the set is flat
+  emoji-style. Side by side they don't look like one collection.
 
 ## Should replace (pass the automatic check, but are stand-ins)
 

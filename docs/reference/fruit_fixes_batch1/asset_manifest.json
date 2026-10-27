@@ -1,0 +1,60 @@
+{
+  "batch": "fruit_fixes_1",
+  "status": "10 of 11 required fruits",
+  "files": [
+    {
+      "filename": "fruit_09_lime.png",
+      "label": "Lime",
+      "relative_path": "assets/collections/fruits/fruit_09_lime.png"
+    },
+    {
+      "filename": "fruit_21_papaya.png",
+      "label": "Papaya",
+      "relative_path": "assets/collections/fruits/fruit_21_papaya.png"
+    },
+    {
+      "filename": "fruit_27_cantaloupe.png",
+      "label": "Cantaloupe",
+      "relative_path": "assets/collections/fruits/fruit_27_cantaloupe.png"
+    },
+    {
+      "filename": "fruit_32_grapefruit.png",
+      "label": "Grapefruit",
+      "relative_path": "assets/collections/fruits/fruit_32_grapefruit.png"
+    },
+    {
+      "filename": "fruit_33_tangerine.png",
+      "label": "Tangerine",
+      "relative_path": "assets/collections/fruits/fruit_33_tangerine.png"
+    },
+    {
+      "filename": "fruit_24_lychee.png",
+      "label": "Lychee",
+      "relative_path": "assets/collections/fruits/fruit_24_lychee.png"
+    },
+    {
+      "filename": "fruit_35_redcurrant.png",
+      "label": "Redcurrant",
+      "relative_path": "assets/collections/fruits/fruit_35_redcurrant.png"
+    },
+    {
+      "filename": "fruit_25_raspberry.png",
+      "label": "Raspberry",
+      "relative_path": "assets/collections/fruits/fruit_25_raspberry.png"
+    },
+    {
+      "filename": "fruit_26_blackberry.png",
+      "label": "Blackberry",
+      "relative_path": "assets/collections/fruits/fruit_26_blackberry.png"
+    },
+    {
+      "filename": "fruit_34_nectarine.png",
+      "label": "Nectarine",
+      "relative_path": "assets/collections/fruits/fruit_34_nectarine.png"
+    }
+  ],
+  "missing": [
+    "fruit_31_plum.png"
+  ],
+  "note": "14 vegetable required images not included"
+}

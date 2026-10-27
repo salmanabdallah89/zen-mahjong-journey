@@ -109,13 +109,11 @@ the tile style `data/tile_art/ivory_body_v1.json` (256 × 320, face 8,6 232 × 2
 | Cute Animals | ✅ enabled | 36 distinct symbols, fixed mapping |
 | Alphabet | ✅ enabled | 26 distinct letters, board-ordered (boards with more than 26 groups show Classic) |
 | Mixed | ✅ enabled | 36 distinct. The pack's `mixed_27_vegetables_07.png` (red pepper) is the same picture as green pepper, so the manifest uses `vegetables/vegetable_10_potato.png` in its place |
-| Fruits | ⛔ unavailable | 16 look-alike pairs: the same drawing reused with only the caption changed |
+| Fruits | ⛔ unavailable | 1 look-alike pair left: fig = plum. Batch 1 fixed the other 10 (see `ARTWORK_FIX_LIST.md`) |
 | Vegetables | ⛔ unavailable | 23 look-alike pairs, same cause |
 
 Look-alike groups (each needs distinct art before the collection can be enabled):
-- Fruits: lime = melon = papaya = cantaloupe; orange = grapefruit = tangerine;
-  cherries = lychee = redcurrant; strawberry = raspberry; blueberries = blackberry;
-  peach = nectarine; fig = plum.
+- Fruits: fig = plum (both a plain purple circle). The rest were fixed by fruit batch 1.
 - Vegetables: asparagus = kale = turnip = spring onion = okra; cabbage = lettuce = bok choy =
   brussels sprouts; spinach = leek = celery; broccoli = cauliflower; cucumber = zucchini;
   radish = chili; red pepper = green pepper (drawn green).
