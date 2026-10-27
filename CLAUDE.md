@@ -168,8 +168,8 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
 2b. ✅ Board polish (depth, shadows, ivory veil, gold glow, match effects, sizing) and the tile art
    manifest system. Premium tile art pending from the artist.
 2c. ✅ Tile collections: architecture, six manifests, picker (start screen + pause), save/restore,
-   fallbacks, tests. Premium pack integrated: Animals, Alphabet, Mixed enabled; Fruits and
-   Vegetables unavailable until look-alike symbols are replaced (docs/TILE_COLLECTIONS.md).
+   fallbacks, tests. Premium pack integrated: Animals, Alphabet, Mixed and Fruits (plum held
+   back) enabled; Vegetables unavailable until look-alikes are replaced (docs/TILE_COLLECTIONS.md).
 2d. ✅ Audio: AudioManager, buses, settings panel (menu + pause), all sound events wired, tests.
    Generated SFX + waterfall/wind; music and birds awaiting files (docs/AUDIO_ASSETS.md).
 3. Home screen (Play / Daily Challenge / Journey Map / Settings / Shop as real Controls).

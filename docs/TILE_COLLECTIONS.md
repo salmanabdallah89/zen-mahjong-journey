@@ -109,11 +109,11 @@ the tile style `data/tile_art/ivory_body_v1.json` (256 × 320, face 8,6 232 × 2
 | Cute Animals | ✅ enabled | 36 distinct symbols, fixed mapping |
 | Alphabet | ✅ enabled | 26 distinct letters, board-ordered (boards with more than 26 groups show Classic) |
 | Mixed | ✅ enabled | 36 distinct. The pack's `mixed_27_vegetables_07.png` (red pepper) is the same picture as green pepper, so the manifest uses `vegetables/vegetable_10_potato.png` in its place |
-| Fruits | ⛔ unavailable | 1 look-alike pair left: fig = plum. Batch 1 fixed the other 10 (see `ARTWORK_FIX_LIST.md`) |
+| Fruits | ✅ enabled | 35 distinct symbols. Batch 1 fixed 10; **plum is held back** (`held_back_symbols`) because it is still the same picture as fig |
 | Vegetables | ⛔ unavailable | 23 look-alike pairs, same cause |
 
 Look-alike groups (each needs distinct art before the collection can be enabled):
-- Fruits: fig = plum (both a plain purple circle). The rest were fixed by fruit batch 1.
+- Fruits: plum is held back (it is the same purple circle as fig); everything else is distinct.
 - Vegetables: asparagus = kale = turnip = spring onion = okra; cabbage = lettuce = bok choy =
   brussels sprouts; spinach = leek = celery; broccoli = cauliflower; cucumber = zucchini;
   radish = chili; red pepper = green pepper (drawn green).
@@ -124,7 +124,13 @@ pepper), a star for starfruit, a hibiscus for dragonfruit and artichoke, a tomat
 persimmon, a green apple for guava. Colour-only differences are hard to tell apart on small
 screens.
 
-To enable Fruits or Vegetables, replace the look-alike PNGs **under the same file names**
+Holding a symbol back: list its id in the manifest's `held_back_symbols`. It is then skipped
+everywhere: not shown, validated or assigned. With fewer symbols than match groups, `fixed`
+assignment gives each group past the end the lowest symbol the board doesn't use, so mapping
+stays deterministic. When `fruit_31_plum.png` is replaced, remove `"plum"` from Fruits'
+`held_back_symbols` and run the tests.
+
+To enable Vegetables, replace the look-alike PNGs **under the same file names**
 (`fruit_09_lime.png` etc.) and run the tests. The validator then passes and the collection
 appears in the picker with no manifest or code change.
 

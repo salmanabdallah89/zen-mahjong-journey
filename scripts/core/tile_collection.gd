@@ -48,6 +48,9 @@ var symbol_padding: float = 0.14
 ## Ordered symbol ids and their image paths ("symbols" kind only).
 var symbol_ids: PackedStringArray = PackedStringArray()
 var symbol_paths: PackedStringArray = PackedStringArray()
+## Symbols listed in the manifest but left out (e.g. waiting for corrected
+## art). They are not shown, validated or assigned.
+var held_back: PackedStringArray = PackedStringArray()
 
 var _errors: PackedStringArray = PackedStringArray()
 var _validated := false
@@ -78,9 +81,13 @@ static func from_dict(data: Dictionary) -> TileCollection:
 	c.tile_style_path = str(data.get("tile_style", ""))
 	var region: Array = data.get("symbol_region", [0, 0, 0, 0])
 	c.symbol_region = Rect2(float(region[0]), float(region[1]), float(region[2]), float(region[3]))
+	c.held_back = PackedStringArray(data.get("held_back_symbols", []))
 	for entry: Variant in data.get("symbols", []):
 		if entry is Dictionary:
-			c.symbol_ids.append(str((entry as Dictionary).get("id", "")))
+			var symbol_id := str((entry as Dictionary).get("id", ""))
+			if c.held_back.has(symbol_id):
+				continue
+			c.symbol_ids.append(symbol_id)
 			c.symbol_paths.append(str((entry as Dictionary).get("file", "")))
 	return c
 
@@ -233,9 +240,25 @@ func assign_symbols(faces: PackedStringArray, deal_seed: int) -> Dictionary:
 	var result := {}
 	match assignment:
 		"fixed":
+			# Group N keeps symbol N. With fewer symbols than groups, a group past
+			# the end takes the lowest symbol this board doesn't use, so the
+			# mapping stays deterministic for the board.
 			var canonical := TileCatalog.all_match_groups()
+			var used := {}
+			var overflow := PackedStringArray()
 			for group in groups:
-				result[group] = canonical.find(group)
+				var index := canonical.find(group)
+				if index < symbol_ids.size():
+					result[group] = index
+					used[index] = true
+				else:
+					overflow.append(group)
+			var spare := 0
+			for group in overflow:
+				while used.has(spare):
+					spare += 1
+				result[group] = spare
+				used[spare] = true
 		"board_ordered":
 			for k in groups.size():
 				result[groups[k]] = k

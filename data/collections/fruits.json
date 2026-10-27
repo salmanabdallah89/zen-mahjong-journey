@@ -1,7 +1,7 @@
 {
 	"id": "fruits",
 	"name": "Fruits",
-	"version": 3,
+	"version": 4,
 	"order": 3,
 	"kind": "symbols",
 	"assignment": "fixed",
@@ -18,6 +18,10 @@
 		152
 	],
 	"source": "ZenMahjongJourney_PremiumCollections v1 (pictograms based on Noto Color Emoji; see assets/collections/LICENSES.md)",
+	"_held_back_symbols": "Left out until corrected art arrives: plum is the same plain purple circle as fig. Remove it from this list once fruit_31_plum.png is replaced.",
+	"held_back_symbols": [
+		"plum"
+	],
 	"symbols": [
 		{
 			"id": "apple",

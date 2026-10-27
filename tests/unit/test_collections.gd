@@ -38,8 +38,9 @@ func test_every_shipped_collection_loads() -> void:
 
 func test_symbol_counts_cover_levels() -> void:
 	var library := TileCollectionLibrary.discover()
-	for collection_id in ["animals", "fruits", "vegetables", "mixed"]:
+	for collection_id in ["animals", "vegetables", "mixed"]:
 		assert_eq(library.get_collection(collection_id).symbol_count(), 36, "%s can cover every match group" % collection_id)
+	assert_eq(library.get_collection("fruits").symbol_count(), 35, "fruits has 35 while plum is held back")
 	assert_eq(library.get_collection("alphabet").symbol_count(), 26, "alphabet has A-Z")
 	for level in LevelCatalog.levels():
 		var needed := TileCatalog.groups_in(_level_faces(level.number)).size()
@@ -57,11 +58,11 @@ func test_classic_is_complete_and_maps_every_face() -> void:
 
 func test_premium_collections_validated() -> void:
 	var library := TileCollectionLibrary.discover()
-	for collection_id in ["animals", "alphabet", "mixed"]:
+	for collection_id in ["animals", "alphabet", "mixed", "fruits"]:
 		var collection := library.get_collection(collection_id)
 		assert_true(collection.is_complete(TileArtSet.active()),
 			"%s is enabled: %s" % [collection_id, ", ".join(collection.validate(TileArtSet.active()))])
-	for collection_id in ["fruits", "vegetables"]:
+	for collection_id in ["vegetables"]:
 		var collection := library.get_collection(collection_id)
 		assert_true(collection.has_all_files(), "%s files are installed" % collection_id)
 		assert_false(collection.is_complete(TileArtSet.active()), "%s stays unavailable" % collection_id)
@@ -72,16 +73,18 @@ func test_premium_collections_validated() -> void:
 func test_reused_drawings_are_detected() -> void:
 	# Known defects in the premium pack: the same drawing with only the caption changed.
 	var library := TileCollectionLibrary.discover()
-	var fruit_errors := "\n".join(library.get_collection("fruits").validate(TileArtSet.active()))
-	assert_true(fruit_errors.contains("'fig' and 'plum' look the same"), "fruits: fig / plum still flagged (plum not replaced yet)")
-	# Fixed by fruit batch 1: these must never be flagged again.
-	for fixed in ["lime", "papaya", "cantaloupe", "grapefruit", "tangerine", "lychee", "redcurrant",
-			"raspberry", "blackberry", "nectarine"]:
-		assert_false(fruit_errors.contains("'%s'" % fixed), "fruits: %s no longer looks like another fruit" % fixed)
+	var fruits := library.get_collection("fruits")
+	assert_true(fruits.validate(TileArtSet.active()).is_empty(), "fruits: no look-alikes left (batch 1 + plum held back)")
+	assert_true(fruits.held_back.has("plum") and not fruits.symbol_ids.has("plum"), "fruits: plum held back until replaced")
+	# Plum is still the same picture as fig: held back for a real reason.
+	var with_plum := TileCollection.from_dict({"id": "fruits_with_plum", "kind": "symbols",
+		"tile_style": fruits.tile_style_path, "body": fruits.body_path, "symbol_region": [52, 28, 154, 152],
+		"symbols": [{"id": "fig", "file": fruits.symbol_paths[fruits.symbol_ids.find("fig")]},
+			{"id": "plum", "file": "res://assets/collections/fruits/fruit_31_plum.png"}]})
+	assert_true(" ".join(with_plum.validate(TileArtSet.active())).contains("look the same"), "fruits: plum still looks like fig")
 	var veg_errors := "\n".join(library.get_collection("vegetables").validate(TileArtSet.active()))
 	for pair in [["red_pepper", "green_pepper"], ["radish", "chili"], ["cabbage", "lettuce"]]:
 		assert_true(veg_errors.contains("'%s' and '%s' look the same" % pair), "vegetables: %s flagged" % " / ".join(pair))
-	assert_eq(library.get_collection("fruits").validate(TileArtSet.active()).size(), 1, "1 look-alike fruit pair left (fig / plum)")
 	assert_eq(library.get_collection("vegetables").validate(TileArtSet.active()).size(), 23, "23 look-alike vegetable pairs")
 
 
@@ -124,7 +127,7 @@ func test_flowers_share_one_symbol_in_symbol_collections() -> void:
 
 func test_no_two_match_groups_look_alike() -> void:
 	var library := _library()
-	for collection_id in ["classic", "animals", "alphabet", "mixed", "test_symbols", "test_mixed"]:
+	for collection_id in ["classic", "animals", "alphabet", "mixed", "fruits", "test_symbols", "test_mixed"]:
 		var collection := library.get_collection(collection_id)
 		for level in LevelCatalog.levels():
 			var faces := _level_faces(level.number)
@@ -160,6 +163,25 @@ func test_validator_rejects_identical_pictures_under_different_names() -> void:
 			{"id": "sound_off", "file": "res://assets/ui/icons/icon_sound_off.png"}]})
 	var errors := collection.validate(TileArtSet.active())
 	assert_true(not errors.is_empty() and errors[0].contains("same picture"), "duplicate picture caught: %s" % ", ".join(errors))
+
+
+func test_fixed_assignment_with_fewer_symbols_than_groups() -> void:
+	# 3 symbols, fixed: groups 0-2 keep their own symbol; a later group takes
+	# the lowest symbol this board doesn't use. Never an index past the list.
+	var short := TileCollection.from_dict({"id": "short", "kind": "symbols", "assignment": "fixed",
+		"symbols": [{"id": "a", "file": "x"}, {"id": "b", "file": "y"}, {"id": "c", "file": "z"}]})
+	var faces := PackedStringArray(["bamboo_1", "bamboo_3", "seasons_spring"])
+	var mapping := short.assign_symbols(faces, 1)
+	assert_eq(mapping.get("bamboo_1"), 0, "group 0 keeps symbol 0")
+	assert_eq(mapping.get("bamboo_3"), 2, "group 2 keeps symbol 2")
+	assert_eq(mapping.get("seasons"), 1, "seasons (group 35) takes the unused symbol 1")
+	assert_eq(short.assign_symbols(faces, 999), mapping, "same mapping for the same board")
+	assert_true(short.assign_symbols(PackedStringArray(["bamboo_1", "bamboo_2", "bamboo_3", "bamboo_4"]), 1).is_empty(),
+		"a board needing more symbols than exist is refused")
+	var fruits := TileCollectionLibrary.discover().get_collection("fruits")
+	for level in LevelCatalog.levels():
+		for index: int in fruits.assign_symbols(_level_faces(level.number), level.deal_seed).values():
+			assert_true(index >= 0 and index < fruits.symbol_count(), "fruits level %d uses a real symbol (%d)" % [level.number, index])
 
 
 func test_fixed_assignment_is_the_same_on_every_board() -> void:

@@ -242,7 +242,7 @@ func _test_tile_collections(level_number: int) -> void:
 		await _click_control(open_picker)
 	var picker: CollectionPicker = screen.get_node("%CollectionPicker")
 	_check(picker.visible, "picker opens from the pause menu")
-	picker.highlight("fruits")
+	picker.highlight("vegetables")
 	await _frames(2)
 	_check((picker.get_node("%ApplyButton") as Button).disabled, "collections with invalid art cannot be applied")
 	picker.highlight("test_symbols")
@@ -267,7 +267,7 @@ func _test_tile_collections(level_number: int) -> void:
 	_check(board.skin().symbol_texture(model.faces[first.x]) == symbol_of, "same symbol for the same tile after undoing shuffle")
 
 	# Unavailable choices are refused with a message.
-	_check(not manager.select("fruits") and manager.take_notice().contains("needs fixes"), "invalid art refused with a message")
+	_check(not manager.select("vegetables") and manager.take_notice().contains("needs fixes"), "invalid art refused with a message")
 	_check(not manager.select("test_broken"), "broken collection refused")
 	_check(manager.selected_id == "test_symbols", "refusals leave the choice unchanged")
 
@@ -327,7 +327,7 @@ func _test_premium_collections(level_number: int) -> void:
 	var faces_before := model.faces.duplicate()
 	var removed_before := model.removed.duplicate()
 
-	for collection_id in ["animals", "alphabet", "mixed"]:
+	for collection_id in ["animals", "alphabet", "mixed", "fruits"]:
 		_check(manager.select(collection_id), "premium: %s can be applied" % collection_id)
 		await _frames(3)
 		_check(board.skin().collection_id == collection_id, "premium: board shows %s" % collection_id)
@@ -341,7 +341,7 @@ func _test_premium_collections(level_number: int) -> void:
 		_check(flower_keys.size() == 1, "premium: %s shows one symbol for all flowers" % collection_id)
 		_check(board.face_width_on_screen() <= BoardView.MAX_FACE_WIDTH + 0.5, "premium: %s respects tile size cap" % collection_id)
 
-	for collection_id in ["fruits", "vegetables"]:
+	for collection_id in ["vegetables"]:
 		_check(not manager.select(collection_id), "premium: %s refused (look-alike symbols)" % collection_id)
 		manager.take_notice()
 

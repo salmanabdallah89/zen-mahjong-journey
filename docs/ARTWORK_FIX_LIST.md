@@ -19,8 +19,9 @@ once every picture is distinct, the game enables the collection automatically.
 
 ### Fruits: 11 files (10 done in batch 1, plum still needed)
 
-Batch 1 (`docs/reference/fruit_fixes_batch1/`) replaced 10 of these. They pass the look-alike
-check. Only **`fruit_31_plum.png`** is still required before Fruits can be enabled.
+Batch 1 (`docs/reference/fruit_fixes_batch1/`) replaced 10 of these. Fruits is **enabled** with
+plum held back (`held_back_symbols` in `data/collections/fruits.json`). Send a distinct
+**`fruit_31_plum.png`** to bring plum back. Then remove it from `held_back_symbols`.
 
 | File | Should show | Currently |
 |------|-------------|-----------|

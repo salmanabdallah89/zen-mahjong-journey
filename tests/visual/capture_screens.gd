@@ -63,7 +63,7 @@ func _capture_collections() -> void:
 	startup.queue_free()
 	await _frames(2)
 
-	for collection_id in ["classic", "animals", "alphabet", "mixed"]:
+	for collection_id in ["classic", "animals", "alphabet", "mixed", "fruits"]:
 		manager.select(collection_id)
 		for number in [5, 10]:
 			GameSession.current_level = number
