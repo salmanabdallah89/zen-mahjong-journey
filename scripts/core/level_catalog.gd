@@ -15,6 +15,8 @@ class LevelDefinition extends RefCounted:
 	var time_limit: int = 300
 	## Non-matching pairs the player may pick; the last one loses the level.
 	var mistake_limit: int = 3
+	## 1 Easy, 2 Medium, 3 Hard, 4 Expert.
+	var difficulty: int = 1
 	var suits: PackedStringArray = PackedStringArray()
 	var background: String = ""
 
@@ -73,4 +75,5 @@ static func _load() -> void:
 		level.background = str(entry.get("background", "bg_golden_sakura"))
 		level.time_limit = int(entry.get("time_limit", 300))
 		level.mistake_limit = int(entry.get("mistakes", 3))
+		level.difficulty = int(entry.get("difficulty", 1))
 		_levels.append(level)

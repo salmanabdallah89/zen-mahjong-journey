@@ -31,7 +31,7 @@ mouse_filter = 2
 
 [node name="Panel" type="PanelContainer" parent="Center"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(760, 0)
+custom_minimum_size = Vector2(860, 0)
 layout_mode = 2
 theme_type_variation = &"ModalPanel"
 
@@ -41,14 +41,24 @@ theme_override_constants/separation = 28
 
 [node name="Title" type="Label" parent="Center/Panel/Content"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(700, 0)
 layout_mode = 2
 theme_type_variation = &"DialogTitleLabel"
 text = "Title"
 horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Stars" type="HBoxContainer" parent="Center/Panel/Content"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
 
 [node name="Message" type="Label" parent="Center/Panel/Content"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(600, 0)
+custom_minimum_size = Vector2(700, 0)
 layout_mode = 2
 theme_type_variation = &"DialogBodyLabel"
 text = "Message"

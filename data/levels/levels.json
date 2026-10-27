@@ -1,5 +1,5 @@
 {
-	"_comment": "Introductory levels in order. Faces the active tile art set marks as unverified (data/tile_art/*.json) are filtered out at deal time, so characters, dragons and winds appear automatically once corrected art is installed. time_limit: seconds on the clock; mistakes: how many non-matching pairs the player may pick before the level is lost.",
+	"_comment": "Introductory levels in order. Faces the active tile art set marks as unverified (data/tile_art/*.json) are filtered out at deal time, so characters, dragons and winds appear automatically once corrected art is installed. time_limit: seconds on the clock; mistakes: how many non-matching pairs the player may pick before the level is lost. difficulty: 1 Easy, 2 Medium, 3 Hard, 4 Expert (shown on the journey map).",
 	"levels": [
 		{
 			"title": "Lotus Pond",
@@ -14,7 +14,8 @@
 			],
 			"background": "bg_golden_sakura",
 			"time_limit": 180,
-			"mistakes": 5
+			"mistakes": 5,
+			"difficulty": 1
 		},
 		{
 			"title": "Stepping Stones",
@@ -29,7 +30,8 @@
 			],
 			"background": "bg_golden_sakura",
 			"time_limit": 210,
-			"mistakes": 5
+			"mistakes": 5,
+			"difficulty": 1
 		},
 		{
 			"title": "Bamboo Grove",
@@ -45,7 +47,8 @@
 			],
 			"background": "bg_bamboo_forest",
 			"time_limit": 240,
-			"mistakes": 5
+			"mistakes": 5,
+			"difficulty": 1
 		},
 		{
 			"title": "Quiet Path",
@@ -61,7 +64,8 @@
 			],
 			"background": "bg_bamboo_forest",
 			"time_limit": 270,
-			"mistakes": 4
+			"mistakes": 4,
+			"difficulty": 2
 		},
 		{
 			"title": "Pagoda",
@@ -77,7 +81,8 @@
 			],
 			"background": "bg_misty_temple",
 			"time_limit": 300,
-			"mistakes": 4
+			"mistakes": 4,
+			"difficulty": 2
 		},
 		{
 			"title": "Mountain Shrine",
@@ -93,7 +98,8 @@
 			],
 			"background": "bg_misty_temple",
 			"time_limit": 330,
-			"mistakes": 4
+			"mistakes": 4,
+			"difficulty": 2
 		},
 		{
 			"title": "Koi Garden",
@@ -110,7 +116,8 @@
 			],
 			"background": "bg_golden_sakura",
 			"time_limit": 360,
-			"mistakes": 4
+			"mistakes": 4,
+			"difficulty": 3
 		},
 		{
 			"title": "Evening Lanterns",
@@ -127,7 +134,8 @@
 			],
 			"background": "bg_moonlight_sanctuary",
 			"time_limit": 390,
-			"mistakes": 3
+			"mistakes": 3,
+			"difficulty": 3
 		},
 		{
 			"title": "Moon Bridge",
@@ -144,7 +152,8 @@
 			],
 			"background": "bg_moonlight_sanctuary",
 			"time_limit": 420,
-			"mistakes": 3
+			"mistakes": 3,
+			"difficulty": 4
 		},
 		{
 			"title": "Temple Summit",
@@ -161,7 +170,8 @@
 			],
 			"background": "bg_misty_temple",
 			"time_limit": 480,
-			"mistakes": 3
+			"mistakes": 3,
+			"difficulty": 4
 		}
 	]
 }

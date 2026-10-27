@@ -25,6 +25,8 @@ func _ready() -> void:
 	AudioManager.restore()
 	TileCollectionManager.settings_path = TILE_SETTINGS
 	TileCollectionManager.restore()
+	GameSession.progress = ProgressStore.new("user://test_audio_progress.cfg")
+	GameSession.progress.reset()
 	_frame = Control.new()
 	_frame.size = Vector2(1080, 1920)
 	add_child(_frame)
@@ -47,6 +49,9 @@ func _ready() -> void:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 	AudioManager.settings_path = UserSettings.DEFAULT_PATH
 	AudioManager.restore()
+	GameSession.progress.reset()
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("user://test_audio_progress.cfg"))
+	GameSession.progress = ProgressStore.new()
 	for failure in _failures:
 		print("  FAIL  " + failure)
 	print("audio: %d checks, %d failed" % [_checks, _failures.size()])
@@ -185,6 +190,8 @@ func _test_level_complete_and_ducking() -> void:
 		await _wait(0.09)
 	await _frames(3)
 	_check(AudioManager.count_played("level_complete", seq) == 1, "8: level completion plays the victory sound once")
+	await _wait(1.0)
+	_check(AudioManager.count_played("reward", seq) == 1, "stars on level complete play the reward chime")
 	_check(AudioManager.count_requested("tile_match", seq) == deal.solution.size() - 1,
 		"8: every match but the last plays the match sound (%d of %d)" % [AudioManager.count_requested("tile_match", seq), deal.solution.size() - 1])
 	await _wait(0.5)

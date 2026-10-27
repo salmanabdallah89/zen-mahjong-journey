@@ -1,6 +1,6 @@
 extends Control
 ## First screen shown on launch: environment background, game title and a
-## Play button that starts the first level, and the Tile Collection chooser.
+## Play button that opens the journey map, and the Tile Collection chooser.
 
 @onready var _title_block: Control = %TitleBlock
 @onready var _play_button: Button = %PlayButton
@@ -34,4 +34,4 @@ func _play_intro() -> void:
 
 
 func _on_play_pressed() -> void:
-	GameSession.play_level(1)
+	GameSession.go_levels()

@@ -13,6 +13,9 @@ var _out_dir := "user://screens"
 
 
 func _ready() -> void:
+	# Screenshots must not write stars into the player's real journey.
+	GameSession.progress = ProgressStore.new("user://capture_progress.cfg")
+	GameSession.progress.reset()
 	var args := OS.get_cmdline_user_args()
 	if not args.is_empty():
 		_out_dir = args[0]
@@ -29,8 +32,42 @@ func _ready() -> void:
 	await _capture_losing()
 	await _capture_collections()
 	await _measure_frame_times(10)
+	await _capture_journey()
+	GameSession.progress.reset()
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(GameSession.progress.path))
+	GameSession.progress = ProgressStore.new()
 	print("Screenshots written to ", ProjectSettings.globalize_path(_out_dir))
 	get_tree().quit()
+
+
+## The journey map with some progress, a level card, and a 3-star clear.
+func _capture_journey() -> void:
+	get_window().size = SHAPES["phone_9x16"]
+	GameSession.progress.reset()
+	GameSession.progress.record_clear(1, 3, 120.0, 10)
+	GameSession.progress.record_clear(2, 2, 60.0, 10)
+	GameSession.progress.record_clear(3, 1, 20.0, 10)
+	var journey: Control = load("res://scenes/screens/journey_screen.tscn").instantiate()
+	add_child(journey)
+	await _wait(0.8)
+	await _save("phone_9x16_journey")
+	journey.call("_open_card", 2)
+	await _wait(0.4)
+	await _save("phone_9x16_journey_card")
+	journey.queue_free()
+	await _frames(2)
+	GameSession.current_level = 4
+	var screen: Control = GAME_SCENE.instantiate()
+	add_child(screen)
+	await _wait(0.4)
+	var level := LevelCatalog.get_level(4)
+	for pair in BoardGenerator.generate(level.load_layout().build_geometry(), level.face_pool(), level.deal_seed).solution:
+		screen.call("_on_tile_pressed", pair.x)
+		screen.call("_on_tile_pressed", pair.y)
+	await _wait(1.6)
+	await _save("phone_9x16_level_complete_stars")
+	screen.queue_free()
+	await _frames(2)
 
 
 ## Hearts, a mistake, the low-time warning and both loss popups.

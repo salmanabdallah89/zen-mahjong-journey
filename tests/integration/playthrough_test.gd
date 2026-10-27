@@ -17,6 +17,8 @@ var _frame: Control
 
 
 const ISOLATED_SETTINGS := "user://test_settings_playthrough.cfg"
+const ISOLATED_PROGRESS := "user://test_progress_playthrough.cfg"
+const JOURNEY_SCENE := preload("res://scenes/screens/journey_screen.tscn")
 
 
 func _ready() -> void:
@@ -24,6 +26,9 @@ func _ready() -> void:
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(ISOLATED_SETTINGS))
 	TileCollectionManager.settings_path = ISOLATED_SETTINGS
 	TileCollectionManager.restore()
+	# Never touch the player's real journey either.
+	GameSession.progress = ProgressStore.new(ISOLATED_PROGRESS)
+	GameSession.progress.reset()
 	_frame = Control.new()
 	_frame.size = SCREEN_SHAPES[0]
 	add_child(_frame)
@@ -36,7 +41,11 @@ func _ready() -> void:
 	await _test_tile_collections(2)
 	await _test_premium_collections(5)
 	await _test_time_and_mistakes(2)
+	await _test_journey_and_stars()
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(ISOLATED_SETTINGS))
+	GameSession.progress.reset()
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(ISOLATED_PROGRESS))
+	GameSession.progress = ProgressStore.new()
 	for failure in _failures:
 		print("  FAIL  " + failure)
 	print("playthrough: %d checks, %d failed" % [_checks, _failures.size()])
@@ -419,7 +428,7 @@ func _test_time_and_mistakes(level_number: int) -> void:
 		await _click_tile(screen, wrong.x)
 		await _click_tile(screen, wrong.y)
 	_check(dialog.visible and (dialog.get_node("%Title") as Label).text == "Too Many Mistakes", "last heart loses the level")
-	_check(_dialog_button(dialog, "Retry") != null and _dialog_button(dialog, "Home") != null, "loss offers Retry and Home")
+	_check(_dialog_button(dialog, "Retry") != null and _dialog_button(dialog, "Levels") != null, "loss offers Retry and Levels")
 	var frozen := float(screen.get("_time_left"))
 	await get_tree().create_timer(0.5).timeout
 	_check(absf(float(screen.get("_time_left")) - frozen) < 0.05, "clock stops after losing")
@@ -438,6 +447,78 @@ func _test_time_and_mistakes(level_number: int) -> void:
 	var deal := _expected_deal(level_number)
 	await _click_tile(screen, deal.solution[0].x)
 	_check(int(screen.get("_selected")) == -1, "board is locked after losing")
+	screen.queue_free()
+	await _frames(2)
+
+
+## The journey map, stars earned on clears, unlocking and best results.
+func _test_journey_and_stars() -> void:
+	GameSession.progress.reset()
+	var journey: Control = JOURNEY_SCENE.instantiate()
+	_frame.add_child(journey)
+	await _frames(4)
+	var dialog: ModalDialog = journey.get_node("%Dialog")
+	_check((journey.get_node("%StarsValue") as Label).text == "0 / 30", "fresh journey shows 0 / 30 stars")
+	var level_one: LevelNode = journey.call("level_node", 1)
+	var level_three: LevelNode = journey.call("level_node", 3)
+	_check(level_one.unlocked and not (journey.call("level_node", 2) as LevelNode).unlocked, "only level 1 is open")
+	await _click_at(level_three.get_global_transform() * level_three.marker_center())
+	_check(not dialog.visible and (journey.get_node("%Toast") as Control).visible, "a locked level explains instead of opening")
+	await _click_at(level_one.get_global_transform() * level_one.marker_center())
+	_check(dialog.visible and (dialog.get_node("%Title") as Label).text == "Level 1 · Lotus Pond", "tapping level 1 opens its card")
+	var card_text := (dialog.get_node("%Message") as Label).text
+	_check(card_text.contains("Easy") and card_text.contains("24 tiles") and card_text.contains("3:00") and card_text.contains("5 hearts"),
+		"card shows difficulty, size, time and hearts")
+	_check(card_text.contains("Not cleared yet") and dialog.call("stars_shown") == 0, "card shows no stars before a clear")
+	_check(_dialog_button(dialog, "Play") != null, "card offers Play")
+	dialog.close()
+	journey.queue_free()
+	await _frames(2)
+
+	# Clear level 1 perfectly: 3 stars, level 2 unlocked.
+	await _clear_level_by_clicking(1, 0)
+	_check(GameSession.progress.stars(1) == 3, "a perfect clear earns 3 stars")
+	_check(GameSession.progress.is_unlocked(2) and GameSession.just_unlocked == 2, "clearing level 1 unlocks level 2")
+	# Clear level 2 with one mistake: 2 stars.
+	await _clear_level_by_clicking(2, 1)
+	_check(GameSession.progress.stars(2) == 2, "one mistake earns 2 stars (got %d)" % GameSession.progress.stars(2))
+	# Replay level 1 with two mistakes: best stays 3.
+	await _clear_level_by_clicking(1, 2)
+	_check(GameSession.progress.stars(1) == 3, "a worse replay keeps the best stars")
+
+	GameSession.just_unlocked = 3
+	journey = JOURNEY_SCENE.instantiate()
+	_frame.add_child(journey)
+	await _frames(4)
+	_check((journey.get_node("%StarsValue") as Label).text == "5 / 30", "journey total shows 5 stars")
+	_check((journey.call("level_node", 3) as LevelNode).unlocked, "level 3 is open after clearing level 2")
+	_check((journey.get_node("%Toast") as Control).visible and GameSession.just_unlocked == 0, "a new unlock is announced once")
+	var level_two: LevelNode = journey.call("level_node", 2)
+	await _click_at(level_two.get_global_transform() * level_two.marker_center())
+	dialog = journey.get_node("%Dialog")
+	_check(dialog.call("stars_shown") == 2 and (dialog.get_node("%Message") as Label).text.contains("Best: 2 of 3 stars"),
+		"card shows the best result")
+	journey.queue_free()
+	await _frames(2)
+
+
+## Plays a level to the end by clicking, making `mistakes` wrong pairs first.
+func _clear_level_by_clicking(level_number: int, mistakes: int) -> void:
+	var screen := await _open_level(level_number)
+	var model: BoardModel = screen.get("_model")
+	for i in mistakes:
+		var wrong := _non_matching_free_pair(model)
+		await _click_tile(screen, wrong.x)
+		await _click_tile(screen, wrong.y)
+		await get_tree().create_timer(0.25).timeout
+	for pair in _expected_deal(level_number).solution:
+		await _click_tile(screen, pair.x)
+		await _click_tile(screen, pair.y)
+	await _frames(3)
+	var dialog: ModalDialog = screen.get_node("%Dialog")
+	var expected := LevelRating.stars(float(screen.get("_time_left")), LevelCatalog.get_level(level_number).time_limit, mistakes)
+	_check(dialog.call("stars_shown") == expected, "level %d complete dialog shows %d stars" % [level_number, expected])
+	_check(_dialog_button(dialog, "Levels") != null, "level complete offers Levels")
 	screen.queue_free()
 	await _frames(2)
 
@@ -502,12 +583,18 @@ func _click_at(point: Vector2) -> void:
 func _tile_clear_of_buttons(screen: Control, dialog: ModalDialog) -> int:
 	var board: BoardView = screen.get_node("%Board")
 	var model: BoardModel = screen.get("_model")
-	var panel := (dialog.get_node("%Panel") as Control).get_global_rect()
+	var buttons: Array[Rect2] = []
+	for button in dialog.get_node("%Buttons").get_children():
+		if button is Control and not button.is_queued_for_deletion():
+			buttons.append((button as Control).get_global_rect().grow(8.0))
 	for i in model.tile_count():
 		if not model.is_free(i):
 			continue
 		var point := board.tile(i).get_global_transform() * board.tile(i).face_center()
-		if not panel.has_point(point):
+		var under_button := false
+		for rect in buttons:
+			under_button = under_button or rect.has_point(point)
+		if not under_button:
 			return i
 	return -1
 

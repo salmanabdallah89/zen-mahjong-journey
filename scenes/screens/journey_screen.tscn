@@ -1,0 +1,166 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/screens/journey_screen.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_misty_temple.png" id="2_bg"]
+[ext_resource type="Script" path="res://scripts/components/safe_area_container.gd" id="3_safe"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/icon_back.png" id="4_back"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/icon_star.png" id="5_star"]
+[ext_resource type="PackedScene" path="res://scenes/components/modal_dialog.tscn" id="6_dialog"]
+
+[sub_resource type="Gradient" id="Gradient_shade"]
+offsets = PackedFloat32Array(0, 0.25, 0.8, 1)
+colors = PackedColorArray(0.15294118, 0.23137255, 0.3137255, 0.4, 0.15294118, 0.23137255, 0.3137255, 0.15, 0.15294118, 0.23137255, 0.3137255, 0.2, 0.15294118, 0.23137255, 0.3137255, 0.55)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture_shade"]
+gradient = SubResource("Gradient_shade")
+width = 8
+height = 256
+fill_to = Vector2(0, 1)
+
+[node name="JourneyScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Shade" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = SubResource("GradientTexture_shade")
+expand_mode = 1
+
+[node name="SafeArea" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3_safe")
+base_margin = 24
+
+[node name="Layout" type="VBoxContainer" parent="SafeArea"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 16
+
+[node name="Header" type="PanelContainer" parent="SafeArea/Layout"]
+layout_mode = 2
+theme_type_variation = &"HudPanel"
+
+[node name="Row" type="HBoxContainer" parent="SafeArea/Layout/Header"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BackButton" type="Button" parent="SafeArea/Layout/Header/Row"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 120)
+layout_mode = 2
+size_flags_vertical = 4
+tooltip_text = "Back"
+theme_type_variation = &"CircleButton"
+icon = ExtResource("4_back")
+icon_alignment = 1
+expand_icon = true
+
+[node name="TitleBox" type="VBoxContainer" parent="SafeArea/Layout/Header/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = -6
+
+[node name="Title" type="Label" parent="SafeArea/Layout/Header/Row/TitleBox"]
+layout_mode = 2
+theme_type_variation = &"HudValueLabel"
+text = "Journey"
+horizontal_alignment = 1
+
+[node name="Caption" type="Label" parent="SafeArea/Layout/Header/Row/TitleBox"]
+layout_mode = 2
+theme_type_variation = &"HudCaptionLabel"
+text = "CHOOSE A LEVEL"
+horizontal_alignment = 1
+
+[node name="StarsBox" type="HBoxContainer" parent="SafeArea/Layout/Header/Row"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 2
+
+[node name="StarIcon" type="TextureRect" parent="SafeArea/Layout/Header/Row/StarsBox"]
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("5_star")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="StarsValue" type="Label" parent="SafeArea/Layout/Header/Row/StarsBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HudValueLabel"
+theme_override_font_sizes/font_size = 44
+text = "0 / 30"
+
+[node name="Scroll" type="ScrollContainer" parent="SafeArea/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Map" type="Control" parent="SafeArea/Layout/Scroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 1
+
+[node name="Toast" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_top = -240.0
+offset_bottom = -160.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_type_variation = &"ToastPanel"
+
+[node name="ToastLabel" type="Label" parent="Toast"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(840, 0)
+layout_mode = 2
+theme_type_variation = &"ToastLabel"
+text = "Message"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Dialog" parent="." instance=ExtResource("6_dialog")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1

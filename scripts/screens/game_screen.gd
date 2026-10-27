@@ -282,7 +282,7 @@ func _open_pause_menu() -> void:
 	_dialog.add_action("Settings", _open_settings)
 	_dialog.add_action("Tile Collection", _open_collection_picker)
 	_dialog.add_action("Restart", _restart)
-	_dialog.add_action("Home", GameSession.go_home)
+	_dialog.add_action("Levels", GameSession.go_levels)
 
 
 func _open_settings() -> void:
@@ -337,13 +337,30 @@ func _show_level_complete() -> void:
 		_level.title, floori(seconds / 60.0), seconds % 60, _clock(_time_left),
 		_count(_mistakes, "mistake", "mistakes"), _count(_hints_used, "hint", "hints"),
 		_count(_shuffles, "shuffle", "shuffles")]
+	var earned := LevelRating.stars(_time_left, _level.time_limit, _mistakes)
+	var record := GameSession.progress.record_clear(_level.number, earned, _time_left, LevelCatalog.count())
+	GameSession.just_unlocked = record.unlocked
+	if record.new_best_stars and record.previous_stars > 0:
+		summary += "\nNew best: %d stars!" % earned
+	elif record.new_best_time:
+		summary += "\nNew best time!"
+	if earned < LevelRating.MAX_STARS:
+		summary += "\n" + _next_star_tip(earned)
 	if GameSession.has_next_level():
 		_dialog.open("Level Complete!", summary)
 		_dialog.add_action("Next Level", GameSession.play_next_level, true)
 	else:
 		_dialog.open("Journey Complete!", summary + "\nYou have finished every introductory level.")
+	_dialog.set_stars(earned, LevelRating.MAX_STARS, true)
 	_dialog.add_action("Replay", _restart, not GameSession.has_next_level())
-	_dialog.add_action("Home", GameSession.go_home)
+	_dialog.add_action("Levels", GameSession.go_levels)
+	get_tree().create_timer(0.9).timeout.connect(func() -> void: AudioManager.play_sfx("reward"))
+
+
+func _next_star_tip(earned: int) -> String:
+	if earned == 1:
+		return "For 2 stars: make at most 1 mistake."
+	return "For 3 stars: no mistakes and half the time left."
 
 
 func _process(delta: float) -> void:
@@ -398,7 +415,7 @@ func _lose(reason: LossReason) -> void:
 	_dialog.open(title, "%s\nLevel %d · %s: %d of %d pairs matched." % [
 		why, _level.number, _level.title, _matches, pairs])
 	_dialog.add_action("Retry", _restart, true)
-	_dialog.add_action("Home", GameSession.go_home)
+	_dialog.add_action("Levels", GameSession.go_levels)
 
 
 func _build_hearts() -> void:

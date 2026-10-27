@@ -1,11 +1,15 @@
 extends Node
-## Autoload "GameSession": which level is being played and moving between
-## screens. Holds no save data yet; progress resets when the app restarts.
+## Autoload "GameSession": which level is being played, the saved journey
+## progress, and moving between screens.
 
 const STARTUP_SCENE := "res://scenes/screens/startup_screen.tscn"
 const GAME_SCENE := "res://scenes/screens/game_screen.tscn"
+const JOURNEY_SCENE := "res://scenes/screens/journey_screen.tscn"
 
 var current_level: int = 1
+var progress := ProgressStore.new()
+## Level opened by the last clear, so the journey map can celebrate it once.
+var just_unlocked := 0
 
 
 func play_level(number: int) -> void:
@@ -23,3 +27,7 @@ func play_next_level() -> void:
 
 func go_home() -> void:
 	get_tree().change_scene_to_file(STARTUP_SCENE)
+
+
+func go_levels() -> void:
+	get_tree().change_scene_to_file(JOURNEY_SCENE)

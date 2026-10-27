@@ -170,6 +170,11 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
 2c. ✅ Tile collections: architecture, six manifests, picker (start screen + pause), save/restore,
    fallbacks, tests. Premium pack integrated: all six collections enabled; Fruits holds back
    plum and Vegetables 13 look-alike copies until replaced (docs/TILE_COLLECTIONS.md).
+2f. ✅ Journey map (`journey_screen`): Play opens it; markers per level with stars, difficulty
+   and lock state; level card (difficulty, tiles, time, hearts, best, star rules); progress saved
+   by `ProgressStore` (user://progress.cfg) via `GameSession.progress`; stars from
+   `LevelRating` (1 clear, 2 at most 1 mistake, 3 no mistakes and half the time left). Tests and
+   tools must swap `GameSession.progress` for a throwaway file, never the player's.
 2e. ✅ Lose conditions: per-level countdown (`time_limit`) and mistake hearts (`mistakes`) in
    levels.json; a mistake = picking two free tiles that don't match (blocked taps and deselecting
    are free); clock runs only while playing; Out of Time / Too Many Mistakes → Retry / Home.
