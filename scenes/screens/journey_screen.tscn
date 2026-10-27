@@ -138,6 +138,11 @@ layout_mode = 2
 size_flags_vertical = 3
 script = ExtResource("7_world")
 
+[node name="BannerGap" type="Control" parent="SafeArea/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+
 [node name="Petals" type="CPUParticles2D" parent="."]
 position = Vector2(540, -60)
 amount = 14

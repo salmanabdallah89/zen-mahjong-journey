@@ -33,6 +33,7 @@ func _ready() -> void:
 	await _capture_collections()
 	await _measure_frame_times(10)
 	await _capture_journey()
+	await _capture_ads()
 	GameSession.progress.reset()
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(GameSession.progress.path))
 	GameSession.progress = ProgressStore.new()
@@ -67,6 +68,41 @@ func _capture_journey() -> void:
 	await _wait(1.6)
 	await _save("phone_9x16_level_complete_stars")
 	screen.queue_free()
+	await _frames(2)
+
+
+## Stand-in ads: second-chance offer, a rewarded ad, the hint offer, the banner.
+func _capture_ads() -> void:
+	AdsManager.config["simulated_ad_seconds"] = 3.0
+	GameSession.current_level = 4
+	var screen: Control = GAME_SCENE.instantiate()
+	add_child(screen)
+	await _wait(0.4)
+	screen.set("_time_left", 0.1)
+	await _wait(0.6)
+	await _save("phone_9x16_ad_second_chance")
+	var dialog: ModalDialog = screen.get_node("%Dialog")
+	for button in dialog.get_node("%Buttons").get_children():
+		if (button as Button).text.begins_with("Watch Ad"):
+			button.emit_signal("pressed")
+	await _wait(1.2)
+	await _save("phone_9x16_ad_rewarded")
+	AdsManager.press_simulated_close()
+	await _wait(0.3)
+	screen.call("_restart")
+	await _wait(0.3)
+	screen.call("_on_hint_pressed")
+	screen.call("_clear_hint")
+	screen.call("_on_hint_pressed")
+	await _wait(0.4)
+	await _save("phone_9x16_ad_hint_offer")
+	screen.queue_free()
+	await _frames(2)
+	var journey: Control = load("res://scenes/screens/journey_screen.tscn").instantiate()
+	add_child(journey)
+	await _wait(0.6)
+	await _save("phone_9x16_ad_banner")
+	journey.queue_free()
 	await _frames(2)
 
 

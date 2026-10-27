@@ -26,6 +26,8 @@ func _ready() -> void:
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(ISOLATED_SETTINGS))
 	TileCollectionManager.settings_path = ISOLATED_SETTINGS
 	TileCollectionManager.restore()
+	# Ads have their own test (ads_test); keep these flows ad-free and fixed.
+	AdsManager.provider = "none"
 	# Never touch the player's real journey either.
 	GameSession.progress = ProgressStore.new(ISOLATED_PROGRESS)
 	GameSession.progress.reset()

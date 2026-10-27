@@ -1,0 +1,23 @@
+{
+	"_comment": "Ad settings. The ids below are Google's official AdMob TEST ids: safe to use, they never pay. Replace them with your AdMob app's real ids before publishing (docs/ADS.md). Ads only run in the Android/iOS app; the web build has none.",
+	"android": {
+		"app_id": "ca-app-pub-3940256099942544~3347511713",
+		"banner": "ca-app-pub-3940256099942544/6300978111",
+		"interstitial": "ca-app-pub-3940256099942544/1033173712",
+		"rewarded": "ca-app-pub-3940256099942544/5224354917"
+	},
+	"ios": {
+		"app_id": "ca-app-pub-3940256099942544~1458002511",
+		"banner": "ca-app-pub-3940256099942544/2934735716",
+		"interstitial": "ca-app-pub-3940256099942544/4411468910",
+		"rewarded": "ca-app-pub-3940256099942544/1712485313"
+	},
+	"_simulate_on_desktop": "Desktop debug runs show stand-in test ads so every ad placement can be played and tested without a phone.",
+	"simulate_on_desktop": true,
+	"simulated_ad_seconds": 3.0,
+	"interstitial_every_levels": 3,
+	"free_hints_per_level": 1,
+	"second_chance_seconds": 60,
+	"second_chance_hearts": 1,
+	"second_chances_per_attempt": 1
+}

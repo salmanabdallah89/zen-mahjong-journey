@@ -1,0 +1,80 @@
+# Builds the web version with Godot and publishes it to GitHub Pages on every
+# push to main. Also runs the unit tests first; a failing test stops the deploy.
+# One-time setup in the GitHub repo: Settings -> Pages -> Source: GitHub Actions.
+name: Build and deploy web game
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  GODOT_VERSION: 4.7.2
+  GODOT_RELEASE: https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Godot and export templates
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/godot
+            ~/.local/share/godot/export_templates/${{ env.GODOT_VERSION }}.stable
+          key: godot-${{ env.GODOT_VERSION }}-web
+
+      - name: Download Godot ${{ env.GODOT_VERSION }}
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/godot ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          curl -sSL -o godot.zip "$GODOT_RELEASE/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q godot.zip -d ~/godot
+          mv ~/godot/Godot_v${GODOT_VERSION}-stable_linux.x86_64 ~/godot/godot
+          curl -sSL -o templates.tpz "$GODOT_RELEASE/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          # Only the web templates are needed here; keep the cache small.
+          unzip -q -j templates.tpz 'templates/web_*' 'templates/version.txt' \
+            -d ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          rm godot.zip templates.tpz
+
+      - name: Import project
+        # The first import can report missing textures (theme loads before
+        # they import); the second must be clean.
+        run: |
+          ~/godot/godot --headless --path . --import || true
+          ~/godot/godot --headless --path . --import
+
+      - name: Unit tests
+        run: ~/godot/godot --headless --path . -s res://tests/run_tests.gd
+
+      - name: Export web build
+        run: |
+          mkdir -p build/web
+          ~/godot/godot --headless --path . --export-release "Web" build/web/index.html
+          test -f build/web/index.html
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

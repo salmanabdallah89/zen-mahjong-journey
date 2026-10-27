@@ -19,6 +19,7 @@ GODOT --headless --path . --quit-after 120  # main scene runs
 GODOT --headless --path . -s res://tests/run_tests.gd                      # unit tests (exit 1 on failure)
 GODOT --headless --path . res://tests/integration/playthrough_test.tscn    # plays levels via simulated clicks
 GODOT --headless --path . res://tests/integration/audio_test.tscn         # music, sound events, settings
+GODOT --headless --path . res://tests/integration/ads_test.tscn           # ad placements (stand-in ads)
 GODOT --path . --audio-driver Dummy res://tests/visual/capture_screens.tscn -- <scratch_dir>    # screenshots; look at them
 ```
 Grep the output for `ERROR`, `WARNING`, `SCRIPT ERROR`, `Parse Error`. The unit runner cannot
@@ -36,7 +37,8 @@ the second run must be clean.
 - All text the player reads is a Godot `Label`/`Button` text (localizable), never baked into art.
   Exception to watch: `bg_sakura_garden.png` has the title logo baked in — do not use it behind
   a Label title; it is only suitable as a splash/marketing image.
-- No AdMob, analytics, IAP or network code until explicitly requested.
+- Ads only through `AdsManager` (docs/ADS.md); no analytics, IAP or other network code until requested.
+  Never put real AdMob ids in tests; `data/ads.json` holds Google's test ids.
 - Build features in order; do not start a later feature before the current scene works and is
   verified (see roadmap).
 
@@ -170,6 +172,10 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
 2c. ✅ Tile collections: architecture, six manifests, picker (start screen + pause), save/restore,
    fallbacks, tests. Premium pack integrated: all six collections enabled; Fruits holds back
    plum and Vegetables 13 look-alike copies until replaced (docs/TILE_COLLECTIONS.md).
+2g. ✅ Web build + GitHub Pages workflow (docs/WEB_HOSTING.md); ads via `AdsManager` with stand-in
+   test ads on desktop: rewarded second chance and hints, interstitial every 3rd clear, journey
+   banner. Real AdMob plugin not installed yet (docs/ADS.md). Android export preset exists; export
+   templates not installed on this PC.
 2f. ✅ Journey map (`journey_screen`, drawn in perspective by `JourneyWorld`: swipe down = forward,
    markers off-camera are hidden, so tests must `focus_level()` before tapping one): Play opens it; markers per level with stars, difficulty
    and lock state; level card (difficulty, tiles, time, hearts, best, star rules); progress saved

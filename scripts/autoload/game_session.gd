@@ -10,11 +10,14 @@ var current_level: int = 1
 var progress := ProgressStore.new()
 ## Level opened by the last clear, so the journey map can celebrate it once.
 var just_unlocked := 0
+## Tests turn scene changes off and read the scene that would have opened.
+var scene_changes_enabled := true
+var last_requested_scene := ""
 
 
 func play_level(number: int) -> void:
 	current_level = clampi(number, 1, LevelCatalog.count())
-	get_tree().change_scene_to_file(GAME_SCENE)
+	_change(GAME_SCENE)
 
 
 func has_next_level() -> bool:
@@ -26,8 +29,14 @@ func play_next_level() -> void:
 
 
 func go_home() -> void:
-	get_tree().change_scene_to_file(STARTUP_SCENE)
+	_change(STARTUP_SCENE)
 
 
 func go_levels() -> void:
-	get_tree().change_scene_to_file(JOURNEY_SCENE)
+	_change(JOURNEY_SCENE)
+
+
+func _change(path: String) -> void:
+	last_requested_scene = path
+	if scene_changes_enabled:
+		get_tree().change_scene_to_file(path)

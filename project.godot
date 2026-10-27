@@ -25,6 +25,7 @@ config/quit_on_go_back=false
 GameSession="*res://scripts/autoload/game_session.gd"
 TileCollectionManager="*res://scripts/autoload/tile_collection_manager.gd"
 AudioManager="*res://scripts/autoload/audio_manager.gd"
+AdsManager="*res://scripts/autoload/ads_manager.gd"
 
 [display]
 

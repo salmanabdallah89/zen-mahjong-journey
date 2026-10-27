@@ -13,6 +13,7 @@ var _card_level := 0
 
 @onready var _world: JourneyWorld = %World
 @onready var _background: TextureRect = %Background
+@onready var _banner_gap: Control = %BannerGap
 @onready var _stars_value: Label = %StarsValue
 @onready var _back: Button = %BackButton
 @onready var _dialog: ModalDialog = %Dialog
@@ -36,6 +37,12 @@ func _ready() -> void:
 	_world.focus_level(GameSession.progress.current_level(LevelCatalog.count()), false)
 	_on_camera_moved(_world.camera)
 	_celebrate_unlock.call_deferred()
+	AdsManager.show_banner()
+	_banner_gap.custom_minimum_size.y = AdsManager.banner_height()
+
+
+func _exit_tree() -> void:
+	AdsManager.hide_banner()
 
 
 func _notification(what: int) -> void:

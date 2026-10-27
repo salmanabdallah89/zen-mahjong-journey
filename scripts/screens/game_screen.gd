@@ -35,12 +35,17 @@ var _time_left := 0.0
 var _shown_seconds := -1
 var _mistakes := 0
 var _failed := false
+## Ads: free hints left this attempt, and second chances used this attempt.
+var _free_hints := 0
+var _second_chances := 0
+var _last_loss := LossReason.TIME
 
 @onready var _background: TextureRect = %Background
 @onready var _board: BoardView = %Board
 @onready var _tiles_value: Label = %TilesValue
 @onready var _time_value: Label = %TimeValue
 @onready var _hearts: HBoxContainer = %Hearts
+@onready var _hint_label: Label = $SafeArea/Layout/Toolbar/HintTool/HintLabel
 @onready var _level_value: Label = %LevelValue
 @onready var _level_caption: Label = %LevelCaption
 @onready var _pause_button: Button = %PauseButton
@@ -102,6 +107,8 @@ func _start_level() -> void:
 	_undo_stack.clear()
 	_matches = 0
 	_hints_used = 0
+	_free_hints = int(AdsManager.setting("free_hints_per_level", 1))
+	_second_chances = 0
 	_shuffles = 0
 	_blocked_explanations = 0
 	_time_left = float(_level.time_limit)
@@ -118,7 +125,7 @@ func _start_level() -> void:
 
 
 func _on_tile_pressed(index: int) -> void:
-	if _failed or _dialog.visible or _picker.visible or _settings.visible or _model.is_cleared():
+	if _failed or _dialog.visible or _picker.visible or _settings.visible or _model.is_cleared() or AdsManager.is_showing():
 		return
 	if not _model.is_free(index):
 		_explain_blocked(index)
@@ -187,8 +194,30 @@ func _remove_pair(a: int, b: int) -> void:
 
 
 func _on_hint_pressed() -> void:
-	if _model.is_cleared():
+	if _model.is_cleared() or _failed:
 		return
+	# With ads: a free hint per level, then one hint per rewarded ad.
+	# Without ads (web build) hints stay free.
+	if AdsManager.is_available() and _free_hints <= 0:
+		_dialog.open("Need a Hint?", "Watch a short ad to reveal a matching pair.")
+		_dialog.add_action("Watch Ad", func() -> void:
+			AdsManager.show_rewarded("hint", _on_hint_ad_done), true)
+		_dialog.add_action("No Thanks", func() -> void: pass)
+		return
+	if AdsManager.is_available():
+		_free_hints -= 1
+		_update_hud()
+	_give_hint()
+
+
+func _on_hint_ad_done(rewarded: bool) -> void:
+	if rewarded:
+		_give_hint()
+	else:
+		_show_toast("Watch the whole ad to get a hint.")
+
+
+func _give_hint() -> void:
 	var search := BoardSolver.solve(_model, HINT_SEARCH_BUDGET)
 	var pair := Vector2i(-1, -1)
 	if search.solved and not search.moves.is_empty():
@@ -267,6 +296,10 @@ func _clear_hint() -> void:
 
 func _update_hud() -> void:
 	_tiles_value.text = str(_model.remaining)
+	if AdsManager.is_available():
+		_hint_label.text = "Hint (%d)" % _free_hints if _free_hints > 0 else "Ad Hint"
+	else:
+		_hint_label.text = "Hint"
 	_update_timer_label()
 	_level_value.text = "Level %d" % _level.number
 	_level_caption.text = _level.title.to_upper()
@@ -348,12 +381,12 @@ func _show_level_complete() -> void:
 		summary += "\n" + _next_star_tip(earned)
 	if GameSession.has_next_level():
 		_dialog.open("Level Complete!", summary)
-		_dialog.add_action("Next Level", GameSession.play_next_level, true)
+		_dialog.add_action("Next Level", func() -> void: AdsManager.after_level_complete(GameSession.play_next_level), true)
 	else:
 		_dialog.open("Journey Complete!", summary + "\nYou have finished every introductory level.")
 	_dialog.set_stars(earned, LevelRating.MAX_STARS, true)
-	_dialog.add_action("Replay", _restart, not GameSession.has_next_level())
-	_dialog.add_action("Levels", GameSession.go_levels)
+	_dialog.add_action("Replay", func() -> void: AdsManager.after_level_complete(_restart), not GameSession.has_next_level())
+	_dialog.add_action("Levels", func() -> void: AdsManager.after_level_complete(GameSession.go_levels))
 	get_tree().create_timer(0.9).timeout.connect(func() -> void: AudioManager.play_sfx("reward"))
 
 
@@ -361,6 +394,12 @@ func _next_star_tip(earned: int) -> String:
 	if earned == 1:
 		return "For 2 stars: make at most 1 mistake."
 	return "For 3 stars: no mistakes and half the time left."
+
+
+func _exit_tree() -> void:
+	# Leaving the level mid-ad must not leave the ad covering the next screen.
+	if AdsManager.is_showing():
+		AdsManager.cancel()
 
 
 func _process(delta: float) -> void:
@@ -375,7 +414,7 @@ func _process(delta: float) -> void:
 ## The clock only runs while the player is actually playing.
 func _clock_running() -> bool:
 	return _model != null and not _failed and not _model.is_cleared() \
-		and not _dialog.visible and not _picker.visible and not _settings.visible
+		and not _dialog.visible and not _picker.visible and not _settings.visible and not AdsManager.is_showing()
 
 
 ## Picking two free tiles that don't match costs a heart.
@@ -414,8 +453,48 @@ func _lose(reason: LossReason) -> void:
 	var why := "The clock ran out." if reason == LossReason.TIME else "You used all %d hearts." % _level.mistake_limit
 	_dialog.open(title, "%s\nLevel %d · %s: %d of %d pairs matched." % [
 		why, _level.number, _level.title, _matches, pairs])
-	_dialog.add_action("Retry", _restart, true)
+	_last_loss = reason
+	var offer_second_chance := AdsManager.is_available() \
+		and _second_chances < int(AdsManager.setting("second_chances_per_attempt", 1))
+	if offer_second_chance:
+		var label := "Watch Ad: +%d s" % int(AdsManager.setting("second_chance_seconds", 60)) if reason == LossReason.TIME \
+			else "Watch Ad: +1 Heart"
+		_dialog.add_action(label, func() -> void: AdsManager.show_rewarded("second_chance", _on_second_chance_done), true)
+	_dialog.add_action("Retry", _restart, not offer_second_chance)
 	_dialog.add_action("Levels", GameSession.go_levels)
+
+
+## Rewarded second chance: continue the same board with more time or a heart.
+func _on_second_chance_done(rewarded: bool) -> void:
+	if not rewarded:
+		_lose_again_dialog()
+		return
+	_second_chances += 1
+	_failed = false
+	if _last_loss == LossReason.TIME:
+		_time_left = float(AdsManager.setting("second_chance_seconds", 60))
+		_shown_seconds = -1
+		_update_timer_label()
+		_show_toast("+%d seconds. Keep going!" % int(_time_left))
+	else:
+		_mistakes = maxi(_mistakes - int(AdsManager.setting("second_chance_hearts", 1)), 0)
+		_update_hearts()
+		_show_toast("+1 heart. Keep going!")
+	AudioManager.play_sfx("reward")
+
+
+func _lose_again_dialog() -> void:
+	_failed = false
+	_lose(_last_loss)
+
+
+## Second chance is spent per attempt, so the loss dialog no longer offers it.
+func second_chances_used() -> int:
+	return _second_chances
+
+
+func free_hints_left() -> int:
+	return _free_hints
 
 
 func _build_hearts() -> void:

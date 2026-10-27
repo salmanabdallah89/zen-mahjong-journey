@@ -66,6 +66,8 @@ var _audible := DisplayServer.get_name() != "headless"
 ## Music/ambience players currently in use (true even when not audible).
 var _active := {}
 var _suspended := false
+## Game audio is silenced while an ad plays (the ad has its own sound).
+var _ad_playing := false
 
 
 func _ready() -> void:
@@ -406,7 +408,7 @@ func _apply_buses() -> void:
 	_set_bus("SFX", sfx_volume)
 	_set_bus("UI", sfx_volume)
 	var master := AudioServer.get_bus_index(&"Master")
-	AudioServer.set_bus_mute(master, muted)
+	AudioServer.set_bus_mute(master, muted or _ad_playing)
 
 
 func _set_bus(bus_name: String, value: float) -> void:
@@ -470,6 +472,11 @@ func _set_all_paused(paused: bool) -> void:
 	players.append_array(_ambience_players.values())
 	for player: AudioStreamPlayer in players:
 		player.stream_paused = paused
+
+
+func set_ad_playing(playing: bool) -> void:
+	_ad_playing = playing
+	_apply_buses()
 
 
 func is_suspended() -> bool:
