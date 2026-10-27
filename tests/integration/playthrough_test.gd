@@ -493,12 +493,53 @@ func _test_journey_and_stars() -> void:
 	_check((journey.get_node("%StarsValue") as Label).text == "5 / 30", "journey total shows 5 stars")
 	_check((journey.call("level_node", 3) as LevelNode).unlocked, "level 3 is open after clearing level 2")
 	_check((journey.get_node("%Toast") as Control).visible and GameSession.just_unlocked == 0, "a new unlock is announced once")
+	# Dragging up pushes the path away: travel back. Dragging down travels forward.
+	var world: JourneyWorld = journey.get_node("%World")
 	var level_two: LevelNode = journey.call("level_node", 2)
+	_check(not world.is_level_visible(1), "level 2 is behind the camera when the journey is at level 3")
+	var camera_before := world.camera
+	await _drag(world.get_global_rect().get_center(), Vector2(0, 420))
+	_check(world.camera < camera_before - 0.5, "swiping up travels back along the path (%.2f -> %.2f)" % [camera_before, world.camera])
+	var back_at := world.camera
+	await _drag(world.get_global_rect().get_center(), Vector2(0, -300))
+	_check(world.camera > back_at + 0.3, "swiping down travels forward (%.2f -> %.2f)" % [back_at, world.camera])
+	_check(not (journey.get_node("%Dialog") as ModalDialog).visible, "a swipe that starts on the map opens no card")
+	world.focus_level(2, false)
+	await _frames(2)
+	_check(world.is_level_visible(1), "level 2 comes into view")
+	var near_scale := level_two.scale.x
+	var far_scale := (journey.call("level_node", 5) as LevelNode).scale.x
+	_check(near_scale > far_scale * 1.5, "nearer levels are drawn larger (%.2f vs %.2f)" % [near_scale, far_scale])
 	await _click_at(level_two.get_global_transform() * level_two.marker_center())
 	dialog = journey.get_node("%Dialog")
 	_check(dialog.call("stars_shown") == 2 and (dialog.get_node("%Message") as Label).text.contains("Best: 2 of 3 stars"),
 		"card shows the best result")
 	journey.queue_free()
+	await _frames(2)
+
+
+func _drag(from: Vector2, delta: Vector2) -> void:
+	var press := InputEventMouseButton.new()
+	press.button_index = MOUSE_BUTTON_LEFT
+	press.pressed = true
+	press.position = from
+	press.global_position = from
+	get_viewport().push_input(press, true)
+	await _frames(1)
+	var steps := 10
+	for k in steps:
+		var motion := InputEventMouseMotion.new()
+		motion.button_mask = MOUSE_BUTTON_MASK_LEFT
+		motion.relative = -delta / steps
+		motion.position = from - delta * (k + 1) / steps
+		motion.global_position = motion.position
+		get_viewport().push_input(motion, true)
+		await _frames(1)
+	var release := InputEventMouseButton.new()
+	release.button_index = MOUSE_BUTTON_LEFT
+	release.position = from - delta
+	release.global_position = release.position
+	get_viewport().push_input(release, true)
 	await _frames(2)
 
 

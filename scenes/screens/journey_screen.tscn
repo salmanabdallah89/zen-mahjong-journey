@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://scripts/screens/journey_screen.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/bg_misty_temple.png" id="2_bg"]
@@ -6,6 +6,8 @@
 [ext_resource type="Texture2D" path="res://assets/ui/icons/icon_back.png" id="4_back"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/icon_star.png" id="5_star"]
 [ext_resource type="PackedScene" path="res://scenes/components/modal_dialog.tscn" id="6_dialog"]
+[ext_resource type="Script" path="res://scripts/components/journey_world.gd" id="7_world"]
+[ext_resource type="Texture2D" path="res://assets/effects/petal_02.png" id="8_petal"]
 
 [sub_resource type="Gradient" id="Gradient_shade"]
 offsets = PackedFloat32Array(0, 0.25, 0.8, 1)
@@ -17,6 +19,10 @@ width = 8
 height = 256
 fill_to = Vector2(0, 1)
 
+[sub_resource type="Gradient" id="Gradient_petal_fade"]
+offsets = PackedFloat32Array(0, 0.1, 0.85, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0.9, 1, 1, 1, 0.8, 1, 1, 1, 0)
+
 [node name="JourneyScreen" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -27,10 +33,13 @@ grow_vertical = 2
 script = ExtResource("1_script")
 
 [node name="Background" type="TextureRect" parent="."]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_top = -160.0
+offset_bottom = 160.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
@@ -123,17 +132,32 @@ theme_type_variation = &"HudValueLabel"
 theme_override_font_sizes/font_size = 44
 text = "0 / 30"
 
-[node name="Scroll" type="ScrollContainer" parent="SafeArea/Layout"]
+[node name="World" type="Control" parent="SafeArea/Layout"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
-horizontal_scroll_mode = 0
+script = ExtResource("7_world")
 
-[node name="Map" type="Control" parent="SafeArea/Layout/Scroll"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-mouse_filter = 1
+[node name="Petals" type="CPUParticles2D" parent="."]
+position = Vector2(540, -60)
+amount = 14
+lifetime = 9.0
+preprocess = 9.0
+texture = ExtResource("8_petal")
+emission_shape = 3
+emission_rect_extents = Vector2(620, 10)
+direction = Vector2(0.3, 1)
+spread = 25.0
+gravity = Vector2(10, 28)
+initial_velocity_min = 40.0
+initial_velocity_max = 90.0
+angular_velocity_min = -40.0
+angular_velocity_max = 40.0
+angle_min = -180.0
+angle_max = 180.0
+scale_amount_min = 0.28
+scale_amount_max = 0.5
+color_ramp = SubResource("Gradient_petal_fade")
 
 [node name="Toast" type="PanelContainer" parent="."]
 unique_name_in_owner = true

@@ -64,6 +64,11 @@ func setup(level: LevelCatalog.LevelDefinition, earned_stars: int, is_unlocked: 
 		_pulse.tween_property(_marker, "scale", Vector2.ONE, 0.8).set_trans(Tween.TRANS_SINE)
 
 
+func set_labels_visible(value: bool) -> void:
+	_title.visible = value
+	_difficulty.visible = value
+
+
 ## Centre of the marker disc, in this node's coordinates (the path runs through it).
 func marker_center() -> Vector2:
 	return _marker.position + _marker.size / 2.0

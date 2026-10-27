@@ -1,21 +1,18 @@
 extends Control
-## The journey map: every level as a stop on a winding garden path, from
-## Level 1 at the bottom upward. Shows stars, difficulty and what is locked;
-## tapping an open level shows its card with a Play button.
+## The journey map: every level as a stop on a stepping-stone path that
+## runs away into the garden in perspective (JourneyWorld). Swipe to travel
+## along it. Shows stars, difficulty and what is locked; tapping an open level
+## shows its card with a Play button.
 
 const NODE_SCENE := preload("res://scenes/components/level_node.tscn")
-## Vertical distance between stops, and how far the path swings sideways.
-const STEP := 330.0
-const SWING := 230.0
-const MARGIN := 220.0
-const PATH_COLOR := Color(0.93, 0.76, 0.42, 0.55)
+## How far the background drifts over the whole journey (parallax).
+const PARALLAX := 160.0
 
 var _nodes: Array[LevelNode] = []
-var _path: Line2D
 var _card_level := 0
 
-@onready var _scroll: ScrollContainer = %Scroll
-@onready var _map: Control = %Map
+@onready var _world: JourneyWorld = %World
+@onready var _background: TextureRect = %Background
 @onready var _stars_value: Label = %StarsValue
 @onready var _back: Button = %BackButton
 @onready var _dialog: ModalDialog = %Dialog
@@ -29,22 +26,15 @@ func _ready() -> void:
 	_toast.hide()
 	AudioManager.play_music("main_menu")
 	AudioManager.set_ambience(AudioCatalog.MENU_AMBIENCE)
-	_path = Line2D.new()
-	_path.width = 16.0
-	_path.default_color = PATH_COLOR
-	_path.joint_mode = Line2D.LINE_JOINT_ROUND
-	_path.begin_cap_mode = Line2D.LINE_CAP_ROUND
-	_path.end_cap_mode = Line2D.LINE_CAP_ROUND
-	_path.antialiased = true
-	_map.add_child(_path)
 	for level in LevelCatalog.levels():
 		var node: LevelNode = NODE_SCENE.instantiate()
-		_map.add_child(node)
 		node.pressed.connect(_on_level_pressed)
 		_nodes.append(node)
-	_scroll.resized.connect(_layout)
+	_world.set_nodes(_nodes)
+	_world.camera_moved.connect(_on_camera_moved)
 	refresh()
-	_layout.call_deferred()
+	_world.focus_level(GameSession.progress.current_level(LevelCatalog.count()), false)
+	_on_camera_moved(_world.camera)
 	_celebrate_unlock.call_deferred()
 
 
@@ -64,6 +54,7 @@ func refresh() -> void:
 	for i in _nodes.size():
 		var level := LevelCatalog.get_level(i + 1)
 		_nodes[i].setup(level, progress.stars(level.number), progress.is_unlocked(level.number), level.number == current)
+	_world.current_index = current - 1
 	_stars_value.text = "%d / %d" % [progress.total_stars(count), count * LevelRating.MAX_STARS]
 
 
@@ -71,34 +62,15 @@ func level_node(number: int) -> LevelNode:
 	return _nodes[number - 1]
 
 
-func _layout() -> void:
-	var width := _scroll.size.x
-	if width <= 0.0:
-		return
-	var height := MARGIN * 2.0 + STEP * (_nodes.size() - 1) + 300.0
-	# Height only: a minimum width would widen the scroll area and the whole screen.
-	_map.custom_minimum_size = Vector2(0, height)
-	var points := PackedVector2Array()
-	for i in _nodes.size():
-		var node := _nodes[i]
-		var center := Vector2(width / 2.0 + SWING * sin(i * 1.15), height - MARGIN - 150.0 - STEP * i)
-		node.position = center - node.marker_center()
-		points.append(center)
-	# A smooth curve through the stops: a few interpolated points per segment.
-	var curve := Curve2D.new()
-	for i in points.size():
-		var tangent := Vector2(0, STEP * 0.45)
-		curve.add_point(points[i], tangent, -tangent)
-	curve.bake_interval = 12.0
-	_path.points = curve.get_baked_points()
-	_scroll_to_current.call_deferred()
-
-
-func _scroll_to_current() -> void:
-	var current := GameSession.progress.current_level(LevelCatalog.count())
-	var node := _nodes[current - 1]
-	var target := node.position.y + node.marker_center().y - _scroll.size.y * 0.55
-	_scroll.scroll_vertical = int(clampf(target, 0.0, _map.custom_minimum_size.y))
+## Background drifts slightly as you travel, for depth.
+func _on_camera_moved(camera: float) -> void:
+	var span := maxf(_world.max_camera() - _world.min_camera(), 0.001)
+	var progress := (camera - _world.min_camera()) / span
+	# The background is PARALLAX taller above and below; travelling forward
+	# lets the scenery come toward you.
+	var shift := lerpf(-PARALLAX, PARALLAX, progress)
+	_background.offset_top = -PARALLAX + shift
+	_background.offset_bottom = PARALLAX + shift
 
 
 func _celebrate_unlock() -> void:
@@ -107,6 +79,7 @@ func _celebrate_unlock() -> void:
 	if level <= 0 or level > _nodes.size():
 		return
 	AudioManager.play_sfx("unlock")
+	_world.focus_level(level)
 	_nodes[level - 1].play_unlock()
 	_show_toast("Level %d unlocked: %s" % [level, LevelCatalog.get_level(level).title])
 
