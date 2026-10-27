@@ -1,118 +1,146 @@
 {
 	"id": "alphabet",
 	"name": "Alphabet",
-	"version": 1,
+	"version": 2,
 	"order": 5,
 	"kind": "symbols",
 	"assignment": "board_ordered",
 	"description": "English letters A to Z. Boards needing more than 26 symbols show Classic instead.",
 	"thumbnail": "res://assets/collections/alphabet/thumbnail.png",
+	"tile_style": "res://data/tile_art/ivory_body_v1.json",
 	"body": "res://assets/tiles/bodies/tile_body_ivory.png",
-	"symbol_padding": 0.16,
+	"symbol_padding": 0.1,
+	"source": "ZenMahjongJourney_PremiumCollections v1 (pictograms based on Noto Color Emoji; see assets/collections/LICENSES.md)",
 	"symbols": [
 		{
 			"id": "a",
-			"file": "res://assets/collections/alphabet/letter_a.png"
+			"file": "res://assets/collections/alphabet/letter_01_a.png",
+			"pack_id": "face_01"
 		},
 		{
 			"id": "b",
-			"file": "res://assets/collections/alphabet/letter_b.png"
+			"file": "res://assets/collections/alphabet/letter_02_b.png",
+			"pack_id": "face_02"
 		},
 		{
 			"id": "c",
-			"file": "res://assets/collections/alphabet/letter_c.png"
+			"file": "res://assets/collections/alphabet/letter_03_c.png",
+			"pack_id": "face_03"
 		},
 		{
 			"id": "d",
-			"file": "res://assets/collections/alphabet/letter_d.png"
+			"file": "res://assets/collections/alphabet/letter_04_d.png",
+			"pack_id": "face_04"
 		},
 		{
 			"id": "e",
-			"file": "res://assets/collections/alphabet/letter_e.png"
+			"file": "res://assets/collections/alphabet/letter_05_e.png",
+			"pack_id": "face_05"
 		},
 		{
 			"id": "f",
-			"file": "res://assets/collections/alphabet/letter_f.png"
+			"file": "res://assets/collections/alphabet/letter_06_f.png",
+			"pack_id": "face_06"
 		},
 		{
 			"id": "g",
-			"file": "res://assets/collections/alphabet/letter_g.png"
+			"file": "res://assets/collections/alphabet/letter_07_g.png",
+			"pack_id": "face_07"
 		},
 		{
 			"id": "h",
-			"file": "res://assets/collections/alphabet/letter_h.png"
+			"file": "res://assets/collections/alphabet/letter_08_h.png",
+			"pack_id": "face_08"
 		},
 		{
 			"id": "i",
-			"file": "res://assets/collections/alphabet/letter_i.png"
+			"file": "res://assets/collections/alphabet/letter_09_i.png",
+			"pack_id": "face_09"
 		},
 		{
 			"id": "j",
-			"file": "res://assets/collections/alphabet/letter_j.png"
+			"file": "res://assets/collections/alphabet/letter_10_j.png",
+			"pack_id": "face_10"
 		},
 		{
 			"id": "k",
-			"file": "res://assets/collections/alphabet/letter_k.png"
+			"file": "res://assets/collections/alphabet/letter_11_k.png",
+			"pack_id": "face_11"
 		},
 		{
 			"id": "l",
-			"file": "res://assets/collections/alphabet/letter_l.png"
+			"file": "res://assets/collections/alphabet/letter_12_l.png",
+			"pack_id": "face_12"
 		},
 		{
 			"id": "m",
-			"file": "res://assets/collections/alphabet/letter_m.png"
+			"file": "res://assets/collections/alphabet/letter_13_m.png",
+			"pack_id": "face_13"
 		},
 		{
 			"id": "n",
-			"file": "res://assets/collections/alphabet/letter_n.png"
+			"file": "res://assets/collections/alphabet/letter_14_n.png",
+			"pack_id": "face_14"
 		},
 		{
 			"id": "o",
-			"file": "res://assets/collections/alphabet/letter_o.png"
+			"file": "res://assets/collections/alphabet/letter_15_o.png",
+			"pack_id": "face_15"
 		},
 		{
 			"id": "p",
-			"file": "res://assets/collections/alphabet/letter_p.png"
+			"file": "res://assets/collections/alphabet/letter_16_p.png",
+			"pack_id": "face_16"
 		},
 		{
 			"id": "q",
-			"file": "res://assets/collections/alphabet/letter_q.png"
+			"file": "res://assets/collections/alphabet/letter_17_q.png",
+			"pack_id": "face_17"
 		},
 		{
 			"id": "r",
-			"file": "res://assets/collections/alphabet/letter_r.png"
+			"file": "res://assets/collections/alphabet/letter_18_r.png",
+			"pack_id": "face_18"
 		},
 		{
 			"id": "s",
-			"file": "res://assets/collections/alphabet/letter_s.png"
+			"file": "res://assets/collections/alphabet/letter_19_s.png",
+			"pack_id": "face_19"
 		},
 		{
 			"id": "t",
-			"file": "res://assets/collections/alphabet/letter_t.png"
+			"file": "res://assets/collections/alphabet/letter_20_t.png",
+			"pack_id": "face_20"
 		},
 		{
 			"id": "u",
-			"file": "res://assets/collections/alphabet/letter_u.png"
+			"file": "res://assets/collections/alphabet/letter_21_u.png",
+			"pack_id": "face_21"
 		},
 		{
 			"id": "v",
-			"file": "res://assets/collections/alphabet/letter_v.png"
+			"file": "res://assets/collections/alphabet/letter_22_v.png",
+			"pack_id": "face_22"
 		},
 		{
 			"id": "w",
-			"file": "res://assets/collections/alphabet/letter_w.png"
+			"file": "res://assets/collections/alphabet/letter_23_w.png",
+			"pack_id": "face_23"
 		},
 		{
 			"id": "x",
-			"file": "res://assets/collections/alphabet/letter_x.png"
+			"file": "res://assets/collections/alphabet/letter_24_x.png",
+			"pack_id": "face_24"
 		},
 		{
 			"id": "y",
-			"file": "res://assets/collections/alphabet/letter_y.png"
+			"file": "res://assets/collections/alphabet/letter_25_y.png",
+			"pack_id": "face_25"
 		},
 		{
 			"id": "z",
-			"file": "res://assets/collections/alphabet/letter_z.png"
+			"file": "res://assets/collections/alphabet/letter_26_z.png",
+			"pack_id": "face_26"
 		}
 	]
 }

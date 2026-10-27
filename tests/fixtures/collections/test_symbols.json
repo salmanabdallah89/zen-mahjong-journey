@@ -135,12 +135,12 @@
 			"file": "res://assets/effects/petal_05.png"
 		},
 		{
-			"id": "petal_06",
-			"file": "res://assets/effects/petal_06.png"
+			"id": "btn_circle",
+			"file": "res://assets/ui/buttons/btn_circle_empty.png"
 		},
 		{
-			"id": "petal_07",
-			"file": "res://assets/effects/petal_07.png"
+			"id": "panel_reward",
+			"file": "res://assets/ui/panels/panel_reward_empty.png"
 		},
 		{
 			"id": "node_available",

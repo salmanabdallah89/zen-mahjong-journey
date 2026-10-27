@@ -75,6 +75,8 @@ func _refresh_cards() -> void:
 			status.text = "IN USE"
 		elif available:
 			status.text = "TAP TO PREVIEW"
+		elif TileCollectionManager.get_collection(collection_id).has_all_files():
+			status.text = "NEEDS ART FIXES"
 		else:
 			status.text = "COMING SOON"
 		card.modulate = Color.WHITE if available else Color(1, 1, 1, 0.62)
@@ -109,10 +111,21 @@ func _make_card(collection: TileCollection) -> Button:
 	tiles.custom_minimum_size = Vector2(0, TileArtSet.active().image_size.y * CARD_TILE_SCALE)
 	box.add_child(tiles)
 	if TileCollectionManager.is_available(collection.id):
-		var skin := _sample_skin(collection, CARD_SAMPLE_FACES)
-		if skin:
-			for face in CARD_SAMPLE_FACES:
-				tiles.add_child(_tile_holder(skin, face, CARD_TILE_SCALE))
+		if ResourceLoader.exists(collection.thumbnail_path):
+			var thumbnail := TextureRect.new()
+			thumbnail.texture = load(collection.thumbnail_path)
+			thumbnail.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			thumbnail.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			thumbnail.custom_minimum_size = Vector2(110, 110)
+			thumbnail.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+			thumbnail.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			tiles.add_child(thumbnail)
+			tiles.custom_minimum_size.y = 110
+		else:
+			var skin := _sample_skin(collection, CARD_SAMPLE_FACES)
+			if skin:
+				for face in CARD_SAMPLE_FACES:
+					tiles.add_child(_tile_holder(skin, face, CARD_TILE_SCALE))
 
 	var title := Label.new()
 	title.text = collection.display_name
@@ -138,8 +151,13 @@ func _show_preview(collection_id: String) -> void:
 		return
 	var available := TileCollectionManager.is_available(collection_id)
 	_apply.disabled = not available or collection_id == TileCollectionManager.selected_id
+	if not available and collection.has_all_files():
+		var problems := collection.validate(TileArtSet.active())
+		_status.text = "%s\nNot available yet: %d artwork problem%s, such as %s." % [
+			collection.description, problems.size(), "" if problems.size() == 1 else "s", problems[0]]
+		return
 	if not available:
-		_status.text = "%s\nArtwork coming soon: %d of %d images still needed." % [
+		_status.text ="%s\nArtwork coming soon: %d of %d images still needed." % [
 			collection.description, collection.missing_symbol_count() + _missing_extras(collection),
 			collection.symbol_paths.size() + 1]
 		return
@@ -161,11 +179,14 @@ func _sample_skin(collection: TileCollection, faces: PackedStringArray) -> TileS
 
 
 func _tile_holder(skin: TileSkin, face: String, tile_scale: float) -> Control:
-	var art := TileArtSet.active()
+	# Tile styles differ in pixel size; scale so every preview tile is equally wide.
+	var fitted := tile_scale * TileArtSet.active().image_size.x / skin.style.image_size.x
 	var holder := Control.new()
 	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	holder.custom_minimum_size = art.image_size * tile_scale
+	holder.custom_minimum_size = skin.style.image_size * fitted
 	var view: TileView = TILE_SCENE.instantiate()
+	view.style = skin.style
+	tile_scale = fitted
 	view.scale = Vector2(tile_scale, tile_scale)
 	view.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	# Cards are built before they enter the tree; configure once the tile is ready.

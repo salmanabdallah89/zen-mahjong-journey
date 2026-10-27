@@ -8,6 +8,9 @@ extends RefCounted
 ## missing texture.
 
 var collection_id: String = ""
+## Tile geometry this skin's images are drawn for (Classic style or the
+## collection's own body style). BoardView lays the board out with it.
+var style: TileArtSet
 ## "tile_set" (full tile images) or "symbols" (symbol on a body).
 var kind: String = "tile_set"
 var body: Texture2D
@@ -31,6 +34,7 @@ static func build(collection: TileCollection, art: TileArtSet, faces: PackedStri
 	var skin := TileSkin.new()
 	skin.collection_id = collection.id
 	skin.kind = collection.kind
+	skin.style = collection.style(art)
 	if collection.kind == "tile_set":
 		for face in faces:
 			if skin._textures.has(face):
@@ -59,6 +63,11 @@ static func build(collection: TileCollection, art: TileArtSet, faces: PackedStri
 		if texture == null:
 			result.error = "missing symbol for %s" % group
 			return result
+		if collection.symbol_region.has_area():
+			var shown := AtlasTexture.new()
+			shown.atlas = texture
+			shown.region = collection.symbol_region
+			texture = shown
 		skin._textures[group] = texture
 	result.skin = skin
 	return result
@@ -77,4 +86,6 @@ func symbol_texture(face_id: String) -> Texture2D:
 ## Image identity per match group, for checking that no two groups look alike.
 func visual_key(face_id: String) -> String:
 	var texture := symbol_texture(face_id) if kind == "symbols" else tile_texture(face_id)
+	if texture is AtlasTexture:
+		texture = (texture as AtlasTexture).atlas
 	return texture.resource_path if texture else ""

@@ -34,7 +34,7 @@ func _ready() -> void:
 func show_board(model: BoardModel, skin: TileSkin) -> void:
 	_model = model
 	_skin = skin
-	_art = TileArtSet.active()
+	_art = skin.style
 	if _layer:
 		_layer.queue_free()
 	_layer = Control.new()
@@ -59,6 +59,7 @@ func show_board(model: BoardModel, skin: TileSkin) -> void:
 	_content = Rect2()
 	for i: int in order:
 		var view: TileView = TILE_SCENE.instantiate()
+		view.style = _art
 		view.index = i
 		view.position = tile_origin(i)
 		view.pressed.connect(_on_tile_pressed)
@@ -104,8 +105,12 @@ func refresh_all() -> void:
 		view.set_free(_model.is_free(i), false)
 
 
-## Shows the board in another collection's art. Board state is untouched.
+## Shows the board in another collection's art. Board state is untouched;
+## a different tile style (size, spacing) rebuilds the layout from the model.
 func apply_skin(skin: TileSkin) -> void:
+	if skin.style != _art:
+		show_board(_model, skin)
+		return
 	_skin = skin
 	for i in _tiles.size():
 		_apply_art(i)

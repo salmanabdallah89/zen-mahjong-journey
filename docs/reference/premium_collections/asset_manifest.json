@@ -1,0 +1,874 @@
+{
+  "package": "Zen Mahjong Journey - Customizable Tile Artwork Pack",
+  "version": 1,
+  "symbols_per_collection": {
+    "animals": 36,
+    "fruits": 36,
+    "vegetables": 36,
+    "alphabet": 26,
+    "mixed": 36
+  },
+  "folders": {
+    "animals": [
+      {
+        "id": "face_01",
+        "file": "assets/collections/animals/animal_01_cat.png",
+        "label": "cat"
+      },
+      {
+        "id": "face_02",
+        "file": "assets/collections/animals/animal_02_dog.png",
+        "label": "dog"
+      },
+      {
+        "id": "face_03",
+        "file": "assets/collections/animals/animal_03_panda.png",
+        "label": "panda"
+      },
+      {
+        "id": "face_04",
+        "file": "assets/collections/animals/animal_04_fox.png",
+        "label": "fox"
+      },
+      {
+        "id": "face_05",
+        "file": "assets/collections/animals/animal_05_rabbit.png",
+        "label": "rabbit"
+      },
+      {
+        "id": "face_06",
+        "file": "assets/collections/animals/animal_06_mouse.png",
+        "label": "mouse"
+      },
+      {
+        "id": "face_07",
+        "file": "assets/collections/animals/animal_07_tiger.png",
+        "label": "tiger"
+      },
+      {
+        "id": "face_08",
+        "file": "assets/collections/animals/animal_08_lion.png",
+        "label": "lion"
+      },
+      {
+        "id": "face_09",
+        "file": "assets/collections/animals/animal_09_elephant.png",
+        "label": "elephant"
+      },
+      {
+        "id": "face_10",
+        "file": "assets/collections/animals/animal_10_monkey.png",
+        "label": "monkey"
+      },
+      {
+        "id": "face_11",
+        "file": "assets/collections/animals/animal_11_pig.png",
+        "label": "pig"
+      },
+      {
+        "id": "face_12",
+        "file": "assets/collections/animals/animal_12_cow.png",
+        "label": "cow"
+      },
+      {
+        "id": "face_13",
+        "file": "assets/collections/animals/animal_13_deer.png",
+        "label": "deer"
+      },
+      {
+        "id": "face_14",
+        "file": "assets/collections/animals/animal_14_squirrel.png",
+        "label": "squirrel"
+      },
+      {
+        "id": "face_15",
+        "file": "assets/collections/animals/animal_15_owl.png",
+        "label": "owl"
+      },
+      {
+        "id": "face_16",
+        "file": "assets/collections/animals/animal_16_penguin.png",
+        "label": "penguin"
+      },
+      {
+        "id": "face_17",
+        "file": "assets/collections/animals/animal_17_bird.png",
+        "label": "bird"
+      },
+      {
+        "id": "face_18",
+        "file": "assets/collections/animals/animal_18_peacock.png",
+        "label": "peacock"
+      },
+      {
+        "id": "face_19",
+        "file": "assets/collections/animals/animal_19_frog.png",
+        "label": "frog"
+      },
+      {
+        "id": "face_20",
+        "file": "assets/collections/animals/animal_20_turtle.png",
+        "label": "turtle"
+      },
+      {
+        "id": "face_21",
+        "file": "assets/collections/animals/animal_21_dolphin.png",
+        "label": "dolphin"
+      },
+      {
+        "id": "face_22",
+        "file": "assets/collections/animals/animal_22_whale.png",
+        "label": "whale"
+      },
+      {
+        "id": "face_23",
+        "file": "assets/collections/animals/animal_23_shark.png",
+        "label": "shark"
+      },
+      {
+        "id": "face_24",
+        "file": "assets/collections/animals/animal_24_seal.png",
+        "label": "seal"
+      },
+      {
+        "id": "face_25",
+        "file": "assets/collections/animals/animal_25_raccoon.png",
+        "label": "raccoon"
+      },
+      {
+        "id": "face_26",
+        "file": "assets/collections/animals/animal_26_hedgehog.png",
+        "label": "hedgehog"
+      },
+      {
+        "id": "face_27",
+        "file": "assets/collections/animals/animal_27_butterfly.png",
+        "label": "butterfly"
+      },
+      {
+        "id": "face_28",
+        "file": "assets/collections/animals/animal_28_bee.png",
+        "label": "bee"
+      },
+      {
+        "id": "face_29",
+        "file": "assets/collections/animals/animal_29_ladybug.png",
+        "label": "ladybug"
+      },
+      {
+        "id": "face_30",
+        "file": "assets/collections/animals/animal_30_snail.png",
+        "label": "snail"
+      },
+      {
+        "id": "face_31",
+        "file": "assets/collections/animals/animal_31_crab.png",
+        "label": "crab"
+      },
+      {
+        "id": "face_32",
+        "file": "assets/collections/animals/animal_32_octopus.png",
+        "label": "octopus"
+      },
+      {
+        "id": "face_33",
+        "file": "assets/collections/animals/animal_33_starfish.png",
+        "label": "starfish"
+      },
+      {
+        "id": "face_34",
+        "file": "assets/collections/animals/animal_34_dragon.png",
+        "label": "dragon"
+      },
+      {
+        "id": "face_35",
+        "file": "assets/collections/animals/animal_35_chameleon.png",
+        "label": "chameleon"
+      },
+      {
+        "id": "face_36",
+        "file": "assets/collections/animals/animal_36_flamingo.png",
+        "label": "flamingo"
+      }
+    ],
+    "fruits": [
+      {
+        "id": "face_01",
+        "file": "assets/collections/fruits/fruit_01_apple.png",
+        "label": "apple"
+      },
+      {
+        "id": "face_02",
+        "file": "assets/collections/fruits/fruit_02_banana.png",
+        "label": "banana"
+      },
+      {
+        "id": "face_03",
+        "file": "assets/collections/fruits/fruit_03_orange.png",
+        "label": "orange"
+      },
+      {
+        "id": "face_04",
+        "file": "assets/collections/fruits/fruit_04_strawberry.png",
+        "label": "strawberry"
+      },
+      {
+        "id": "face_05",
+        "file": "assets/collections/fruits/fruit_05_grapes.png",
+        "label": "grapes"
+      },
+      {
+        "id": "face_06",
+        "file": "assets/collections/fruits/fruit_06_blueberries.png",
+        "label": "blueberries"
+      },
+      {
+        "id": "face_07",
+        "file": "assets/collections/fruits/fruit_07_cherries.png",
+        "label": "cherries"
+      },
+      {
+        "id": "face_08",
+        "file": "assets/collections/fruits/fruit_08_lemon.png",
+        "label": "lemon"
+      },
+      {
+        "id": "face_09",
+        "file": "assets/collections/fruits/fruit_09_lime.png",
+        "label": "lime"
+      },
+      {
+        "id": "face_10",
+        "file": "assets/collections/fruits/fruit_10_mango.png",
+        "label": "mango"
+      },
+      {
+        "id": "face_11",
+        "file": "assets/collections/fruits/fruit_11_peach.png",
+        "label": "peach"
+      },
+      {
+        "id": "face_12",
+        "file": "assets/collections/fruits/fruit_12_pear.png",
+        "label": "pear"
+      },
+      {
+        "id": "face_13",
+        "file": "assets/collections/fruits/fruit_13_pineapple.png",
+        "label": "pineapple"
+      },
+      {
+        "id": "face_14",
+        "file": "assets/collections/fruits/fruit_14_watermelon.png",
+        "label": "watermelon"
+      },
+      {
+        "id": "face_15",
+        "file": "assets/collections/fruits/fruit_15_kiwi.png",
+        "label": "kiwi"
+      },
+      {
+        "id": "face_16",
+        "file": "assets/collections/fruits/fruit_16_pomegranate.png",
+        "label": "pomegranate"
+      },
+      {
+        "id": "face_17",
+        "file": "assets/collections/fruits/fruit_17_coconut.png",
+        "label": "coconut"
+      },
+      {
+        "id": "face_18",
+        "file": "assets/collections/fruits/fruit_18_avocado.png",
+        "label": "avocado"
+      },
+      {
+        "id": "face_19",
+        "file": "assets/collections/fruits/fruit_19_melon.png",
+        "label": "melon"
+      },
+      {
+        "id": "face_20",
+        "file": "assets/collections/fruits/fruit_20_fig.png",
+        "label": "fig"
+      },
+      {
+        "id": "face_21",
+        "file": "assets/collections/fruits/fruit_21_papaya.png",
+        "label": "papaya"
+      },
+      {
+        "id": "face_22",
+        "file": "assets/collections/fruits/fruit_22_dragonfruit.png",
+        "label": "dragonfruit"
+      },
+      {
+        "id": "face_23",
+        "file": "assets/collections/fruits/fruit_23_passionfruit.png",
+        "label": "passionfruit"
+      },
+      {
+        "id": "face_24",
+        "file": "assets/collections/fruits/fruit_24_lychee.png",
+        "label": "lychee"
+      },
+      {
+        "id": "face_25",
+        "file": "assets/collections/fruits/fruit_25_raspberry.png",
+        "label": "raspberry"
+      },
+      {
+        "id": "face_26",
+        "file": "assets/collections/fruits/fruit_26_blackberry.png",
+        "label": "blackberry"
+      },
+      {
+        "id": "face_27",
+        "file": "assets/collections/fruits/fruit_27_cantaloupe.png",
+        "label": "cantaloupe"
+      },
+      {
+        "id": "face_28",
+        "file": "assets/collections/fruits/fruit_28_starfruit.png",
+        "label": "starfruit"
+      },
+      {
+        "id": "face_29",
+        "file": "assets/collections/fruits/fruit_29_persimmon.png",
+        "label": "persimmon"
+      },
+      {
+        "id": "face_30",
+        "file": "assets/collections/fruits/fruit_30_guava.png",
+        "label": "guava"
+      },
+      {
+        "id": "face_31",
+        "file": "assets/collections/fruits/fruit_31_plum.png",
+        "label": "plum"
+      },
+      {
+        "id": "face_32",
+        "file": "assets/collections/fruits/fruit_32_grapefruit.png",
+        "label": "grapefruit"
+      },
+      {
+        "id": "face_33",
+        "file": "assets/collections/fruits/fruit_33_tangerine.png",
+        "label": "tangerine"
+      },
+      {
+        "id": "face_34",
+        "file": "assets/collections/fruits/fruit_34_nectarine.png",
+        "label": "nectarine"
+      },
+      {
+        "id": "face_35",
+        "file": "assets/collections/fruits/fruit_35_redcurrant.png",
+        "label": "redcurrant"
+      },
+      {
+        "id": "face_36",
+        "file": "assets/collections/fruits/fruit_36_fruitbasket.png",
+        "label": "fruitbasket"
+      }
+    ],
+    "vegetables": [
+      {
+        "id": "face_01",
+        "file": "assets/collections/vegetables/vegetable_01_carrot.png",
+        "label": "carrot"
+      },
+      {
+        "id": "face_02",
+        "file": "assets/collections/vegetables/vegetable_02_broccoli.png",
+        "label": "broccoli"
+      },
+      {
+        "id": "face_03",
+        "file": "assets/collections/vegetables/vegetable_03_tomato.png",
+        "label": "tomato"
+      },
+      {
+        "id": "face_04",
+        "file": "assets/collections/vegetables/vegetable_04_cucumber.png",
+        "label": "cucumber"
+      },
+      {
+        "id": "face_05",
+        "file": "assets/collections/vegetables/vegetable_05_eggplant.png",
+        "label": "eggplant"
+      },
+      {
+        "id": "face_06",
+        "file": "assets/collections/vegetables/vegetable_06_corn.png",
+        "label": "corn"
+      },
+      {
+        "id": "face_07",
+        "file": "assets/collections/vegetables/vegetable_07_red_pepper.png",
+        "label": "red_pepper"
+      },
+      {
+        "id": "face_08",
+        "file": "assets/collections/vegetables/vegetable_08_yellow_pepper.png",
+        "label": "yellow_pepper"
+      },
+      {
+        "id": "face_09",
+        "file": "assets/collections/vegetables/vegetable_09_green_pepper.png",
+        "label": "green_pepper"
+      },
+      {
+        "id": "face_10",
+        "file": "assets/collections/vegetables/vegetable_10_potato.png",
+        "label": "potato"
+      },
+      {
+        "id": "face_11",
+        "file": "assets/collections/vegetables/vegetable_11_onion.png",
+        "label": "onion"
+      },
+      {
+        "id": "face_12",
+        "file": "assets/collections/vegetables/vegetable_12_garlic.png",
+        "label": "garlic"
+      },
+      {
+        "id": "face_13",
+        "file": "assets/collections/vegetables/vegetable_13_mushroom.png",
+        "label": "mushroom"
+      },
+      {
+        "id": "face_14",
+        "file": "assets/collections/vegetables/vegetable_14_cabbage.png",
+        "label": "cabbage"
+      },
+      {
+        "id": "face_15",
+        "file": "assets/collections/vegetables/vegetable_15_lettuce.png",
+        "label": "lettuce"
+      },
+      {
+        "id": "face_16",
+        "file": "assets/collections/vegetables/vegetable_16_spinach.png",
+        "label": "spinach"
+      },
+      {
+        "id": "face_17",
+        "file": "assets/collections/vegetables/vegetable_17_kale.png",
+        "label": "kale"
+      },
+      {
+        "id": "face_18",
+        "file": "assets/collections/vegetables/vegetable_18_cauliflower.png",
+        "label": "cauliflower"
+      },
+      {
+        "id": "face_19",
+        "file": "assets/collections/vegetables/vegetable_19_asparagus.png",
+        "label": "asparagus"
+      },
+      {
+        "id": "face_20",
+        "file": "assets/collections/vegetables/vegetable_20_peas.png",
+        "label": "peas"
+      },
+      {
+        "id": "face_21",
+        "file": "assets/collections/vegetables/vegetable_21_beetroot.png",
+        "label": "beetroot"
+      },
+      {
+        "id": "face_22",
+        "file": "assets/collections/vegetables/vegetable_22_radish.png",
+        "label": "radish"
+      },
+      {
+        "id": "face_23",
+        "file": "assets/collections/vegetables/vegetable_23_turnip.png",
+        "label": "turnip"
+      },
+      {
+        "id": "face_24",
+        "file": "assets/collections/vegetables/vegetable_24_zucchini.png",
+        "label": "zucchini"
+      },
+      {
+        "id": "face_25",
+        "file": "assets/collections/vegetables/vegetable_25_sweet_potato.png",
+        "label": "sweet_potato"
+      },
+      {
+        "id": "face_26",
+        "file": "assets/collections/vegetables/vegetable_26_pumpkin.png",
+        "label": "pumpkin"
+      },
+      {
+        "id": "face_27",
+        "file": "assets/collections/vegetables/vegetable_27_chili.png",
+        "label": "chili"
+      },
+      {
+        "id": "face_28",
+        "file": "assets/collections/vegetables/vegetable_28_artichoke.png",
+        "label": "artichoke"
+      },
+      {
+        "id": "face_29",
+        "file": "assets/collections/vegetables/vegetable_29_leek.png",
+        "label": "leek"
+      },
+      {
+        "id": "face_30",
+        "file": "assets/collections/vegetables/vegetable_30_ginger.png",
+        "label": "ginger"
+      },
+      {
+        "id": "face_31",
+        "file": "assets/collections/vegetables/vegetable_31_spring_onion.png",
+        "label": "spring_onion"
+      },
+      {
+        "id": "face_32",
+        "file": "assets/collections/vegetables/vegetable_32_bok_choy.png",
+        "label": "bok_choy"
+      },
+      {
+        "id": "face_33",
+        "file": "assets/collections/vegetables/vegetable_33_celery.png",
+        "label": "celery"
+      },
+      {
+        "id": "face_34",
+        "file": "assets/collections/vegetables/vegetable_34_okra.png",
+        "label": "okra"
+      },
+      {
+        "id": "face_35",
+        "file": "assets/collections/vegetables/vegetable_35_brussels_sprouts.png",
+        "label": "brussels_sprouts"
+      },
+      {
+        "id": "face_36",
+        "file": "assets/collections/vegetables/vegetable_36_vegetable_basket.png",
+        "label": "vegetable_basket"
+      }
+    ],
+    "alphabet": [
+      {
+        "id": "face_01",
+        "file": "assets/collections/alphabet/letter_01_a.png",
+        "label": "A"
+      },
+      {
+        "id": "face_02",
+        "file": "assets/collections/alphabet/letter_02_b.png",
+        "label": "B"
+      },
+      {
+        "id": "face_03",
+        "file": "assets/collections/alphabet/letter_03_c.png",
+        "label": "C"
+      },
+      {
+        "id": "face_04",
+        "file": "assets/collections/alphabet/letter_04_d.png",
+        "label": "D"
+      },
+      {
+        "id": "face_05",
+        "file": "assets/collections/alphabet/letter_05_e.png",
+        "label": "E"
+      },
+      {
+        "id": "face_06",
+        "file": "assets/collections/alphabet/letter_06_f.png",
+        "label": "F"
+      },
+      {
+        "id": "face_07",
+        "file": "assets/collections/alphabet/letter_07_g.png",
+        "label": "G"
+      },
+      {
+        "id": "face_08",
+        "file": "assets/collections/alphabet/letter_08_h.png",
+        "label": "H"
+      },
+      {
+        "id": "face_09",
+        "file": "assets/collections/alphabet/letter_09_i.png",
+        "label": "I"
+      },
+      {
+        "id": "face_10",
+        "file": "assets/collections/alphabet/letter_10_j.png",
+        "label": "J"
+      },
+      {
+        "id": "face_11",
+        "file": "assets/collections/alphabet/letter_11_k.png",
+        "label": "K"
+      },
+      {
+        "id": "face_12",
+        "file": "assets/collections/alphabet/letter_12_l.png",
+        "label": "L"
+      },
+      {
+        "id": "face_13",
+        "file": "assets/collections/alphabet/letter_13_m.png",
+        "label": "M"
+      },
+      {
+        "id": "face_14",
+        "file": "assets/collections/alphabet/letter_14_n.png",
+        "label": "N"
+      },
+      {
+        "id": "face_15",
+        "file": "assets/collections/alphabet/letter_15_o.png",
+        "label": "O"
+      },
+      {
+        "id": "face_16",
+        "file": "assets/collections/alphabet/letter_16_p.png",
+        "label": "P"
+      },
+      {
+        "id": "face_17",
+        "file": "assets/collections/alphabet/letter_17_q.png",
+        "label": "Q"
+      },
+      {
+        "id": "face_18",
+        "file": "assets/collections/alphabet/letter_18_r.png",
+        "label": "R"
+      },
+      {
+        "id": "face_19",
+        "file": "assets/collections/alphabet/letter_19_s.png",
+        "label": "S"
+      },
+      {
+        "id": "face_20",
+        "file": "assets/collections/alphabet/letter_20_t.png",
+        "label": "T"
+      },
+      {
+        "id": "face_21",
+        "file": "assets/collections/alphabet/letter_21_u.png",
+        "label": "U"
+      },
+      {
+        "id": "face_22",
+        "file": "assets/collections/alphabet/letter_22_v.png",
+        "label": "V"
+      },
+      {
+        "id": "face_23",
+        "file": "assets/collections/alphabet/letter_23_w.png",
+        "label": "W"
+      },
+      {
+        "id": "face_24",
+        "file": "assets/collections/alphabet/letter_24_x.png",
+        "label": "X"
+      },
+      {
+        "id": "face_25",
+        "file": "assets/collections/alphabet/letter_25_y.png",
+        "label": "Y"
+      },
+      {
+        "id": "face_26",
+        "file": "assets/collections/alphabet/letter_26_z.png",
+        "label": "Z"
+      }
+    ],
+    "mixed": [
+      {
+        "id": "face_01",
+        "file": "assets/collections/mixed/mixed_01_animals_01.png",
+        "source": "animals"
+      },
+      {
+        "id": "face_02",
+        "file": "assets/collections/mixed/mixed_02_fruits_01.png",
+        "source": "fruits"
+      },
+      {
+        "id": "face_03",
+        "file": "assets/collections/mixed/mixed_03_vegetables_01.png",
+        "source": "vegetables"
+      },
+      {
+        "id": "face_04",
+        "file": "assets/collections/mixed/mixed_04_alphabet_01.png",
+        "source": "alphabet"
+      },
+      {
+        "id": "face_05",
+        "file": "assets/collections/mixed/mixed_05_animals_02.png",
+        "source": "animals"
+      },
+      {
+        "id": "face_06",
+        "file": "assets/collections/mixed/mixed_06_fruits_02.png",
+        "source": "fruits"
+      },
+      {
+        "id": "face_07",
+        "file": "assets/collections/mixed/mixed_07_vegetables_02.png",
+        "source": "vegetables"
+      },
+      {
+        "id": "face_08",
+        "file": "assets/collections/mixed/mixed_08_alphabet_02.png",
+        "source": "alphabet"
+      },
+      {
+        "id": "face_09",
+        "file": "assets/collections/mixed/mixed_09_animals_03.png",
+        "source": "animals"
+      },
+      {
+        "id": "face_10",
+        "file": "assets/collections/mixed/mixed_10_fruits_03.png",
+        "source": "fruits"
+      },
+      {
+        "id": "face_11",
+        "file": "assets/collections/mixed/mixed_11_vegetables_03.png",
+        "source": "vegetables"
+      },
+      {
+        "id": "face_12",
+        "file": "assets/collections/mixed/mixed_12_alphabet_03.png",
+        "source": "alphabet"
+      },
+      {
+        "id": "face_13",
+        "file": "assets/collections/mixed/mixed_13_animals_04.png",
+        "source": "animals"
+      },
+      {
+        "id": "face_14",
+        "file": "assets/collections/mixed/mixed_14_fruits_04.png",
+        "source": "fruits"
+      },
+      {
+        "id": "face_15",
+        "file": "assets/collections/mixed/mixed_15_vegetables_04.png",
+        "source": "vegetables"
+      },
+      {
+        "id": "face_16",
+        "file": "assets/collections/mixed/mixed_16_alphabet_04.png",
+        "source": "alphabet"
+      },
+      {
+        "id": "face_17",
+        "file": "assets/collections/mixed/mixed_17_animals_05.png",
+        "source": "animals"
+      },
+      {
+        "id": "face_18",
+        "file": "assets/collections/mixed/mixed_18_fruits_05.png",
+        "source": "fruits"
+      },
+      {
+        "id": "face_19",
+        "file": "assets/collections/mixed/mixed_19_vegetables_05.png",
+        "source": "vegetables"
+      },
+      {
+        "id": "face_20",
+        "file": "assets/collections/mixed/mixed_20_alphabet_05.png",
+        "source": "alphabet"
+      },
+      {
+        "id": "face_21",
+        "file": "assets/collections/mixed/mixed_21_animals_06.png",
+        "source": "animals"
+      },
+      {
+        "id": "face_22",
+        "file": "assets/collections/mixed/mixed_22_fruits_06.png",
+        "source": "fruits"
+      },
+      {
+        "id": "face_23",
+        "file": "assets/collections/mixed/mixed_23_vegetables_06.png",
+        "source": "vegetables"
+      },
+      {
+        "id": "face_24",
+        "file": "assets/collections/mixed/mixed_24_alphabet_06.png",
+        "source": "alphabet"
+      },
+      {
+        "id": "face_25",
+        "file": "assets/collections/mixed/mixed_25_animals_07.png",
+        "source": "animals"
+      },
+      {
+        "id": "face_26",
+        "file": "assets/collections/mixed/mixed_26_fruits_07.png",
+        "source": "fruits"
+      },
+      {
+        "id": "face_27",
+        "file": "assets/collections/mixed/mixed_27_vegetables_07.png",
+        "source": "vegetables"
+      },
+      {
+        "id": "face_28",
+        "file": "assets/collections/mixed/mixed_28_alphabet_07.png",
+        "source": "alphabet"
+      },
+      {
+        "id": "face_29",
+        "file": "assets/collections/mixed/mixed_29_animals_08.png",
+        "source": "animals"
+      },
+      {
+        "id": "face_30",
+        "file": "assets/collections/mixed/mixed_30_fruits_08.png",
+        "source": "fruits"
+      },
+      {
+        "id": "face_31",
+        "file": "assets/collections/mixed/mixed_31_vegetables_08.png",
+        "source": "vegetables"
+      },
+      {
+        "id": "face_32",
+        "file": "assets/collections/mixed/mixed_32_alphabet_08.png",
+        "source": "alphabet"
+      },
+      {
+        "id": "face_33",
+        "file": "assets/collections/mixed/mixed_33_animals_09.png",
+        "source": "animals"
+      },
+      {
+        "id": "face_34",
+        "file": "assets/collections/mixed/mixed_34_fruits_09.png",
+        "source": "fruits"
+      },
+      {
+        "id": "face_35",
+        "file": "assets/collections/mixed/mixed_35_vegetables_09.png",
+        "source": "vegetables"
+      },
+      {
+        "id": "face_36",
+        "file": "assets/collections/mixed/mixed_36_alphabet_09.png",
+        "source": "alphabet"
+      }
+    ]
+  },
+  "note": "Use face symbols as overlays atop the shared transparent tile body; do not use preview tiles as in-game faces."
+}

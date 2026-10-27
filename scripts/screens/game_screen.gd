@@ -253,6 +253,8 @@ func _on_picker_closed() -> void:
 ## Re-skins the board in place: same tiles, same state, new artwork.
 func _on_collection_changed(_collection_id: String) -> void:
 	if _model:
+		_set_selected(-1)
+		_clear_hint()
 		_board.apply_skin(TileCollectionManager.skin_for_board(_model.faces, _level.deal_seed))
 		_show_collection_notice()
 

@@ -32,41 +32,54 @@ func _ready() -> void:
 	get_tree().quit()
 
 
-## The collection picker as shipped, then (with stand-in fixture art, file
-## names marked "fixture") the picker and a board in a symbol collection.
+## The collection picker and every enabled collection on real boards, plus
+## a stand-in fixture board (file names marked "fixture").
 func _capture_collections() -> void:
 	var manager := TileCollectionManager
 	var real_settings := manager.settings_path
 	manager.settings_path = "user://capture_settings.cfg"
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(manager.settings_path))
+	manager.restore()
 	var startup := STARTUP_SCENE.instantiate()
 	add_child(startup)
 	await _wait(1.2)
-	startup.get_node("%CollectionPicker").call("open")
+	var start_picker: CollectionPicker = startup.get_node("%CollectionPicker")
+	start_picker.open()
 	await _wait(0.4)
 	await _save("phone_9x16_collection_picker")
-	startup.get_node("%CollectionPicker").call("highlight", "animals")
+	start_picker.highlight("animals")
 	await _wait(0.2)
-	await _save("phone_9x16_collection_picker_coming_soon")
+	await _save("phone_9x16_collection_picker_animals")
+	start_picker.highlight("fruits")
+	await _wait(0.2)
+	await _save("phone_9x16_collection_picker_needs_fixes")
 	startup.queue_free()
 	await _frames(2)
 
+	for collection_id in ["classic", "animals", "alphabet", "mixed"]:
+		manager.select(collection_id)
+		for number in [5, 10]:
+			GameSession.current_level = number
+			var screen: Control = GAME_SCENE.instantiate()
+			add_child(screen)
+			await _wait(0.5)
+			await _save("phone_9x16_%s_level%02d" % [collection_id, number])
+			if number == 5 and collection_id != "classic":
+				var model: BoardModel = screen.get("_model")
+				screen.call("_on_tile_pressed", model.available_matches()[0].x)
+				await _wait(0.3)
+				await _save("phone_9x16_%s_level05_selected" % collection_id)
+			screen.queue_free()
+			await _frames(2)
+
 	manager.reload_library(PackedStringArray([TileCollectionLibrary.SHIPPED_DIR, "res://tests/fixtures/collections/"]))
-	GameSession.current_level = 4
-	var screen: Control = GAME_SCENE.instantiate()
-	add_child(screen)
-	await _wait(0.4)
-	screen.call("_open_pause_menu")
-	(screen.get_node("%Dialog") as ModalDialog).close()
-	var picker: CollectionPicker = screen.get_node("%CollectionPicker")
-	picker.open("Return to Game")
-	picker.highlight("test_symbols")
-	await _wait(0.4)
-	await _save("phone_9x16_fixture_picker_in_game")
 	manager.select("test_symbols")
-	picker.hide()
+	GameSession.current_level = 4
+	var fixture_screen: Control = GAME_SCENE.instantiate()
+	add_child(fixture_screen)
 	await _wait(0.4)
 	await _save("phone_9x16_fixture_board_symbols")
-	screen.queue_free()
+	fixture_screen.queue_free()
 	await _frames(2)
 	manager.select("classic")
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(manager.settings_path))

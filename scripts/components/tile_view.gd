@@ -22,6 +22,9 @@ const SELECTED_LIFT := 10.0
 const STATE_FADE := 0.22
 
 var index: int = -1
+## Tile geometry to build from; set before the tile enters the tree.
+## Defaults to the active TileArtSet.
+var style: TileArtSet
 
 var _art: TileArtSet
 var _free := true
@@ -41,7 +44,7 @@ var _lift_tween: Tween
 
 
 func _ready() -> void:
-	_art = TileArtSet.active()
+	_art = style if style else TileArtSet.active()
 	size = _art.image_size
 	custom_minimum_size = _art.image_size
 	pivot_offset = _art.face_rect.get_center()

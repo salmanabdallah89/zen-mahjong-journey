@@ -19,6 +19,13 @@ extends RefCounted
 
 const KINDS: PackedStringArray = ["tile_set", "symbols"]
 const ASSIGNMENTS: PackedStringArray = ["fixed", "board_ordered", "board_seeded"]
+## Two symbols whose shown pictures differ by less than this (mean per-channel
+## difference of 16 px wide thumbnails, 0..1) count as the same picture. In
+## the premium pack every same-drawing pair measured 0.000, while the closest
+## genuinely different pair (letters I and T) measured 0.021. This catches
+## reused drawings; pictures that differ only by colour still need a person.
+const LOOKALIKE_THRESHOLD := 0.008
+const THUMB_SIZE := 16
 
 var id: String = ""
 var display_name: String = ""
@@ -30,6 +37,12 @@ var assignment: String = "fixed"
 var manifest_path: String = ""
 var thumbnail_path: String = ""
 var body_path: String = ""
+## Tile style manifest whose geometry matches `body_path` (symbols only).
+## Empty means the active TileArtSet.
+var tile_style_path: String = ""
+## Part of each symbol image to show, e.g. to leave out a baked-in caption.
+## Zero size means the whole image.
+var symbol_region := Rect2()
 ## Share of the face area left empty around a symbol, per side.
 var symbol_padding: float = 0.14
 ## Ordered symbol ids and their image paths ("symbols" kind only).
@@ -62,6 +75,9 @@ static func from_dict(data: Dictionary) -> TileCollection:
 	c.thumbnail_path = str(data.get("thumbnail", ""))
 	c.body_path = str(data.get("body", ""))
 	c.symbol_padding = float(data.get("symbol_padding", 0.14))
+	c.tile_style_path = str(data.get("tile_style", ""))
+	var region: Array = data.get("symbol_region", [0, 0, 0, 0])
+	c.symbol_region = Rect2(float(region[0]), float(region[1]), float(region[2]), float(region[3]))
 	for entry: Variant in data.get("symbols", []):
 		if entry is Dictionary:
 			c.symbol_ids.append(str((entry as Dictionary).get("id", "")))
@@ -82,6 +98,20 @@ func max_groups() -> int:
 	return symbol_ids.size()
 
 
+## The tile style (geometry) this collection is drawn with.
+func style(art: TileArtSet) -> TileArtSet:
+	if kind == "tile_set" or tile_style_path.is_empty():
+		return art
+	return TileArtSet.cached(tile_style_path)
+
+
+## True when every file the manifest names exists (it may still be invalid).
+func has_all_files() -> bool:
+	if kind == "tile_set":
+		return true
+	return missing_symbol_count() == 0 and ResourceLoader.exists(body_path)
+
+
 ## Problems found in the manifest or its files. Empty means every image the
 ## collection can show exists and is usable. Result is cached.
 func validate(art: TileArtSet) -> PackedStringArray:
@@ -100,12 +130,15 @@ func validate(art: TileArtSet) -> PackedStringArray:
 		_errors.append("unknown assignment '%s'" % assignment)
 	if symbol_ids.is_empty():
 		_errors.append("no symbols listed")
-	if not ResourceLoader.exists(body_path):
+	var tile_style := style(art)
+	if tile_style == null:
+		_errors.append("missing tile style %s" % tile_style_path)
+	elif not ResourceLoader.exists(body_path):
 		_errors.append("missing tile body %s" % body_path)
 	else:
 		var body: Texture2D = load(body_path)
-		if Vector2(body.get_size()) != art.image_size:
-			_errors.append("tile body is %s, tile style needs %s" % [body.get_size(), art.image_size])
+		if Vector2(body.get_size()) != tile_style.image_size:
+			_errors.append("tile body is %s, tile style needs %s" % [body.get_size(), tile_style.image_size])
 	var seen_ids := {}
 	var seen_files := {}
 	for i in symbol_ids.size():
@@ -124,15 +157,58 @@ func validate(art: TileArtSet) -> PackedStringArray:
 	return _errors
 
 
-## Different files can still hold the same picture, so compare pixels too.
+## Different files can still hold the same picture: identical bytes, or the
+## same drawing with only a caption changed. Compares the part that is shown.
 func _check_distinct_pictures() -> void:
 	var seen := {}
+	var thumbs: Array[PackedByteArray] = []
 	for i in symbol_paths.size():
 		var image := (load(symbol_paths[i]) as Texture2D).get_image()
+		if image.is_compressed():
+			image.decompress()
 		var key := hash(image.get_data())
 		if seen.has(key):
 			_errors.append("symbol '%s' is the same picture as '%s'" % [symbol_ids[i], seen[key]])
 		seen[key] = symbol_ids[i]
+		if image.detect_alpha() == Image.ALPHA_NONE:
+			_errors.append("symbol '%s' has no transparent background" % symbol_ids[i])
+		var region := Rect2i(symbol_region) if symbol_region.has_area() else Rect2i(Vector2i.ZERO, image.get_size())
+		if not Rect2i(Vector2i.ZERO, image.get_size()).encloses(region):
+			_errors.append("symbol_region %s is outside '%s' (%s)" % [region, symbol_ids[i], image.get_size()])
+			thumbs.append(PackedByteArray())
+			continue
+		thumbs.append(_thumbnail(image.get_region(region)))
+	for a in thumbs.size():
+		for b in range(a + 1, thumbs.size()):
+			if thumbs[a].is_empty() or thumbs[b].is_empty():
+				continue
+			var difference := _difference(thumbs[a], thumbs[b])
+			if difference < LOOKALIKE_THRESHOLD:
+				_errors.append("symbols '%s' and '%s' look the same (difference %.3f)" % [
+					symbol_ids[a], symbol_ids[b], difference])
+
+
+## Small alpha-premultiplied RGBA copy used for look-alike comparison.
+static func _thumbnail(image: Image) -> PackedByteArray:
+	var copy := image.duplicate() as Image
+	copy.convert(Image.FORMAT_RGBA8)
+	var height := maxi(1, roundi(THUMB_SIZE * float(copy.get_height()) / copy.get_width()))
+	copy.resize(THUMB_SIZE, height, Image.INTERPOLATE_BILINEAR)
+	var data := copy.get_data()
+	for i in range(0, data.size(), 4):
+		var alpha := data[i + 3]
+		for c in 3:
+			data[i + c] = int(data[i + c] * alpha / 255.0)
+	return data
+
+
+static func _difference(a: PackedByteArray, b: PackedByteArray) -> float:
+	if a.size() != b.size():
+		return 1.0
+	var total := 0
+	for i in a.size():
+		total += absi(a[i] - b[i])
+	return total / (255.0 * a.size())
 
 
 func is_complete(art: TileArtSet) -> bool:

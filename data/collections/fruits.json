@@ -1,158 +1,203 @@
 {
 	"id": "fruits",
 	"name": "Fruits",
-	"version": 1,
+	"version": 2,
 	"order": 3,
 	"kind": "symbols",
 	"assignment": "fixed",
 	"description": "Illustrated fruits.",
 	"thumbnail": "res://assets/collections/fruits/thumbnail.png",
+	"tile_style": "res://data/tile_art/ivory_body_v1.json",
 	"body": "res://assets/tiles/bodies/tile_body_ivory.png",
-	"symbol_padding": 0.14,
+	"symbol_padding": 0.1,
+	"_symbol_region": "Frames the drawing (measured union of all symbols in this collection, plus a margin) and leaves out the English caption each PNG has baked in below y=200, which is unreadable at tile size and not translatable.",
+	"symbol_region": [
+		56,
+		34,
+		144,
+		140
+	],
+	"source": "ZenMahjongJourney_PremiumCollections v1 (pictograms based on Noto Color Emoji; see assets/collections/LICENSES.md)",
 	"symbols": [
 		{
 			"id": "apple",
-			"file": "res://assets/collections/fruits/fruit_apple.png"
-		},
-		{
-			"id": "pear",
-			"file": "res://assets/collections/fruits/fruit_pear.png"
-		},
-		{
-			"id": "orange",
-			"file": "res://assets/collections/fruits/fruit_orange.png"
-		},
-		{
-			"id": "lemon",
-			"file": "res://assets/collections/fruits/fruit_lemon.png"
+			"file": "res://assets/collections/fruits/fruit_01_apple.png",
+			"pack_id": "face_01"
 		},
 		{
 			"id": "banana",
-			"file": "res://assets/collections/fruits/fruit_banana.png"
+			"file": "res://assets/collections/fruits/fruit_02_banana.png",
+			"pack_id": "face_02"
 		},
 		{
-			"id": "grapes",
-			"file": "res://assets/collections/fruits/fruit_grapes.png"
+			"id": "orange",
+			"file": "res://assets/collections/fruits/fruit_03_orange.png",
+			"pack_id": "face_03"
 		},
 		{
 			"id": "strawberry",
-			"file": "res://assets/collections/fruits/fruit_strawberry.png"
+			"file": "res://assets/collections/fruits/fruit_04_strawberry.png",
+			"pack_id": "face_04"
 		},
 		{
-			"id": "cherry",
-			"file": "res://assets/collections/fruits/fruit_cherry.png"
+			"id": "grapes",
+			"file": "res://assets/collections/fruits/fruit_05_grapes.png",
+			"pack_id": "face_05"
 		},
 		{
-			"id": "peach",
-			"file": "res://assets/collections/fruits/fruit_peach.png"
+			"id": "blueberries",
+			"file": "res://assets/collections/fruits/fruit_06_blueberries.png",
+			"pack_id": "face_06"
 		},
 		{
-			"id": "plum",
-			"file": "res://assets/collections/fruits/fruit_plum.png"
+			"id": "cherries",
+			"file": "res://assets/collections/fruits/fruit_07_cherries.png",
+			"pack_id": "face_07"
 		},
 		{
-			"id": "mango",
-			"file": "res://assets/collections/fruits/fruit_mango.png"
-		},
-		{
-			"id": "pineapple",
-			"file": "res://assets/collections/fruits/fruit_pineapple.png"
-		},
-		{
-			"id": "watermelon",
-			"file": "res://assets/collections/fruits/fruit_watermelon.png"
-		},
-		{
-			"id": "melon",
-			"file": "res://assets/collections/fruits/fruit_melon.png"
-		},
-		{
-			"id": "kiwi",
-			"file": "res://assets/collections/fruits/fruit_kiwi.png"
-		},
-		{
-			"id": "coconut",
-			"file": "res://assets/collections/fruits/fruit_coconut.png"
-		},
-		{
-			"id": "pomegranate",
-			"file": "res://assets/collections/fruits/fruit_pomegranate.png"
-		},
-		{
-			"id": "fig",
-			"file": "res://assets/collections/fruits/fruit_fig.png"
-		},
-		{
-			"id": "blueberry",
-			"file": "res://assets/collections/fruits/fruit_blueberry.png"
-		},
-		{
-			"id": "raspberry",
-			"file": "res://assets/collections/fruits/fruit_raspberry.png"
-		},
-		{
-			"id": "blackberry",
-			"file": "res://assets/collections/fruits/fruit_blackberry.png"
-		},
-		{
-			"id": "papaya",
-			"file": "res://assets/collections/fruits/fruit_papaya.png"
-		},
-		{
-			"id": "passion_fruit",
-			"file": "res://assets/collections/fruits/fruit_passion_fruit.png"
-		},
-		{
-			"id": "dragon_fruit",
-			"file": "res://assets/collections/fruits/fruit_dragon_fruit.png"
-		},
-		{
-			"id": "lychee",
-			"file": "res://assets/collections/fruits/fruit_lychee.png"
-		},
-		{
-			"id": "persimmon",
-			"file": "res://assets/collections/fruits/fruit_persimmon.png"
-		},
-		{
-			"id": "avocado",
-			"file": "res://assets/collections/fruits/fruit_avocado.png"
-		},
-		{
-			"id": "grapefruit",
-			"file": "res://assets/collections/fruits/fruit_grapefruit.png"
-		},
-		{
-			"id": "starfruit",
-			"file": "res://assets/collections/fruits/fruit_starfruit.png"
-		},
-		{
-			"id": "guava",
-			"file": "res://assets/collections/fruits/fruit_guava.png"
+			"id": "lemon",
+			"file": "res://assets/collections/fruits/fruit_08_lemon.png",
+			"pack_id": "face_08"
 		},
 		{
 			"id": "lime",
-			"file": "res://assets/collections/fruits/fruit_lime.png"
+			"file": "res://assets/collections/fruits/fruit_09_lime.png",
+			"pack_id": "face_09"
 		},
 		{
-			"id": "apricot",
-			"file": "res://assets/collections/fruits/fruit_apricot.png"
+			"id": "mango",
+			"file": "res://assets/collections/fruits/fruit_10_mango.png",
+			"pack_id": "face_10"
 		},
 		{
-			"id": "olive",
-			"file": "res://assets/collections/fruits/fruit_olive.png"
+			"id": "peach",
+			"file": "res://assets/collections/fruits/fruit_11_peach.png",
+			"pack_id": "face_11"
 		},
 		{
-			"id": "cranberry",
-			"file": "res://assets/collections/fruits/fruit_cranberry.png"
+			"id": "pear",
+			"file": "res://assets/collections/fruits/fruit_12_pear.png",
+			"pack_id": "face_12"
 		},
 		{
-			"id": "date",
-			"file": "res://assets/collections/fruits/fruit_date.png"
+			"id": "pineapple",
+			"file": "res://assets/collections/fruits/fruit_13_pineapple.png",
+			"pack_id": "face_13"
 		},
 		{
-			"id": "quince",
-			"file": "res://assets/collections/fruits/fruit_quince.png"
+			"id": "watermelon",
+			"file": "res://assets/collections/fruits/fruit_14_watermelon.png",
+			"pack_id": "face_14"
+		},
+		{
+			"id": "kiwi",
+			"file": "res://assets/collections/fruits/fruit_15_kiwi.png",
+			"pack_id": "face_15"
+		},
+		{
+			"id": "pomegranate",
+			"file": "res://assets/collections/fruits/fruit_16_pomegranate.png",
+			"pack_id": "face_16"
+		},
+		{
+			"id": "coconut",
+			"file": "res://assets/collections/fruits/fruit_17_coconut.png",
+			"pack_id": "face_17"
+		},
+		{
+			"id": "avocado",
+			"file": "res://assets/collections/fruits/fruit_18_avocado.png",
+			"pack_id": "face_18"
+		},
+		{
+			"id": "melon",
+			"file": "res://assets/collections/fruits/fruit_19_melon.png",
+			"pack_id": "face_19"
+		},
+		{
+			"id": "fig",
+			"file": "res://assets/collections/fruits/fruit_20_fig.png",
+			"pack_id": "face_20"
+		},
+		{
+			"id": "papaya",
+			"file": "res://assets/collections/fruits/fruit_21_papaya.png",
+			"pack_id": "face_21"
+		},
+		{
+			"id": "dragonfruit",
+			"file": "res://assets/collections/fruits/fruit_22_dragonfruit.png",
+			"pack_id": "face_22"
+		},
+		{
+			"id": "passionfruit",
+			"file": "res://assets/collections/fruits/fruit_23_passionfruit.png",
+			"pack_id": "face_23"
+		},
+		{
+			"id": "lychee",
+			"file": "res://assets/collections/fruits/fruit_24_lychee.png",
+			"pack_id": "face_24"
+		},
+		{
+			"id": "raspberry",
+			"file": "res://assets/collections/fruits/fruit_25_raspberry.png",
+			"pack_id": "face_25"
+		},
+		{
+			"id": "blackberry",
+			"file": "res://assets/collections/fruits/fruit_26_blackberry.png",
+			"pack_id": "face_26"
+		},
+		{
+			"id": "cantaloupe",
+			"file": "res://assets/collections/fruits/fruit_27_cantaloupe.png",
+			"pack_id": "face_27"
+		},
+		{
+			"id": "starfruit",
+			"file": "res://assets/collections/fruits/fruit_28_starfruit.png",
+			"pack_id": "face_28"
+		},
+		{
+			"id": "persimmon",
+			"file": "res://assets/collections/fruits/fruit_29_persimmon.png",
+			"pack_id": "face_29"
+		},
+		{
+			"id": "guava",
+			"file": "res://assets/collections/fruits/fruit_30_guava.png",
+			"pack_id": "face_30"
+		},
+		{
+			"id": "plum",
+			"file": "res://assets/collections/fruits/fruit_31_plum.png",
+			"pack_id": "face_31"
+		},
+		{
+			"id": "grapefruit",
+			"file": "res://assets/collections/fruits/fruit_32_grapefruit.png",
+			"pack_id": "face_32"
+		},
+		{
+			"id": "tangerine",
+			"file": "res://assets/collections/fruits/fruit_33_tangerine.png",
+			"pack_id": "face_33"
+		},
+		{
+			"id": "nectarine",
+			"file": "res://assets/collections/fruits/fruit_34_nectarine.png",
+			"pack_id": "face_34"
+		},
+		{
+			"id": "redcurrant",
+			"file": "res://assets/collections/fruits/fruit_35_redcurrant.png",
+			"pack_id": "face_35"
+		},
+		{
+			"id": "fruitbasket",
+			"file": "res://assets/collections/fruits/fruit_36_fruitbasket.png",
+			"pack_id": "face_36"
 		}
 	]
 }

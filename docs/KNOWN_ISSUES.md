@@ -44,7 +44,15 @@ When corrected art arrives, follow `docs/TILE_ART_SPEC.md`: install it as a new 
 | `icon_shop.png` | a plain diamond | not yet (may be acceptable as a gem) |
 | `icon_coin.png` | a plain disc | not yet (acceptable) |
 
-## 3. Other
+## 3. Premium collections pack (v1)
+
+Fruits (16 look-alike pairs) and Vegetables (23) are unavailable, and one Mixed slot was
+replaced. Details: `docs/TILE_COLLECTIONS.md`, "Artwork status". The pictograms come from Noto
+Color Emoji and need license confirmation and attribution (`assets/collections/LICENSES.md`).
+Pack effects: `effects/petal_06.png` looks the same as `petal_00.png`, and `petal_07.png` as
+`petal_01.png`. That's harmless for particles but worth knowing.
+
+## 4. Other
 
 - `bg_sakura_garden.png` has the title logo baked into the painting. The logo cannot be cleanly
   extracted: there is no alpha, and blossoms and glow overlap the lettering. The startup screen

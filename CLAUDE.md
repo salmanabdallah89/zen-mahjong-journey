@@ -162,7 +162,8 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
 2b. ✅ Board polish (depth, shadows, ivory veil, gold glow, match effects, sizing) and the tile art
    manifest system. Premium tile art pending from the artist.
 2c. ✅ Tile collections: architecture, six manifests, picker (start screen + pause), save/restore,
-   fallbacks, tests. Animals/Fruits/Vegetables/Alphabet/Mixed await artwork.
+   fallbacks, tests. Premium pack integrated: Animals, Alphabet, Mixed enabled; Fruits and
+   Vegetables unavailable until look-alike symbols are replaced (docs/TILE_COLLECTIONS.md).
 3. Home screen (Play / Daily Challenge / Journey Map / Settings / Shop as real Controls).
 4. Journey map with progression nodes, save/load of progress.
 5. Settings (music, SFX, vibration), audio, petal effects.

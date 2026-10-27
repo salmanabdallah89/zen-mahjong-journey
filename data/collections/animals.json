@@ -1,158 +1,203 @@
 {
 	"id": "animals",
 	"name": "Cute Animals",
-	"version": 1,
+	"version": 2,
 	"order": 2,
 	"kind": "symbols",
 	"assignment": "fixed",
 	"description": "Illustrated animal faces.",
 	"thumbnail": "res://assets/collections/animals/thumbnail.png",
+	"tile_style": "res://data/tile_art/ivory_body_v1.json",
 	"body": "res://assets/tiles/bodies/tile_body_ivory.png",
-	"symbol_padding": 0.14,
+	"symbol_padding": 0.1,
+	"_symbol_region": "Frames the drawing (measured union of all symbols in this collection, plus a margin) and leaves out the English caption each PNG has baked in below y=200, which is unreadable at tile size and not translatable.",
+	"symbol_region": [
+		56,
+		34,
+		144,
+		140
+	],
+	"source": "ZenMahjongJourney_PremiumCollections v1 (pictograms based on Noto Color Emoji; see assets/collections/LICENSES.md)",
 	"symbols": [
 		{
-			"id": "panda",
-			"file": "res://assets/collections/animals/animal_panda.png"
-		},
-		{
 			"id": "cat",
-			"file": "res://assets/collections/animals/animal_cat.png"
+			"file": "res://assets/collections/animals/animal_01_cat.png",
+			"pack_id": "face_01"
 		},
 		{
 			"id": "dog",
-			"file": "res://assets/collections/animals/animal_dog.png"
+			"file": "res://assets/collections/animals/animal_02_dog.png",
+			"pack_id": "face_02"
 		},
 		{
-			"id": "rabbit",
-			"file": "res://assets/collections/animals/animal_rabbit.png"
+			"id": "panda",
+			"file": "res://assets/collections/animals/animal_03_panda.png",
+			"pack_id": "face_03"
 		},
 		{
 			"id": "fox",
-			"file": "res://assets/collections/animals/animal_fox.png"
+			"file": "res://assets/collections/animals/animal_04_fox.png",
+			"pack_id": "face_04"
 		},
 		{
-			"id": "bear",
-			"file": "res://assets/collections/animals/animal_bear.png"
+			"id": "rabbit",
+			"file": "res://assets/collections/animals/animal_05_rabbit.png",
+			"pack_id": "face_05"
 		},
 		{
-			"id": "koala",
-			"file": "res://assets/collections/animals/animal_koala.png"
+			"id": "mouse",
+			"file": "res://assets/collections/animals/animal_06_mouse.png",
+			"pack_id": "face_06"
 		},
 		{
 			"id": "tiger",
-			"file": "res://assets/collections/animals/animal_tiger.png"
+			"file": "res://assets/collections/animals/animal_07_tiger.png",
+			"pack_id": "face_07"
 		},
 		{
 			"id": "lion",
-			"file": "res://assets/collections/animals/animal_lion.png"
-		},
-		{
-			"id": "monkey",
-			"file": "res://assets/collections/animals/animal_monkey.png"
+			"file": "res://assets/collections/animals/animal_08_lion.png",
+			"pack_id": "face_08"
 		},
 		{
 			"id": "elephant",
-			"file": "res://assets/collections/animals/animal_elephant.png"
+			"file": "res://assets/collections/animals/animal_09_elephant.png",
+			"pack_id": "face_09"
 		},
 		{
-			"id": "giraffe",
-			"file": "res://assets/collections/animals/animal_giraffe.png"
-		},
-		{
-			"id": "zebra",
-			"file": "res://assets/collections/animals/animal_zebra.png"
-		},
-		{
-			"id": "owl",
-			"file": "res://assets/collections/animals/animal_owl.png"
-		},
-		{
-			"id": "penguin",
-			"file": "res://assets/collections/animals/animal_penguin.png"
-		},
-		{
-			"id": "frog",
-			"file": "res://assets/collections/animals/animal_frog.png"
-		},
-		{
-			"id": "turtle",
-			"file": "res://assets/collections/animals/animal_turtle.png"
-		},
-		{
-			"id": "koi",
-			"file": "res://assets/collections/animals/animal_koi.png"
-		},
-		{
-			"id": "crane",
-			"file": "res://assets/collections/animals/animal_crane.png"
-		},
-		{
-			"id": "deer",
-			"file": "res://assets/collections/animals/animal_deer.png"
-		},
-		{
-			"id": "squirrel",
-			"file": "res://assets/collections/animals/animal_squirrel.png"
-		},
-		{
-			"id": "hedgehog",
-			"file": "res://assets/collections/animals/animal_hedgehog.png"
-		},
-		{
-			"id": "otter",
-			"file": "res://assets/collections/animals/animal_otter.png"
-		},
-		{
-			"id": "raccoon",
-			"file": "res://assets/collections/animals/animal_raccoon.png"
+			"id": "monkey",
+			"file": "res://assets/collections/animals/animal_10_monkey.png",
+			"pack_id": "face_10"
 		},
 		{
 			"id": "pig",
-			"file": "res://assets/collections/animals/animal_pig.png"
+			"file": "res://assets/collections/animals/animal_11_pig.png",
+			"pack_id": "face_11"
 		},
 		{
 			"id": "cow",
-			"file": "res://assets/collections/animals/animal_cow.png"
+			"file": "res://assets/collections/animals/animal_12_cow.png",
+			"pack_id": "face_12"
 		},
 		{
-			"id": "sheep",
-			"file": "res://assets/collections/animals/animal_sheep.png"
+			"id": "deer",
+			"file": "res://assets/collections/animals/animal_13_deer.png",
+			"pack_id": "face_13"
 		},
 		{
-			"id": "horse",
-			"file": "res://assets/collections/animals/animal_horse.png"
+			"id": "squirrel",
+			"file": "res://assets/collections/animals/animal_14_squirrel.png",
+			"pack_id": "face_14"
 		},
 		{
-			"id": "duck",
-			"file": "res://assets/collections/animals/animal_duck.png"
+			"id": "owl",
+			"file": "res://assets/collections/animals/animal_15_owl.png",
+			"pack_id": "face_15"
 		},
 		{
-			"id": "chick",
-			"file": "res://assets/collections/animals/animal_chick.png"
+			"id": "penguin",
+			"file": "res://assets/collections/animals/animal_16_penguin.png",
+			"pack_id": "face_16"
 		},
 		{
-			"id": "parrot",
-			"file": "res://assets/collections/animals/animal_parrot.png"
+			"id": "bird",
+			"file": "res://assets/collections/animals/animal_17_bird.png",
+			"pack_id": "face_17"
 		},
 		{
-			"id": "butterfly",
-			"file": "res://assets/collections/animals/animal_butterfly.png"
+			"id": "peacock",
+			"file": "res://assets/collections/animals/animal_18_peacock.png",
+			"pack_id": "face_18"
 		},
 		{
-			"id": "ladybug",
-			"file": "res://assets/collections/animals/animal_ladybug.png"
+			"id": "frog",
+			"file": "res://assets/collections/animals/animal_19_frog.png",
+			"pack_id": "face_19"
 		},
 		{
-			"id": "snail",
-			"file": "res://assets/collections/animals/animal_snail.png"
+			"id": "turtle",
+			"file": "res://assets/collections/animals/animal_20_turtle.png",
+			"pack_id": "face_20"
+		},
+		{
+			"id": "dolphin",
+			"file": "res://assets/collections/animals/animal_21_dolphin.png",
+			"pack_id": "face_21"
 		},
 		{
 			"id": "whale",
-			"file": "res://assets/collections/animals/animal_whale.png"
+			"file": "res://assets/collections/animals/animal_22_whale.png",
+			"pack_id": "face_22"
+		},
+		{
+			"id": "shark",
+			"file": "res://assets/collections/animals/animal_23_shark.png",
+			"pack_id": "face_23"
+		},
+		{
+			"id": "seal",
+			"file": "res://assets/collections/animals/animal_24_seal.png",
+			"pack_id": "face_24"
+		},
+		{
+			"id": "raccoon",
+			"file": "res://assets/collections/animals/animal_25_raccoon.png",
+			"pack_id": "face_25"
+		},
+		{
+			"id": "hedgehog",
+			"file": "res://assets/collections/animals/animal_26_hedgehog.png",
+			"pack_id": "face_26"
+		},
+		{
+			"id": "butterfly",
+			"file": "res://assets/collections/animals/animal_27_butterfly.png",
+			"pack_id": "face_27"
+		},
+		{
+			"id": "bee",
+			"file": "res://assets/collections/animals/animal_28_bee.png",
+			"pack_id": "face_28"
+		},
+		{
+			"id": "ladybug",
+			"file": "res://assets/collections/animals/animal_29_ladybug.png",
+			"pack_id": "face_29"
+		},
+		{
+			"id": "snail",
+			"file": "res://assets/collections/animals/animal_30_snail.png",
+			"pack_id": "face_30"
+		},
+		{
+			"id": "crab",
+			"file": "res://assets/collections/animals/animal_31_crab.png",
+			"pack_id": "face_31"
 		},
 		{
 			"id": "octopus",
-			"file": "res://assets/collections/animals/animal_octopus.png"
+			"file": "res://assets/collections/animals/animal_32_octopus.png",
+			"pack_id": "face_32"
+		},
+		{
+			"id": "starfish",
+			"file": "res://assets/collections/animals/animal_33_starfish.png",
+			"pack_id": "face_33"
+		},
+		{
+			"id": "dragon",
+			"file": "res://assets/collections/animals/animal_34_dragon.png",
+			"pack_id": "face_34"
+		},
+		{
+			"id": "chameleon",
+			"file": "res://assets/collections/animals/animal_35_chameleon.png",
+			"pack_id": "face_35"
+		},
+		{
+			"id": "flamingo",
+			"file": "res://assets/collections/animals/animal_36_flamingo.png",
+			"pack_id": "face_36"
 		}
 	]
 }

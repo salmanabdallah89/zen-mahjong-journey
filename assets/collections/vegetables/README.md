@@ -1,6 +1,6 @@
 # Vegetables artwork
 
-Status: **not supplied yet.** The collection shows as "Artwork coming soon" in the game until every file below exists.
+Status: artwork from the premium pack v1 is installed. The current manifest is `data/collections/vegetables.json`, and its validation status is in `docs/TILE_COLLECTIONS.md`. The table below is the original planning list; the real file names are in the manifest.
 Specification: `docs/TILE_COLLECTIONS.md`. Symbols: transparent PNG, 256 x 256 recommended. Thumbnail: `thumbnail.png`, 512 x 512.
 
 | # | Symbol id | File |

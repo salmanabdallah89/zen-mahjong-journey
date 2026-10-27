@@ -49,7 +49,10 @@ func select(collection_id: String) -> bool:
 	if not is_available(collection_id):
 		var collection := library.get_collection(collection_id)
 		var label := collection.display_name if collection else collection_id
-		notice = "%s artwork isn't installed yet." % label
+		if collection and collection.has_all_files():
+			notice = "%s artwork needs fixes before it can be used." % label
+		else:
+			notice = "%s artwork isn't installed yet." % label
 		return false
 	if collection_id == selected_id:
 		return true

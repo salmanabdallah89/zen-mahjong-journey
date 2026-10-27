@@ -16,7 +16,14 @@ var _checks := 0
 var _frame: Control
 
 
+const ISOLATED_SETTINGS := "user://test_settings_playthrough.cfg"
+
+
 func _ready() -> void:
+	# Never read or write the player's real preferences; start on Classic.
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(ISOLATED_SETTINGS))
+	TileCollectionManager.settings_path = ISOLATED_SETTINGS
+	TileCollectionManager.restore()
 	_frame = Control.new()
 	_frame.size = SCREEN_SHAPES[0]
 	add_child(_frame)
@@ -27,6 +34,8 @@ func _ready() -> void:
 	await _test_small_board_keeps_margins(1)
 	await _test_alternate_art_set(2)
 	await _test_tile_collections(2)
+	await _test_premium_collections(5)
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(ISOLATED_SETTINGS))
 	for failure in _failures:
 		print("  FAIL  " + failure)
 	print("playthrough: %d checks, %d failed" % [_checks, _failures.size()])
@@ -140,7 +149,7 @@ func _test_responsive_layout(level_number: int) -> void:
 		var model: BoardModel = screen.get("_model")
 		for i in model.tile_count():
 			var view := board.tile(i)
-			var r := view.get_global_transform() * TileArtSet.active().body_rect
+			var r := view.get_global_transform() * board.skin().style.body_rect
 			tiles_rect = r if tiles_rect.size == Vector2.ZERO else tiles_rect.merge(r)
 		var tile_width := board.face_width_on_screen()
 		_check(board_rect.grow(1.0).encloses(tiles_rect), "%s: all tiles inside the board area" % shape)
@@ -164,7 +173,7 @@ func _test_small_board_keeps_margins(level_number: int) -> void:
 		var model: BoardModel = screen.get("_model")
 		var tiles_rect := Rect2()
 		for i in model.tile_count():
-			var r := board.tile(i).get_global_transform() * TileArtSet.active().body_rect
+			var r := board.tile(i).get_global_transform() * board.skin().style.body_rect
 			tiles_rect = r if tiles_rect.size == Vector2.ZERO else tiles_rect.merge(r)
 		_check(tiles_rect.size.x <= shape.x * 0.9, "%s: garden visible beside the board" % shape)
 		var center_offset := absf(tiles_rect.get_center().x - shape.x / 2.0)
@@ -233,9 +242,9 @@ func _test_tile_collections(level_number: int) -> void:
 		await _click_control(open_picker)
 	var picker: CollectionPicker = screen.get_node("%CollectionPicker")
 	_check(picker.visible, "picker opens from the pause menu")
-	picker.highlight("animals")
+	picker.highlight("fruits")
 	await _frames(2)
-	_check((picker.get_node("%ApplyButton") as Button).disabled, "collections without art cannot be applied")
+	_check((picker.get_node("%ApplyButton") as Button).disabled, "collections with invalid art cannot be applied")
 	picker.highlight("test_symbols")
 	await _frames(2)
 	await _click_control(picker.get_node("%ApplyButton"))
@@ -258,7 +267,7 @@ func _test_tile_collections(level_number: int) -> void:
 	_check(board.skin().symbol_texture(model.faces[first.x]) == symbol_of, "same symbol for the same tile after undoing shuffle")
 
 	# Unavailable choices are refused with a message.
-	_check(not manager.select("animals") and manager.take_notice().contains("isn't installed"), "missing art refused with a message")
+	_check(not manager.select("fruits") and manager.take_notice().contains("needs fixes"), "invalid art refused with a message")
 	_check(not manager.select("test_broken"), "broken collection refused")
 	_check(manager.selected_id == "test_symbols", "refusals leave the choice unchanged")
 
@@ -298,6 +307,71 @@ func _test_tile_collections(level_number: int) -> void:
 	manager.settings_path = real_settings
 	manager.reload_library(PackedStringArray([TileCollectionLibrary.SHIPPED_DIR]))
 	manager.restore()
+
+
+## Real premium art: switch a live level (with flowers) to each enabled
+## collection, check state, layout and art, then clear the level by clicks
+## in Animals. Fruits and Vegetables must be refused.
+func _test_premium_collections(level_number: int) -> void:
+	var manager := TileCollectionManager
+	var screen := await _open_level(level_number)
+	var board: BoardView = screen.get_node("%Board")
+	var model: BoardModel = screen.get("_model")
+	var deal := _expected_deal(level_number)
+	var has_flowers := false
+	for face in model.faces:
+		has_flowers = has_flowers or TileCatalog.suit_of(face) == "flowers"
+	_check(has_flowers, "premium: level %d deals flowers" % level_number)
+	await _click_tile(screen, deal.solution[0].x)
+	await _click_tile(screen, deal.solution[0].y)
+	var faces_before := model.faces.duplicate()
+	var removed_before := model.removed.duplicate()
+
+	for collection_id in ["animals", "alphabet", "mixed"]:
+		_check(manager.select(collection_id), "premium: %s can be applied" % collection_id)
+		await _frames(3)
+		_check(board.skin().collection_id == collection_id, "premium: board shows %s" % collection_id)
+		_check(board.skin().style.id == "ivory_body_v1", "premium: %s laid out on the ivory body" % collection_id)
+		_check(model.faces == faces_before and model.removed == removed_before, "premium: %s keeps board state" % collection_id)
+		_check(_all_tiles_have_art(board, model), "premium: %s draws every tile" % collection_id)
+		var flower_keys := {}
+		for i in model.tile_count():
+			if TileCatalog.suit_of(model.faces[i]) == "flowers":
+				flower_keys[board.skin().visual_key(model.faces[i])] = true
+		_check(flower_keys.size() == 1, "premium: %s shows one symbol for all flowers" % collection_id)
+		_check(board.face_width_on_screen() <= BoardView.MAX_FACE_WIDTH + 0.5, "premium: %s respects tile size cap" % collection_id)
+
+	for collection_id in ["fruits", "vegetables"]:
+		_check(not manager.select(collection_id), "premium: %s refused (look-alike symbols)" % collection_id)
+		manager.take_notice()
+
+	# Back to Classic restores the Classic layout; then finish in Animals by clicking.
+	_check(manager.select("classic"), "premium: back to Classic")
+	await _frames(3)
+	_check(board.skin().style == TileArtSet.active(), "premium: Classic layout restored")
+	_check(manager.select("animals"), "premium: Animals again")
+	await _frames(3)
+	await _click_control(screen.get_node("%UndoButton"))
+	_check(model.remaining == model.tile_count(), "premium: undo after switching restores the pair")
+	await _click_control(screen.get_node("%ShuffleButton"))
+	_check(_all_tiles_have_art(board, model), "premium: shuffle in Animals keeps every tile drawn")
+	await _click_control(screen.get_node("%UndoButton"))
+	_check(model.faces == faces_before, "premium: undo reverts the shuffle")
+	for pair in deal.solution:
+		await _click_tile(screen, pair.x)
+		await _click_tile(screen, pair.y)
+	_check(model.is_cleared(), "premium: level %d cleared by clicking in Animals (flowers matched)" % level_number)
+
+	# The choice persists for the next launch.
+	var restarted: Node = load("res://scripts/autoload/tile_collection_manager.gd").new()
+	restarted.settings_path = manager.settings_path
+	restarted.reload_library(PackedStringArray([TileCollectionLibrary.SHIPPED_DIR]))
+	restarted.restore()
+	_check(restarted.selected_id == "animals", "premium: Animals restored on next launch")
+	restarted.free()
+	manager.select("classic")
+	screen.queue_free()
+	await _frames(2)
 
 
 func _all_tiles_have_art(board: BoardView, model: BoardModel) -> bool:

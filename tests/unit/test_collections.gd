@@ -29,9 +29,9 @@ func test_every_shipped_collection_loads() -> void:
 		if collection.kind == "symbols":
 			assert_true(TileCollection.ASSIGNMENTS.has(collection.assignment), "%s assignment is known" % collection.id)
 			assert_false(collection.thumbnail_path.is_empty(), "%s declares a thumbnail" % collection.id)
-		# Only missing files are acceptable problems; structure must be valid.
+		# Structure must be valid; only artwork defects may be reported.
 		for error in collection.validate(TileArtSet.active()):
-			if not error.begins_with("missing"):
+			if not error.contains("look the same"):
 				failures.append("%s: %s" % [collection.id, error])
 	assert_eq(ids, SHIPPED_IDS, "six collections in menu order")
 
@@ -55,18 +55,75 @@ func test_classic_is_complete_and_maps_every_face() -> void:
 		assert_true(built.skin.tile_texture(face) != null, "classic image for %s" % face)
 
 
-func test_collections_without_art_are_unavailable() -> void:
+func test_premium_collections_validated() -> void:
 	var library := TileCollectionLibrary.discover()
-	for collection_id in ["animals", "fruits", "vegetables", "alphabet", "mixed"]:
+	for collection_id in ["animals", "alphabet", "mixed"]:
 		var collection := library.get_collection(collection_id)
-		assert_false(collection.is_complete(TileArtSet.active()), "%s waits for artwork" % collection_id)
+		assert_true(collection.is_complete(TileArtSet.active()),
+			"%s is enabled: %s" % [collection_id, ", ".join(collection.validate(TileArtSet.active()))])
+	for collection_id in ["fruits", "vegetables"]:
+		var collection := library.get_collection(collection_id)
+		assert_true(collection.has_all_files(), "%s files are installed" % collection_id)
+		assert_false(collection.is_complete(TileArtSet.active()), "%s stays unavailable" % collection_id)
 		var built := TileSkin.build(collection, TileArtSet.active(), _level_faces(1), 1, _load)
-		assert_true(built.skin == null and not built.error.is_empty(), "%s cannot build a skin yet" % collection_id)
+		assert_true(built.skin == null, "%s cannot be shown" % collection_id)
+
+
+func test_reused_drawings_are_detected() -> void:
+	# Known defects in the premium pack: the same drawing with only the caption changed.
+	var library := TileCollectionLibrary.discover()
+	var fruit_errors := "
+".join(library.get_collection("fruits").validate(TileArtSet.active()))
+	for pair in [["lime", "melon"], ["fig", "plum"], ["cherries", "lychee"], ["peach", "nectarine"]]:
+		assert_true(fruit_errors.contains("'%s' and '%s' look the same" % pair), "fruits: %s flagged" % " / ".join(pair))
+	var veg_errors := "
+".join(library.get_collection("vegetables").validate(TileArtSet.active()))
+	for pair in [["red_pepper", "green_pepper"], ["radish", "chili"], ["cabbage", "lettuce"]]:
+		assert_true(veg_errors.contains("'%s' and '%s' look the same" % pair), "vegetables: %s flagged" % " / ".join(pair))
+	assert_eq(library.get_collection("fruits").validate(TileArtSet.active()).size(), 16, "16 look-alike fruit pairs")
+	assert_eq(library.get_collection("vegetables").validate(TileArtSet.active()).size(), 23, "23 look-alike vegetable pairs")
+
+
+func test_similar_but_different_letters_pass() -> void:
+	# Guards the look-alike threshold against false alarms (I/T and B/D are close).
+	var alphabet := TileCollectionLibrary.discover().get_collection("alphabet")
+	assert_true(alphabet.validate(TileArtSet.active()).is_empty(), "all 26 letters count as distinct")
+
+
+func test_ivory_body_style_matches_body_art() -> void:
+	var style := TileArtSet.load_manifest("res://data/tile_art/ivory_body_v1.json")
+	assert_true(style.validate().is_empty(), "body style geometry is valid: %s" % ", ".join(style.validate()))
+	var body: Texture2D = load("res://assets/tiles/bodies/tile_body_ivory.png")
+	assert_eq(Vector2(body.get_size()), style.image_size, "style size matches the body PNG")
+	var animals := TileCollectionLibrary.discover().get_collection("animals")
+	assert_eq(animals.style(TileArtSet.active()).id, "ivory_body_v1", "symbol collections draw on the ivory body style")
+
+
+func test_captions_are_cropped_from_symbols() -> void:
+	var library := TileCollectionLibrary.discover()
+	var faces := _level_faces(1)
+	var animals := TileSkin.build(library.get_collection("animals"), TileArtSet.active(), faces, 1, _load).skin
+	var shown := animals.symbol_texture(faces[0])
+	assert_true(shown is AtlasTexture, "animal symbols show a region of the PNG")
+	if shown is AtlasTexture:
+		assert_true((shown as AtlasTexture).region.end.y <= 200.0, "caption below y=200 is left out")
+	var letters := TileSkin.build(library.get_collection("alphabet"), TileArtSet.active(), faces, 1, _load).skin
+	assert_false(letters.symbol_texture(faces[0]) is AtlasTexture, "letters have no caption and show whole")
+
+
+func test_flowers_share_one_symbol_in_symbol_collections() -> void:
+	var faces := PackedStringArray(["flowers_plum", "flowers_orchid", "flowers_chrysanthemum", "flowers_bamboo",
+		"seasons_spring", "seasons_winter", "bamboo_1", "bamboo_1"])
+	var skin := TileSkin.build(TileCollectionLibrary.discover().get_collection("animals"), TileArtSet.active(),
+		faces, 1, _load).skin
+	assert_eq(skin.visual_key("flowers_plum"), skin.visual_key("flowers_bamboo"), "all flowers show the same animal")
+	assert_true(skin.visual_key("flowers_plum") != skin.visual_key("seasons_spring"), "flowers and seasons differ")
+	assert_true(skin.visual_key("seasons_spring") != skin.visual_key("bamboo_1"), "seasons and bamboo differ")
 
 
 func test_no_two_match_groups_look_alike() -> void:
 	var library := _library()
-	for collection_id in ["classic", "test_symbols", "test_mixed"]:
+	for collection_id in ["classic", "animals", "alphabet", "mixed", "test_symbols", "test_mixed"]:
 		var collection := library.get_collection(collection_id)
 		for level in LevelCatalog.levels():
 			var faces := _level_faces(level.number)
@@ -101,7 +158,7 @@ func test_validator_rejects_identical_pictures_under_different_names() -> void:
 			{"id": "music", "file": "res://assets/ui/icons/icon_music.png"},
 			{"id": "sound_off", "file": "res://assets/ui/icons/icon_sound_off.png"}]})
 	var errors := collection.validate(TileArtSet.active())
-	assert_true(errors.size() == 1 and errors[0].contains("same picture"), "duplicate picture caught: %s" % ", ".join(errors))
+	assert_true(not errors.is_empty() and errors[0].contains("same picture"), "duplicate picture caught: %s" % ", ".join(errors))
 
 
 func test_fixed_assignment_is_the_same_on_every_board() -> void:

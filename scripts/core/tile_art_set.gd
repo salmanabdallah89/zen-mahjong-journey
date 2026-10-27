@@ -26,6 +26,8 @@ var face_rect := Rect2()
 var grid_overlap := Vector2.ZERO
 ## Drawing offset added per layer; negative values raise tiles up-left.
 var layer_shift := Vector2.ZERO
+## False for body-only styles used by symbol collections (no face images).
+var has_faces := true
 
 var _face_folder: String = ""
 var _face_pattern: String = ""
@@ -36,6 +38,7 @@ var _back_pattern: String = ""
 var _backs: PackedStringArray = PackedStringArray()
 
 static var _active: TileArtSet
+static var _loaded := {}
 
 
 ## The collection selected in project settings, loaded once.
@@ -43,6 +46,13 @@ static func active() -> TileArtSet:
 	if _active == null:
 		_active = load_manifest(str(ProjectSettings.get_setting(SETTING, DEFAULT_MANIFEST)))
 	return _active
+
+
+## A style loaded once per manifest path (used by symbol collections).
+static func cached(path: String) -> TileArtSet:
+	if not _loaded.has(path):
+		_loaded[path] = load_manifest(path) if FileAccess.file_exists(path) else null
+	return _loaded[path]
 
 
 ## Replaces the active collection (used by tests and tools).
@@ -69,6 +79,7 @@ static func from_dict(data: Dictionary) -> TileArtSet:
 	art.body_rect = _rect(data.get("body_rect", data.get("face_rect", [0, 0, 0, 0])))
 	art.grid_overlap = _vec2(data.get("grid_overlap", [0, 0]))
 	art.layer_shift = _vec2(data.get("layer_shift", [0, 0]))
+	art.has_faces = bool(data.get("has_faces", true))
 	art._face_folder = str(data.get("face_folder", ""))
 	art._face_pattern = str(data.get("face_file_pattern", "tile_{face}.png"))
 	art._face_overrides = data.get("face_overrides", {})
@@ -118,6 +129,8 @@ func validate() -> PackedStringArray:
 		errors.append("body_rect %s lies outside the image" % body_rect)
 	if not body_rect.encloses(face_rect) or face_rect.size.x <= 0 or face_rect.size.y <= 0:
 		errors.append("face_rect %s must be non-empty and inside body_rect" % face_rect)
+	if not has_faces:
+		return errors
 	for face in TileCatalog.all_faces():
 		var path := face_path(face)
 		if not ResourceLoader.exists(path):

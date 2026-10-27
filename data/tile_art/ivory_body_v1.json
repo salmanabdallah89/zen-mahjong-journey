@@ -1,0 +1,11 @@
+{
+	"_comment": "Tile style for symbol collections: the premium blank ivory body (assets/tiles/bodies/tile_body_ivory.png, 256 x 320). Geometry measured from the image: top face 8..240 x 6..294, edge about 8 px right and 14 px bottom. This style has no face images of its own; symbols are drawn on the body.",
+	"id": "ivory_body_v1",
+	"name": "Premium ivory body",
+	"has_faces": false,
+	"image_size": [256, 320],
+	"body_rect": [7, 6, 240, 300],
+	"face_rect": [8, 6, 232, 288],
+	"grid_overlap": [3, 5],
+	"layer_shift": [-11, -18]
+}
