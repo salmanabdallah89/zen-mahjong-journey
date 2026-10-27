@@ -89,6 +89,12 @@ func _capture_level(shape: String, number: int, with_states: bool) -> void:
 		screen.call("_on_tile_pressed", matches[-1].x)
 		await _wait(0.3)
 		await _save("%s_level%02d_selected" % [shape, number])
+		# Blocked tap whose blocker hides under a raised tile, if the board has one.
+		screen.call("_set_selected", -1)
+		screen.call("_on_tile_pressed", _blocked_tile_to_show(model))
+		await _wait(0.3)
+		await _save("%s_level%02d_blocked_feedback" % [shape, number])
+		await _wait(1.2)
 		var level_def := LevelCatalog.get_level(number)
 		var first: Vector2i = BoardGenerator.generate(level_def.load_layout().build_geometry(),
 			level_def.face_pool(), level_def.deal_seed).solution[0]
@@ -114,6 +120,22 @@ func _capture_level(shape: String, number: int, with_states: bool) -> void:
 		await _save("%s_level%02d_complete" % [shape, number])
 	screen.queue_free()
 	await _frames(2)
+
+
+## A side-blocked tile, preferring one whose blocker is hidden under a raised tile.
+func _blocked_tile_to_show(model: BoardModel) -> int:
+	var fallback := -1
+	for i in model.tile_count():
+		var blockers := model.blockers(i)
+		if blockers.is_empty() or model.geometry.positions[blockers[0]].z > model.geometry.positions[i].z:
+			continue
+		if fallback < 0:
+			fallback = i
+		for j in blockers:
+			if not model.is_free(j) and not model.blockers(j).is_empty() \
+					and model.geometry.positions[model.blockers(j)[0]].z > model.geometry.positions[j].z:
+				return i
+	return fallback
 
 
 func _save(name: String) -> void:

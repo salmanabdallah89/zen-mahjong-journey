@@ -5,6 +5,8 @@ extends Control
 
 const HINT_SEARCH_BUDGET := 20000
 const TOAST_SECONDS := 2.6
+## How many times per level a blocked tap explains the rule in words.
+const MAX_BLOCKED_EXPLANATIONS := 3
 
 enum UndoKind { MATCH, SHUFFLE }
 
@@ -21,6 +23,7 @@ var _started_ms := 0
 var _paused_ms := 0
 var _pause_began_ms := -1
 var _toast_tween: Tween
+var _blocked_explanations := 0
 
 @onready var _background: TextureRect = %Background
 @onready var _board: BoardView = %Board
@@ -74,6 +77,7 @@ func _start_level() -> void:
 	_matches = 0
 	_hints_used = 0
 	_shuffles = 0
+	_blocked_explanations = 0
 	_started_ms = Time.get_ticks_msec()
 	_paused_ms = 0
 	_pause_began_ms = -1
@@ -85,7 +89,7 @@ func _on_tile_pressed(index: int) -> void:
 	if _dialog.visible or _model.is_cleared():
 		return
 	if not _model.is_free(index):
-		_board.tile(index).play_blocked_nudge()
+		_explain_blocked(index)
 		return
 	_clear_hint()
 	if _selected == index:
@@ -95,6 +99,35 @@ func _on_tile_pressed(index: int) -> void:
 		_remove_pair(_selected, index)
 		return
 	_set_selected(index)
+
+
+## Shakes a blocked tile and outlines what is blocking it, including tiles
+## hidden beneath raised ones. The first few times, a message says why.
+func _explain_blocked(index: int) -> void:
+	_board.tile(index).play_blocked_nudge()
+	var blockers := _model.blockers(index)
+	var covered := false
+	var hidden_blocker := false
+	for j in blockers:
+		_board.tile(j).play_blocker_flash()
+		covered = covered or _model.geometry.positions[j].z > _model.geometry.positions[index].z
+		hidden_blocker = hidden_blocker or _covered_now(j)
+	if _blocked_explanations >= MAX_BLOCKED_EXPLANATIONS:
+		return
+	_blocked_explanations += 1
+	if covered:
+		_show_toast("That tile is covered by a tile above it.")
+	elif hidden_blocker:
+		_show_toast("Blocked on both sides. One neighbour is hidden under a raised tile.")
+	else:
+		_show_toast("A tile can be picked when its left or right side is open.")
+
+
+func _covered_now(index: int) -> bool:
+	for j in _model.geometry.covered_by[index]:
+		if not _model.is_removed(j):
+			return true
+	return false
 
 
 func _remove_pair(a: int, b: int) -> void:

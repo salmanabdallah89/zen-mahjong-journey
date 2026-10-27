@@ -73,6 +73,8 @@ func _test_tools_and_pause(level_number: int) -> void:
 			break
 	await _click_tile(screen, blocked)
 	_check(int(screen.get("_selected")) == -1, "clicking a blocked tile selects nothing")
+	_check((screen.get_node("%Toast") as Control).visible, "blocked tap explains why")
+	_check(not model.blockers(blocked).is_empty(), "blocked tile reports its blockers")
 
 	# Selecting then re-clicking deselects.
 	var first := deal.solution[0]

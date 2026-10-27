@@ -63,6 +63,36 @@ func test_removing_cover_frees_tile() -> void:
 	assert_true(model.is_free(under), "uncovered tile with an open side is free")
 
 
+func test_blockers_lists_side_neighbors() -> void:
+	var model := make_model([{"rows": ["XXX"]}], PackedStringArray(["dots_1", "dots_2", "dots_1"]))
+	var middle := tile_at(model, 2, 0, 0)
+	var blockers := model.blockers(middle)
+	blockers.sort()
+	assert_eq(blockers, PackedInt32Array([tile_at(model, 0, 0, 0), tile_at(model, 4, 0, 0)]), "both side tiles block")
+	assert_true(model.blockers(tile_at(model, 0, 0, 0)).is_empty(), "a free tile has no blockers")
+
+
+func test_blockers_includes_hidden_tile_under_raised_layer() -> void:
+	# The case from play-testing: a matching twin on the right, and on the left
+	# a bottom-layer tile hidden beneath a raised tile.
+	var model := make_model([{"rows": ["XXX"]}, {"offset": [0, 0], "rows": ["X"]}],
+		PackedStringArray(["bamboo_4", "dots_4", "dots_4", "bamboo_4"]))
+	var hidden := tile_at(model, 0, 0, 0)
+	var washed := tile_at(model, 2, 0, 0)
+	var twin := tile_at(model, 4, 0, 0)
+	assert_false(model.is_free(washed), "tile between hidden blocker and its twin is blocked")
+	assert_false(model.can_remove_pair(washed, twin), "the twins cannot be matched yet")
+	var blockers := model.blockers(washed)
+	assert_true(blockers.has(hidden) and blockers.has(twin), "blockers include the hidden tile and the twin")
+
+
+func test_blockers_prefers_covering_tiles() -> void:
+	var model := make_model([{"rows": ["XXX"]}, {"offset": [2, 0], "rows": ["X"]}],
+		PackedStringArray(["dots_1", "dots_2", "dots_1", "dots_2"]))
+	var covered := tile_at(model, 2, 0, 0)
+	assert_eq(model.blockers(covered), PackedInt32Array([tile_at(model, 2, 0, 1)]), "the covering tile is the blocker")
+
+
 func test_identical_faces_match() -> void:
 	assert_true(TileCatalog.faces_match("bamboo_3", "bamboo_3"), "identical faces match")
 	assert_false(TileCatalog.faces_match("bamboo_3", "bamboo_4"), "different ranks do not match")

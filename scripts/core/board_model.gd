@@ -36,6 +36,26 @@ func face_of(index: int) -> String:
 	return faces[index]
 
 
+## Tiles currently stopping `index` from being free: the tiles covering it,
+## or, if it is uncovered, the tiles on both its sides. Empty when free.
+func blockers(index: int) -> PackedInt32Array:
+	var result := PackedInt32Array()
+	if is_removed(index) or is_free(index):
+		return result
+	for j in geometry.covered_by[index]:
+		if not is_removed(j):
+			result.append(j)
+	if not result.is_empty():
+		return result
+	for j in geometry.left_neighbors[index]:
+		if not is_removed(j):
+			result.append(j)
+	for j in geometry.right_neighbors[index]:
+		if not is_removed(j):
+			result.append(j)
+	return result
+
+
 func can_remove_pair(a: int, b: int) -> bool:
 	if a == b or a < 0 or b < 0 or a >= tile_count() or b >= tile_count():
 		return false

@@ -12,6 +12,8 @@ enum Highlight { NONE, SELECTED, HINT }
 const IVORY := Color(0.9647059, 0.93333334, 0.8745098)
 const GOLD := Color(0.93, 0.76, 0.42)
 const SAKURA := Color(0.92, 0.42, 0.56)
+## Outline for tiles that block the one the player just tapped.
+const BLOCKER := Color(0.2, 0.36, 0.3)
 ## Strength of the ivory wash over blocked tiles' faces.
 const BLOCKED_VEIL_ALPHA := 0.5
 ## Brightness of a blocked tile's whole body, edge included.
@@ -117,6 +119,23 @@ func play_blocked_nudge() -> void:
 	var tween := create_tween()
 	for offset in [8.0, -8.0, 5.0, 0.0]:
 		tween.tween_property(_face, "position:x", offset, 0.05)
+
+
+## Briefly outlines this tile as the reason another tile is blocked. The
+## outline draws above every tile, so a blocker hidden under a raised tile
+## still shows.
+func play_blocker_flash() -> void:
+	if _highlight != Highlight.NONE:
+		return
+	if _pulse:
+		_pulse.kill()
+	_glow.add_theme_stylebox_override("panel", _glow_style(BLOCKER))
+	_glow.visible = true
+	_glow.modulate.a = 1.0
+	_pulse = create_tween()
+	_pulse.tween_interval(0.5)
+	_pulse.tween_property(_glow, "modulate:a", 0.0, 0.5).set_trans(Tween.TRANS_SINE)
+	_pulse.tween_callback(_apply_look.bind(false))
 
 
 ## Centre of the tap area in this tile's local coordinates.
