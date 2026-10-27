@@ -1,0 +1,108 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/components/collection_picker.gd" id="1_picker"]
+
+[node name="CollectionPicker" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_picker")
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.15294118, 0.23137255, 0.3137255, 0.7)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Panel" type="PanelContainer" parent="Center"]
+custom_minimum_size = Vector2(940, 0)
+layout_mode = 2
+theme_type_variation = &"ModalPanel"
+
+[node name="Content" type="VBoxContainer" parent="Center/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 22
+
+[node name="Title" type="Label" parent="Center/Panel/Content"]
+layout_mode = 2
+theme_type_variation = &"DialogTitleLabel"
+text = "Tile Collection"
+horizontal_alignment = 1
+
+[node name="Intro" type="Label" parent="Center/Panel/Content"]
+custom_minimum_size = Vector2(760, 0)
+layout_mode = 2
+theme_type_variation = &"DialogBodyLabel"
+theme_override_font_sizes/font_size = 36
+text = "Choose the pictures on your tiles. The board and the rules stay the same."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="GridScroll" type="ScrollContainer" parent="Center/Panel/Content"]
+custom_minimum_size = Vector2(0, 798)
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Grid" type="GridContainer" parent="Center/Panel/Content/GridScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 6
+theme_override_constants/h_separation = 24
+theme_override_constants/v_separation = 24
+columns = 2
+
+[node name="PreviewCaption" type="Label" parent="Center/Panel/Content"]
+layout_mode = 2
+theme_type_variation = &"HudCaptionLabel"
+text = "PREVIEW"
+horizontal_alignment = 1
+
+[node name="PreviewRow" type="HBoxContainer" parent="Center/Panel/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 176)
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="Status" type="Label" parent="Center/Panel/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(760, 0)
+layout_mode = 2
+theme_type_variation = &"DialogBodyLabel"
+theme_override_font_sizes/font_size = 34
+text = "Status"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Buttons" type="HBoxContainer" parent="Center/Panel/Content"]
+layout_mode = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="BackButton" type="Button" parent="Center/Panel/Content/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(370, 136)
+layout_mode = 2
+theme_type_variation = &"SecondaryButton"
+text = "Back"
+
+[node name="ApplyButton" type="Button" parent="Center/Panel/Content/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(370, 136)
+layout_mode = 2
+text = "Apply"

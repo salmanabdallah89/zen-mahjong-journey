@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://scripts/components/shuffle_glyph.gd" id="7_shuffle"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/icon_undo.png" id="8_undo"]
 [ext_resource type="PackedScene" path="res://scenes/components/modal_dialog.tscn" id="9_dialog"]
+[ext_resource type="PackedScene" path="res://scenes/components/collection_picker.tscn" id="10_picker"]
 
 [sub_resource type="Gradient" id="Gradient_shade"]
 offsets = PackedFloat32Array(0, 0.2, 0.75, 1)
@@ -242,6 +243,11 @@ horizontal_alignment = 1
 autowrap_mode = 3
 
 [node name="Dialog" parent="." instance=ExtResource("9_dialog")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+
+[node name="CollectionPicker" parent="." instance=ExtResource("10_picker")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 1

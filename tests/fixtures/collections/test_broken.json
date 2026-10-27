@@ -1,0 +1,30 @@
+{
+	"_comment": "TEST FIXTURE ONLY: stand-in symbols borrowed from existing UI/effect art to exercise the collection pipeline. Never shipped or offered to players.",
+	"id": "test_broken",
+	"name": "Test Broken",
+	"version": 1,
+	"order": 93,
+	"kind": "symbols",
+	"description": "Test fixture.",
+	"body": "res://assets/tiles/backs/tile_back_sage.png",
+	"symbol_padding": 0.18,
+	"assignment": "fixed",
+	"symbols": [
+		{
+			"id": "icon_back",
+			"file": "res://assets/ui/icons/icon_back.png"
+		},
+		{
+			"id": "icon_calendar",
+			"file": "res://assets/ui/icons/icon_calendar.png"
+		},
+		{
+			"id": "icon_check",
+			"file": "res://assets/ui/icons/icon_check.png"
+		},
+		{
+			"id": "ghost",
+			"file": "res://assets/collections/test/ghost.png"
+		}
+	]
+}

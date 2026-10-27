@@ -2,8 +2,9 @@ class_name BoardView
 extends Control
 ## Renders a BoardModel as TileView nodes and scales the whole board to fit the
 ## space this Control is given, leaving the garden visible around it. Tile
-## spacing and layer raise come from the active TileArtSet. Forwards tile
-## presses by index and plays match effects.
+## spacing and layer raise come from the active TileArtSet; what each face
+## looks like comes from a TileSkin, which can be swapped without touching the
+## model. Forwards tile presses by index and plays match effects.
 
 signal tile_pressed(index: int)
 
@@ -18,6 +19,7 @@ const FIT_HEIGHT := 0.94
 
 var _model: BoardModel
 var _art: TileArtSet
+var _skin: TileSkin
 var _tiles: Array[TileView] = []
 var _layer: Control
 var _backdrop: TextureRect
@@ -29,8 +31,9 @@ func _ready() -> void:
 	resized.connect(_fit)
 
 
-func show_board(model: BoardModel) -> void:
+func show_board(model: BoardModel, skin: TileSkin) -> void:
 	_model = model
+	_skin = skin
 	_art = TileArtSet.active()
 	if _layer:
 		_layer.queue_free()
@@ -97,8 +100,19 @@ func refresh_all() -> void:
 			view.hide()
 			continue
 		view.reset_visual()
-		view.set_face(_art.face_texture(_model.face_of(i)))
+		_apply_art(i)
 		view.set_free(_model.is_free(i), false)
+
+
+## Shows the board in another collection's art. Board state is untouched.
+func apply_skin(skin: TileSkin) -> void:
+	_skin = skin
+	for i in _tiles.size():
+		_apply_art(i)
+
+
+func skin() -> TileSkin:
+	return _skin
 
 
 ## Updates only the blocked/free look of tiles still on the board.
@@ -129,7 +143,7 @@ func play_removal(a: int, b: int) -> void:
 
 func play_restore(a: int, b: int) -> void:
 	for i in [a, b]:
-		_tiles[i].set_face(_art.face_texture(_model.face_of(i)))
+		_apply_art(i)
 		_tiles[i].play_restore()
 	refresh_free_states()
 
@@ -174,6 +188,11 @@ static func _backdrop_texture() -> GradientTexture2D:
 	texture.width = 128
 	texture.height = 128
 	return texture
+
+
+func _apply_art(index: int) -> void:
+	var face := _model.face_of(index)
+	_tiles[index].set_art(_skin.tile_texture(face), _skin.symbol_texture(face), _skin.symbol_padding)
 
 
 func _on_tile_pressed(view: TileView) -> void:

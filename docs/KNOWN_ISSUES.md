@@ -37,8 +37,8 @@ When corrected art arrives, follow `docs/TILE_ART_SPEC.md`: install it as a new 
 |------|---------|-----------|
 | `icon_shuffle.png` | empty glyph box instead of a shuffle symbol | Yes. The Shuffle button draws a vector stand-in (`scripts/components/shuffle_glyph.gd`). Replace the PNG, set it as the button icon and delete the `ShuffleGlyph` node. |
 | `icon_lock.png` | plain framed square, not a padlock | not yet |
-| `icon_trophy.png` | a star, not a trophy | not yet |
-| `icon_sound_off.png` | a music note, not a muted speaker | not yet |
+| `icon_trophy.png` | a star, not a trophy; pixel-identical to `icon_star.png` | not yet |
+| `icon_sound_off.png` | a music note, not a muted speaker; pixel-identical to `icon_music.png` | not yet |
 | `icon_sound_on.png` | a single music note, not a speaker | not yet |
 | `icon_gift.png` | a flower, not a gift box | not yet |
 | `icon_shop.png` | a plain diamond | not yet (may be acceptable as a gem) |

@@ -47,6 +47,29 @@ static func faces_match(a: String, b: String) -> bool:
 	return match_group(a) == match_group(b)
 
 
+## Every match group in a fixed canonical order (suits in SUIT_FACES order;
+## flowers and seasons count once each). 36 groups in total.
+static func all_match_groups() -> PackedStringArray:
+	var result := PackedStringArray()
+	for face in all_faces():
+		var group := match_group(face)
+		if not result.has(group):
+			result.append(group)
+	return result
+
+
+## The distinct match groups among `faces`, in canonical order.
+static func groups_in(faces: PackedStringArray) -> PackedStringArray:
+	var present := {}
+	for face in faces:
+		present[match_group(face)] = true
+	var result := PackedStringArray()
+	for group in all_match_groups():
+		if present.has(group):
+			result.append(group)
+	return result
+
+
 static func faces_for_suits(suits: PackedStringArray) -> PackedStringArray:
 	var result := PackedStringArray()
 	for suit in suits:

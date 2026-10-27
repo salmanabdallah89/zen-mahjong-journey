@@ -1,0 +1,158 @@
+{
+	"id": "animals",
+	"name": "Cute Animals",
+	"version": 1,
+	"order": 2,
+	"kind": "symbols",
+	"assignment": "fixed",
+	"description": "Illustrated animal faces.",
+	"thumbnail": "res://assets/collections/animals/thumbnail.png",
+	"body": "res://assets/tiles/bodies/tile_body_ivory.png",
+	"symbol_padding": 0.14,
+	"symbols": [
+		{
+			"id": "panda",
+			"file": "res://assets/collections/animals/animal_panda.png"
+		},
+		{
+			"id": "cat",
+			"file": "res://assets/collections/animals/animal_cat.png"
+		},
+		{
+			"id": "dog",
+			"file": "res://assets/collections/animals/animal_dog.png"
+		},
+		{
+			"id": "rabbit",
+			"file": "res://assets/collections/animals/animal_rabbit.png"
+		},
+		{
+			"id": "fox",
+			"file": "res://assets/collections/animals/animal_fox.png"
+		},
+		{
+			"id": "bear",
+			"file": "res://assets/collections/animals/animal_bear.png"
+		},
+		{
+			"id": "koala",
+			"file": "res://assets/collections/animals/animal_koala.png"
+		},
+		{
+			"id": "tiger",
+			"file": "res://assets/collections/animals/animal_tiger.png"
+		},
+		{
+			"id": "lion",
+			"file": "res://assets/collections/animals/animal_lion.png"
+		},
+		{
+			"id": "monkey",
+			"file": "res://assets/collections/animals/animal_monkey.png"
+		},
+		{
+			"id": "elephant",
+			"file": "res://assets/collections/animals/animal_elephant.png"
+		},
+		{
+			"id": "giraffe",
+			"file": "res://assets/collections/animals/animal_giraffe.png"
+		},
+		{
+			"id": "zebra",
+			"file": "res://assets/collections/animals/animal_zebra.png"
+		},
+		{
+			"id": "owl",
+			"file": "res://assets/collections/animals/animal_owl.png"
+		},
+		{
+			"id": "penguin",
+			"file": "res://assets/collections/animals/animal_penguin.png"
+		},
+		{
+			"id": "frog",
+			"file": "res://assets/collections/animals/animal_frog.png"
+		},
+		{
+			"id": "turtle",
+			"file": "res://assets/collections/animals/animal_turtle.png"
+		},
+		{
+			"id": "koi",
+			"file": "res://assets/collections/animals/animal_koi.png"
+		},
+		{
+			"id": "crane",
+			"file": "res://assets/collections/animals/animal_crane.png"
+		},
+		{
+			"id": "deer",
+			"file": "res://assets/collections/animals/animal_deer.png"
+		},
+		{
+			"id": "squirrel",
+			"file": "res://assets/collections/animals/animal_squirrel.png"
+		},
+		{
+			"id": "hedgehog",
+			"file": "res://assets/collections/animals/animal_hedgehog.png"
+		},
+		{
+			"id": "otter",
+			"file": "res://assets/collections/animals/animal_otter.png"
+		},
+		{
+			"id": "raccoon",
+			"file": "res://assets/collections/animals/animal_raccoon.png"
+		},
+		{
+			"id": "pig",
+			"file": "res://assets/collections/animals/animal_pig.png"
+		},
+		{
+			"id": "cow",
+			"file": "res://assets/collections/animals/animal_cow.png"
+		},
+		{
+			"id": "sheep",
+			"file": "res://assets/collections/animals/animal_sheep.png"
+		},
+		{
+			"id": "horse",
+			"file": "res://assets/collections/animals/animal_horse.png"
+		},
+		{
+			"id": "duck",
+			"file": "res://assets/collections/animals/animal_duck.png"
+		},
+		{
+			"id": "chick",
+			"file": "res://assets/collections/animals/animal_chick.png"
+		},
+		{
+			"id": "parrot",
+			"file": "res://assets/collections/animals/animal_parrot.png"
+		},
+		{
+			"id": "butterfly",
+			"file": "res://assets/collections/animals/animal_butterfly.png"
+		},
+		{
+			"id": "ladybug",
+			"file": "res://assets/collections/animals/animal_ladybug.png"
+		},
+		{
+			"id": "snail",
+			"file": "res://assets/collections/animals/animal_snail.png"
+		},
+		{
+			"id": "whale",
+			"file": "res://assets/collections/animals/animal_whale.png"
+		},
+		{
+			"id": "octopus",
+			"file": "res://assets/collections/animals/animal_octopus.png"
+		}
+	]
+}

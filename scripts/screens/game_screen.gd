@@ -37,6 +37,7 @@ var _blocked_explanations := 0
 @onready var _toast: PanelContainer = %Toast
 @onready var _toast_label: Label = %ToastLabel
 @onready var _dialog: ModalDialog = %Dialog
+@onready var _picker: CollectionPicker = %CollectionPicker
 
 
 func _ready() -> void:
@@ -47,6 +48,9 @@ func _ready() -> void:
 	_undo_button.pressed.connect(_on_undo_pressed)
 	_toast.hide()
 	_dialog.hide()
+	_picker.hide()
+	_picker.closed.connect(_on_picker_closed)
+	TileCollectionManager.collection_changed.connect(_on_collection_changed)
 	_start_level()
 
 
@@ -81,12 +85,13 @@ func _start_level() -> void:
 	_started_ms = Time.get_ticks_msec()
 	_paused_ms = 0
 	_pause_began_ms = -1
-	_board.show_board(_model)
+	_board.show_board(_model, TileCollectionManager.skin_for_board(_model.faces, _level.deal_seed))
 	_update_hud()
+	_show_collection_notice()
 
 
 func _on_tile_pressed(index: int) -> void:
-	if _dialog.visible or _model.is_cleared():
+	if _dialog.visible or _picker.visible or _model.is_cleared():
 		return
 	if not _model.is_free(index):
 		_explain_blocked(index)
@@ -232,8 +237,30 @@ func _open_pause_menu() -> void:
 	_pause_began_ms = Time.get_ticks_msec()
 	_dialog.open("Paused", "Level %d · %s" % [_level.number, _level.title])
 	_dialog.add_action("Resume", _resume, true)
+	_dialog.add_action("Tile Collection", _open_collection_picker)
 	_dialog.add_action("Restart", _restart)
 	_dialog.add_action("Home", GameSession.go_home)
+
+
+func _open_collection_picker() -> void:
+	_picker.open("Return to Game")
+
+
+func _on_picker_closed() -> void:
+	_resume()
+
+
+## Re-skins the board in place: same tiles, same state, new artwork.
+func _on_collection_changed(_collection_id: String) -> void:
+	if _model:
+		_board.apply_skin(TileCollectionManager.skin_for_board(_model.faces, _level.deal_seed))
+		_show_collection_notice()
+
+
+func _show_collection_notice() -> void:
+	var text := TileCollectionManager.take_notice()
+	if not text.is_empty():
+		_show_toast(text)
 
 
 func _resume() -> void:

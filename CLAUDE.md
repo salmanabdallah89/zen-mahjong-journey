@@ -86,7 +86,7 @@ scenes/screens/    startup_screen.tscn, game_screen.tscn
 scenes/components/ tile_view.tscn, modal_dialog.tscn
 scripts/screens/   scripts attached to screen scenes (same base name as the scene)
 scripts/components/ BoardView, TileView, ModalDialog, SafeAreaContainer, ShuffleGlyph
-scripts/autoload/  game_session.gd (autoload "GameSession": current level, scene changes)
+scripts/autoload/  GameSession (current level, scene changes), TileCollectionManager
 scripts/core/      pure game logic, no Nodes (see Architecture)
 data/layouts/      board shapes (JSON, format documented in board_layout.gd)
 data/levels/       levels.json: order, title, layout, seed, suits, background
@@ -94,8 +94,10 @@ tests/unit/        test_*.gd run by tests/run_tests.gd (TestCase base in tests/t
 tests/integration/ playthrough_test.tscn: plays the real game screen with simulated clicks
 tests/visual/      capture_screens.tscn: screenshot tool
 themes/            Theme resources
-data/tile_art/     tile art collection manifests (classic_v1.json is the temporary pack)
-docs/              reference material, KNOWN_ISSUES.md, TILE_ART_SPEC.md, ignored by Godot
+data/tile_art/     tile style manifests: body geometry + classic faces (classic_v1.json = temporary pack)
+data/collections/  player-selectable tile collections (classic + 5 awaiting artwork)
+assets/collections/<id>/ symbol art per collection (README.md in each lists the files needed)
+docs/              reference material, KNOWN_ISSUES.md, TILE_ART_SPEC.md, TILE_COLLECTIONS.md (ignored by Godot)
 ```
 Export note (for the Android step): JSON in `data/` is not a Godot resource. Add `data/*` to the
 export preset's "non-resource files" filter, and exclude `tests/*` from the export.
@@ -134,6 +136,11 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
     verified solution. `reshuffle()` does the same for the tiles left on the board.
   - `BoardSolver`: budgeted DFS with safe-move pruning and memoisation, used for Hint and tests.
   - `LevelCatalog`: reads data/levels/levels.json.
+- **Tile collections** (player-chosen look): `TileCollection` (manifest), `TileSkin` (per-board
+  face → image, keyed by match group), `TileCollectionLibrary`, `UserSettings`, and the autoload
+  `TileCollectionManager` (selection, save/restore, cache, `collection_changed`, Classic fallback).
+  The board never depends on the collection. Full design: `docs/TILE_COLLECTIONS.md`. Fixture
+  collections in `tests/fixtures/collections/` are test-only stand-ins; never ship or show them.
 - **Randomness:** only `RandomNumberGenerator` seeded from level data. Never `randi()`,
   `Array.shuffle()` or other global-RNG calls in core code, or deals stop being reproducible.
 - **GDScript pitfall:** a Packed*Array stored in a Dictionary/Array is a copy. Appending to the
@@ -154,6 +161,8 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
    pause, level complete, unit + integration tests.
 2b. ✅ Board polish (depth, shadows, ivory veil, gold glow, match effects, sizing) and the tile art
    manifest system. Premium tile art pending from the artist.
+2c. ✅ Tile collections: architecture, six manifests, picker (start screen + pause), save/restore,
+   fallbacks, tests. Animals/Fruits/Vegetables/Alphabet/Mixed await artwork.
 3. Home screen (Play / Daily Challenge / Journey Map / Settings / Shop as real Controls).
 4. Journey map with progression nodes, save/load of progress.
 5. Settings (music, SFX, vibration), audio, petal effects.

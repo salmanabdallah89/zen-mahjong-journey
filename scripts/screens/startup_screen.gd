@@ -1,22 +1,28 @@
 extends Control
 ## First screen shown on launch: environment background, game title and a
-## Play button that starts the first level.
+## Play button that starts the first level, and the Tile Collection chooser.
 
 @onready var _title_block: Control = %TitleBlock
 @onready var _play_button: Button = %PlayButton
+@onready var _collection_button: Button = %CollectionButton
+@onready var _picker: CollectionPicker = %CollectionPicker
 
 
 func _ready() -> void:
 	_play_button.pressed.connect(_on_play_pressed)
+	_collection_button.pressed.connect(_picker.open)
+	_picker.hide()
 	_play_intro()
 
 
 func _play_intro() -> void:
 	_title_block.modulate.a = 0.0
 	_play_button.modulate.a = 0.0
+	_collection_button.modulate.a = 0.0
 	var tween := create_tween()
 	tween.tween_property(_title_block, "modulate:a", 1.0, 0.8).set_trans(Tween.TRANS_SINE)
 	tween.tween_property(_play_button, "modulate:a", 1.0, 0.5).set_trans(Tween.TRANS_SINE)
+	tween.parallel().tween_property(_collection_button, "modulate:a", 1.0, 0.5).set_trans(Tween.TRANS_SINE)
 
 
 func _on_play_pressed() -> void:

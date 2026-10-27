@@ -1,0 +1,8 @@
+{
+	"id": "classic",
+	"name": "Classic Mahjong",
+	"version": 1,
+	"order": 1,
+	"kind": "tile_set",
+	"description": "Traditional Mahjong symbols on ivory tiles."
+}

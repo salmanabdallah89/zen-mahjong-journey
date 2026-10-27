@@ -23,6 +23,15 @@ texture_filter = 4
 layout_mode = 0
 mouse_filter = 2
 
+[node name="Symbol" type="TextureRect" parent="Lift/Face"]
+unique_name_in_owner = true
+visible = false
+texture_filter = 4
+layout_mode = 0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
 [node name="Veil" type="Panel" parent="Lift"]
 unique_name_in_owner = true
 layout_mode = 0

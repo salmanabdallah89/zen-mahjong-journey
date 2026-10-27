@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=23 format=3]
+[gd_resource type="Theme" load_steps=25 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/ui/buttons/btn_primary_empty.png" id="1_primary"]
 [ext_resource type="Texture2D" path="res://assets/ui/buttons/btn_secondary_empty.png" id="2_secondary"]
@@ -157,6 +157,35 @@ content_margin_top = 20.0
 content_margin_right = 40.0
 content_margin_bottom = 22.0
 
+[sub_resource type="StyleBoxFlat" id="Card_normal"]
+bg_color = Color(0.9647059, 0.93333334, 0.8745098, 0.96)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.78039217, 0.64705884, 0.41568628, 0.8)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+shadow_color = Color(0, 0, 0, 0.18)
+shadow_size = 8
+shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="Card_pressed"]
+bg_color = Color(1, 0.97, 0.9, 1)
+border_width_left = 8
+border_width_top = 8
+border_width_right = 8
+border_width_bottom = 8
+border_color = Color(0.93, 0.76, 0.42, 1)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+shadow_color = Color(0.93, 0.76, 0.42, 0.55)
+shadow_size = 18
+
 [resource]
 default_font = SubResource("SystemFont_body")
 default_font_size = 44
@@ -247,3 +276,9 @@ ToolLabel/colors/font_outline_color = Color(0.20784314, 0.30980393, 0.26666668, 
 ToolLabel/constants/outline_size = 10
 ToolLabel/font_sizes/font_size = 38
 ToolLabel/fonts/font = SubResource("SystemFont_title")
+CollectionCard/base_type = &"Button"
+CollectionCard/styles/focus = SubResource("Focus_empty")
+CollectionCard/styles/hover = SubResource("Card_normal")
+CollectionCard/styles/hover_pressed = SubResource("Card_pressed")
+CollectionCard/styles/normal = SubResource("Card_normal")
+CollectionCard/styles/pressed = SubResource("Card_pressed")

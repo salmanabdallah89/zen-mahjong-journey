@@ -26,9 +26,53 @@ func _ready() -> void:
 			for level in [3, 5, 8, 10]:
 				await _capture_level(shape, level, false)
 	get_window().size = SHAPES["phone_9x16"]
+	await _capture_collections()
 	await _measure_frame_times(10)
 	print("Screenshots written to ", ProjectSettings.globalize_path(_out_dir))
 	get_tree().quit()
+
+
+## The collection picker as shipped, then (with stand-in fixture art, file
+## names marked "fixture") the picker and a board in a symbol collection.
+func _capture_collections() -> void:
+	var manager := TileCollectionManager
+	var real_settings := manager.settings_path
+	manager.settings_path = "user://capture_settings.cfg"
+	var startup := STARTUP_SCENE.instantiate()
+	add_child(startup)
+	await _wait(1.2)
+	startup.get_node("%CollectionPicker").call("open")
+	await _wait(0.4)
+	await _save("phone_9x16_collection_picker")
+	startup.get_node("%CollectionPicker").call("highlight", "animals")
+	await _wait(0.2)
+	await _save("phone_9x16_collection_picker_coming_soon")
+	startup.queue_free()
+	await _frames(2)
+
+	manager.reload_library(PackedStringArray([TileCollectionLibrary.SHIPPED_DIR, "res://tests/fixtures/collections/"]))
+	GameSession.current_level = 4
+	var screen: Control = GAME_SCENE.instantiate()
+	add_child(screen)
+	await _wait(0.4)
+	screen.call("_open_pause_menu")
+	(screen.get_node("%Dialog") as ModalDialog).close()
+	var picker: CollectionPicker = screen.get_node("%CollectionPicker")
+	picker.open("Return to Game")
+	picker.highlight("test_symbols")
+	await _wait(0.4)
+	await _save("phone_9x16_fixture_picker_in_game")
+	manager.select("test_symbols")
+	picker.hide()
+	await _wait(0.4)
+	await _save("phone_9x16_fixture_board_symbols")
+	screen.queue_free()
+	await _frames(2)
+	manager.select("classic")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(manager.settings_path))
+	manager.settings_path = real_settings
+	manager.reload_library(PackedStringArray([TileCollectionLibrary.SHIPPED_DIR]))
+	manager.restore()
 
 
 ## Plays matches on a level for a few seconds while timing every frame, then

@@ -26,6 +26,7 @@ func _ready() -> void:
 	await _test_responsive_layout(10)
 	await _test_small_board_keeps_margins(1)
 	await _test_alternate_art_set(2)
+	await _test_tile_collections(2)
 	for failure in _failures:
 		print("  FAIL  " + failure)
 	print("playthrough: %d checks, %d failed" % [_checks, _failures.size()])
@@ -110,9 +111,11 @@ func _test_tools_and_pause(level_number: int) -> void:
 	await _click_control(screen.get_node("%PauseButton"))
 	var dialog: ModalDialog = screen.get_node("%Dialog")
 	_check(dialog.visible, "pause menu opens")
-	var free_tile := deal.solution[0].x
+	var free_tile := _tile_clear_of_buttons(screen, dialog)
+	_check(free_tile >= 0, "found a tile not under a pause-menu button")
 	await _click_tile(screen, free_tile)
 	_check(int(screen.get("_selected")) == -1, "board ignores taps while paused")
+	_check(dialog.visible, "pause menu still open after tapping the board")
 	var restart: Button = _dialog_button(dialog, "Restart")
 	_check(restart != null, "pause menu has Restart")
 	if restart:
@@ -198,6 +201,119 @@ func _test_alternate_art_set(level_number: int) -> void:
 	TileArtSet.set_active(original)
 
 
+## Collection switching during a live level, persistence and fallbacks. Uses
+## fixture collections (stand-in art) and a throwaway settings file.
+func _test_tile_collections(level_number: int) -> void:
+	var manager := TileCollectionManager
+	var dirs := PackedStringArray([TileCollectionLibrary.SHIPPED_DIR, "res://tests/fixtures/collections/"])
+	var real_settings := manager.settings_path
+	var test_settings := "user://test_settings_integration.cfg"
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(test_settings))
+	manager.settings_path = test_settings
+	manager.reload_library(dirs)
+	manager.restore()
+	_check(manager.selected_id == "classic", "collections: fresh settings start on Classic")
+
+	var screen := await _open_level(level_number)
+	var board: BoardView = screen.get_node("%Board")
+	var model: BoardModel = screen.get("_model")
+	var deal := _expected_deal(level_number)
+	var first := deal.solution[0]
+	await _click_tile(screen, first.x)
+	await _click_tile(screen, first.y)
+	var faces_before := model.faces.duplicate()
+	var removed_before := model.removed.duplicate()
+
+	# Switch mid-level through the real picker opened from the pause menu.
+	await _click_control(screen.get_node("%PauseButton"))
+	var dialog: ModalDialog = screen.get_node("%Dialog")
+	var open_picker := _dialog_button(dialog, "Tile Collection")
+	_check(open_picker != null, "pause menu offers Tile Collection")
+	if open_picker:
+		await _click_control(open_picker)
+	var picker: CollectionPicker = screen.get_node("%CollectionPicker")
+	_check(picker.visible, "picker opens from the pause menu")
+	picker.highlight("animals")
+	await _frames(2)
+	_check((picker.get_node("%ApplyButton") as Button).disabled, "collections without art cannot be applied")
+	picker.highlight("test_symbols")
+	await _frames(2)
+	await _click_control(picker.get_node("%ApplyButton"))
+	await _frames(2)
+	_check(not picker.visible, "apply returns to the game")
+	_check(manager.selected_id == "test_symbols", "apply selects the collection")
+	_check(board.skin().collection_id == "test_symbols", "board re-skinned without restarting")
+	_check(model == screen.get("_model"), "same board object after switching")
+	_check(model.faces == faces_before and model.removed == removed_before, "switching keeps board state")
+	_check(_all_tiles_have_art(board, model), "every tile shows complete art after switching")
+
+	# Play on after switching: undo, then shuffle, then undo again.
+	await _click_control(screen.get_node("%UndoButton"))
+	_check(not model.is_removed(first.x) and not model.is_removed(first.y), "undo works after switching")
+	_check(_all_tiles_have_art(board, model), "restored tiles show the new art")
+	var symbol_of := board.skin().symbol_texture(model.faces[first.x])
+	await _click_control(screen.get_node("%ShuffleButton"))
+	_check(board.skin().symbol_texture(model.faces[first.x]) != null, "shuffle keeps tiles skinned")
+	await _click_control(screen.get_node("%UndoButton"))
+	_check(board.skin().symbol_texture(model.faces[first.x]) == symbol_of, "same symbol for the same tile after undoing shuffle")
+
+	# Unavailable choices are refused with a message.
+	_check(not manager.select("animals") and manager.take_notice().contains("isn't installed"), "missing art refused with a message")
+	_check(not manager.select("test_broken"), "broken collection refused")
+	_check(manager.selected_id == "test_symbols", "refusals leave the choice unchanged")
+
+	# Saved choice survives a restart of the manager.
+	var restarted: Node = load("res://scripts/autoload/tile_collection_manager.gd").new()
+	restarted.settings_path = test_settings
+	restarted.reload_library(dirs)
+	restarted.restore()
+	_check(restarted.selected_id == "test_symbols", "saved collection restored on startup")
+	restarted.free()
+
+	# Mixed: stable mapping for the same board across a reload.
+	_check(manager.select("test_mixed"), "mixed fixture selectable")
+	await _frames(2)
+	var mixed_keys := _visual_keys(board, model)
+	manager.reload_library(dirs)
+	manager.restore()
+	screen.call("_on_collection_changed", "test_mixed")
+	await _frames(2)
+	_check(_visual_keys(board, model) == mixed_keys, "mixed mapping identical after reloading collections")
+
+	# A collection with too few symbols falls back to Classic for this board.
+	_check(manager.select("test_letters"), "short fixture selectable")
+	await _frames(2)
+	_check(board.skin().collection_id == "classic", "board too big for 5 symbols shows Classic")
+	_check((screen.get_node("%Toast") as Control).visible, "fallback is explained")
+	_check(_all_tiles_have_art(board, model), "fallback board fully drawn")
+
+	# A saved collection that has lost its art falls back safely on startup.
+	UserSettings.new(test_settings).set_value("tiles", "collection", "test_broken")
+	manager.restore()
+	_check(manager.selected_id == "classic" and not manager.take_notice().is_empty(), "missing art on startup falls back to Classic")
+
+	screen.queue_free()
+	await _frames(2)
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(test_settings))
+	manager.settings_path = real_settings
+	manager.reload_library(PackedStringArray([TileCollectionLibrary.SHIPPED_DIR]))
+	manager.restore()
+
+
+func _all_tiles_have_art(board: BoardView, model: BoardModel) -> bool:
+	for i in model.tile_count():
+		if not model.is_removed(i) and not board.tile(i).has_art():
+			return false
+	return true
+
+
+func _visual_keys(board: BoardView, model: BoardModel) -> PackedStringArray:
+	var keys := PackedStringArray()
+	for face in model.faces:
+		keys.append(board.skin().visual_key(face))
+	return keys
+
+
 func _open_level(level_number: int) -> Control:
 	GameSession.current_level = level_number
 	var screen: Control = GAME_SCENE.instantiate()
@@ -230,6 +346,19 @@ func _click_at(point: Vector2) -> void:
 		event.global_position = point
 		get_viewport().push_input(event, true)
 	await _frames(1)
+
+
+func _tile_clear_of_buttons(screen: Control, dialog: ModalDialog) -> int:
+	var board: BoardView = screen.get_node("%Board")
+	var model: BoardModel = screen.get("_model")
+	var panel := (dialog.get_node("%Panel") as Control).get_global_rect()
+	for i in model.tile_count():
+		if not model.is_free(i):
+			continue
+		var point := board.tile(i).get_global_transform() * board.tile(i).face_center()
+		if not panel.has_point(point):
+			return i
+	return -1
 
 
 func _dialog_button(dialog: ModalDialog, text: String) -> Button:

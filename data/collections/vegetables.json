@@ -1,0 +1,158 @@
+{
+	"id": "vegetables",
+	"name": "Vegetables",
+	"version": 1,
+	"order": 4,
+	"kind": "symbols",
+	"assignment": "fixed",
+	"description": "Illustrated vegetables.",
+	"thumbnail": "res://assets/collections/vegetables/thumbnail.png",
+	"body": "res://assets/tiles/bodies/tile_body_ivory.png",
+	"symbol_padding": 0.14,
+	"symbols": [
+		{
+			"id": "carrot",
+			"file": "res://assets/collections/vegetables/vegetable_carrot.png"
+		},
+		{
+			"id": "broccoli",
+			"file": "res://assets/collections/vegetables/vegetable_broccoli.png"
+		},
+		{
+			"id": "tomato",
+			"file": "res://assets/collections/vegetables/vegetable_tomato.png"
+		},
+		{
+			"id": "eggplant",
+			"file": "res://assets/collections/vegetables/vegetable_eggplant.png"
+		},
+		{
+			"id": "corn",
+			"file": "res://assets/collections/vegetables/vegetable_corn.png"
+		},
+		{
+			"id": "potato",
+			"file": "res://assets/collections/vegetables/vegetable_potato.png"
+		},
+		{
+			"id": "onion",
+			"file": "res://assets/collections/vegetables/vegetable_onion.png"
+		},
+		{
+			"id": "garlic",
+			"file": "res://assets/collections/vegetables/vegetable_garlic.png"
+		},
+		{
+			"id": "red_pepper",
+			"file": "res://assets/collections/vegetables/vegetable_red_pepper.png"
+		},
+		{
+			"id": "green_pepper",
+			"file": "res://assets/collections/vegetables/vegetable_green_pepper.png"
+		},
+		{
+			"id": "cucumber",
+			"file": "res://assets/collections/vegetables/vegetable_cucumber.png"
+		},
+		{
+			"id": "pumpkin",
+			"file": "res://assets/collections/vegetables/vegetable_pumpkin.png"
+		},
+		{
+			"id": "mushroom",
+			"file": "res://assets/collections/vegetables/vegetable_mushroom.png"
+		},
+		{
+			"id": "peas",
+			"file": "res://assets/collections/vegetables/vegetable_peas.png"
+		},
+		{
+			"id": "cabbage",
+			"file": "res://assets/collections/vegetables/vegetable_cabbage.png"
+		},
+		{
+			"id": "lettuce",
+			"file": "res://assets/collections/vegetables/vegetable_lettuce.png"
+		},
+		{
+			"id": "radish",
+			"file": "res://assets/collections/vegetables/vegetable_radish.png"
+		},
+		{
+			"id": "beet",
+			"file": "res://assets/collections/vegetables/vegetable_beet.png"
+		},
+		{
+			"id": "chili",
+			"file": "res://assets/collections/vegetables/vegetable_chili.png"
+		},
+		{
+			"id": "leek",
+			"file": "res://assets/collections/vegetables/vegetable_leek.png"
+		},
+		{
+			"id": "celery",
+			"file": "res://assets/collections/vegetables/vegetable_celery.png"
+		},
+		{
+			"id": "asparagus",
+			"file": "res://assets/collections/vegetables/vegetable_asparagus.png"
+		},
+		{
+			"id": "cauliflower",
+			"file": "res://assets/collections/vegetables/vegetable_cauliflower.png"
+		},
+		{
+			"id": "sweet_potato",
+			"file": "res://assets/collections/vegetables/vegetable_sweet_potato.png"
+		},
+		{
+			"id": "ginger",
+			"file": "res://assets/collections/vegetables/vegetable_ginger.png"
+		},
+		{
+			"id": "zucchini",
+			"file": "res://assets/collections/vegetables/vegetable_zucchini.png"
+		},
+		{
+			"id": "artichoke",
+			"file": "res://assets/collections/vegetables/vegetable_artichoke.png"
+		},
+		{
+			"id": "bok_choy",
+			"file": "res://assets/collections/vegetables/vegetable_bok_choy.png"
+		},
+		{
+			"id": "daikon",
+			"file": "res://assets/collections/vegetables/vegetable_daikon.png"
+		},
+		{
+			"id": "lotus_root",
+			"file": "res://assets/collections/vegetables/vegetable_lotus_root.png"
+		},
+		{
+			"id": "bamboo_shoot",
+			"file": "res://assets/collections/vegetables/vegetable_bamboo_shoot.png"
+		},
+		{
+			"id": "edamame",
+			"file": "res://assets/collections/vegetables/vegetable_edamame.png"
+		},
+		{
+			"id": "okra",
+			"file": "res://assets/collections/vegetables/vegetable_okra.png"
+		},
+		{
+			"id": "turnip",
+			"file": "res://assets/collections/vegetables/vegetable_turnip.png"
+		},
+		{
+			"id": "kale",
+			"file": "res://assets/collections/vegetables/vegetable_kale.png"
+		},
+		{
+			"id": "spinach",
+			"file": "res://assets/collections/vegetables/vegetable_spinach.png"
+		}
+	]
+}

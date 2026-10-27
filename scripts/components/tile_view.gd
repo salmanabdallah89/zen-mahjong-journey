@@ -35,6 +35,7 @@ var _lift_tween: Tween
 @onready var _shadow: Panel = %Shadow
 @onready var _lift: Control = %Lift
 @onready var _face: TextureRect = %Face
+@onready var _symbol: TextureRect = %Symbol
 @onready var _veil: Panel = %Veil
 @onready var _glow: Panel = %Glow
 
@@ -64,8 +65,19 @@ func set_layer(z: int, top_layer: int) -> void:
 	_apply_look(false)
 
 
-func set_face(texture: Texture2D) -> void:
-	_face.texture = texture
+## `tile` is the full tile image (or blank body); `symbol` is drawn on its top
+## face for symbol collections and is null for full-tile collections.
+func set_art(tile: Texture2D, symbol: Texture2D = null, padding := 0.0) -> void:
+	_face.texture = tile
+	_symbol.texture = symbol
+	_symbol.visible = symbol != null
+	if symbol:
+		var inset := _art.face_rect.size * padding
+		_place(_symbol, Rect2(_art.face_rect.position + inset, _art.face_rect.size - inset * 2.0))
+
+
+func has_art() -> bool:
+	return _face.texture != null and (not _symbol.visible or _symbol.texture != null)
 
 
 func set_free(value: bool, animate := true) -> void:

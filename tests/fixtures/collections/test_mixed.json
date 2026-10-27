@@ -1,0 +1,158 @@
+{
+	"_comment": "TEST FIXTURE ONLY: stand-in symbols borrowed from existing UI/effect art to exercise the collection pipeline. Never shipped or offered to players.",
+	"id": "test_mixed",
+	"name": "Test Mixed",
+	"version": 1,
+	"order": 91,
+	"kind": "symbols",
+	"description": "Test fixture.",
+	"body": "res://assets/tiles/backs/tile_back_sage.png",
+	"symbol_padding": 0.18,
+	"assignment": "board_seeded",
+	"symbols": [
+		{
+			"id": "icon_back",
+			"file": "res://assets/ui/icons/icon_back.png"
+		},
+		{
+			"id": "icon_calendar",
+			"file": "res://assets/ui/icons/icon_calendar.png"
+		},
+		{
+			"id": "icon_check",
+			"file": "res://assets/ui/icons/icon_check.png"
+		},
+		{
+			"id": "icon_close",
+			"file": "res://assets/ui/icons/icon_close.png"
+		},
+		{
+			"id": "icon_coin",
+			"file": "res://assets/ui/icons/icon_coin.png"
+		},
+		{
+			"id": "icon_gift",
+			"file": "res://assets/ui/icons/icon_gift.png"
+		},
+		{
+			"id": "icon_heart",
+			"file": "res://assets/ui/icons/icon_heart.png"
+		},
+		{
+			"id": "icon_hint",
+			"file": "res://assets/ui/icons/icon_hint.png"
+		},
+		{
+			"id": "icon_home",
+			"file": "res://assets/ui/icons/icon_home.png"
+		},
+		{
+			"id": "icon_info",
+			"file": "res://assets/ui/icons/icon_info.png"
+		},
+		{
+			"id": "icon_lock",
+			"file": "res://assets/ui/icons/icon_lock.png"
+		},
+		{
+			"id": "icon_music",
+			"file": "res://assets/ui/icons/icon_music.png"
+		},
+		{
+			"id": "icon_next",
+			"file": "res://assets/ui/icons/icon_next.png"
+		},
+		{
+			"id": "icon_pause",
+			"file": "res://assets/ui/icons/icon_pause.png"
+		},
+		{
+			"id": "icon_play",
+			"file": "res://assets/ui/icons/icon_play.png"
+		},
+		{
+			"id": "icon_plus",
+			"file": "res://assets/ui/icons/icon_plus.png"
+		},
+		{
+			"id": "icon_replay",
+			"file": "res://assets/ui/icons/icon_replay.png"
+		},
+		{
+			"id": "icon_settings",
+			"file": "res://assets/ui/icons/icon_settings.png"
+		},
+		{
+			"id": "icon_shop",
+			"file": "res://assets/ui/icons/icon_shop.png"
+		},
+		{
+			"id": "icon_shuffle",
+			"file": "res://assets/ui/icons/icon_shuffle.png"
+		},
+		{
+			"id": "tile_back_night",
+			"file": "res://assets/tiles/backs/tile_back_night.png"
+		},
+		{
+			"id": "icon_sound_on",
+			"file": "res://assets/ui/icons/icon_sound_on.png"
+		},
+		{
+			"id": "icon_star",
+			"file": "res://assets/ui/icons/icon_star.png"
+		},
+		{
+			"id": "tile_back_forest",
+			"file": "res://assets/tiles/backs/tile_back_forest.png"
+		},
+		{
+			"id": "icon_undo",
+			"file": "res://assets/ui/icons/icon_undo.png"
+		},
+		{
+			"id": "petal_00",
+			"file": "res://assets/effects/petal_00.png"
+		},
+		{
+			"id": "petal_01",
+			"file": "res://assets/effects/petal_01.png"
+		},
+		{
+			"id": "petal_02",
+			"file": "res://assets/effects/petal_02.png"
+		},
+		{
+			"id": "petal_03",
+			"file": "res://assets/effects/petal_03.png"
+		},
+		{
+			"id": "petal_04",
+			"file": "res://assets/effects/petal_04.png"
+		},
+		{
+			"id": "petal_05",
+			"file": "res://assets/effects/petal_05.png"
+		},
+		{
+			"id": "petal_06",
+			"file": "res://assets/effects/petal_06.png"
+		},
+		{
+			"id": "petal_07",
+			"file": "res://assets/effects/petal_07.png"
+		},
+		{
+			"id": "node_available",
+			"file": "res://assets/progression/node_available.png"
+		},
+		{
+			"id": "node_complete",
+			"file": "res://assets/progression/node_complete.png"
+		},
+		{
+			"id": "node_locked",
+			"file": "res://assets/progression/node_locked.png"
+		}
+	]
+}

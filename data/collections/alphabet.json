@@ -1,0 +1,118 @@
+{
+	"id": "alphabet",
+	"name": "Alphabet",
+	"version": 1,
+	"order": 5,
+	"kind": "symbols",
+	"assignment": "board_ordered",
+	"description": "English letters A to Z. Boards needing more than 26 symbols show Classic instead.",
+	"thumbnail": "res://assets/collections/alphabet/thumbnail.png",
+	"body": "res://assets/tiles/bodies/tile_body_ivory.png",
+	"symbol_padding": 0.16,
+	"symbols": [
+		{
+			"id": "a",
+			"file": "res://assets/collections/alphabet/letter_a.png"
+		},
+		{
+			"id": "b",
+			"file": "res://assets/collections/alphabet/letter_b.png"
+		},
+		{
+			"id": "c",
+			"file": "res://assets/collections/alphabet/letter_c.png"
+		},
+		{
+			"id": "d",
+			"file": "res://assets/collections/alphabet/letter_d.png"
+		},
+		{
+			"id": "e",
+			"file": "res://assets/collections/alphabet/letter_e.png"
+		},
+		{
+			"id": "f",
+			"file": "res://assets/collections/alphabet/letter_f.png"
+		},
+		{
+			"id": "g",
+			"file": "res://assets/collections/alphabet/letter_g.png"
+		},
+		{
+			"id": "h",
+			"file": "res://assets/collections/alphabet/letter_h.png"
+		},
+		{
+			"id": "i",
+			"file": "res://assets/collections/alphabet/letter_i.png"
+		},
+		{
+			"id": "j",
+			"file": "res://assets/collections/alphabet/letter_j.png"
+		},
+		{
+			"id": "k",
+			"file": "res://assets/collections/alphabet/letter_k.png"
+		},
+		{
+			"id": "l",
+			"file": "res://assets/collections/alphabet/letter_l.png"
+		},
+		{
+			"id": "m",
+			"file": "res://assets/collections/alphabet/letter_m.png"
+		},
+		{
+			"id": "n",
+			"file": "res://assets/collections/alphabet/letter_n.png"
+		},
+		{
+			"id": "o",
+			"file": "res://assets/collections/alphabet/letter_o.png"
+		},
+		{
+			"id": "p",
+			"file": "res://assets/collections/alphabet/letter_p.png"
+		},
+		{
+			"id": "q",
+			"file": "res://assets/collections/alphabet/letter_q.png"
+		},
+		{
+			"id": "r",
+			"file": "res://assets/collections/alphabet/letter_r.png"
+		},
+		{
+			"id": "s",
+			"file": "res://assets/collections/alphabet/letter_s.png"
+		},
+		{
+			"id": "t",
+			"file": "res://assets/collections/alphabet/letter_t.png"
+		},
+		{
+			"id": "u",
+			"file": "res://assets/collections/alphabet/letter_u.png"
+		},
+		{
+			"id": "v",
+			"file": "res://assets/collections/alphabet/letter_v.png"
+		},
+		{
+			"id": "w",
+			"file": "res://assets/collections/alphabet/letter_w.png"
+		},
+		{
+			"id": "x",
+			"file": "res://assets/collections/alphabet/letter_x.png"
+		},
+		{
+			"id": "y",
+			"file": "res://assets/collections/alphabet/letter_y.png"
+		},
+		{
+			"id": "z",
+			"file": "res://assets/collections/alphabet/letter_z.png"
+		}
+	]
+}

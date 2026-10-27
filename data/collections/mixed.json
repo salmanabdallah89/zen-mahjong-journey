@@ -1,0 +1,158 @@
+{
+	"id": "mixed",
+	"name": "Mixed",
+	"version": 1,
+	"order": 6,
+	"kind": "symbols",
+	"assignment": "board_seeded",
+	"description": "A curated mix of animals, fruits, vegetables and letters, arranged differently on every board.",
+	"thumbnail": "res://assets/collections/mixed/thumbnail.png",
+	"body": "res://assets/tiles/bodies/tile_body_ivory.png",
+	"symbol_padding": 0.14,
+	"symbols": [
+		{
+			"id": "animals_panda",
+			"file": "res://assets/collections/animals/animal_panda.png"
+		},
+		{
+			"id": "animals_cat",
+			"file": "res://assets/collections/animals/animal_cat.png"
+		},
+		{
+			"id": "animals_dog",
+			"file": "res://assets/collections/animals/animal_dog.png"
+		},
+		{
+			"id": "animals_rabbit",
+			"file": "res://assets/collections/animals/animal_rabbit.png"
+		},
+		{
+			"id": "animals_fox",
+			"file": "res://assets/collections/animals/animal_fox.png"
+		},
+		{
+			"id": "animals_bear",
+			"file": "res://assets/collections/animals/animal_bear.png"
+		},
+		{
+			"id": "animals_koala",
+			"file": "res://assets/collections/animals/animal_koala.png"
+		},
+		{
+			"id": "animals_tiger",
+			"file": "res://assets/collections/animals/animal_tiger.png"
+		},
+		{
+			"id": "animals_lion",
+			"file": "res://assets/collections/animals/animal_lion.png"
+		},
+		{
+			"id": "fruits_apple",
+			"file": "res://assets/collections/fruits/fruit_apple.png"
+		},
+		{
+			"id": "fruits_pear",
+			"file": "res://assets/collections/fruits/fruit_pear.png"
+		},
+		{
+			"id": "fruits_orange",
+			"file": "res://assets/collections/fruits/fruit_orange.png"
+		},
+		{
+			"id": "fruits_lemon",
+			"file": "res://assets/collections/fruits/fruit_lemon.png"
+		},
+		{
+			"id": "fruits_banana",
+			"file": "res://assets/collections/fruits/fruit_banana.png"
+		},
+		{
+			"id": "fruits_grapes",
+			"file": "res://assets/collections/fruits/fruit_grapes.png"
+		},
+		{
+			"id": "fruits_strawberry",
+			"file": "res://assets/collections/fruits/fruit_strawberry.png"
+		},
+		{
+			"id": "fruits_cherry",
+			"file": "res://assets/collections/fruits/fruit_cherry.png"
+		},
+		{
+			"id": "fruits_peach",
+			"file": "res://assets/collections/fruits/fruit_peach.png"
+		},
+		{
+			"id": "vegetables_carrot",
+			"file": "res://assets/collections/vegetables/vegetable_carrot.png"
+		},
+		{
+			"id": "vegetables_broccoli",
+			"file": "res://assets/collections/vegetables/vegetable_broccoli.png"
+		},
+		{
+			"id": "vegetables_tomato",
+			"file": "res://assets/collections/vegetables/vegetable_tomato.png"
+		},
+		{
+			"id": "vegetables_eggplant",
+			"file": "res://assets/collections/vegetables/vegetable_eggplant.png"
+		},
+		{
+			"id": "vegetables_corn",
+			"file": "res://assets/collections/vegetables/vegetable_corn.png"
+		},
+		{
+			"id": "vegetables_potato",
+			"file": "res://assets/collections/vegetables/vegetable_potato.png"
+		},
+		{
+			"id": "vegetables_onion",
+			"file": "res://assets/collections/vegetables/vegetable_onion.png"
+		},
+		{
+			"id": "vegetables_garlic",
+			"file": "res://assets/collections/vegetables/vegetable_garlic.png"
+		},
+		{
+			"id": "vegetables_red_pepper",
+			"file": "res://assets/collections/vegetables/vegetable_red_pepper.png"
+		},
+		{
+			"id": "alphabet_a",
+			"file": "res://assets/collections/alphabet/letter_a.png"
+		},
+		{
+			"id": "alphabet_b",
+			"file": "res://assets/collections/alphabet/letter_b.png"
+		},
+		{
+			"id": "alphabet_c",
+			"file": "res://assets/collections/alphabet/letter_c.png"
+		},
+		{
+			"id": "alphabet_d",
+			"file": "res://assets/collections/alphabet/letter_d.png"
+		},
+		{
+			"id": "alphabet_e",
+			"file": "res://assets/collections/alphabet/letter_e.png"
+		},
+		{
+			"id": "alphabet_f",
+			"file": "res://assets/collections/alphabet/letter_f.png"
+		},
+		{
+			"id": "alphabet_g",
+			"file": "res://assets/collections/alphabet/letter_g.png"
+		},
+		{
+			"id": "alphabet_h",
+			"file": "res://assets/collections/alphabet/letter_h.png"
+		},
+		{
+			"id": "alphabet_i",
+			"file": "res://assets/collections/alphabet/letter_i.png"
+		}
+	]
+}

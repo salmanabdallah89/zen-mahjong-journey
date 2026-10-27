@@ -1,0 +1,158 @@
+{
+	"id": "fruits",
+	"name": "Fruits",
+	"version": 1,
+	"order": 3,
+	"kind": "symbols",
+	"assignment": "fixed",
+	"description": "Illustrated fruits.",
+	"thumbnail": "res://assets/collections/fruits/thumbnail.png",
+	"body": "res://assets/tiles/bodies/tile_body_ivory.png",
+	"symbol_padding": 0.14,
+	"symbols": [
+		{
+			"id": "apple",
+			"file": "res://assets/collections/fruits/fruit_apple.png"
+		},
+		{
+			"id": "pear",
+			"file": "res://assets/collections/fruits/fruit_pear.png"
+		},
+		{
+			"id": "orange",
+			"file": "res://assets/collections/fruits/fruit_orange.png"
+		},
+		{
+			"id": "lemon",
+			"file": "res://assets/collections/fruits/fruit_lemon.png"
+		},
+		{
+			"id": "banana",
+			"file": "res://assets/collections/fruits/fruit_banana.png"
+		},
+		{
+			"id": "grapes",
+			"file": "res://assets/collections/fruits/fruit_grapes.png"
+		},
+		{
+			"id": "strawberry",
+			"file": "res://assets/collections/fruits/fruit_strawberry.png"
+		},
+		{
+			"id": "cherry",
+			"file": "res://assets/collections/fruits/fruit_cherry.png"
+		},
+		{
+			"id": "peach",
+			"file": "res://assets/collections/fruits/fruit_peach.png"
+		},
+		{
+			"id": "plum",
+			"file": "res://assets/collections/fruits/fruit_plum.png"
+		},
+		{
+			"id": "mango",
+			"file": "res://assets/collections/fruits/fruit_mango.png"
+		},
+		{
+			"id": "pineapple",
+			"file": "res://assets/collections/fruits/fruit_pineapple.png"
+		},
+		{
+			"id": "watermelon",
+			"file": "res://assets/collections/fruits/fruit_watermelon.png"
+		},
+		{
+			"id": "melon",
+			"file": "res://assets/collections/fruits/fruit_melon.png"
+		},
+		{
+			"id": "kiwi",
+			"file": "res://assets/collections/fruits/fruit_kiwi.png"
+		},
+		{
+			"id": "coconut",
+			"file": "res://assets/collections/fruits/fruit_coconut.png"
+		},
+		{
+			"id": "pomegranate",
+			"file": "res://assets/collections/fruits/fruit_pomegranate.png"
+		},
+		{
+			"id": "fig",
+			"file": "res://assets/collections/fruits/fruit_fig.png"
+		},
+		{
+			"id": "blueberry",
+			"file": "res://assets/collections/fruits/fruit_blueberry.png"
+		},
+		{
+			"id": "raspberry",
+			"file": "res://assets/collections/fruits/fruit_raspberry.png"
+		},
+		{
+			"id": "blackberry",
+			"file": "res://assets/collections/fruits/fruit_blackberry.png"
+		},
+		{
+			"id": "papaya",
+			"file": "res://assets/collections/fruits/fruit_papaya.png"
+		},
+		{
+			"id": "passion_fruit",
+			"file": "res://assets/collections/fruits/fruit_passion_fruit.png"
+		},
+		{
+			"id": "dragon_fruit",
+			"file": "res://assets/collections/fruits/fruit_dragon_fruit.png"
+		},
+		{
+			"id": "lychee",
+			"file": "res://assets/collections/fruits/fruit_lychee.png"
+		},
+		{
+			"id": "persimmon",
+			"file": "res://assets/collections/fruits/fruit_persimmon.png"
+		},
+		{
+			"id": "avocado",
+			"file": "res://assets/collections/fruits/fruit_avocado.png"
+		},
+		{
+			"id": "grapefruit",
+			"file": "res://assets/collections/fruits/fruit_grapefruit.png"
+		},
+		{
+			"id": "starfruit",
+			"file": "res://assets/collections/fruits/fruit_starfruit.png"
+		},
+		{
+			"id": "guava",
+			"file": "res://assets/collections/fruits/fruit_guava.png"
+		},
+		{
+			"id": "lime",
+			"file": "res://assets/collections/fruits/fruit_lime.png"
+		},
+		{
+			"id": "apricot",
+			"file": "res://assets/collections/fruits/fruit_apricot.png"
+		},
+		{
+			"id": "olive",
+			"file": "res://assets/collections/fruits/fruit_olive.png"
+		},
+		{
+			"id": "cranberry",
+			"file": "res://assets/collections/fruits/fruit_cranberry.png"
+		},
+		{
+			"id": "date",
+			"file": "res://assets/collections/fruits/fruit_date.png"
+		},
+		{
+			"id": "quince",
+			"file": "res://assets/collections/fruits/fruit_quince.png"
+		}
+	]
+}
