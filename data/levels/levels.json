@@ -1,0 +1,15 @@
+{
+	"_comment": "Introductory levels in order. Suits are filtered by TileCatalog: suits with unverified art are excluded until replaced.",
+	"levels": [
+		{"title": "Lotus Pond", "layout": "lotus_pond", "seed": 1101, "suits": ["bamboo"], "background": "bg_golden_sakura"},
+		{"title": "Stepping Stones", "layout": "stepping_stones", "seed": 1202, "suits": ["bamboo"], "background": "bg_golden_sakura"},
+		{"title": "Bamboo Grove", "layout": "bamboo_grove", "seed": 1303, "suits": ["bamboo", "dots"], "background": "bg_bamboo_forest"},
+		{"title": "Quiet Path", "layout": "quiet_path", "seed": 1404, "suits": ["bamboo", "dots"], "background": "bg_bamboo_forest"},
+		{"title": "Pagoda", "layout": "pagoda", "seed": 1505, "suits": ["bamboo", "dots", "flowers"], "background": "bg_misty_temple"},
+		{"title": "Mountain Shrine", "layout": "mountain_shrine", "seed": 1606, "suits": ["bamboo", "dots", "flowers"], "background": "bg_misty_temple"},
+		{"title": "Koi Garden", "layout": "koi_garden", "seed": 1707, "suits": ["bamboo", "dots", "flowers", "seasons"], "background": "bg_golden_sakura"},
+		{"title": "Evening Lanterns", "layout": "evening_lanterns", "seed": 1808, "suits": ["bamboo", "dots", "flowers", "seasons"], "background": "bg_moonlight_sanctuary"},
+		{"title": "Moon Bridge", "layout": "moon_bridge", "seed": 1909, "suits": ["bamboo", "dots", "flowers", "seasons"], "background": "bg_moonlight_sanctuary"},
+		{"title": "Temple Summit", "layout": "temple_summit", "seed": 2010, "suits": ["bamboo", "dots", "flowers", "seasons"], "background": "bg_misty_temple"}
+	]
+}

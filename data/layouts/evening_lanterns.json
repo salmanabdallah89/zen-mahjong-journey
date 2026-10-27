@@ -1,0 +1,9 @@
+{
+	"id": "evening_lanterns",
+	"layers": [
+		{"offset": [0, 0], "rows": ["XXXXXXXX", "XXXXXXXX", "XXXXXXXX", "XXXXXXXX", "XXXXXXXX", "XXXXXXXX"]},
+		{"offset": [2, 2], "rows": ["XXXXXX", "XXXXXX", "XXXXXX", "XXXXXX"]},
+		{"offset": [4, 4], "rows": ["XXXX", "XXXX"]},
+		{"offset": [6, 5], "rows": ["XX"]}
+	]
+}

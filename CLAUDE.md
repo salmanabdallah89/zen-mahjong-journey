@@ -16,9 +16,12 @@ folder name ends in `.exe`, so call the main exe directly):
 GODOT --headless --path . --import          # import new assets, must print no ERROR lines
 GODOT --headless --editor --path . --quit   # editor opens: no script/resource errors
 GODOT --headless --path . --quit-after 120  # main scene runs
-GODOT --path . --write-movie <scratch>/f.png --fixed-fps 30 --quit-after 60   # render frames to look at
+GODOT --headless --path . -s res://tests/run_tests.gd                      # unit tests (exit 1 on failure)
+GODOT --headless --path . res://tests/integration/playthrough_test.tscn    # plays levels via simulated clicks
+GODOT --path . res://tests/visual/capture_screens.tscn -- <scratch_dir>    # screenshots at 3 screen shapes; look at them
 ```
-Grep the output for `ERROR`, `WARNING`, `SCRIPT ERROR`, `Parse Error`. A fresh clone shows
+Grep the output for `ERROR`, `WARNING`, `SCRIPT ERROR`, `Parse Error`. The unit runner cannot
+detect a `SCRIPT ERROR` raised inside a test, so grep its output as well. A fresh clone shows
 "No loader found" errors on the *first* import only (theme loads before textures are imported);
 the second run must be clean.
 
@@ -79,18 +82,22 @@ Button art is empty by design: text is the Button's own `text`, icons via `icon`
 ## Folder layout
 ```
 assets/            runtime art copied verbatim from the asset pack (same sub-paths)
-  backgrounds/ tiles/faces/ tiles/backs/ ui/buttons/ ui/icons/ ui/panels/
-  progression/ effects/ branding/ fonts/ audio/
-scenes/screens/    one scene per full screen (startup_screen.tscn, home_screen.tscn, ...)
-scenes/components/ reusable pieces (tile.tscn, hud_bar.tscn, modal.tscn, ...)
+scenes/screens/    startup_screen.tscn, game_screen.tscn
+scenes/components/ tile_view.tscn, modal_dialog.tscn
 scripts/screens/   scripts attached to screen scenes (same base name as the scene)
-scripts/components/ reusable Control/Node scripts with class_name
-scripts/autoload/  singletons registered in project.godot
-scripts/core/      pure game logic, no Nodes (board model, rules, solver, layout loader)
-data/layouts/      board layouts as data (JSON or .tres), never hardcoded in scenes
+scripts/components/ BoardView, TileView, ModalDialog, SafeAreaContainer, ShuffleGlyph
+scripts/autoload/  game_session.gd (autoload "GameSession": current level, scene changes)
+scripts/core/      pure game logic, no Nodes (see Architecture)
+data/layouts/      board shapes (JSON, format documented in board_layout.gd)
+data/levels/       levels.json: order, title, layout, seed, suits, background
+tests/unit/        test_*.gd run by tests/run_tests.gd (TestCase base in tests/test_case.gd)
+tests/integration/ playthrough_test.tscn: plays the real game screen with simulated clicks
+tests/visual/      capture_screens.tscn: screenshot tool
 themes/            Theme resources
-docs/              reference material, ignored by Godot
+docs/              reference material + KNOWN_ISSUES.md, ignored by Godot
 ```
+Export note (for the Android step): JSON in `data/` is not a Godot resource. Add `data/*` to the
+export preset's "non-resource files" filter, and exclude `tests/*` from the export.
 
 ## Naming conventions
 - Files and folders: `snake_case` (`startup_screen.tscn`, `safe_area_container.gd`).
@@ -100,41 +107,52 @@ docs/              reference material, ignored by Godot
 - GDScript: `class_name PascalCase`, functions/vars `snake_case`, constants `UPPER_SNAKE`,
   private members `_leading_underscore`, signals past-tense (`tile_matched`), handlers
   `_on_<node>_<signal>`. Static typing everywhere (`var x: int`, `:=`, typed returns).
+  Don't name variables `seed`, `name`, `scale` etc. (they shadow globals/members and raise warnings).
 - Assets keep their pack names: `bg_*`, `tile_<suit>_<rank>`, `tile_back_*`, `btn_*_empty`,
   `icon_*`, `panel_*_empty`, `node_*`, `petal_NN`.
 - Tile face IDs = file name without `tile_` prefix: `bamboo_1..9`, `dots_1..9`,
   `characters_1..9`, `winds_east|south|west|north`, `dragons_red|green|white`,
   `flowers_plum|orchid|chrysanthemum|bamboo`, `seasons_spring|summer|autumn|winter`.
 
-## Architecture (approved direction)
-- **Logic separate from visuals.** `scripts/core/` holds plain classes (`RefCounted`/`Resource`):
-  board model (tiles with id, face_id, grid x/y/z), free-tile rules, match rules (flowers match
-  any flower, seasons match any season), shuffle, solvability-aware deal, undo stack. Testable
-  without scenes.
-- **Views render the model.** `Tile` component scene shows face/back textures looked up by
-  `face_id`; board view positions tiles from model coordinates and forwards taps.
-- **Autoloads (add only when the first feature needs them):** `SceneRouter` (screen changes +
-  fades), `SaveManager` (`user://save.cfg` via ConfigFile/JSON: progress, stars, coins,
-  settings), `AudioManager` (music/SFX buses), `GameState` (current level/session).
-- Signals flow up, calls flow down; screens don't reach into each other.
-- Levels/layouts are data in `data/layouts/`.
+## Architecture
+- **Core (`scripts/core/`, no Nodes, fully unit-tested):**
+  - `TileCatalog`: face IDs, suits, match groups (flowers match any flower, seasons any season),
+    texture paths, and the art-verified flag.
+  - `BoardLayout`: loads and validates JSON shapes. `BoardGeometry` holds positions in
+    half-tile units (a tile covers x..x+2, y..y+2 on layer z) plus precomputed cover/left/right
+    neighbours.
+  - `BoardModel`: faces and removed flags. Free = nothing above overlaps it AND its left or right
+    side is open. Handles removal and restore (undo) and available matches.
+  - `BoardGenerator`: deterministic, seeded deals. Builds the deal backwards by removing free
+    pairs from the full layout, then gives each pair matching faces. The removal order is
+    replayed through BoardModel's rules before a deal is accepted, so every board ships with a
+    verified solution. `reshuffle()` does the same for the tiles left on the board.
+  - `BoardSolver`: budgeted DFS with safe-move pruning and memoisation, used for Hint and tests.
+  - `LevelCatalog`: reads data/levels/levels.json.
+- **Randomness:** only `RandomNumberGenerator` seeded from level data. Never `randi()`,
+  `Array.shuffle()` or other global-RNG calls in core code, or deals stop being reproducible.
+- **GDScript pitfall:** a Packed*Array stored in a Dictionary/Array is a copy. Appending to the
+  fetched value does not update the container. Use plain `Array` values for grouping.
+- **Views:** `BoardView` builds `TileView`s (draw order: z, then y, then x; each layer shifted
+  up-left) and scales the board to fit its rect. `TileView` hit-tests only the top face of the
+  art and stops taking input as soon as its removal starts.
+- **Screen:** `game_screen.gd` orchestrates the model, view, HUD, tools, undo stack and dialogs.
+  Rules stay in the core.
+- Add new autoloads (SaveManager, AudioManager, a router with fades) only when a feature needs them.
 
 ## Roadmap (do in order, verify each)
-1. ✅ Project setup, portrait config, theme, startup screen (background + title + Play).
-2. Home screen (Play / Daily Challenge / Journey Map / Settings / Shop buttons — real Controls).
-3. Tile component + board model + one playable layout (select, match, free-tile rules, win/lose).
-4. Gameplay HUD (level, timer, tiles left, pause) + Hint / Shuffle / Undo.
-5. Level complete modal, Journey map with progression nodes, save/load.
-6. Settings (music, SFX, vibration), audio, petal effects.
-7. Android export preset, icon/adaptive icon, device testing.
-8. Monetization (AdMob) — only when explicitly requested.
+1. ✅ Project setup, portrait config, theme, startup screen.
+2. ✅ Milestone 1: playable solitaire with 10 seeded, verified levels, HUD, Hint / Shuffle / Undo,
+   pause, level complete, unit + integration tests.
+3. Home screen (Play / Daily Challenge / Journey Map / Settings / Shop as real Controls).
+4. Journey map with progression nodes, save/load of progress.
+5. Settings (music, SFX, vibration), audio, petal effects.
+6. Android export preset, icon/adaptive icon, on-device testing (FPS, touch, safe area).
+7. Monetization (AdMob), only when explicitly requested.
 
 ## Known asset issues
-- CJK glyphs failed to render in the pack: `tile_characters_*`, `tile_winds_*`, `tile_dragons_*`
-  show an empty box (□) instead of 萬/東/南/西/北/中/發. Winds have an English label; the red and
-  green dragons are distinguishable only by color, and characters only by numeral. These need
-  replacement art before release (README also asks for a visual review).
-- `bg_sakura_garden.png` contains the baked title logo (see Hard rules).
-- `branding/app_icon_*` are RGB with no transparency; Android adaptive icons need separate
-  foreground/background layers.
-- No fonts, sounds or music are supplied.
+See `docs/KNOWN_ISSUES.md`. In short: 24 tile faces (characters, winds, red/green dragons) have
+missing CJK glyphs and are excluded from boards via `TileCatalog.UNVERIFIED_ART_SUITS`, with the
+white dragon pending review. `icon_shuffle.png` is broken (vector stand-in in use), several other
+icons don't match their names, the logo is only baked into `bg_sakura_garden.png`, and no
+fonts or audio are supplied.

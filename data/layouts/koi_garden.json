@@ -1,0 +1,9 @@
+{
+	"id": "koi_garden",
+	"layers": [
+		{"offset": [0, 0], "rows": ["XXXXXXX", "XXXXXXX", "XXXXXXX", "XXXXXXX", "XXXXXXX", "XXXXXXX"]},
+		{"offset": [2, 2], "rows": ["XXXXX", "XXXXX", "XXXXX", "XXXXX"]},
+		{"offset": [4, 4], "rows": ["XXX", "XXX"]},
+		{"offset": [5, 5], "rows": ["XX"]}
+	]
+}

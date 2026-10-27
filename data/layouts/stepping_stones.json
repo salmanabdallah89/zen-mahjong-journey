@@ -1,0 +1,8 @@
+{
+	"id": "stepping_stones",
+	"layers": [
+		{"offset": [0, 0], "rows": [".XXXX.", "XXXXXX", "XXXXXX", ".XXXX."]},
+		{"offset": [2, 2], "rows": ["XXXX", "XXXX"]},
+		{"offset": [4, 3], "rows": ["XX"]}
+	]
+}

@@ -1,0 +1,247 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://scripts/screens/game_screen.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/bg_golden_sakura.png" id="2_bg"]
+[ext_resource type="Script" path="res://scripts/components/safe_area_container.gd" id="3_safe"]
+[ext_resource type="Script" path="res://scripts/components/board_view.gd" id="4_board"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/icon_pause.png" id="5_pause"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/icon_hint.png" id="6_hint"]
+[ext_resource type="Script" path="res://scripts/components/shuffle_glyph.gd" id="7_shuffle"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/icon_undo.png" id="8_undo"]
+[ext_resource type="PackedScene" path="res://scenes/components/modal_dialog.tscn" id="9_dialog"]
+
+[sub_resource type="Gradient" id="Gradient_shade"]
+offsets = PackedFloat32Array(0, 0.2, 0.75, 1)
+colors = PackedColorArray(0.15294118, 0.23137255, 0.3137255, 0.35, 0.15294118, 0.23137255, 0.3137255, 0.12, 0.15294118, 0.23137255, 0.3137255, 0.22, 0.15294118, 0.23137255, 0.3137255, 0.6)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture_shade"]
+gradient = SubResource("Gradient_shade")
+width = 8
+height = 256
+fill_to = Vector2(0, 1)
+
+[node name="GameScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="TextureRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Shade" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = SubResource("GradientTexture_shade")
+expand_mode = 1
+
+[node name="SafeArea" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3_safe")
+base_margin = 24
+
+[node name="Layout" type="VBoxContainer" parent="SafeArea"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 20
+
+[node name="Hud" type="PanelContainer" parent="SafeArea/Layout"]
+layout_mode = 2
+theme_type_variation = &"HudPanel"
+
+[node name="Row" type="HBoxContainer" parent="SafeArea/Layout/Hud"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TilesBox" type="VBoxContainer" parent="SafeArea/Layout/Hud/Row"]
+custom_minimum_size = Vector2(210, 0)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = -6
+
+[node name="TilesValue" type="Label" parent="SafeArea/Layout/Hud/Row/TilesBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HudValueLabel"
+text = "0"
+horizontal_alignment = 1
+
+[node name="TilesCaption" type="Label" parent="SafeArea/Layout/Hud/Row/TilesBox"]
+layout_mode = 2
+theme_type_variation = &"HudCaptionLabel"
+text = "TILES LEFT"
+horizontal_alignment = 1
+
+[node name="LevelBox" type="VBoxContainer" parent="SafeArea/Layout/Hud/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = -6
+
+[node name="LevelValue" type="Label" parent="SafeArea/Layout/Hud/Row/LevelBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HudValueLabel"
+text = "Level 1"
+horizontal_alignment = 1
+
+[node name="LevelCaption" type="Label" parent="SafeArea/Layout/Hud/Row/LevelBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HudCaptionLabel"
+text = "LEVEL"
+horizontal_alignment = 1
+text_overrun_behavior = 3
+
+[node name="PauseBox" type="HBoxContainer" parent="SafeArea/Layout/Hud/Row"]
+custom_minimum_size = Vector2(210, 0)
+layout_mode = 2
+alignment = 2
+
+[node name="PauseButton" type="Button" parent="SafeArea/Layout/Hud/Row/PauseBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 120)
+layout_mode = 2
+size_flags_vertical = 4
+tooltip_text = "Pause"
+theme_type_variation = &"CircleButton"
+icon = ExtResource("5_pause")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Board" type="Control" parent="SafeArea/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+script = ExtResource("4_board")
+
+[node name="Toolbar" type="HBoxContainer" parent="SafeArea/Layout"]
+layout_mode = 2
+theme_override_constants/separation = 80
+alignment = 1
+
+[node name="HintTool" type="VBoxContainer" parent="SafeArea/Layout/Toolbar"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="HintButton" type="Button" parent="SafeArea/Layout/Toolbar/HintTool"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 150)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"CircleButton"
+icon = ExtResource("6_hint")
+icon_alignment = 1
+expand_icon = true
+
+[node name="HintLabel" type="Label" parent="SafeArea/Layout/Toolbar/HintTool"]
+layout_mode = 2
+theme_type_variation = &"ToolLabel"
+text = "Hint"
+horizontal_alignment = 1
+
+[node name="ShuffleTool" type="VBoxContainer" parent="SafeArea/Layout/Toolbar"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ShuffleButton" type="Button" parent="SafeArea/Layout/Toolbar/ShuffleTool"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 150)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"CircleButton"
+
+[node name="ShuffleGlyph" type="Control" parent="SafeArea/Layout/Toolbar/ShuffleTool/ShuffleButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 38.0
+offset_top = 38.0
+offset_right = -38.0
+offset_bottom = -38.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("7_shuffle")
+
+[node name="ShuffleLabel" type="Label" parent="SafeArea/Layout/Toolbar/ShuffleTool"]
+layout_mode = 2
+theme_type_variation = &"ToolLabel"
+text = "Shuffle"
+horizontal_alignment = 1
+
+[node name="UndoTool" type="VBoxContainer" parent="SafeArea/Layout/Toolbar"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="UndoButton" type="Button" parent="SafeArea/Layout/Toolbar/UndoTool"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 150)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"CircleButton"
+icon = ExtResource("8_undo")
+icon_alignment = 1
+expand_icon = true
+
+[node name="UndoLabel" type="Label" parent="SafeArea/Layout/Toolbar/UndoTool"]
+layout_mode = 2
+theme_type_variation = &"ToolLabel"
+text = "Undo"
+horizontal_alignment = 1
+
+[node name="Toast" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_top = -420.0
+offset_bottom = -340.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_type_variation = &"ToastPanel"
+
+[node name="ToastLabel" type="Label" parent="Toast"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(840, 0)
+layout_mode = 2
+theme_type_variation = &"ToastLabel"
+text = "Message"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Dialog" parent="." instance=ExtResource("9_dialog")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1

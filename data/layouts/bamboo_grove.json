@@ -1,0 +1,10 @@
+{
+	"id": "bamboo_grove",
+	"layers": [
+		{"z": 0, "offset": [0, 0], "rows": ["XXXXXX", "XXXXXX", "XXXXXX", "XXXXXX"]},
+		{"z": 0, "offset": [-2, 3], "rows": ["X"]},
+		{"z": 0, "offset": [12, 3], "rows": ["X"]},
+		{"z": 1, "offset": [2, 2], "rows": ["XXXX", "XXXX"]},
+		{"z": 2, "offset": [4, 3], "rows": ["XX"]}
+	]
+}

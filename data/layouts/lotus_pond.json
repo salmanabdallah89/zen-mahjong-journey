@@ -1,0 +1,7 @@
+{
+	"id": "lotus_pond",
+	"layers": [
+		{"offset": [0, 0], "rows": ["XXXX", "XXXX", "XXXX", "XXXX", "XXXX"]},
+		{"offset": [2, 3], "rows": ["XX", "XX"]}
+	]
+}

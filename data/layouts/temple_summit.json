@@ -1,0 +1,10 @@
+{
+	"id": "temple_summit",
+	"layers": [
+		{"offset": [0, 0], "rows": [".XXXXXX.", "XXXXXXXX", "XXXXXXXX", "XXXXXXXX", "XXXXXXXX", "XXXXXXXX", "XXXXXXXX", ".XXXXXX."]},
+		{"offset": [2, 2], "rows": ["XXXXXX", "XXXXXX", "XXXXXX", "XXXXXX", "XXXXXX", "XXXXXX"]},
+		{"offset": [4, 4], "rows": ["XXXX", "XXXX", "XXXX", "XXXX"]},
+		{"offset": [6, 6], "rows": ["XX", "XX"]},
+		{"offset": [6, 7], "rows": ["XX"]}
+	]
+}

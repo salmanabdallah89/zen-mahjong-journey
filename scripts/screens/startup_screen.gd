@@ -1,6 +1,6 @@
 extends Control
 ## First screen shown on launch: environment background, game title and a
-## Play button. Navigation is not wired yet; Play only logs for now.
+## Play button that starts the first level.
 
 @onready var _title_block: Control = %TitleBlock
 @onready var _play_button: Button = %PlayButton
@@ -20,5 +20,4 @@ func _play_intro() -> void:
 
 
 func _on_play_pressed() -> void:
-	# TODO: route to the home/journey screen once it exists.
-	print("StartupScreen: Play pressed")
+	GameSession.play_level(1)

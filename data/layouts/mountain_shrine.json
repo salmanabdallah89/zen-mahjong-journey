@@ -1,0 +1,9 @@
+{
+	"id": "mountain_shrine",
+	"layers": [
+		{"offset": [0, 0], "rows": ["XXXXXXX", "XXXXXXX", "XXXXXXX", "XXXXXXX", "XXXXXXX", "XXXXXXX"]},
+		{"offset": [4, 2], "rows": ["XXX", "XXX", "XXX", "XXX"]},
+		{"offset": [5, 4], "rows": ["XX", "XX"]},
+		{"offset": [5, 5], "rows": ["XX"]}
+	]
+}
