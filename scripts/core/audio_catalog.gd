@@ -15,18 +15,30 @@ const AMBIENCE := {
 	"wind": "res://assets/audio/ambient/ambient_wind.ogg",
 }
 
-## id -> [file, bus, pitch variation (+/- share), minimum gap between plays (s)]
+## Match melody: temple bells on D major pentatonic, low to high. Consecutive
+## matches climb these notes (AudioManager.play_match_note).
+const MATCH_NOTES: PackedStringArray = [
+	"res://assets/audio/sfx/sfx_match_01.wav", "res://assets/audio/sfx/sfx_match_02.wav",
+	"res://assets/audio/sfx/sfx_match_03.wav", "res://assets/audio/sfx/sfx_match_04.wav",
+	"res://assets/audio/sfx/sfx_match_05.wav", "res://assets/audio/sfx/sfx_match_06.wav",
+	"res://assets/audio/sfx/sfx_match_07.wav", "res://assets/audio/sfx/sfx_match_08.wav",
+	"res://assets/audio/sfx/sfx_match_09.wav", "res://assets/audio/sfx/sfx_match_10.wav",
+]
+
+## id -> [file, bus, pitch variation (+/- share), minimum gap between plays (s),
+##        most copies sounding at once]
 const EFFECTS := {
-	"tile_select": ["res://assets/audio/sfx/sfx_tile_select.wav", "SFX", 0.04, 0.05],
-	"tile_match": ["res://assets/audio/sfx/sfx_tile_match.wav", "SFX", 0.06, 0.08],
-	"tile_blocked": ["res://assets/audio/sfx/sfx_tile_blocked.wav", "SFX", 0.03, 0.12],
-	"hint": ["res://assets/audio/sfx/sfx_hint.wav", "SFX", 0.0, 0.25],
-	"shuffle": ["res://assets/audio/sfx/sfx_shuffle.wav", "SFX", 0.0, 0.25],
-	"undo": ["res://assets/audio/sfx/sfx_undo.wav", "SFX", 0.0, 0.1],
-	"level_complete": ["res://assets/audio/sfx/sfx_level_complete.wav", "SFX", 0.0, 1.0],
-	"reward": ["res://assets/audio/sfx/sfx_reward.wav", "SFX", 0.0, 0.3],
-	"unlock": ["res://assets/audio/sfx/sfx_unlock.wav", "SFX", 0.0, 0.5],
-	"button_click": ["res://assets/audio/sfx/sfx_button_click.wav", "UI", 0.03, 0.04],
+	"tile_select": ["res://assets/audio/sfx/sfx_tile_select.wav", "SFX", 0.0, 0.05, 2],
+	# Bells are tuned melody notes, so no pitch variation; a few may ring together.
+	"tile_match": ["res://assets/audio/sfx/sfx_match_01.wav", "SFX", 0.0, 0.08, 4],
+	"tile_blocked": ["res://assets/audio/sfx/sfx_tile_blocked.wav", "SFX", 0.03, 0.12, 2],
+	"hint": ["res://assets/audio/sfx/sfx_hint.wav", "SFX", 0.0, 0.25, 1],
+	"shuffle": ["res://assets/audio/sfx/sfx_shuffle.wav", "SFX", 0.0, 0.25, 1],
+	"undo": ["res://assets/audio/sfx/sfx_undo.wav", "SFX", 0.0, 0.1, 2],
+	"level_complete": ["res://assets/audio/sfx/sfx_level_complete.wav", "SFX", 0.0, 1.0, 1],
+	"reward": ["res://assets/audio/sfx/sfx_reward.wav", "SFX", 0.0, 0.3, 1],
+	"unlock": ["res://assets/audio/sfx/sfx_unlock.wav", "SFX", 0.0, 0.5, 1],
+	"button_click": ["res://assets/audio/sfx/sfx_button_click.wav", "UI", 0.03, 0.04, 2],
 }
 
 ## Ambience mix per level background: id -> relative level (0..1).
@@ -52,4 +64,5 @@ static func all_paths() -> PackedStringArray:
 		paths.append(path)
 	for entry: Array in EFFECTS.values():
 		paths.append(str(entry[0]))
+	paths.append_array(MATCH_NOTES)
 	return paths

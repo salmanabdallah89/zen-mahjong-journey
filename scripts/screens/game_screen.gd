@@ -75,6 +75,7 @@ func _start_level() -> void:
 		return
 	_background.texture = load(_level.background_path())
 	AudioManager.play_music("gameplay")
+	AudioManager.reset_melody()
 	AudioManager.set_ambience(AudioCatalog.AMBIENCE_FOR_BACKGROUND.get(_level.background, AudioCatalog.MENU_AMBIENCE))
 	var geometry := _level.load_layout().build_geometry()
 	var deal := BoardGenerator.generate(geometry, _level.face_pool(), _level.deal_seed)
@@ -157,7 +158,7 @@ func _remove_pair(a: int, b: int) -> void:
 	AudioManager.vibrate()
 	# The last pair is celebrated by the level-complete sound instead.
 	if not _model.is_cleared():
-		AudioManager.play_sfx("tile_match")
+		AudioManager.play_match_note()
 	if _model.is_cleared():
 		_show_level_complete.call_deferred()
 	elif not _model.has_moves():
@@ -199,6 +200,7 @@ func _on_shuffle_pressed() -> void:
 	_model.set_faces(result.faces)
 	_shuffles += 1
 	AudioManager.play_sfx("shuffle")
+	AudioManager.reset_melody()
 	_set_selected(-1)
 	_clear_hint()
 	_board.refresh_all()
@@ -214,6 +216,7 @@ func _on_undo_pressed() -> void:
 	_set_selected(-1)
 	_clear_hint()
 	if entry["kind"] == UndoKind.MATCH:
+		AudioManager.melody_step_back()
 		var pair: Vector2i = entry["pair"]
 		_model.restore_pair(pair.x, pair.y)
 		_matches -= 1

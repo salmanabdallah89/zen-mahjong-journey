@@ -13,7 +13,7 @@ const CROSSFADE_SECONDS := 1.5
 const AMBIENCE_FADE_SECONDS := 2.0
 ## Effect players shared by SFX and UI; the oldest is reused when all are busy.
 const EFFECT_VOICES := 6
-## At most this many copies of one effect may sound at the same time.
+## Default cap on copies of one effect sounding together (AudioCatalog can override).
 const MAX_SAME_EFFECT := 2
 ## Music level while the level-complete celebration plays (linear).
 const CELEBRATION_DUCK := 0.35
@@ -52,6 +52,11 @@ var _effect_started: PackedFloat64Array = PackedFloat64Array()
 var _last_played := {}
 var _streams := {}
 var _rng := RandomNumberGenerator.new()
+## Match melody: matches within this many seconds of the last one climb the
+## scale; a longer pause starts again from the lowest note.
+var melody_window := 8.0
+var _melody_step := -1
+var _last_match_time := -1000.0
 ## Slider drags change values many times a second; write settings once they settle.
 var _save_timer: Timer
 var _settings_dirty := false
@@ -93,6 +98,8 @@ func _ready() -> void:
 	# first time each one plays. Music and ambience load when first needed.
 	for entry: Array in AudioCatalog.EFFECTS.values():
 		_stream(str(entry[0]), false)
+	for note in AudioCatalog.MATCH_NOTES:
+		_stream(note, false)
 	restore()
 
 
@@ -213,22 +220,27 @@ func ambience_level_db(ambience_id: String) -> float:
 
 # --- Effects ---------------------------------------------------------------
 
-## Plays an effect. Repeats within the effect's minimum gap, and more than
-## MAX_SAME_EFFECT overlapping copies, are dropped. Returns true if it played.
-func play_sfx(effect_id: String) -> bool:
+## Plays an effect. Repeats within the effect's minimum gap, and more than its
+## overlap cap, are dropped. `file_override` plays another file under the same
+## id and limits (used for melody notes). With `steal`, a sound over its cap
+## cuts off its own oldest copy instead of being dropped. Returns true if it played.
+func play_sfx(effect_id: String, file_override := "", steal := false) -> bool:
 	if not AudioCatalog.EFFECTS.has(effect_id):
 		_record(effect_id, "sfx", false)
 		return false
 	var entry: Array = AudioCatalog.EFFECTS[effect_id]
+	var cap := int(entry[4]) if entry.size() > 4 else MAX_SAME_EFFECT
 	var now := Time.get_ticks_msec() / 1000.0
-	if now - float(_last_played.get(effect_id, -1000.0)) < float(entry[3]) or _count_playing(effect_id) >= MAX_SAME_EFFECT:
+	var over_cap := _count_playing(effect_id) >= cap
+	if now - float(_last_played.get(effect_id, -1000.0)) < float(entry[3]) or (over_cap and not steal):
 		_record(effect_id, "sfx_limited", false)
 		return false
-	var stream := _stream(str(entry[0]), false)
+	var file := file_override if not file_override.is_empty() else str(entry[0])
+	var stream := _stream(file, false)
 	if stream == null:
 		_record(effect_id, "sfx", false)
 		return false
-	var voice := _free_voice()
+	var voice := _oldest_voice_of(effect_id) if over_cap else _free_voice()
 	var player := _effect_players[voice]
 	player.stop()
 	player.stream = stream
@@ -240,8 +252,36 @@ func play_sfx(effect_id: String) -> bool:
 	_effect_ids[voice] = effect_id
 	_effect_started[voice] = now
 	_last_played[effect_id] = now
-	_record(effect_id, "sfx", true)
+	_record(effect_id, "sfx", true, file)
 	return true
+
+
+## A matched pair: the next bell of the melody. Quick successive matches climb
+## the scale (holding on the top note); a pause restarts from the bottom.
+func play_match_note() -> bool:
+	var now := Time.get_ticks_msec() / 1000.0
+	if now - _last_match_time > melody_window:
+		_melody_step = 0
+	else:
+		_melody_step = mini(_melody_step + 1, AudioCatalog.MATCH_NOTES.size() - 1)
+	_last_match_time = now
+	# A melody note is never skipped: if too many bells ring, the oldest is damped.
+	return play_sfx("tile_match", AudioCatalog.MATCH_NOTES[_melody_step], true)
+
+
+## Undoing a match takes the melody back one note.
+func melody_step_back() -> void:
+	_melody_step = maxi(_melody_step - 1, -1)
+
+
+## Next match starts the melody from the lowest note (new level, shuffle).
+func reset_melody() -> void:
+	_melody_step = -1
+	_last_match_time = -1000.0
+
+
+func melody_step() -> int:
+	return _melody_step
 
 
 ## Short haptic tick on phones, if the player allows vibration.
@@ -277,6 +317,15 @@ func _voice_busy(voice: int) -> bool:
 		return false
 	var seconds := player.stream.get_length() / maxf(player.pitch_scale, 0.01)
 	return Time.get_ticks_msec() / 1000.0 - _effect_started[voice] < seconds
+
+
+func _oldest_voice_of(effect_id: String) -> int:
+	var oldest := -1
+	for i in _effect_players.size():
+		if _effect_ids[i] == effect_id and _voice_busy(i):
+			if oldest < 0 or _effect_started[i] < _effect_started[oldest]:
+				oldest = i
+	return oldest if oldest >= 0 else _free_voice()
 
 
 func _free_voice() -> int:
@@ -460,8 +509,8 @@ func _stream(path: String, looping: bool) -> AudioStream:
 	return stream
 
 
-func _record(sound_id: String, kind: String, played: bool) -> void:
-	history.append({"seq": event_seq, "id": sound_id, "kind": kind, "played": played})
+func _record(sound_id: String, kind: String, played: bool, file := "") -> void:
+	history.append({"seq": event_seq, "id": sound_id, "kind": kind, "played": played, "file": file})
 	event_seq += 1
 	if history.size() > HISTORY_LIMIT:
 		history.pop_front()

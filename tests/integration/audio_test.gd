@@ -37,6 +37,7 @@ func _ready() -> void:
 	await _test_level_complete_and_ducking()
 	await _test_settings_sliders_and_persistence()
 	await _test_rapid_tapping()
+	await _test_match_melody()
 	await _test_backgrounding()
 	for track: String in AudioCatalog.MUSIC.values():
 		AudioManager.use_stream(track, null)
@@ -251,8 +252,77 @@ func _test_rapid_tapping() -> void:
 	for i in 6:
 		AudioManager.play_sfx("tile_match")
 		await _wait(0.09)
-	_check(AudioManager.count_played("tile_match", seq) <= AudioManager.MAX_SAME_EFFECT + 1,
-		"14: overlapping match sounds are capped (%d played)" % AudioManager.count_played("tile_match", seq))
+	var match_cap: int = (AudioCatalog.EFFECTS["tile_match"] as Array)[4]
+	_check(AudioManager.count_played("tile_match", seq) <= match_cap,
+		"14: overlapping match bells are capped at %d (%d played)" % [match_cap, AudioManager.count_played("tile_match", seq)])
+
+
+## Musical feedback: quick matches climb the pentatonic bells; a pause, a
+## shuffle or a new level starts again from the bottom; undo steps back.
+func _test_match_melody() -> void:
+	AudioManager.melody_window = 1.0
+	AudioManager.reset_melody()
+	await _wait(0.3)
+	var seq := AudioManager.event_seq
+	for i in 4:
+		AudioManager.play_match_note()
+		await _wait(0.15)
+	_check(_match_files(seq) == AudioCatalog.MATCH_NOTES.slice(0, 4), "melody climbs one note per quick match")
+	AudioManager.melody_step_back()
+	seq = AudioManager.event_seq
+	AudioManager.play_match_note()
+	_check(_match_files(seq) == AudioCatalog.MATCH_NOTES.slice(3, 4), "after undo the next match replays the undone note")
+	await _wait(1.2)
+	seq = AudioManager.event_seq
+	AudioManager.play_match_note()
+	_check(_match_files(seq) == AudioCatalog.MATCH_NOTES.slice(0, 1), "a pause restarts the melody from the lowest note")
+	await _wait(0.15)
+	AudioManager.reset_melody()
+	seq = AudioManager.event_seq
+	AudioManager.play_match_note()
+	_check(_match_files(seq) == AudioCatalog.MATCH_NOTES.slice(0, 1), "reset (shuffle / new level) restarts the melody")
+	for i in 14:
+		await _wait(0.1)
+		AudioManager.play_match_note()
+	_check(AudioManager.melody_step() == AudioCatalog.MATCH_NOTES.size() - 1, "a long streak holds on the top note")
+	var ringing := 0
+	for i in AudioManager.EFFECT_VOICES:
+		if AudioManager.get("_effect_ids")[i] == "tile_match" and AudioManager.call("_voice_busy", i):
+			ringing += 1
+	_check(ringing <= int((AudioCatalog.EFFECTS["tile_match"] as Array)[4]), "a long fast streak still rings at most 4 bells (%d)" % ringing)
+	for note in AudioCatalog.MATCH_NOTES:
+		_check(ResourceLoader.exists(note), "melody note %s is installed" % note.get_file())
+	AudioManager.melody_window = 8.0
+	AudioManager.reset_melody()
+
+	# In play: three quick matches on a real board ring three rising notes.
+	GameSession.current_level = 4
+	var screen: Control = GAME_SCENE.instantiate()
+	_frame.add_child(screen)
+	await _frames(3)
+	var level := LevelCatalog.get_level(4)
+	var deal := BoardGenerator.generate(level.load_layout().build_geometry(), level.face_pool(), level.deal_seed)
+	seq = AudioManager.event_seq
+	for k in 3:
+		await _wait(0.12)
+		await _click_tile(screen, deal.solution[k].x)
+		await _click_tile(screen, deal.solution[k].y)
+	_check(_match_files(seq) == AudioCatalog.MATCH_NOTES.slice(0, 3), "in play, quick matches ring rising bells")
+	await _click(screen.get_node("%UndoButton"))
+	_check(AudioManager.melody_step() == 1, "undoing a match steps the melody back")
+	await _wait(0.3)
+	await _click(screen.get_node("%ShuffleButton"))
+	_check(AudioManager.melody_step() == -1, "a shuffle restarts the melody")
+	screen.queue_free()
+	await _frames(2)
+
+
+func _match_files(since_seq: int) -> PackedStringArray:
+	var files := PackedStringArray()
+	for event in AudioManager.history:
+		if int(event["seq"]) >= since_seq and event["id"] == "tile_match" and event["played"]:
+			files.append(str(event["file"]))
+	return files
 
 
 ## Phones: nothing plays while the app is in the background.

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Generates the game's original procedural sound effects and ambience with
-# ffmpeg (pure tones, envelopes and filtered noise; no samples, no third-party
-# audio). Re-run from the project root:  bash tools/audio/generate_audio.sh
+# ffmpeg (synthesized bells, koto-style plucks, wood blocks, filtered noise; no
+# samples, no third-party audio). Re-run from the project root:  bash tools/audio/generate_audio.sh
 # Music and bird ambience are NOT generated; see docs/AUDIO_ASSETS.md.
 set -euo pipefail
 SFX=assets/audio/sfx
@@ -17,30 +17,71 @@ tone() {  # name, duration, expression
     -ac 1 -c:a pcm_s16le "$SFX/$1.wav"
 }
 
-# Tile select: soft wooden tap with a warm body.
-tone sfx_tile_select 0.16 "$A*(0.55*sin(2*PI*1320*t)*exp(-t*55)+0.35*sin(2*PI*660*t)*exp(-t*38)+0.12*sin(2*PI*2640*t)*exp(-t*90))"
-# Pair matched: two-partial bell chime (E6 + B6) with a gentle shimmer.
-tone sfx_tile_match 1.10 "$A*(0.42*sin(2*PI*1318.5*t)*exp(-t*4.2)+0.26*sin(2*PI*1975.5*t)*exp(-t*5.5)+0.12*sin(2*PI*2637*t)*exp(-t*8)+0.08*sin(2*PI*659.3*t)*exp(-t*3))"
+# --- Instrument voices -------------------------------------------------------
+# Echo adds a little room so every voice sits in the same garden space.
+ROOM="aecho=0.8:0.55:55|130:0.22|0.11"
+
+# Temple bell: beating fundamental pair, inharmonic partials (2.76, 5.4) and a
+# short strike. bell FREQ ONSET GAIN DECAY
+bell() { echo "gte(t,$2)*$3*exp(-(t-$2)*$4)*(0.5*sin(2*PI*$1*(t-$2))+0.22*sin(2*PI*($1+1.3)*(t-$2))+0.16*sin(4*PI*$1*(t-$2))*exp(-(t-$2)*$4*1.5)+0.10*sin(2*PI*2.76*$1*(t-$2))*exp(-(t-$2)*$4*2.2)+0.05*sin(2*PI*5.4*$1*(t-$2))*exp(-(t-$2)*$4*4)+0.05*sin(2*PI*8.93*$1*(t-$2))*exp(-(t-$2)*30))"; }
+# Koto-style pluck: four harmonics, upper ones dying faster. koto FREQ ONSET GAIN
+koto() { echo "gte(t,$2)*$3*(0.55*sin(2*PI*$1*(t-$2))*exp(-(t-$2)*3)+0.3*sin(4*PI*$1*(t-$2))*exp(-(t-$2)*6)+0.16*sin(6*PI*$1*(t-$2))*exp(-(t-$2)*10)+0.08*sin(8*PI*$1*(t-$2))*exp(-(t-$2)*15))"; }
+# Bamboo wood block: very short, slightly inharmonic. wood FREQ ONSET GAIN
+wood() { echo "gte(t,$2)*$3*(0.6*sin(2*PI*$1*(t-$2))*exp(-(t-$2)*60)+0.25*sin(2*PI*2.3*$1*(t-$2))*exp(-(t-$2)*110)+0.15*sin(2*PI*4.1*$1*(t-$2))*exp(-(t-$2)*160))"; }
+
+voice() {  # name, duration, expression, peak dBFS
+  local tmp="$SFX/.$1.tmp.wav"
+  ffmpeg -loglevel error -y -f lavfi -i "aevalsrc=exprs='$A*($3)':s=$R:d=$2" \
+    -af "$ROOM,afade=t=out:st=$(awk "BEGIN{print $2*0.85}"):d=$(awk "BEGIN{print $2*0.15}")" \
+    -ac 1 -c:a pcm_s16le "$tmp"
+  normalize "$tmp" "$SFX/$1.wav" "$4"
+}
+normalize() {  # in, out, target peak dBFS
+  local peak
+  peak=$(ffmpeg -hide_banner -i "$1" -af volumedetect -f null - 2>&1 | sed -n 's/.*max_volume: \([-0-9.]*\) dB.*/\1/p')
+  ffmpeg -loglevel error -y -i "$1" -af "volume=$(awk "BEGIN{print $3 - $peak}")dB" -c:a pcm_s16le "$2"
+  rm -f "$1"
+}
+
+# Match melody: one bell per note of D major pentatonic over two octaves.
+# Consecutive matches climb these notes (AudioManager.play_match_note).
+NOTES=(587.33 659.26 739.99 880.00 987.77 1174.66 1318.51 1479.98 1760.00 1975.53)
+for i in "${!NOTES[@]}"; do
+  f=${NOTES[$i]}
+  decay=$(awk "BEGIN{print 2.4*sqrt($f/587.33)}")
+  voice "$(printf 'sfx_match_%02d' $((i + 1)))" 1.8 "$(bell "$f" 0 1 "$decay")" -4
+done
+rm -f "$SFX/sfx_tile_match.wav"
+
+# Tile select: bamboo wood block tuned to A5 (in key with the melody).
+voice sfx_tile_select 0.16 "$(wood 880 0 1)" -6
+# Hint: a wind-chime flurry (A6 D7 B6 E7).
+voice sfx_hint 1.5 "$(bell 1760 0 0.5 4)+$(bell 2349.3 0.07 0.45 4)+$(bell 1975.5 0.15 0.45 4)+$(bell 2637 0.26 0.4 4)" -6
+# Undo: koto pluck stepping down (A5 to F#5).
+voice sfx_undo 0.9 "$(koto 880 0 0.8)+$(koto 739.99 0.11 0.8)" -5
+# Level complete: a quick run up the scale that resolves on a ringing D chord,
+# with a low koto D underneath.
+RUN="$(bell 587.33 0 0.5 3)+$(bell 659.26 0.09 0.5 3)+$(bell 739.99 0.18 0.5 3)+$(bell 880 0.27 0.5 3)+$(bell 987.77 0.36 0.5 3)+$(bell 1174.66 0.45 0.5 3)"
+CHORD="$(bell 587.33 0.62 0.6 1.3)+$(bell 880 0.62 0.5 1.3)+$(bell 1174.66 0.62 0.5 1.4)+$(koto 293.66 0.62 0.6)"
+voice sfx_level_complete 3.6 "$RUN+$CHORD" -3
+# Shuffle: a bamboo rattle (six irregular knocks) over a soft whoosh.
+voice .shuffle_knocks 0.6 "$(wood 1320 0 0.8)+$(wood 1050 0.05 0.7)+$(wood 1480 0.10 0.8)+$(wood 990 0.17 0.7)+$(wood 1250 0.23 0.7)+$(wood 1110 0.31 0.6)" -6
+ffmpeg -loglevel error -y -f lavfi -i "anoisesrc=c=pink:r=$R:d=0.6:a=0.5:seed=7" \
+  -af "bandpass=f=1800:width_type=q:w=0.9,afade=t=in:d=0.18,afade=t=out:st=0.3:d=0.3,volume=-6dB" \
+  -ac 1 -c:a pcm_s16le "$SFX/.shuffle_air.wav"
+ffmpeg -loglevel error -y -i "$SFX/.shuffle_knocks.wav" -i "$SFX/.shuffle_air.wav" \
+  -filter_complex "amix=inputs=2:duration=longest:normalize=0" -ac 1 -c:a pcm_s16le "$SFX/.shuffle_mix.wav"
+normalize "$SFX/.shuffle_mix.wav" "$SFX/sfx_shuffle.wav" -6
+rm -f "$SFX/.shuffle_knocks.wav" "$SFX/.shuffle_air.wav"
+
 # Blocked tile: muted low thud.
 tone sfx_tile_blocked 0.22 "$A*(0.6*sin(2*PI*196*t)*exp(-t*24)+0.25*sin(2*PI*98*t)*exp(-t*16))"
-# Hint: three-note rising sparkle (C6 E6 G6).
-tone sfx_hint 0.95 "$A*(0.32*sin(2*PI*1046.5*t)*exp(-t*6)+gte(t,0.08)*0.30*sin(2*PI*1318.5*(t-0.08))*exp(-(t-0.08)*6)+gte(t,0.16)*0.30*sin(2*PI*1568*(t-0.16))*exp(-(t-0.16)*5))"
-# Undo: two descending soft notes (G5 then D5).
-tone sfx_undo 0.45 "$A*(0.40*sin(2*PI*784*t)*exp(-t*14)+gte(t,0.09)*0.40*sin(2*PI*587.3*(t-0.09))*exp(-(t-0.09)*10))"
 # Button click: tiny bamboo tick.
 tone sfx_button_click 0.08 "$A*(1.0*sin(2*PI*1760*t)*exp(-t*120)+0.6*sin(2*PI*880*t)*exp(-t*80))"
-# Level complete: plucked pentatonic arpeggio (D5 E5 G5 A5 D6) with harmonics.
-P() { echo "gte(t,$2)*0.24*(sin(2*PI*$1*(t-$2))+0.35*sin(4*PI*$1*(t-$2))+0.12*sin(6*PI*$1*(t-$2)))*exp(-(t-$2)*3.2)"; }
-tone sfx_level_complete 2.60 "$A*($(P 587.3 0)+$(P 659.3 0.16)+$(P 784 0.32)+$(P 880 0.48)+$(P 1174.7 0.64))"
 # Reward: bright double chime (A6, then E7).
 tone sfx_reward 1.20 "$A*(0.34*sin(2*PI*1760*t)*exp(-t*5)+gte(t,0.12)*0.30*sin(2*PI*2637*(t-0.12))*exp(-(t-0.12)*5)+0.1*sin(2*PI*880*t)*exp(-t*3))"
 # Unlock: soft low gong with rising shimmer.
 tone sfx_unlock 1.80 "$A*(0.40*sin(2*PI*220*t)*exp(-t*1.8)+0.18*sin(2*PI*331*t)*exp(-t*2.2)+0.12*sin(2*PI*(880+220*t)*t)*exp(-t*3))"
-
-# Shuffle: soft whoosh of band-passed pink noise.
-ffmpeg -loglevel error -y -f lavfi -i "anoisesrc=c=pink:r=$R:d=0.55:a=0.6:seed=7" \
-  -af "bandpass=f=1800:width_type=q:w=0.9,afade=t=in:d=0.18,afade=t=out:st=0.25:d=0.3,volume=8dB" \
-  -ac 1 -c:a pcm_s16le "$SFX/sfx_shuffle.wav"
 
 # Ambience loops (Ogg Vorbis, 30 s). Noise is stationary, so the loop seam is
 # not audible; wind's swell (0.1 Hz) completes whole cycles within 30 s.
@@ -50,4 +91,4 @@ ffmpeg -loglevel error -y -f lavfi -i "anoisesrc=c=pink:r=$R:d=30:a=0.5:seed=11"
 ffmpeg -loglevel error -y -f lavfi -i "anoisesrc=c=brown:r=$R:d=30:a=0.7:seed=23" \
   -af "lowpass=f=520,highpass=f=60,tremolo=f=0.1:d=0.55,volume=-10dB" \
   -ac 1 -c:a libvorbis -q:a 3 "$AMB/ambient_wind.ogg"
-echo "generated: $(ls "$SFX" | wc -l) sfx, $(ls "$AMB" | wc -l) ambience"
+echo "generated: $(ls "$SFX"/*.wav | wc -l) sfx, $(ls "$AMB"/*.ogg | wc -l) ambience"
