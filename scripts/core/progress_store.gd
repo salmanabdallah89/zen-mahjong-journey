@@ -12,8 +12,8 @@ var _config := ConfigFile.new()
 
 func _init(p_path := DEFAULT_PATH) -> void:
 	path = p_path
-	# A missing file is a fresh journey.
-	_config.load(path)
+	# A missing file is a fresh journey; a damaged one falls back to its backup.
+	SafeConfig.load_into(_config, path)
 
 
 func stars(level: int) -> int:
@@ -71,13 +71,13 @@ func record_clear(level: int, earned_stars: int, time_left: float, level_count: 
 		result.new_best_time = result.previous_stars > 0
 	if next_was_locked and is_unlocked(level + 1):
 		result.unlocked = level + 1
-	_config.save(path)
+	SafeConfig.save(_config, path)
 	return result
 
 
 func reset() -> void:
 	_config.clear()
-	_config.save(path)
+	SafeConfig.save(_config, path)
 
 
 static func _section(level: int) -> String:

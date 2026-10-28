@@ -65,6 +65,11 @@ func _sync_labels() -> void:
 		(slider as Control).modulate.a = 0.45 if _mute.button_pressed else 1.0
 
 
+## Closes the panel as its Back button does (Android back).
+func close() -> void:
+	_close()
+
+
 func _close() -> void:
 	AudioManager.flush_settings()
 	hide()

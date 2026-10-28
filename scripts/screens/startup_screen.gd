@@ -21,6 +21,19 @@ func _ready() -> void:
 	_play_intro()
 
 
+## Android back closes an open panel; on the title screen itself it leaves
+## the app (quit_on_go_back is off so the other screens can step back).
+func _notification(what: int) -> void:
+	if what != NOTIFICATION_WM_GO_BACK_REQUEST or not is_node_ready():
+		return
+	if _settings.visible:
+		_settings.close()
+	elif _picker.visible:
+		_picker.close()
+	elif GameSession.scene_changes_enabled:
+		get_tree().quit()
+
+
 func _play_intro() -> void:
 	_title_block.modulate.a = 0.0
 	_play_button.modulate.a = 0.0

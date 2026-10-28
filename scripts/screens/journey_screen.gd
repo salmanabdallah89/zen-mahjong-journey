@@ -10,6 +10,7 @@ const PARALLAX := 160.0
 
 var _nodes: Array[LevelNode] = []
 var _card_level := 0
+var _toast_tween: Tween
 
 @onready var _world: JourneyWorld = %World
 @onready var _background: TextureRect = %Background
@@ -33,6 +34,8 @@ func _ready() -> void:
 		_nodes.append(node)
 	_world.set_nodes(_nodes)
 	_world.camera_moved.connect(_on_camera_moved)
+	# Swipes inside the level card must not move the map behind it.
+	_world.input_blocker = func() -> bool: return _dialog.visible
 	refresh()
 	_world.focus_level(GameSession.progress.current_level(LevelCatalog.count()), false)
 	_on_camera_moved(_world.camera)
@@ -98,6 +101,7 @@ func _on_level_pressed(number: int) -> void:
 		AudioManager.play_sfx("tile_blocked")
 		_show_toast("Clear Level %d to unlock this level." % (number - 1))
 		return
+	AudioManager.play_sfx("button_click")
 	_open_card(number)
 
 
@@ -131,9 +135,12 @@ func _play_card_level() -> void:
 func _show_toast(text: String) -> void:
 	_toast_label.text = text
 	_toast.show()
+	# A new toast replaces the old one, so the old fade can't hide it early.
+	if _toast_tween:
+		_toast_tween.kill()
 	_toast.modulate.a = 0.0
-	var tween := create_tween()
-	tween.tween_property(_toast, "modulate:a", 1.0, 0.2)
-	tween.tween_interval(2.4)
-	tween.tween_property(_toast, "modulate:a", 0.0, 0.4)
-	tween.tween_callback(_toast.hide)
+	_toast_tween = create_tween()
+	_toast_tween.tween_property(_toast, "modulate:a", 1.0, 0.2)
+	_toast_tween.tween_interval(2.4)
+	_toast_tween.tween_property(_toast, "modulate:a", 0.0, 0.4)
+	_toast_tween.tween_callback(_toast.hide)

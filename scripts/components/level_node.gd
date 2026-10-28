@@ -14,6 +14,9 @@ var level_number := 0
 var unlocked := false
 
 var _pulse: Tween
+var _nudge: Tween
+## Marker x before any nudge, so repeated taps can't push it off its spot.
+var _marker_home_x := NAN
 
 @onready var _marker: TextureButton = %Marker
 @onready var _number: Label = %Number
@@ -24,6 +27,8 @@ var _pulse: Tween
 
 func _ready() -> void:
 	_marker.pressed.connect(func() -> void: pressed.emit(level_number))
+	# The journey screen plays the right sound (click, or "locked").
+	_marker.set_meta("custom_sound", true)
 
 
 func setup(level: LevelCatalog.LevelDefinition, earned_stars: int, is_unlocked: bool, is_current: bool) -> void:
@@ -55,13 +60,18 @@ func setup(level: LevelCatalog.LevelDefinition, earned_stars: int, is_unlocked: 
 	_stars.visible = is_unlocked
 	if _pulse:
 		_pulse.kill()
+		_pulse = null
 	_marker.scale = Vector2.ONE
 	if is_current:
-		# The level to play next gently breathes.
-		_marker.pivot_offset = _marker.size / 2.0
-		_pulse = create_tween().set_loops()
-		_pulse.tween_property(_marker, "scale", Vector2(1.08, 1.08), 0.8).set_trans(Tween.TRANS_SINE)
-		_pulse.tween_property(_marker, "scale", Vector2.ONE, 0.8).set_trans(Tween.TRANS_SINE)
+		_start_breathing()
+
+
+## The level to play next gently breathes.
+func _start_breathing() -> void:
+	_marker.pivot_offset = _marker.size / 2.0
+	_pulse = create_tween().set_loops()
+	_pulse.tween_property(_marker, "scale", Vector2(1.08, 1.08), 0.8).set_trans(Tween.TRANS_SINE)
+	_pulse.tween_property(_marker, "scale", Vector2.ONE, 0.8).set_trans(Tween.TRANS_SINE)
 
 
 func set_labels_visible(value: bool) -> void:
@@ -75,12 +85,24 @@ func marker_center() -> Vector2:
 
 
 func play_locked_nudge() -> void:
-	var tween := create_tween()
+	if is_nan(_marker_home_x):
+		_marker_home_x = _marker.position.x
+	if _nudge:
+		_nudge.kill()
+	_nudge = create_tween()
 	for offset in [10.0, -10.0, 6.0, 0.0]:
-		tween.tween_property(_marker, "position:x", _marker.position.x + offset, 0.05)
+		_nudge.tween_property(_marker, "position:x", _marker_home_x + offset, 0.05)
 
 
+## Pops the marker in; a breathing (current) marker resumes afterwards.
 func play_unlock() -> void:
+	var was_breathing := _pulse != null
+	if _pulse:
+		_pulse.kill()
+		_pulse = null
 	_marker.pivot_offset = _marker.size / 2.0
 	_marker.scale = Vector2(0.6, 0.6)
-	create_tween().tween_property(_marker, "scale", Vector2.ONE, 0.6).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	var tween := create_tween()
+	tween.tween_property(_marker, "scale", Vector2.ONE, 0.6).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	if was_breathing:
+		tween.tween_callback(_start_breathing)

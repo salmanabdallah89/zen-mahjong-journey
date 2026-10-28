@@ -286,9 +286,10 @@ func melody_step() -> int:
 	return _melody_step
 
 
-## Short haptic tick on phones, if the player allows vibration.
+## Short haptic tick on phones, if the player allows vibration. Vibration has
+## its own setting, so muting sound keeps it.
 func vibrate(milliseconds := 25) -> void:
-	if vibration and not muted and OS.has_feature("mobile"):
+	if vibration and OS.has_feature("mobile"):
 		Input.vibrate_handheld(milliseconds)
 
 

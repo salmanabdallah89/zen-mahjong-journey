@@ -20,7 +20,7 @@ var _frame: Control
 
 func _ready() -> void:
 	for path in [AUDIO_SETTINGS, TILE_SETTINGS]:
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+		SafeConfig.remove_all(path)
 	AudioManager.settings_path = AUDIO_SETTINGS
 	AudioManager.restore()
 	TileCollectionManager.settings_path = TILE_SETTINGS
@@ -46,11 +46,11 @@ func _ready() -> void:
 		AudioManager.use_stream(track, null)
 
 	for path in [AUDIO_SETTINGS, TILE_SETTINGS]:
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+		SafeConfig.remove_all(path)
 	AudioManager.settings_path = UserSettings.DEFAULT_PATH
 	AudioManager.restore()
 	GameSession.progress.reset()
-	DirAccess.remove_absolute(ProjectSettings.globalize_path("user://test_audio_progress.cfg"))
+	SafeConfig.remove_all("user://test_audio_progress.cfg")
 	GameSession.progress = ProgressStore.new()
 	for failure in _failures:
 		print("  FAIL  " + failure)

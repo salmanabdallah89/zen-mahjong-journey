@@ -9,6 +9,9 @@ const TOAST_SECONDS := 2.6
 const MAX_BLOCKED_EXPLANATIONS := 3
 ## The clock turns red for the last this-many seconds.
 const TIME_WARNING_SECONDS := 30.0
+## Longest step the clock takes in one frame, so a stall (a hidden browser
+## tab, a slow device) can't cost the player a big chunk of time at once.
+const MAX_CLOCK_STEP := 0.25
 const HEART_TEXTURE := preload("res://assets/ui/icons/icon_heart.png")
 const TIME_NORMAL := Color(0.20784314, 0.30980393, 0.26666668)
 const TIME_WARNING := Color(0.72, 0.22, 0.25)
@@ -26,9 +29,8 @@ var _undo_stack: Array[Dictionary] = []
 var _matches := 0
 var _hints_used := 0
 var _shuffles := 0
-var _started_ms := 0
-var _paused_ms := 0
-var _pause_began_ms := -1
+## Seconds actually played this attempt (second chances included).
+var _elapsed := 0.0
 var _toast_tween: Tween
 var _blocked_explanations := 0
 var _time_left := 0.0
@@ -39,6 +41,7 @@ var _failed := false
 var _free_hints := 0
 var _second_chances := 0
 var _last_loss := LossReason.TIME
+var _pause_open := false
 
 @onready var _background: TextureRect = %Background
 @onready var _board: BoardView = %Board
@@ -79,10 +82,37 @@ func _ready() -> void:
 
 
 func _notification(what: int) -> void:
-	# Android back button and the app going to the background both pause.
-	if what == NOTIFICATION_WM_GO_BACK_REQUEST or what == NOTIFICATION_APPLICATION_PAUSED:
-		if is_node_ready() and not _dialog.visible and _model and not _model.is_cleared() and not _failed:
-			_open_pause_menu()
+	if not is_node_ready():
+		return
+	match what:
+		NOTIFICATION_WM_GO_BACK_REQUEST:
+			_on_back_requested()
+		# The app going to the background, or the window/tab losing focus
+		# (split screen, notification shade, another browser tab), pauses.
+		NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT:
+			_pause_if_playing()
+
+
+## Android back: closes whatever is on top; on the board it pauses, and on the
+## pause menu it resumes. End-of-level dialogs wait for a choice.
+func _on_back_requested() -> void:
+	if _settings.visible:
+		_settings.close()
+	elif _picker.visible:
+		_picker.close()
+	elif _dialog.visible:
+		if _pause_open:
+			_dialog.close()
+			_resume()
+	elif not AdsManager.is_showing():
+		_pause_if_playing()
+
+
+func _pause_if_playing() -> void:
+	if _dialog.visible or _picker.visible or _settings.visible or AdsManager.is_showing():
+		return
+	if _model and not _model.is_cleared() and not _failed:
+		_open_pause_menu()
 
 
 func _start_level() -> void:
@@ -115,10 +145,9 @@ func _start_level() -> void:
 	_shown_seconds = -1
 	_mistakes = 0
 	_failed = false
+	_elapsed = 0.0
+	_pause_open = false
 	_build_hearts()
-	_started_ms = Time.get_ticks_msec()
-	_paused_ms = 0
-	_pause_began_ms = -1
 	_board.show_board(_model, TileCollectionManager.skin_for_board(_model.faces, _level.deal_seed))
 	_update_hud()
 	_show_collection_notice()
@@ -194,7 +223,11 @@ func _remove_pair(a: int, b: int) -> void:
 
 
 func _on_hint_pressed() -> void:
-	if _model.is_cleared() or _failed:
+	if _model.is_cleared() or _failed or _dialog.visible:
+		return
+	# Never spend a free hint or ask for an ad when there is nothing to show.
+	if not _model.has_moves():
+		_show_no_moves()
 		return
 	# With ads: a free hint per level, then one hint per rewarded ad.
 	# Without ads (web build) hints stay free.
@@ -240,7 +273,7 @@ func _give_hint() -> void:
 
 
 func _on_shuffle_pressed() -> void:
-	if _model.is_cleared():
+	if _model.is_cleared() or _failed or _dialog.visible:
 		return
 	var result := BoardGenerator.reshuffle(_model, _level.deal_seed + 7919 * (_shuffles + 1))
 	if not result.ok:
@@ -259,7 +292,7 @@ func _on_shuffle_pressed() -> void:
 
 
 func _on_undo_pressed() -> void:
-	if _undo_stack.is_empty():
+	if _undo_stack.is_empty() or _failed or _dialog.visible or _model.is_cleared():
 		return
 	var entry: Dictionary = _undo_stack.pop_back()
 	AudioManager.play_sfx("undo")
@@ -309,13 +342,18 @@ func _update_hud() -> void:
 
 
 func _open_pause_menu() -> void:
-	_pause_began_ms = Time.get_ticks_msec()
+	_pause_open = true
 	_dialog.open("Paused", "Level %d · %s" % [_level.number, _level.title])
 	_dialog.add_action("Resume", _resume, true)
 	_dialog.add_action("Settings", _open_settings)
 	_dialog.add_action("Tile Collection", _open_collection_picker)
 	_dialog.add_action("Restart", _restart)
 	_dialog.add_action("Levels", GameSession.go_levels)
+
+
+## Seconds played this attempt.
+func elapsed_seconds() -> float:
+	return _elapsed
 
 
 func _open_settings() -> void:
@@ -345,10 +383,9 @@ func _show_collection_notice() -> void:
 		_show_toast(text)
 
 
+## The clock restarts by itself once nothing covers the board.
 func _resume() -> void:
-	if _pause_began_ms >= 0:
-		_paused_ms += Time.get_ticks_msec() - _pause_began_ms
-		_pause_began_ms = -1
+	_pause_open = false
 
 
 func _restart() -> void:
@@ -365,7 +402,7 @@ func _show_no_moves() -> void:
 func _show_level_complete() -> void:
 	AudioManager.play_sfx("level_complete")
 	AudioManager.duck_music_for(3.0)
-	var seconds := int(_level.time_limit - _time_left)
+	var seconds := int(_elapsed)
 	var summary := "%s cleared in %d:%02d with %s left\n%s · %s · %s" % [
 		_level.title, floori(seconds / 60.0), seconds % 60, _clock(_time_left),
 		_count(_mistakes, "mistake", "mistakes"), _count(_hints_used, "hint", "hints"),
@@ -405,7 +442,9 @@ func _exit_tree() -> void:
 func _process(delta: float) -> void:
 	if not _clock_running():
 		return
-	_time_left = maxf(_time_left - delta, 0.0)
+	var step := minf(delta, MAX_CLOCK_STEP)
+	_time_left = maxf(_time_left - step, 0.0)
+	_elapsed += step
 	_update_timer_label()
 	if _time_left <= 0.0:
 		_lose(LossReason.TIME)

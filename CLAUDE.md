@@ -149,6 +149,11 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
   after an action succeeds. Buttons get a click automatically; set meta `custom_sound` on buttons
   that play their own sound. Headless runs don't start playback (no device) but keep all state.
   File checklist: `docs/AUDIO_ASSETS.md`.
+- **Saves:** player data (`progress.cfg`, `settings.cfg`) is read and written only through
+  `SafeConfig` (temp file + `.bak` backup + recovery), never `ConfigFile.save` directly. Tests
+  delete save files with `SafeConfig.remove_all(path)` so no `.bak` brings old data back.
+  Progress is keyed by level number: only **append** levels to `levels.json` until stable level
+  ids exist (docs/AUDIT.md M5).
 - **Randomness:** only `RandomNumberGenerator` seeded from level data. Never `randi()`,
   `Array.shuffle()` or other global-RNG calls in core code, or deals stop being reproducible.
 - **GDScript pitfall:** a Packed*Array stored in a Dictionary/Array is a copy. Appending to the
@@ -176,6 +181,8 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
    test ads on desktop: rewarded second chance and hints, interstitial every 3rd clear, journey
    banner. Real AdMob plugin not installed yet (docs/ADS.md). Android export preset exists; export
    templates not installed on this PC.
+2h. ✅ Phase 1 audit and fixes (docs/AUDIT.md): undo/animation race, crash-safe saves, focus-loss
+   pause, back button on every screen, hint charging, journey glitches, lossy backgrounds.
 2f. ✅ Journey map (`journey_screen`, drawn in perspective by `JourneyWorld`: swipe down = forward,
    markers off-camera are hidden, so tests must `focus_level()` before tapping one): Play opens it; markers per level with stars, difficulty
    and lock state; level card (difficulty, tiles, time, hearts, best, star rules); progress saved

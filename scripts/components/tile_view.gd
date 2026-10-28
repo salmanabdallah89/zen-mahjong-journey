@@ -34,6 +34,7 @@ var _base_shadow_offset := Vector2.ZERO
 var _pulse: Tween
 var _state_tween: Tween
 var _lift_tween: Tween
+var _removal_tween: Tween
 
 @onready var _shadow: Panel = %Shadow
 @onready var _lift: Control = %Lift
@@ -97,6 +98,11 @@ func set_highlight(value: Highlight) -> void:
 
 ## Clears any animation state so the tile shows plainly.
 func reset_visual() -> void:
+	# An unfinished removal (Undo or Shuffle right after a match) must not
+	# hide the tile again once it is back in play.
+	if _removal_tween:
+		_removal_tween.kill()
+		_removal_tween = null
 	visible = true
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	modulate = Color.WHITE
@@ -110,12 +116,19 @@ func play_removal() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_highlight = Highlight.SELECTED
 	_apply_look(false)
-	var tween := create_tween()
-	tween.tween_property(self, "scale", Vector2(1.08, 1.08), 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.parallel().tween_property(self, "modulate", Color(1.15, 1.1, 1.0), 0.12)
-	tween.tween_property(self, "scale", Vector2(0.86, 0.86), 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	tween.parallel().tween_property(self, "modulate", Color(1.15, 1.1, 1.0, 0.0), 0.22)
-	tween.tween_callback(_finish_removal)
+	if _removal_tween:
+		_removal_tween.kill()
+	_removal_tween = create_tween()
+	_removal_tween.tween_property(self, "scale", Vector2(1.08, 1.08), 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_removal_tween.parallel().tween_property(self, "modulate", Color(1.15, 1.1, 1.0), 0.12)
+	_removal_tween.tween_property(self, "scale", Vector2(0.86, 0.86), 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	_removal_tween.parallel().tween_property(self, "modulate", Color(1.15, 1.1, 1.0, 0.0), 0.22)
+	_removal_tween.tween_callback(_finish_removal)
+
+
+## True while the match animation is still playing.
+func is_removing() -> bool:
+	return _removal_tween != null and _removal_tween.is_running()
 
 
 func play_restore() -> void:
@@ -171,6 +184,7 @@ func _gui_input(event: InputEvent) -> void:
 
 
 func _finish_removal() -> void:
+	_removal_tween = null
 	hide()
 	_highlight = Highlight.NONE
 	_apply_look(false)

@@ -253,8 +253,8 @@ func test_skins_never_touch_the_board() -> void:
 
 func test_user_settings_round_trip() -> void:
 	var path := "user://test_settings_unit.cfg"
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+	SafeConfig.remove_all(path)
 	assert_eq(UserSettings.new(path).get_value("tiles", "collection", "classic"), "classic", "defaults when no file")
 	UserSettings.new(path).set_value("tiles", "collection", "fruits")
 	assert_eq(UserSettings.new(path).get_value("tiles", "collection"), "fruits", "value survives reload")
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+	SafeConfig.remove_all(path)

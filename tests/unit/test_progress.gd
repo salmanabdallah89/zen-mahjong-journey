@@ -69,4 +69,39 @@ func test_progress_survives_restart() -> void:
 	assert_eq(reloaded.best_time_left(1), 99.0, "best time saved")
 	assert_true(reloaded.is_unlocked(3), "unlocks saved")
 	reloaded.reset()
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(PATH))
+	SafeConfig.remove_all(PATH)
+
+
+func test_damaged_save_falls_back_to_backup() -> void:
+	var store := _fresh()
+	store.record_clear(1, 3, 99.0, 10)
+	store.record_clear(2, 2, 40.0, 10)
+	# Simulate a crash mid-write: the main file is garbage.
+	var file := FileAccess.open(PATH, FileAccess.WRITE)
+	file.store_string("[level_1]\nstars=\"3 unterminated")
+	file.close()
+	var reloaded := ProgressStore.new(PATH)
+	assert_eq(reloaded.stars(1), 3, "progress comes back from the backup")
+	assert_true(FileAccess.file_exists(PATH + SafeConfig.DAMAGED_SUFFIX), "the damaged file is kept aside")
+	reloaded.record_clear(3, 1, 5.0, 10)
+	var again := ProgressStore.new(PATH)
+	assert_eq(again.stars(1), 3, "saving after recovery keeps old progress")
+	assert_eq(again.stars(3), 1, "and adds the new clear")
+	SafeConfig.remove_all(PATH)
+
+
+func test_unfinished_swap_recovers_the_new_save() -> void:
+	var store := _fresh()
+	store.record_clear(1, 2, 50.0, 10)
+	# Killed after the new file was written but before it was swapped in.
+	DirAccess.rename_absolute(ProjectSettings.globalize_path(PATH), ProjectSettings.globalize_path(PATH + SafeConfig.TEMP_SUFFIX))
+	var reloaded := ProgressStore.new(PATH)
+	assert_eq(reloaded.stars(1), 2, "the finished temp save is used")
+	SafeConfig.remove_all(PATH)
+
+
+func test_first_launch_is_a_fresh_journey() -> void:
+	SafeConfig.remove_all(PATH)
+	var store := ProgressStore.new(PATH)
+	assert_eq(store.total_stars(10), 0, "no file: fresh journey")
+	assert_false(FileAccess.file_exists(PATH), "nothing is written until something is saved")

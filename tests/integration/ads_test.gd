@@ -36,7 +36,7 @@ func _ready() -> void:
 
 	GameSession.progress.reset()
 	for path in ["user://test_ads_progress.cfg", "user://test_ads_audio.cfg"]:
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+		SafeConfig.remove_all(path)
 	GameSession.progress = ProgressStore.new()
 	AudioManager.settings_path = UserSettings.DEFAULT_PATH
 	AudioManager.restore()

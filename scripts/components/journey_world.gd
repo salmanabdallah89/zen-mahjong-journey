@@ -52,6 +52,8 @@ var _velocity := 0.0
 var _press_pos := Vector2.ZERO
 var _pressing := false
 var _dragging := false
+## Returns true while something covers the map (a dialog); swipes are ignored then.
+var input_blocker := Callable()
 var _focus_tween: Tween
 var _time := 0.0
 
@@ -233,6 +235,10 @@ func _draw_ellipse(center: Vector2, radius: Vector2, color: Color) -> void:
 ## moves stays a tap for the marker under it.
 func _input(event: InputEvent) -> void:
 	if not is_visible_in_tree():
+		return
+	if input_blocker.is_valid() and input_blocker.call():
+		_pressing = false
+		_dragging = false
 		return
 	var button := event as InputEventMouseButton
 	if button:

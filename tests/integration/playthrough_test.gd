@@ -19,11 +19,12 @@ var _frame: Control
 const ISOLATED_SETTINGS := "user://test_settings_playthrough.cfg"
 const ISOLATED_PROGRESS := "user://test_progress_playthrough.cfg"
 const JOURNEY_SCENE := preload("res://scenes/screens/journey_screen.tscn")
+const STARTUP_SCENE := preload("res://scenes/screens/startup_screen.tscn")
 
 
 func _ready() -> void:
 	# Never read or write the player's real preferences; start on Classic.
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(ISOLATED_SETTINGS))
+	SafeConfig.remove_all(ISOLATED_SETTINGS)
 	TileCollectionManager.settings_path = ISOLATED_SETTINGS
 	TileCollectionManager.restore()
 	# Ads have their own test (ads_test); keep these flows ad-free and fixed.
@@ -44,9 +45,10 @@ func _ready() -> void:
 	await _test_premium_collections(5)
 	await _test_time_and_mistakes(2)
 	await _test_journey_and_stars()
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(ISOLATED_SETTINGS))
+	await _test_audit_fixes(3)
+	SafeConfig.remove_all(ISOLATED_SETTINGS)
 	GameSession.progress.reset()
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(ISOLATED_PROGRESS))
+	SafeConfig.remove_all(ISOLATED_PROGRESS)
 	GameSession.progress = ProgressStore.new()
 	for failure in _failures:
 		print("  FAIL  " + failure)
@@ -229,7 +231,7 @@ func _test_tile_collections(level_number: int) -> void:
 	var dirs := PackedStringArray([TileCollectionLibrary.SHIPPED_DIR, "res://tests/fixtures/collections/"])
 	var real_settings := manager.settings_path
 	var test_settings := "user://test_settings_integration.cfg"
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(test_settings))
+	SafeConfig.remove_all(test_settings)
 	manager.settings_path = test_settings
 	manager.reload_library(dirs)
 	manager.restore()
@@ -315,7 +317,7 @@ func _test_tile_collections(level_number: int) -> void:
 
 	screen.queue_free()
 	await _frames(2)
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(test_settings))
+	SafeConfig.remove_all(test_settings)
 	manager.settings_path = real_settings
 	manager.reload_library(PackedStringArray([TileCollectionLibrary.SHIPPED_DIR]))
 	manager.restore()
@@ -516,6 +518,99 @@ func _test_journey_and_stars() -> void:
 	dialog = journey.get_node("%Dialog")
 	_check(dialog.call("stars_shown") == 2 and (dialog.get_node("%Message") as Label).text.contains("Best: 2 of 3 stars"),
 		"card shows the best result")
+	journey.queue_free()
+	await _frames(2)
+
+
+## Regression checks for the October 2026 audit fixes (docs/AUDIT.md).
+func _test_audit_fixes(level_number: int) -> void:
+	var screen := await _open_level(level_number)
+	var board: BoardView = screen.get_node("%Board")
+	var model: BoardModel = screen.get("_model")
+	var dialog: ModalDialog = screen.get_node("%Dialog")
+	var pair: Vector2i = _expected_deal(level_number).solution[0]
+
+	# Undo straight after a match, while the match animation still plays.
+	await _click_tile(screen, pair.x)
+	await _click_tile(screen, pair.y)
+	_check(board.tile(pair.x).is_removing(), "the match animation is playing")
+	screen.call("_on_undo_pressed")
+	await get_tree().create_timer(0.5).timeout
+	var restored := true
+	for i in [pair.x, pair.y]:
+		var view := board.tile(i)
+		restored = restored and view.visible and view.modulate.a > 0.99 and view.mouse_filter == Control.MOUSE_FILTER_STOP
+	_check(restored and not model.is_removed(pair.x), "undo during the match animation leaves both tiles visible and tappable")
+	await _click_tile(screen, pair.x)
+	_check(int(screen.get("_selected")) == pair.x, "a restored tile can be picked again")
+	await _click_tile(screen, pair.x)
+
+	# The clock: a long stall costs at most one step, and play time is counted
+	# separately from the countdown (which a second chance resets).
+	var before := float(screen.get("_time_left"))
+	screen.call("_process", 5.0)
+	_check(before - float(screen.get("_time_left")) <= 0.26, "a stalled frame costs at most a quarter second")
+	var played := float(screen.call("elapsed_seconds"))
+	screen.set("_time_left", 60.0)
+	screen.call("_process", 0.2)
+	_check(absf(float(screen.call("elapsed_seconds")) - played - 0.2) < 0.01, "play time keeps counting after the clock is reset")
+
+	# Losing focus (another tab, split screen, notification shade) pauses.
+	screen.notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
+	_check(dialog.visible and (dialog.get_node("%Title") as Label).text == "Paused", "losing focus pauses the level")
+	var paused_at := float(screen.get("_time_left"))
+	screen.call("_process", 0.2)
+	_check(float(screen.get("_time_left")) == paused_at, "the clock stops while paused")
+	# Android back: resumes from Pause, pauses from the board.
+	screen.notification(NOTIFICATION_WM_GO_BACK_REQUEST)
+	_check(not dialog.visible, "back on the pause menu resumes")
+	screen.notification(NOTIFICATION_WM_GO_BACK_REQUEST)
+	_check(dialog.visible and (dialog.get_node("%Title") as Label).text == "Paused", "back during play pauses")
+	(_dialog_button(dialog, "Settings") as Button).emit_signal("pressed")
+	await _frames(1)
+	var settings: Control = screen.get_node("%AudioSettings")
+	_check(settings.visible, "settings open from pause")
+	screen.notification(NOTIFICATION_WM_GO_BACK_REQUEST)
+	_check(not settings.visible and not dialog.visible, "back closes settings and returns to the game, no pause menu underneath")
+	screen.queue_free()
+	await _frames(2)
+
+	# Title screen: back closes the tile picker first.
+	GameSession.scene_changes_enabled = false
+	var startup: Control = STARTUP_SCENE.instantiate()
+	_frame.add_child(startup)
+	await _frames(2)
+	var picker: Control = startup.get_node("%CollectionPicker")
+	(startup.get_node("%CollectionButton") as Button).emit_signal("pressed")
+	_check(picker.visible, "tile picker opens on the title screen")
+	startup.notification(NOTIFICATION_WM_GO_BACK_REQUEST)
+	_check(not picker.visible, "back closes the tile picker")
+	startup.queue_free()
+	GameSession.scene_changes_enabled = true
+	await _frames(2)
+
+	# Journey: repeated taps on a locked level don't push its marker away,
+	# and swiping inside the level card doesn't move the map behind it.
+	GameSession.progress.reset()
+	var journey: Control = JOURNEY_SCENE.instantiate()
+	_frame.add_child(journey)
+	await _frames(4)
+	var locked: LevelNode = journey.call("level_node", 2)
+	var marker: Control = locked.get_node("%Marker")
+	var home_x := marker.position.x
+	for i in 3:
+		locked.play_locked_nudge()
+		await get_tree().create_timer(0.07).timeout
+	await get_tree().create_timer(0.4).timeout
+	_check(is_equal_approx(marker.position.x, home_x), "a locked marker returns to its spot after repeated taps")
+	var world: JourneyWorld = journey.get_node("%World")
+	var level_one: LevelNode = journey.call("level_node", 1)
+	await _click_at(level_one.get_global_transform() * level_one.marker_center())
+	var card: ModalDialog = journey.get_node("%Dialog")
+	_check(card.visible, "level card is open")
+	var camera_before := world.camera
+	await _drag(world.get_global_rect().get_center(), Vector2(0, -300))
+	_check(is_equal_approx(world.camera, camera_before), "swiping on the open card leaves the map still")
 	journey.queue_free()
 	await _frames(2)
 

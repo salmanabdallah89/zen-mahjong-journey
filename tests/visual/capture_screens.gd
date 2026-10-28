@@ -35,7 +35,7 @@ func _ready() -> void:
 	await _capture_journey()
 	await _capture_ads()
 	GameSession.progress.reset()
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(GameSession.progress.path))
+	SafeConfig.remove_all(GameSession.progress.path)
 	GameSession.progress = ProgressStore.new()
 	print("Screenshots written to ", ProjectSettings.globalize_path(_out_dir))
 	get_tree().quit()
@@ -148,7 +148,7 @@ func _capture_collections() -> void:
 	var manager := TileCollectionManager
 	var real_settings := manager.settings_path
 	manager.settings_path = "user://capture_settings.cfg"
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(manager.settings_path))
+	SafeConfig.remove_all(manager.settings_path)
 	manager.restore()
 	var startup := STARTUP_SCENE.instantiate()
 	add_child(startup)
@@ -199,7 +199,7 @@ func _capture_collections() -> void:
 	fixture_screen.queue_free()
 	await _frames(2)
 	manager.select("classic")
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(manager.settings_path))
+	SafeConfig.remove_all(manager.settings_path)
 	manager.settings_path = real_settings
 	manager.reload_library(PackedStringArray([TileCollectionLibrary.SHIPPED_DIR]))
 	manager.restore()

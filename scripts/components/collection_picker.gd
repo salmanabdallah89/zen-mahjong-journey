@@ -207,6 +207,11 @@ func _on_apply_pressed() -> void:
 		_status.text = TileCollectionManager.take_notice()
 
 
+## Closes the panel as its Back button does (Android back).
+func close() -> void:
+	_close()
+
+
 func _close() -> void:
 	hide()
 	closed.emit()
