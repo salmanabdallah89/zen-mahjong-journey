@@ -13,6 +13,7 @@ const MUSIC := {
 ## the wording the licensor asks for). Licences: docs/AUDIO_ASSETS.md.
 const MUSIC_CREDITS: PackedStringArray = [
 	"\"Ripples\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0",
+	"\"In the place far away\" HarumachiMusic (Pixabay)",
 ]
 
 const AMBIENCE := {

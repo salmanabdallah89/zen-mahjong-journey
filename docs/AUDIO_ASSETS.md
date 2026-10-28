@@ -8,7 +8,7 @@ place under the exact name below and it is used automatically. No code change is
 
 | File | Status | Format | Duration | Notes |
 |------|--------|--------|----------|-------|
-| `assets/audio/music/music_main_menu.ogg` | ✅ generated | Ogg Vorbis, 44.1 kHz stereo | 58 s seamless loop | Warm pads (D, Bm, G, Asus2 at 66 BPM), koto-style pentatonic melody, a soft bell every second chord. Seam checked: jump at the loop point 44 vs a typical sample step of 421 |
+| `assets/audio/music/music_main_menu.ogg` | ✅ **licensed** | Ogg Vorbis q3, 44.1 kHz stereo | 2:34 seamless loop | **"In the place far away" by HarumachiMusic** (Pixabay), koto over soft pads. Licence: **Pixabay Content License**, no credit required (credited in Settings as a courtesy). Source: the owner downloaded it from the Pixabay track page on 2026-10-28. Prepared: cut at 2:42 before the fade-out, the 8 s before that blended into the first 8 s (equal-power crossfade) for a seamless loop (seam jump 25 vs typical step 638), −2.9 dB to −19.0 LUFS, peaks −5.1 dBTP. Plays on the title screen and the journey map |
 | `assets/audio/music/music_gameplay.ogg` | ✅ **licensed** | Ogg Vorbis q3, 44.1 kHz stereo | 3:17 seamless loop | **"Ripples" by Kevin MacLeod** (incompetech.com), solo koto. Licence: **CC BY 4.0**, credit shown in Settings (`AudioCatalog.MUSIC_CREDITS`). Source: `Ripples.mp3` from incompetech.com, downloaded 2026-10-28. Prepared: trailing silence trimmed, the last 4 s of ring-out crossfaded over the opening so the loop is seamless (seam jump 229 vs typical step 798), −1.5 dB to −19.3 LUFS, peaks −1.6 dBTP |
 | `assets/audio/ambient/ambient_waterfall.ogg` | ✅ generated | Ogg Vorbis, 44.1 kHz mono | 30 s loop | Filtered pink noise |
 | `assets/audio/ambient/ambient_wind.ogg` | ✅ generated | Ogg Vorbis, 44.1 kHz mono | 30 s loop | Filtered brown noise with a slow 0.1 Hz swell |
@@ -87,6 +87,11 @@ bell.
 | Track | Used as | Author | Licence | Credit required | Source page |
 |-------|---------|--------|---------|-----------------|-------------|
 | Ripples | Gameplay | Kevin MacLeod | CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) | Yes: `"Ripples" Kevin MacLeod (incompetech.com), Licensed under Creative Commons: By Attribution 4.0` (shown in Settings) | https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100691 |
+| In the place far away | Title screen and journey map | HarumachiMusic | Pixabay Content License (https://pixabay.com/service/license-summary/) | No (credited in Settings anyway) | https://pixabay.com/music/ambient-in-the-place-far-away-japanese-koto-inspirational-calm-music-151182/ |
+
+**Pixabay note:** the licence allows use in games and apps (it only forbids selling or distributing
+the track on its own). This track is **registered with YouTube Content ID**, so trailers or gameplay
+videos posted to YouTube with this music may get a claim; it does not affect the game itself.
 
 Keep the credit in `AudioCatalog.MUSIC_CREDITS` (Settings shows it) and in the store listing's credits.
 A paid licence from incompetech removes the credit requirement.
