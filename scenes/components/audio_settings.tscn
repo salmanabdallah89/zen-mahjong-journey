@@ -195,6 +195,16 @@ custom_minimum_size = Vector2(0, 8)
 layout_mode = 2
 mouse_filter = 2
 
+[node name="Credits" type="Label" parent="Center/Panel/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(780, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"HudCaptionLabel"
+text = "Music credits"
+horizontal_alignment = 1
+autowrap_mode = 3
+
 [node name="BackButton" type="Button" parent="Center/Panel/Content"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(560, 136)

@@ -18,6 +18,7 @@ signal closed
 @onready var _mute: Button = %MuteToggle
 @onready var _back: Button = %BackButton
 @onready var _how_to_play: Button = %HowToPlayButton
+@onready var _credits: Label = %Credits
 
 
 func _ready() -> void:
@@ -44,6 +45,9 @@ func _ready() -> void:
 		AudioManager.set_muted(on)
 		_sync_labels())
 	_back.pressed.connect(_close)
+	_credits.text = "Music: " + "
+".join(AudioCatalog.MUSIC_CREDITS)
+	_credits.visible = not AudioCatalog.MUSIC_CREDITS.is_empty()
 	# Replays the first-play tutorial on level 1.
 	_how_to_play.pressed.connect(func() -> void:
 		AudioManager.flush_settings()

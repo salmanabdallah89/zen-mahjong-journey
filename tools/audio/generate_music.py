@@ -23,7 +23,9 @@ import tempfile
 import wave
 
 SR = 32000
-OUT_DIR = os.path.join("assets", "audio", "music")
+# Generated music is no longer shipped (the game uses licensed recordings,
+# see docs/AUDIO_ASSETS.md); output goes to the tools folder for reference.
+OUT_DIR = os.path.join("tools", "audio", "generated")
 
 
 def hz(note: str) -> float:
