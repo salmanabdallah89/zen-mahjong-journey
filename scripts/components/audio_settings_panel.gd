@@ -17,6 +17,7 @@ signal closed
 @onready var _motion: Button = %MotionToggle
 @onready var _mute: Button = %MuteToggle
 @onready var _back: Button = %BackButton
+@onready var _how_to_play: Button = %HowToPlayButton
 
 
 func _ready() -> void:
@@ -43,6 +44,11 @@ func _ready() -> void:
 		AudioManager.set_muted(on)
 		_sync_labels())
 	_back.pressed.connect(_close)
+	# Replays the first-play tutorial on level 1.
+	_how_to_play.pressed.connect(func() -> void:
+		AudioManager.flush_settings()
+		hide()
+		GameSession.start_tutorial())
 
 
 func open(back_label := "Back") -> void:

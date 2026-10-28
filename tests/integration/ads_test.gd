@@ -15,6 +15,9 @@ var _frame: Control
 
 
 func _ready() -> void:
+	# A returning player: the first-play tutorial has its own test.
+	GameSession.tutorial_settings_path = "user://test_ads_tutorial.cfg"
+	GameSession.set_tutorial_seen("completed")
 	GameSession.progress = ProgressStore.new("user://test_ads_progress.cfg")
 	GameSession.progress.reset()
 	AudioManager.settings_path = "user://test_ads_audio.cfg"
@@ -43,6 +46,8 @@ func _ready() -> void:
 	for failure in _failures:
 		print("  FAIL  " + failure)
 	print("ads: %d checks, %d failed" % [_checks, _failures.size()])
+	SafeConfig.remove_all("user://test_ads_tutorial.cfg")
+	GameSession.tutorial_settings_path = UserSettings.DEFAULT_PATH
 	get_tree().quit(1 if _failures.size() > 0 else 0)
 
 

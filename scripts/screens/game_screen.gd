@@ -79,6 +79,7 @@ var _last_bell_at := -1.0
 @onready var _settings: AudioSettingsPanel = %AudioSettings
 @onready var _lane: Control = %FeedbackLane
 var _praise: ComboFeedback
+var _tutorial: FirstPlayTutorial
 
 
 func _ready() -> void:
@@ -106,6 +107,13 @@ func _ready() -> void:
 	_praise = ComboFeedback.new()
 	_praise.name = "Praise"
 	_lane.add_child(_praise)
+	_tutorial = FirstPlayTutorial.new()
+	_tutorial.name = "Tutorial"
+	_lane.add_child(_tutorial)
+	_tutorial.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_tutorial.step = FirstPlayTutorial.Step.DONE
+	_tutorial.hide()
+	_tutorial.finished.connect(_on_tutorial_finished)
 	BackgroundDrift.start(_background)
 	_start_level()
 
@@ -184,6 +192,35 @@ func _start_level() -> void:
 	_board.show_board(_model, TileCollectionManager.skin_for_board(_model.faces, _level.deal_seed))
 	_update_hud()
 	_show_collection_notice()
+	if GameSession.should_show_tutorial(_level.number):
+		_tutorial.begin(_board, _tutorial_pair(deal.solution[0]))
+	elif _tutorial.is_active():
+		_tutorial.step = FirstPlayTutorial.Step.DONE
+		_tutorial.hide()
+
+
+func tutorial_active() -> bool:
+	return _tutorial != null and _tutorial.is_active()
+
+
+## The pair the tutorial highlights first: free, with identical pictures (so
+## it reads as "the same" in every collection, flowers and seasons included),
+## and leaving a board that can still be cleared. Falls back to the deal's
+## own first move, which always can.
+func _tutorial_pair(fallback: Vector2i) -> Vector2i:
+	for candidate in _model.available_matches():
+		if _model.face_of(candidate.x) != _model.face_of(candidate.y):
+			continue
+		_model.remove_pair(candidate.x, candidate.y)
+		var still_solvable := BoardSolver.solve(_model, HINT_SEARCH_BUDGET).solved
+		_model.restore_pair(candidate.x, candidate.y)
+		if still_solvable:
+			return candidate
+	return fallback
+
+
+func _on_tutorial_finished(skipped: bool) -> void:
+	GameSession.set_tutorial_seen("skipped" if skipped else "completed")
 
 
 func _on_tile_pressed(index: int) -> void:
@@ -248,6 +285,8 @@ func _remove_pair(a: int, b: int) -> void:
 	_model.remove_pair(a, b)
 	_undo_stack.append({"kind": UndoKind.MATCH, "pair": Vector2i(a, b)})
 	_matches += 1
+	if tutorial_active():
+		_tutorial.on_matched(a, b)
 	var cleared := _model.is_cleared()
 	# The last pair is celebrated by the level-complete sound instead.
 	var step := AudioManager.melody_step() if cleared else AudioManager.next_match_step()
@@ -294,6 +333,10 @@ func combo_count() -> int:
 ## when a new tier is reached ("Nice!" … "Zen Master!"), a buzz that grows
 ## with the tier, and a soft edge glow for the top tier.
 func _show_combo(combo: int) -> void:
+	# The tutorial's coach panel owns the lane while it runs.
+	if tutorial_active():
+		AudioManager.vibrate()
+		return
 	var tier := _praise.show_combo(combo)
 	if tier == 0:
 		AudioManager.vibrate()
@@ -393,6 +436,8 @@ func _give_hint() -> void:
 	_board.set_highlight(pair.y, TileView.Highlight.HINT)
 	_hints_used += 1
 	AudioManager.play_sfx("hint")
+	if tutorial_active():
+		_tutorial.on_tool_used()
 
 
 func _on_shuffle_pressed() -> void:
@@ -406,6 +451,8 @@ func _on_shuffle_pressed() -> void:
 	_model.set_faces(result.faces)
 	_shuffles += 1
 	AudioManager.play_sfx("shuffle")
+	if tutorial_active():
+		_tutorial.on_tool_used()
 	AudioManager.reset_melody()
 	_set_selected(-1)
 	_clear_hint()
@@ -419,6 +466,8 @@ func _on_undo_pressed() -> void:
 		return
 	var entry: Dictionary = _undo_stack.pop_back()
 	AudioManager.play_sfx("undo")
+	if tutorial_active():
+		_tutorial.on_tool_used()
 	_set_selected(-1)
 	_clear_hint()
 	if entry["kind"] == UndoKind.MATCH:
@@ -439,6 +488,8 @@ func _set_selected(index: int) -> void:
 	_selected = index
 	if _selected >= 0:
 		_board.set_highlight(_selected, TileView.Highlight.SELECTED)
+	if tutorial_active():
+		_tutorial.on_selected(index)
 
 
 func _clear_hint() -> void:
@@ -624,12 +675,21 @@ func _process(delta: float) -> void:
 
 ## The clock only runs while the player is actually playing.
 func _clock_running() -> bool:
-	return _model != null and not _failed and not _model.is_cleared() \
+	return _model != null and not _failed and not _model.is_cleared() and not tutorial_active() \
 		and not _dialog.visible and not _picker.visible and not _settings.visible and not AdsManager.is_showing()
 
 
 ## Picking two free tiles that don't match costs a heart.
 func _register_mistake(a: int, b: int) -> void:
+	if tutorial_active():
+		# While learning, a wrong pair costs nothing: just gentle feedback.
+		_set_selected(-1)
+		_clear_hint()
+		_board.tile(a).play_mistake()
+		_board.tile(b).play_mistake()
+		AudioManager.play_sfx("mistake")
+		_tutorial.remark("Those two don't match. Look for two identical tiles.")
+		return
 	_mistakes += 1
 	_set_selected(-1)
 	_clear_hint()
@@ -761,6 +821,9 @@ func _count(amount: int, singular: String, plural: String) -> String:
 
 
 func _show_toast(text: String) -> void:
+	if tutorial_active():
+		_tutorial.remark(text)
+		return
 	if _praise:
 		_praise.dismiss()
 	_toast_label.text = text

@@ -182,6 +182,14 @@ theme_type_variation = &"ToggleButton"
 toggle_mode = true
 text = "Off"
 
+[node name="HowToPlayButton" type="Button" parent="Center/Panel/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(560, 120)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"SecondaryButton"
+text = "How to Play"
+
 [node name="Gap" type="Control" parent="Center/Panel/Content"]
 custom_minimum_size = Vector2(0, 8)
 layout_mode = 2

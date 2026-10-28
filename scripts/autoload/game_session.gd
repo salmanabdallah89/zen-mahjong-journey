@@ -49,6 +49,37 @@ func _ready() -> void:
 	_fade.add_child(_loading)
 
 
+## First-play tutorial (level 1): seen/skipped state lives in user settings,
+## so returning players are never interrupted. "How to Play" asks for it again.
+const TUTORIAL_SECTION := "tutorial"
+const TUTORIAL_KEY := "level1_done"
+var tutorial_settings_path := UserSettings.DEFAULT_PATH
+## Set by "How to Play": the next level 1 shows the tutorial even if seen.
+var tutorial_requested := false
+
+
+func tutorial_seen() -> bool:
+	return bool(UserSettings.new(tutorial_settings_path).get_value(TUTORIAL_SECTION, TUTORIAL_KEY, false))
+
+
+## `how` is "completed" or "skipped" (kept for later tuning).
+func set_tutorial_seen(how: String) -> void:
+	var settings := UserSettings.new(tutorial_settings_path)
+	settings.set_value(TUTORIAL_SECTION, TUTORIAL_KEY, true)
+	settings.set_value(TUTORIAL_SECTION, "outcome", how)
+	tutorial_requested = false
+
+
+func should_show_tutorial(level_number: int) -> bool:
+	return level_number == 1 and (tutorial_requested or not tutorial_seen())
+
+
+## "How to Play": replays the tutorial on level 1.
+func start_tutorial() -> void:
+	tutorial_requested = true
+	play_level(1)
+
+
 func play_level(number: int) -> void:
 	current_level = clampi(number, 1, LevelCatalog.count())
 	_change(GAME_SCENE)

@@ -17,6 +17,9 @@ func _ready() -> void:
 	# Screenshots must not write stars into the player's real journey.
 	GameSession.progress = ProgressStore.new("user://capture_progress.cfg")
 	GameSession.progress.reset()
+	# Returning player, except in the tutorial shots.
+	GameSession.tutorial_settings_path = "user://capture_tutorial.cfg"
+	GameSession.set_tutorial_seen("completed")
 	var args := OS.get_cmdline_user_args()
 	if not args.is_empty():
 		_out_dir = args[0]
@@ -27,6 +30,7 @@ func _ready() -> void:
 		await _capture_startup(shape)
 		await _capture_level(shape, 1, true)
 		await _capture_combo(shape)
+		await _capture_tutorial(shape)
 		if shape == "phone_9x16":
 			for level in [3, 5, 8, 10]:
 				await _capture_level(shape, level, false)
@@ -39,6 +43,8 @@ func _ready() -> void:
 	GameSession.progress.reset()
 	SafeConfig.remove_all(GameSession.progress.path)
 	GameSession.progress = ProgressStore.new()
+	SafeConfig.remove_all(GameSession.tutorial_settings_path)
+	GameSession.tutorial_settings_path = UserSettings.DEFAULT_PATH
 	print("Screenshots written to ", ProjectSettings.globalize_path(_out_dir))
 	get_tree().quit()
 
@@ -295,6 +301,24 @@ func _capture_level(shape: String, number: int, with_states: bool) -> void:
 		# Level Complete opens once the last pair has met, then the stars pop.
 		await _wait(1.8)
 		await _save("%s_level%02d_complete" % [shape, number])
+	screen.queue_free()
+	await _frames(2)
+
+
+## First-play tutorial: step 1 (glowing pair) and step 2, as a new player.
+func _capture_tutorial(shape: String) -> void:
+	SafeConfig.remove_all(GameSession.tutorial_settings_path)
+	GameSession.current_level = 1
+	var screen: Control = GAME_SCENE.instantiate()
+	add_child(screen)
+	await _wait(0.7)
+	await _save("%s_tutorial_step1" % shape)
+	var tutorial: FirstPlayTutorial = screen.get_node("%FeedbackLane").get_node("Tutorial")
+	screen.call("_on_tile_pressed", tutorial.pair.x)
+	screen.call("_on_tile_pressed", tutorial.pair.y)
+	await _wait(0.8)
+	await _save("%s_tutorial_step2" % shape)
+	tutorial.skip()
 	screen.queue_free()
 	await _frames(2)
 

@@ -30,6 +30,9 @@ func _ready() -> void:
 	# Reduced-animation preference also goes to the throwaway settings file.
 	Motion.settings_path = ISOLATED_SETTINGS
 	Motion.restore()
+	# These flows assume a returning player; the tutorial has its own test.
+	GameSession.tutorial_settings_path = ISOLATED_SETTINGS
+	GameSession.set_tutorial_seen("completed")
 	# Ads have their own test (ads_test); keep these flows ad-free and fixed.
 	AdsManager.provider = "none"
 	# Never touch the player's real journey either.
@@ -53,9 +56,11 @@ func _ready() -> void:
 	await _test_tile_animations(4)
 	await _test_reduced_motion(2)
 	await _test_combo_feedback(4)
+	await _test_tutorial()
 	SafeConfig.remove_all(ISOLATED_SETTINGS)
 	Motion.settings_path = UserSettings.DEFAULT_PATH
 	Motion.restore()
+	GameSession.tutorial_settings_path = UserSettings.DEFAULT_PATH
 	GameSession.progress.reset()
 	SafeConfig.remove_all(ISOLATED_PROGRESS)
 	GameSession.progress = ProgressStore.new()
@@ -946,6 +951,135 @@ func _match_bells(since_seq: int) -> int:
 		if int(event["seq"]) >= since_seq and event["id"] == "tile_match" and event["played"]:
 			count += 1
 	return count
+
+
+## First-play tutorial: first-time vs returning players, skip, complete,
+## replay, no penalties while learning, every collection, never unsolvable.
+func _test_tutorial() -> void:
+	const PATH := "user://test_tutorial.cfg"
+	var saved_path := GameSession.tutorial_settings_path
+	GameSession.tutorial_settings_path = PATH
+	SafeConfig.remove_all(PATH)
+
+	# A first-time player gets the tutorial on level 1, on the real board.
+	var screen := await _open_level(1)
+	var board: BoardView = screen.get_node("%Board")
+	var model: BoardModel = screen.get("_model")
+	var tutorial: FirstPlayTutorial = screen.get_node("%FeedbackLane").get_node("Tutorial")
+	var lane: Control = screen.get_node("%FeedbackLane")
+	_check(bool(screen.call("tutorial_active")) and tutorial.visible, "first play: tutorial starts on level 1")
+	var pair := tutorial.pair
+	_check(model.is_free(pair.x) and model.is_free(pair.y) and model.face_of(pair.x) == model.face_of(pair.y),
+		"tutorial highlights a free, identical pair")
+	_check(board.tile(pair.x).highlight() == TileView.Highlight.HINT and board.tile(pair.y).highlight() == TileView.Highlight.HINT,
+		"both tiles of the pair glow")
+	model.remove_pair(pair.x, pair.y)
+	_check(BoardSolver.solve(model, 200000).solved, "the board stays solvable after the tutorial pair")
+	model.restore_pair(pair.x, pair.y)
+	_check(lane.get_global_rect().grow(1.0).encloses(tutorial.get_global_rect()), "the coach panel stays in the lane")
+	_check(not tutorial.get_global_rect().intersects(_tiles_rect(board, model)), "the coach panel never covers tiles")
+	var skip_button := _find_button(tutorial, "Skip")
+	_check(skip_button != null and skip_button.size.y >= 120.0, "Skip is visible and easy to tap")
+	var clock := float(screen.get("_time_left"))
+	screen.call("_process", 1.0)
+	_check(is_equal_approx(float(screen.get("_time_left")), clock), "the clock waits while the tutorial runs")
+
+	# Step 1: pick one glowing tile, then a wrong one: no heart is lost.
+	await _click_tile(screen, pair.x)
+	_check(tutorial.text() == FirstPlayTutorial.TEXT_PARTNER, "after the first tile it asks for the partner")
+	var wrong := -1
+	for i in model.free_tiles():
+		if i != pair.x and not TileCatalog.faces_match(model.faces[i], model.faces[pair.x]):
+			wrong = i
+			break
+	await _click_tile(screen, wrong)
+	_check(int(screen.call("hearts_left")) == LevelCatalog.get_level(1).mistake_limit, "a wrong pair costs no heart while learning")
+	_check(board.tile(pair.y).highlight() == TileView.Highlight.HINT, "the pair keeps glowing after a mistake")
+	await _click_tile(screen, pair.x)
+	await _click_tile(screen, pair.y)
+	_check(tutorial.step == FirstPlayTutorial.Step.FREE and tutorial.text() == FirstPlayTutorial.TEXT_FREE,
+		"matching the pair moves on to free tiles")
+
+	# Step 2: the player finds a pair on their own; step 3: the next move ends it.
+	var own: Vector2i = model.available_matches()[0]
+	await _click_tile(screen, own.x)
+	await _click_tile(screen, own.y)
+	_check(tutorial.step == FirstPlayTutorial.Step.TOOLS and _find_button(tutorial, "Start Playing") != null,
+		"a pair found alone moves on to the tools")
+	(_find_button(tutorial, "Start Playing") as Button).emit_signal("pressed")
+	_check(not bool(screen.call("tutorial_active")) and GameSession.tutorial_seen(), "Start Playing completes and saves it")
+	_check(str(UserSettings.new(PATH).get_value("tutorial", "outcome", "")) == "completed", "outcome saved as completed")
+	clock = float(screen.get("_time_left"))
+	screen.call("_process", 1.0)
+	_check(float(screen.get("_time_left")) < clock, "the clock runs once the tutorial ends")
+	screen.queue_free()
+	await _frames(2)
+
+	# A returning player is never interrupted; other levels never show it.
+	for number in [1, 2]:
+		screen = await _open_level(number)
+		_check(not bool(screen.call("tutorial_active")), "returning player: no tutorial on level %d" % number)
+		screen.queue_free()
+		await _frames(2)
+
+	# Skip: saved straight away, the game continues normally.
+	SafeConfig.remove_all(PATH)
+	screen = await _open_level(1)
+	tutorial = screen.get_node("%FeedbackLane").get_node("Tutorial")
+	(_find_button(tutorial, "Skip") as Button).emit_signal("pressed")
+	await _frames(2)
+	_check(not bool(screen.call("tutorial_active")) and GameSession.tutorial_seen(), "Skip ends the tutorial and saves it")
+	_check(str(UserSettings.new(PATH).get_value("tutorial", "outcome", "")) == "skipped", "outcome saved as skipped")
+	var glowing := 0
+	for i in model.tile_count():
+		if (screen.get("_model") as BoardModel).is_free(i) and (screen.get_node("%Board") as BoardView).tile(i).highlight() == TileView.Highlight.HINT:
+			glowing += 1
+	_check(glowing == 0, "skipping clears the tutorial glow")
+	screen.queue_free()
+	await _frames(2)
+
+	# Replay from Settings: "How to Play" shows it again even though it was seen.
+	GameSession.scene_changes_enabled = false
+	screen = await _open_level(2)
+	var settings: Control = screen.get_node("%AudioSettings")
+	settings.call("open")
+	(_find_button(settings, "How to Play") as Button).emit_signal("pressed")
+	_check(GameSession.tutorial_requested and GameSession.last_requested_scene == GameSession.GAME_SCENE
+		and GameSession.current_level == 1, "How to Play opens level 1 with the tutorial")
+	screen.queue_free()
+	await _frames(2)
+	GameSession.scene_changes_enabled = true
+	screen = await _open_level(1)
+	_check(bool(screen.call("tutorial_active")), "replay: the tutorial runs again")
+	(_find_button(screen.get_node("%FeedbackLane").get_node("Tutorial"), "Skip") as Button).emit_signal("pressed")
+	_check(not GameSession.tutorial_requested, "the replay request is used once")
+	screen.queue_free()
+	await _frames(2)
+
+	# Every collection: the highlighted pair shows the same picture.
+	var manager: Node = TileCollectionManager
+	for collection_id in ["classic", "animals", "fruits", "vegetables", "alphabet", "mixed"]:
+		manager.select(collection_id)
+		SafeConfig.remove_all(PATH)
+		screen = await _open_level(1)
+		board = screen.get_node("%Board")
+		model = screen.get("_model")
+		tutorial = screen.get_node("%FeedbackLane").get_node("Tutorial")
+		var keys := [board.skin().visual_key(model.face_of(tutorial.pair.x)), board.skin().visual_key(model.face_of(tutorial.pair.y))]
+		_check(tutorial.visible and keys[0] == keys[1] and board.tile(tutorial.pair.x).has_art(),
+			"%s: tutorial pair looks identical" % collection_id)
+		screen.queue_free()
+		await _frames(2)
+	manager.select("classic")
+	SafeConfig.remove_all(PATH)
+	GameSession.tutorial_settings_path = saved_path
+
+
+func _find_button(root: Node, text: String) -> Button:
+	for node in root.find_children("*", "Button", true, false):
+		if (node as Button).text == text and (node as Button).is_visible_in_tree():
+			return node
+	return null
 
 
 ## Waits for the Level Complete dialog: it opens once the last pair has met.
