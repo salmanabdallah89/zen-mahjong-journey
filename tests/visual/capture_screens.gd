@@ -56,6 +56,18 @@ func _capture_journey() -> void:
 	GameSession.progress.record_clear(1, 3, 120.0, 10)
 	GameSession.progress.record_clear(2, 2, 60.0, 10)
 	GameSession.progress.record_clear(3, 1, 20.0, 10)
+	# The map at each requested size (locked, unplayed and cleared stops).
+	for shape: String in ["w320x568", "w375x812", "w390x844", "w768x1024"]:
+		get_window().size = SHAPES[shape]
+		await _frames(4)
+		var map: Control = load("res://scenes/screens/journey_screen.tscn").instantiate()
+		add_child(map)
+		await _wait(0.8)
+		await _save("%s_journey" % shape)
+		map.queue_free()
+		await _frames(2)
+	get_window().size = SHAPES["phone_9x16"]
+	await _frames(4)
 	var journey: Control = load("res://scenes/screens/journey_screen.tscn").instantiate()
 	add_child(journey)
 	await _wait(0.8)

@@ -1,7 +1,10 @@
 class_name LevelNode
 extends Control
 ## One stop on the journey map: a marker disc with the level number, the
-## stars earned so far, the level's name and its difficulty.
+## stars earned so far, and a name plate (level name and difficulty) that
+## stays readable over the scenery. States never rely on colour alone:
+## locked levels say LOCKED, unplayed levels show only their difficulty, and
+## cleared levels show their stars.
 
 signal pressed(level_number: int)
 
@@ -23,6 +26,7 @@ var _marker_home_x := NAN
 @onready var _stars: HBoxContainer = %Stars
 @onready var _title: Label = %Title
 @onready var _difficulty: Label = %Difficulty
+@onready var _plate: Control = %Plate
 
 
 func _ready() -> void:
@@ -57,7 +61,7 @@ func setup(level: LevelCatalog.LevelDefinition, earned_stars: int, is_unlocked: 
 		star.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		star.modulate = Color.WHITE if i < earned_stars else Color(0.25, 0.25, 0.25, 0.55)
 		_stars.add_child(star)
-	_stars.visible = is_unlocked
+	_stars.visible = is_unlocked and earned_stars > 0
 	if _pulse:
 		_pulse.kill()
 		_pulse = null
@@ -75,8 +79,20 @@ func _start_breathing() -> void:
 
 
 func set_labels_visible(value: bool) -> void:
-	_title.visible = value
-	_difficulty.visible = value
+	_plate.visible = value
+
+
+func labels_shown() -> bool:
+	return _plate.visible
+
+
+## On-screen rectangles of the name plate and the marker disc (overlap checks).
+func label_rect() -> Rect2:
+	return _plate.get_global_rect()
+
+
+func marker_rect() -> Rect2:
+	return _marker.get_global_rect()
 
 
 ## Centre of the marker disc, in this node's coordinates (the path runs through it).

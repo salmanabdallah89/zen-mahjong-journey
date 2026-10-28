@@ -162,6 +162,19 @@ func _place_nodes() -> void:
 	order.sort_custom(func(a: Array, b: Array) -> bool: return a[0] > b[0])
 	for k in order.size():
 		move_child(order[k][1], k)
+	# A name plate never draws over a nearer level: hide the farther one's
+	# plate when it would touch a nearer marker or plate (the current level's
+	# plate always stays).
+	for k in order.size():
+		var far: LevelNode = order[k][1]
+		if not far.labels_shown() or _nodes.find(far) == current_index:
+			continue
+		var plate := far.label_rect()
+		for j in range(k + 1, order.size()):
+			var near: LevelNode = order[j][1]
+			if near.marker_rect().intersects(plate) or (near.labels_shown() and near.label_rect().intersects(plate)):
+				far.set_labels_visible(false)
+				break
 
 
 func _draw() -> void:

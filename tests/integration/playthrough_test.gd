@@ -57,6 +57,7 @@ func _ready() -> void:
 	await _test_reduced_motion(2)
 	await _test_combo_feedback(4)
 	await _test_tutorial()
+	await _test_journey_readability()
 	SafeConfig.remove_all(ISOLATED_SETTINGS)
 	Motion.settings_path = UserSettings.DEFAULT_PATH
 	Motion.restore()
@@ -1112,6 +1113,47 @@ func _tiles_at_rest(board: BoardView, model: BoardModel) -> bool:
 		if not view.visible or view.mouse_filter != Control.MOUSE_FILTER_STOP or view.is_moving() 				or not view.position.is_equal_approx(view.home_position) or not view.scale.is_equal_approx(Vector2.ONE) 				or view.modulate.a < 0.99:
 			return false
 	return true
+
+
+## Journey map readability: plates never overlap nearer levels, states are
+## told apart without colour, at every screen shape.
+func _test_journey_readability() -> void:
+	GameSession.progress.reset()
+	GameSession.progress.record_clear(1, 3, 120.0, 10)
+	GameSession.progress.record_clear(2, 1, 20.0, 10)
+	for shape in SCREEN_SHAPES:
+		_frame.size = shape
+		var journey: Control = JOURNEY_SCENE.instantiate()
+		_frame.add_child(journey)
+		await _frames(4)
+		var world: JourneyWorld = journey.get_node("%World")
+		var shown: Array[LevelNode] = []
+		for number in range(1, LevelCatalog.count() + 1):
+			var node: LevelNode = journey.call("level_node", number)
+			if node.visible:
+				shown.append(node)
+		var clean := true
+		for a in shown:
+			if not a.labels_shown():
+				continue
+			for b in shown:
+				if b != a and b.get_index() > a.get_index() and b.marker_rect().intersects(a.label_rect()):
+					clean = false
+		_check(clean, "%s: no name plate sits under a nearer marker" % shape)
+		var current: LevelNode = journey.call("level_node", 3)
+		_check(current.labels_shown(), "%s: the current level always shows its name" % shape)
+		var cleared: LevelNode = journey.call("level_node", 1)
+		var locked: LevelNode = journey.call("level_node", 4)
+		_check((cleared.get_node("%Stars") as Control).visible, "%s: a cleared level shows its stars" % shape)
+		_check(not (current.get_node("%Stars") as Control).visible and (current.get_node("%Difficulty") as Label).text != "LOCKED",
+			"%s: an unplayed level shows only its difficulty" % shape)
+		_check((locked.get_node("%Difficulty") as Label).text == "LOCKED", "%s: a locked level says LOCKED" % shape)
+		_check((current.get_node("%Title") as Label).get_theme_font_size("font_size") >= 36, "%s: level names are large" % shape)
+		world.focus_level(3, false)
+		journey.queue_free()
+		await _frames(2)
+	_frame.size = SCREEN_SHAPES[0]
+	GameSession.progress.reset()
 
 
 func _drag(from: Vector2, delta: Vector2) -> void:
