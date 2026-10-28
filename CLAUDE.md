@@ -202,7 +202,7 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
    fallbacks, tests. Premium pack integrated: all six collections enabled; Fruits holds back
    plum and Vegetables 13 look-alike copies until replaced (docs/TILE_COLLECTIONS.md).
 2g. ✅ Web build + GitHub Pages workflow (docs/WEB_HOSTING.md); ads via `AdsManager` with stand-in
-   test ads on desktop: rewarded second chance and hints, interstitial every 3rd clear, journey
+   test ads on desktop: rewarded second chance and hints, interstitial every 2nd finished level (wins and losses), journey
    banner. AdMob (godot-admob v7, `scripts/ads/admob_bridge.gd`, test ids) installed, Gradle build
    on, export templates installed; not yet tried on a phone (docs/ADMOB_SETUP.md).
 2h. ✅ Phase 1 audit and fixes (docs/AUDIT.md): undo/animation race, crash-safe saves, focus-loss

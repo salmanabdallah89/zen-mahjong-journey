@@ -1,6 +1,7 @@
 extends Node
 ## Autoload "AdsManager": the one place the game asks for ads. Screens call
-## show_rewarded(), after_level_complete() and show_banner()/hide_banner();
+## show_rewarded(), after_level_complete(), after_level_lost() and
+## show_banner()/hide_banner();
 ## which ad network (if any) serves them is decided here.
 ##
 ## Providers:
@@ -30,8 +31,11 @@ const BANNER_HEIGHT := 130.0
 
 var provider := "none"
 var config := {}
-## Completed levels this session, for the interstitial cadence.
-var levels_completed := 0
+## Levels finished this session (cleared or lost), for the interstitial cadence.
+var levels_ended := 0
+## When the last full-screen ad closed (Time.get_ticks_msec), or -1. An
+## interstitial never follows another ad within "interstitial_min_gap_seconds".
+var last_ad_ended_msec := -1
 ## Recent ad events, newest last: {"kind", "placement", "rewarded"} (tests, debugging).
 var history: Array[Dictionary] = []
 
@@ -122,23 +126,36 @@ func show_rewarded(placement: String, on_done: Callable) -> void:
 
 # --- Interstitial -------------------------------------------------------------
 
-## Call when a level is cleared, with what to do next. Every Nth clear first
-## shows an interstitial; `then` always runs afterwards.
+## Call when a level is cleared, with what to do next. Every Nth finished
+## level (cleared or lost) first shows an interstitial; `then` always runs
+## afterwards.
 func after_level_complete(then: Callable) -> void:
-	levels_completed += 1
-	var every := int(config.get("interstitial_every_levels", 3))
-	if provider == "none" or every <= 0 or levels_completed % every != 0 			or (provider == "admob" and not _admob.interstitial_ready()):
+	_after_level_end("level_complete", then)
+
+
+## Call when the player leaves a lost level (Retry or Levels). Losses count
+## toward the same cadence as clears.
+func after_level_lost(then: Callable) -> void:
+	_after_level_end("level_lost", then)
+
+
+func _after_level_end(placement: String, then: Callable) -> void:
+	levels_ended += 1
+	var every := int(config.get("interstitial_every_levels", 2))
+	var gap_msec := int(config.get("interstitial_min_gap_seconds", 30)) * 1000
+	var too_soon := last_ad_ended_msec >= 0 and Time.get_ticks_msec() - last_ad_ended_msec < gap_msec
+	if provider == "none" or every <= 0 or levels_ended % every != 0 or too_soon 			or (provider == "admob" and not _admob.interstitial_ready()):
 		then.call()
 		return
-	_begin("interstitial", "level_complete")
+	_begin("interstitial", placement)
 	match provider:
 		"simulated":
-			_show_simulated("interstitial", "level_complete", func(_r: bool) -> void: then.call())
+			_show_simulated("interstitial", placement, func(_r: bool) -> void: then.call())
 		"admob":
 			_admob.show_interstitial(func(_r: bool) -> void:
-				_end("interstitial", "level_complete", false, func(_r2: bool) -> void: then.call()))
+				_end("interstitial", placement, false, func(_r2: bool) -> void: then.call()))
 		_:
-			_end("interstitial", "level_complete", false, func(_r: bool) -> void: then.call())
+			_end("interstitial", placement, false, func(_r: bool) -> void: then.call())
 
 
 # --- Banner -----------------------------------------------------------------
@@ -200,6 +217,7 @@ func _begin(kind: String, placement: String) -> void:
 
 func _end(kind: String, placement: String, rewarded: bool, on_done: Callable) -> void:
 	_showing = false
+	last_ad_ended_msec = Time.get_ticks_msec()
 	AudioManager.set_ad_playing(false)
 	if _banner and _banner_wanted:
 		_banner.show()

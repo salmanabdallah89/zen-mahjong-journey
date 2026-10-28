@@ -182,23 +182,59 @@ func _test_second_chance_heart() -> void:
 
 
 func _test_interstitial_cadence() -> void:
-	AdsManager.levels_completed = 0
+	var every := int(AdsManager.setting("interstitial_every_levels", 2))
+	_check(every == 2, "an interstitial is due every 2nd finished level")
+	AdsManager.levels_ended = 0
+	AdsManager.last_ad_ended_msec = -1
 	var ran := [0]
 	var interstitials := func() -> int:
 		return AdsManager.history.filter(func(e: Dictionary) -> bool: return e["kind"] == "interstitial").size()
 	var before: int = interstitials.call()
-	for i in 2:
-		AdsManager.after_level_complete(func() -> void: ran[0] += 1)
-	_check(ran[0] == 2 and interstitials.call() == before and not AdsManager.is_showing(), "no ad after the 1st and 2nd clears")
 	AdsManager.after_level_complete(func() -> void: ran[0] += 1)
-	_check(AdsManager.is_showing() and ran[0] == 2, "an interstitial shows after every 3rd clear, before moving on")
+	_check(ran[0] == 1 and interstitials.call() == before and not AdsManager.is_showing(), "no ad after the 1st clear")
+	AdsManager.after_level_complete(func() -> void: ran[0] += 1)
+	_check(AdsManager.is_showing() and ran[0] == 1, "an interstitial shows after the 2nd clear, before moving on")
 	await _wait(AD_SECONDS + 0.3)
 	AdsManager.press_simulated_close()
 	await _frames(2)
-	_check(ran[0] == 3 and interstitials.call() == before + 1, "after the interstitial the game moves on")
+	_check(ran[0] == 2 and interstitials.call() == before + 1, "after the interstitial the game moves on")
+
+	# Never two full-screen ads back to back: a due interstitial is skipped
+	# within the minimum gap after another ad.
+	AdsManager.levels_ended = every - 1
+	AdsManager.after_level_complete(func() -> void: ran[0] += 1)
+	_check(ran[0] == 3 and not AdsManager.is_showing(), "no interstitial right after another ad")
+
+	# Losses count too: leaving a lost level with Retry shows the due ad first.
+	AdsManager.levels_ended = every - 1
+	AdsManager.last_ad_ended_msec = -1
+	var lost := await _open_level(2)
+	lost.set("_time_left", 0.15)
+	await _wait(0.4)
+	var lost_dialog: ModalDialog = lost.get_node("%Dialog")
+	(_button(lost_dialog, "Retry") as Button).emit_signal("pressed")
+	await _frames(2)
+	_check(AdsManager.is_showing() and bool(lost.get("_failed")), "Retry after a loss shows the due interstitial first")
+	await _wait(AD_SECONDS + 0.3)
+	AdsManager.press_simulated_close()
+	await _frames(3)
+	_check(AdsManager.history[-1]["placement"] == "level_lost" and not bool(lost.get("_failed")),
+		"after the interstitial the level restarts")
+	AdsManager.levels_ended = 0
+	lost.set("_time_left", 0.15)
+	await _wait(0.4)
+	GameSession.scene_changes_enabled = false
+	GameSession.last_requested_scene = ""
+	(_button(lost_dialog, "Levels") as Button).emit_signal("pressed")
+	await _frames(2)
+	_check(not AdsManager.is_showing() and GameSession.last_requested_scene == GameSession.JOURNEY_SCENE,
+		"a loss that is not due goes straight to the map")
+	GameSession.scene_changes_enabled = true
+	await _close(lost)
 
 	# In play: clearing a level and pressing Next Level goes through the cadence.
-	AdsManager.levels_completed = 2
+	AdsManager.levels_ended = every - 1
+	AdsManager.last_ad_ended_msec = -1
 	var screen := await _open_level(1)
 	var level := LevelCatalog.get_level(1)
 	for pair in BoardGenerator.generate(level.load_layout().build_geometry(), level.face_pool(), level.deal_seed).solution:
@@ -212,7 +248,7 @@ func _test_interstitial_cadence() -> void:
 	(_button(dialog, "Next Level") as Button).emit_signal("pressed")
 	await _frames(2)
 	_check(AdsManager.is_showing() and GameSession.last_requested_scene == "",
-		"Next Level after the 3rd clear shows the interstitial first")
+		"Next Level when an ad is due shows the interstitial first")
 	await _wait(AD_SECONDS + 0.3)
 	AdsManager.press_simulated_close()
 	await _frames(2)
@@ -287,7 +323,8 @@ func _test_admob_routing() -> void:
 	var result := [null]
 	AdsManager.show_rewarded("hint", func(r: bool) -> void: result[0] = r)
 	_check(result[0] == false and not AdsManager.is_showing(), "AdMob: asking without a ready ad pays nothing")
-	AdsManager.levels_completed = 2
+	AdsManager.levels_ended = 1
+	AdsManager.last_ad_ended_msec = -1
 	var ran := [false]
 	AdsManager.after_level_complete(func() -> void: ran[0] = true)
 	_check(ran[0] and not AdsManager.is_showing(), "AdMob: no interstitial loaded, the game moves on at once")
@@ -306,10 +343,11 @@ func _test_admob_routing() -> void:
 	_check(not AudioServer.is_bus_mute(AudioServer.get_bus_index("Master")), "AdMob: sound returns after the ad")
 
 	fake.interstitial_loaded = true
-	AdsManager.levels_completed = 2
+	AdsManager.levels_ended = 1
+	AdsManager.last_ad_ended_msec = -1
 	ran[0] = false
 	AdsManager.after_level_complete(func() -> void: ran[0] = true)
-	_check(AdsManager.is_showing() and not ran[0], "AdMob: the 3rd clear shows the interstitial first")
+	_check(AdsManager.is_showing() and not ran[0], "AdMob: a due clear shows the interstitial first")
 	fake.finish(false)
 	_check(ran[0] and not AdsManager.is_showing(), "AdMob: the game moves on after the interstitial")
 

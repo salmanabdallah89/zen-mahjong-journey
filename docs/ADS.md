@@ -10,13 +10,13 @@ chance; the game is otherwise identical.
 |-----------|------|-------------|
 | Rewarded: second chance | After losing (time or hearts), once per attempt | +60 s on the clock, or +1 heart, and the same board continues |
 | Rewarded: hint | After the 1 free hint per level is used | One hint per watched ad |
-| Interstitial | After every 3rd cleared level, when the player leaves the Level Complete popup (Next Level / Replay / Levels). Never during play | Nothing |
+| Interstitial | After every 2nd finished level, cleared or lost: when the player leaves the Level Complete popup (Next Level / Replay / Levels) or the loss popup (Retry / Levels). Never during play, and never within 30 s of another ad (e.g. a second-chance ad) | Nothing |
 | Banner | Bottom of the journey map only, never during play | Nothing |
 
 Skipping a rewarded ad early gives no reward. The level clock and all game sound pause while an
 ad shows. Leaving a level mid-ad closes the ad. All numbers are in `data/ads.json`:
 `free_hints_per_level`, `second_chance_seconds`, `second_chance_hearts`,
-`second_chances_per_attempt` and `interstitial_every_levels`.
+`second_chances_per_attempt`, `interstitial_every_levels` and `interstitial_min_gap_seconds`.
 
 ## How it works
 
@@ -33,7 +33,7 @@ and `hide_banner()`. It picks a provider:
 With AdMob, ad offers (Ad Hint, Watch Ad second chance) appear only while a rewarded ad is loaded,
 and an interstitial is skipped when none is loaded, so an offline phone plays like the web build.
 
-Tests: `tests/integration/ads_test.tscn` (65 checks; AdMob routing through a stand-in bridge).
+Tests: `tests/integration/ads_test.tscn` (70 checks; AdMob routing through a stand-in bridge).
 
 ## Ad unit ids
 

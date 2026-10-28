@@ -95,15 +95,15 @@ what order. iOS can follow the same path later.
      change their choice.
    - **Mute:** game audio is muted while an ad plays (already handled by `AdsManager`).
 5. **Still to do:** test on your phone with **test ads only**:
-   - every placement: hint, second chance, interstitial every 3rd clear, map banner;
+   - every placement: hint, second chance, interstitial every 2nd finished level (wins and losses), map banner;
    - the consent form, using a test device set to the EEA;
    - offline behaviour (no ads, game still works).
 
 ## Rules we keep (AdMob policy)
 
 - **Testing:** use test IDs while developing. **Never tap your own real ads.**
-- **Interstitial timing:** interstitials only between levels, after the Level Complete screen, at most every 3rd clear,
-  and never during play or on app start.
+- **Interstitial timing:** interstitials only between levels, after the Level Complete or loss screen, at most every
+  2nd level, never within 30 s of another ad, and never during play or on app start.
 - **Rewarded ads are optional:** the player chooses "Watch Ad", and the reward is stated before the ad.
 - **Banner placement:** banner on the journey map only, never over the tile board or buttons.
 - **Kids:** the game is not aimed at children; the Play content rating must say so (otherwise ads need the

@@ -731,8 +731,8 @@ func _lose(reason: LossReason) -> void:
 		var label := "Watch Ad: +%d s" % int(AdsManager.setting("second_chance_seconds", 60)) if reason == LossReason.TIME \
 			else "Watch Ad: +1 Heart"
 		_dialog.add_action(label, func() -> void: AdsManager.show_rewarded("second_chance", _on_second_chance_done), true)
-	_dialog.add_action("Retry", _restart, not offer_second_chance)
-	_dialog.add_action("Levels", GameSession.go_levels)
+	_dialog.add_action("Retry", func() -> void: AdsManager.after_level_lost(_restart), not offer_second_chance)
+	_dialog.add_action("Levels", func() -> void: AdsManager.after_level_lost(GameSession.go_levels))
 
 
 ## Rewarded second chance: continue the same board with more time or a heart.
