@@ -23,7 +23,8 @@ func _ready() -> void:
 
 func restore() -> void:
 	var settings := UserSettings.new(settings_path)
-	reduced = bool(settings.get_value(SETTINGS_SECTION, KEY, _system_prefers_reduced()))
+	var system_default: bool = _system_prefers_reduced()
+	reduced = bool(settings.get_value(SETTINGS_SECTION, KEY, system_default))
 
 
 func set_reduced(value: bool) -> void:
@@ -41,7 +42,8 @@ func duration(seconds: float) -> float:
 
 func _system_prefers_reduced() -> bool:
 	if OS.has_feature("web") and Engine.has_singleton("JavaScriptBridge"):
+		# Ask for a number: the bridge returns null for some JavaScript booleans.
 		var answer: Variant = JavaScriptBridge.eval(
-			"window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches", true)
-		return answer == true
+			"(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) ? 1 : 0", true)
+		return typeof(answer) in [TYPE_INT, TYPE_FLOAT] and int(answer) == 1
 	return false

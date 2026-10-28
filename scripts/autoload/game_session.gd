@@ -19,6 +19,9 @@ const FADE_IN := 0.32
 const FADE_COLOR := Color(0.20784314, 0.30980393, 0.26666668, 0.0)
 
 var _fade: ColorRect
+## Shown on the fade while the next screen loads (seconds on the web, where
+## loading blocks drawing; a blink on phones).
+var _loading: Label
 var _fade_tween: Tween
 
 
@@ -34,6 +37,16 @@ func _ready() -> void:
 	_fade.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(_fade)
+	_loading = Label.new()
+	_loading.text = "Loading…"
+	_loading.theme_type_variation = &"ComboLabel"
+	_loading.add_theme_font_size_override("font_size", 48)
+	_loading.set_anchors_preset(Control.PRESET_CENTER)
+	_loading.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_loading.grow_vertical = Control.GROW_DIRECTION_BOTH
+	_loading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_loading.modulate.a = 0.0
+	_fade.add_child(_loading)
 
 
 func play_level(number: int) -> void:
@@ -69,7 +82,12 @@ func _change(path: String) -> void:
 	_fade.mouse_filter = Control.MOUSE_FILTER_STOP
 	_fade_tween = create_tween()
 	_fade_tween.tween_property(_fade, "color:a", 1.0, out_time * (1.0 - _fade.color.a)).set_trans(Tween.TRANS_SINE)
-	_fade_tween.tween_callback(func() -> void: get_tree().change_scene_to_file(path))
+	# Draw "Loading…" for a frame before loading blocks the screen.
+	_fade_tween.tween_callback(func() -> void: _loading.modulate.a = 0.7)
+	_fade_tween.tween_interval(0.03)
+	_fade_tween.tween_callback(func() -> void:
+		get_tree().change_scene_to_file(path)
+		_loading.modulate.a = 0.0)
 	# Give the new screen a frame to build before revealing it.
 	_fade_tween.tween_interval(0.05)
 	_fade_tween.tween_property(_fade, "color:a", 0.0, Motion.duration(FADE_IN)).set_trans(Tween.TRANS_SINE)
