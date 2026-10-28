@@ -24,6 +24,10 @@ func _ready() -> void:
 	if not args.is_empty():
 		_out_dir = args[0]
 	DirAccess.make_dir_recursive_absolute(_out_dir)
+	if args.size() > 1 and args[1] == "store":
+		await _capture_store()
+		_finish()
+		return
 	for shape: String in SHAPES:
 		get_window().size = SHAPES[shape]
 		await _frames(4)
@@ -40,6 +44,10 @@ func _ready() -> void:
 	await _measure_frame_times(10)
 	await _capture_journey()
 	await _capture_ads()
+	_finish()
+
+
+func _finish() -> void:
 	GameSession.progress.reset()
 	SafeConfig.remove_all(GameSession.progress.path)
 	GameSession.progress = ProgressStore.new()
@@ -47,6 +55,59 @@ func _ready() -> void:
 	GameSession.tutorial_settings_path = UserSettings.DEFAULT_PATH
 	print("Screenshots written to ", ProjectSettings.globalize_path(_out_dir))
 	get_tree().quit()
+
+
+## Google Play phone screenshots at the full 1080x1920 canvas, without ads:
+##   godot --path . res://tests/visual/capture_screens.tscn -- <dir> store
+func _capture_store() -> void:
+	AdsManager.provider = "none"
+	get_window().size = Vector2i(1080, 1920)
+	await _frames(4)
+	var manager := TileCollectionManager
+	var real_settings := manager.settings_path
+	manager.settings_path = "user://capture_settings.cfg"
+	SafeConfig.remove_all(manager.settings_path)
+	manager.restore()
+	for number in range(1, 13):
+		GameSession.progress.record_clear(number, 3 if number % 4 != 0 else 2, 90.0, 10)
+
+	var startup := STARTUP_SCENE.instantiate()
+	add_child(startup)
+	await _wait(1.5)
+	await _save("store_01_home")
+	var picker: CollectionPicker = startup.get_node("%CollectionPicker")
+	picker.open()
+	picker.highlight("animals")
+	await _wait(0.6)
+	await _save("store_05_collections")
+	startup.queue_free()
+	await _frames(2)
+
+	var shots := [["classic", 13, "store_02_board"], ["animals", 24, "store_03_animals"], ["fruits", 40, "store_04_fruits"]]
+	for shot: Array in shots:
+		manager.select(str(shot[0]))
+		GameSession.current_level = int(shot[1])
+		var screen: Control = GAME_SCENE.instantiate()
+		add_child(screen)
+		await _wait(0.8)
+		var model: BoardModel = screen.get("_model")
+		screen.call("_on_tile_pressed", model.available_matches()[0].x)
+		await _wait(0.5)
+		await _save(str(shot[2]))
+		screen.queue_free()
+		await _frames(2)
+
+	var journey: Control = load("res://scenes/screens/journey_screen.tscn").instantiate()
+	add_child(journey)
+	await _wait(1.0)
+	await _save("store_06_journey")
+	journey.queue_free()
+	await _frames(2)
+
+	manager.select("classic")
+	SafeConfig.remove_all(manager.settings_path)
+	manager.settings_path = real_settings
+	manager.restore()
 
 
 ## The journey map with some progress, a level card, and a 3-star clear.

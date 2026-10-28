@@ -23,6 +23,9 @@ signal ad_finished(kind: String, placement: String, rewarded: bool)
 signal banner_changed
 
 const CONFIG_PATH := "res://data/ads.json"
+## Real AdMob ids, used only by release builds on phones. Debug builds,
+## tests and the desktop always use the test ids in CONFIG_PATH.
+const RELEASE_CONFIG_PATH := "res://data/ads_release.json"
 ## The AdMob plugin's folder, and our bridge to it. Phones use AdMob only
 ## when both are present.
 const ADMOB_PLUGIN_DIR := "res://addons/AdmobPlugin"
@@ -62,7 +65,15 @@ func _ready() -> void:
 		add_child(_admob)
 		_admob.banner_changed.connect(banner_changed.emit)
 		var platform := "ios" if OS.has_feature("ios") else "android"
-		_admob.start(config.get(platform, {}))
+		# Debug builds (and platforms without real ids) always get test ads.
+		var ids: Dictionary = config.get(platform, {})
+		var real := not OS.is_debug_build()
+		if real:
+			ids = release_ids(platform)
+			real = not ids.is_empty()
+			if not real:
+				ids = config.get(platform, {})
+		_admob.start(ids, real)
 
 
 func _pick_provider() -> String:
@@ -100,6 +111,21 @@ func setting(key: String, default: Variant) -> Variant:
 
 
 ## Ad unit id for the current platform ("banner", "interstitial", "rewarded").
+## The real AdMob ids for release builds (data/ads_release.json), or {} when
+## the platform has none or they are incomplete.
+static func release_ids(platform: String) -> Dictionary:
+	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(RELEASE_CONFIG_PATH))
+	if not data is Dictionary:
+		return {}
+	var ids: Variant = (data as Dictionary).get(platform, {})
+	if not ids is Dictionary:
+		return {}
+	for kind in ["app_id", "banner", "interstitial", "rewarded"]:
+		if not str((ids as Dictionary).get(kind, "")).begins_with("ca-app-pub-"):
+			return {}
+	return ids
+
+
 func unit_id(kind: String) -> String:
 	var platform := "ios" if OS.has_feature("ios") else "android"
 	return str((config.get(platform, {}) as Dictionary).get(kind, ""))

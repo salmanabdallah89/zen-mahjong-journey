@@ -75,6 +75,20 @@ func _ready() -> void:
 
 	_check(AdsManager.provider == "simulated", "desktop debug runs use stand-in test ads (%s)" % AdsManager.provider)
 	_check(AdsManager.unit_id("rewarded").begins_with("ca-app-pub-3940256099942544/"), "configured ids are Google's test ids")
+	# Release builds: real ids, complete, not Google's test ids, and the App ID
+	# the export writes into the manifest is the same app's.
+	var release := AdsManager.release_ids("android")
+	_check(not release.is_empty() and not str(release["rewarded"]).begins_with("ca-app-pub-3940256099942544/"),
+		"release builds have their own complete set of AdMob ids")
+	var publisher := str(release.get("app_id", "")).get_slice("~", 0)
+	_check(["banner", "interstitial", "rewarded"].all(func(k: String) -> bool:
+		return str(release[k]).begins_with(publisher + "/")), "release ad units belong to the release app's account")
+	var export_cfg := ConfigFile.new()
+	_check(export_cfg.load("res://addons/AdmobPlugin/android_export.cfg") == OK
+		and bool(export_cfg.get_value("General", "is_real", false))
+		and str(export_cfg.get_value("Release", "app_id", "")) == str(release["app_id"]),
+		"the exported manifest carries the release App ID")
+	_check(AdsManager.release_ids("ios").is_empty(), "no real iOS ids yet, so iOS stays on test ads")
 	_check(AdsManager.admob_installed(), "the AdMob plugin and bridge are installed")
 	var bridge_script: Variant = load(AdsManager.ADMOB_BRIDGE)
 	_check(bridge_script is GDScript and (bridge_script as GDScript).can_instantiate(), "the AdMob bridge compiles")

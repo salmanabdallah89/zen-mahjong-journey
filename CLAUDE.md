@@ -38,7 +38,8 @@ the second run must be clean.
   Exception to watch: `bg_sakura_garden.png` has the title logo baked in — do not use it behind
   a Label title; it is only suitable as a splash/marketing image.
 - Ads only through `AdsManager` (docs/ADS.md); no analytics, IAP or other network code until requested.
-  Never put real AdMob ids in tests; `data/ads.json` holds Google's test ids.
+  Never put real AdMob ids in tests; `data/ads.json` holds Google's test ids (debug builds, tests),
+  `data/ads_release.json` the real ids, used only by release builds on phones.
 - Build features in order; do not start a later feature before the current scene works and is
   verified (see roadmap).
 
@@ -204,7 +205,9 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
 2g. ✅ Web build + GitHub Pages workflow (docs/WEB_HOSTING.md); ads via `AdsManager` with stand-in
    test ads on desktop: rewarded second chance and hints, interstitial every 2nd finished level (wins and losses), journey
    banner. AdMob (godot-admob v7, `scripts/ads/admob_bridge.gd`, test ids) installed, Gradle build
-   on, export templates installed; not yet tried on a phone (docs/ADMOB_SETUP.md).
+   on, export templates installed; test ads checked on a phone (Infinix, Android 15). Release builds use
+   the real AdMob app. Play release prep (AAB preset "Android Play", store art in `store/`, privacy
+   policy in `site/`): docs/PLAY_STORE.md.
 2h. ✅ Phase 1 audit and fixes (docs/AUDIT.md): undo/animation race, crash-safe saves, focus-loss
    pause, back button on every screen, hint charging, journey glitches, lossy backgrounds.
 2i. ✅ Phase 2 feel (docs/PHASE2_ANIMATION_AUDIO.md): select lift/swell, pairs glide together and

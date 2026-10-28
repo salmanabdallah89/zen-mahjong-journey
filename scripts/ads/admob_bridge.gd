@@ -35,19 +35,28 @@ var _earned := false
 var _on_done := Callable()
 
 
-## `ids`: the platform's section of data/ads.json ("banner", "interstitial",
-## "rewarded"). Test ids only until the real ones are supplied.
-func start(ids: Dictionary) -> void:
+## `ids`: "banner", "interstitial" and "rewarded" unit ids. `real` is true
+## only for release builds with the ids from data/ads_release.json; otherwise
+## they are Google's test ids from data/ads.json.
+func start(ids: Dictionary, real := false) -> void:
 	_admob = Admob.new()
 	_admob.name = "Admob"
 	# Ad unit ids are read in the node's _ready, so set them first.
-	_admob.is_real = false
-	_admob.android_debug_banner_id = str(ids.get("banner", _admob.android_debug_banner_id))
-	_admob.android_debug_interstitial_id = str(ids.get("interstitial", _admob.android_debug_interstitial_id))
-	_admob.android_debug_rewarded_id = str(ids.get("rewarded", _admob.android_debug_rewarded_id))
-	_admob.ios_debug_banner_id = str(ids.get("banner", _admob.ios_debug_banner_id))
-	_admob.ios_debug_interstitial_id = str(ids.get("interstitial", _admob.ios_debug_interstitial_id))
-	_admob.ios_debug_rewarded_id = str(ids.get("rewarded", _admob.ios_debug_rewarded_id))
+	_admob.is_real = real
+	if real:
+		_admob.android_real_banner_id = str(ids.get("banner", ""))
+		_admob.android_real_interstitial_id = str(ids.get("interstitial", ""))
+		_admob.android_real_rewarded_id = str(ids.get("rewarded", ""))
+		_admob.ios_real_banner_id = str(ids.get("banner", ""))
+		_admob.ios_real_interstitial_id = str(ids.get("interstitial", ""))
+		_admob.ios_real_rewarded_id = str(ids.get("rewarded", ""))
+	else:
+		_admob.android_debug_banner_id = str(ids.get("banner", _admob.android_debug_banner_id))
+		_admob.android_debug_interstitial_id = str(ids.get("interstitial", _admob.android_debug_interstitial_id))
+		_admob.android_debug_rewarded_id = str(ids.get("rewarded", _admob.android_debug_rewarded_id))
+		_admob.ios_debug_banner_id = str(ids.get("banner", _admob.ios_debug_banner_id))
+		_admob.ios_debug_interstitial_id = str(ids.get("interstitial", _admob.ios_debug_interstitial_id))
+		_admob.ios_debug_rewarded_id = str(ids.get("rewarded", _admob.ios_debug_rewarded_id))
 	_admob.banner_position = LoadAdRequest.AdPosition.BOTTOM
 	_admob.banner_size = LoadAdRequest.RequestedAdSize.ADAPTIVE
 	_admob.banner_anchor_to_safe_area = true

@@ -33,9 +33,12 @@ and `hide_banner()`. It picks a provider:
 With AdMob, ad offers (Ad Hint, Watch Ad second chance) appear only while a rewarded ad is loaded,
 and an interstitial is skipped when none is loaded, so an offline phone plays like the web build.
 
-Tests: `tests/integration/ads_test.tscn` (70 checks; AdMob routing through a stand-in bridge).
+Tests: `tests/integration/ads_test.tscn` (74 checks; AdMob routing through a stand-in bridge).
 
 ## Ad unit ids
+
+Release builds on phones use the **real** ids in `data/ads_release.json` (the Zen Mahjong Journey
+app in AdMob); debug builds, tests and the desktop always use the test ids below.
 
 `data/ads.json` holds **Google's official test ids** (`ca-app-pub-3940256099942544/...`). They
 always show test ads and never pay. **Never test with your real ids:** clicking your own real ads

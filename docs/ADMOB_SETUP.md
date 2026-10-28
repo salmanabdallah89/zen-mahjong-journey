@@ -1,6 +1,9 @@
 # AdMob setup plan (Android first)
 
-Status: **AdMob installed with Google's test ids; not yet tried on a phone.** Export templates,
+Status: **Real AdMob app wired into release builds** (`data/ads_release.json`, App ID in
+`android_export.cfg`); debug builds keep test ads, which loaded on a phone (Infinix X6880, Android 15).
+Google Play steps: docs/PLAY_STORE.md.
+Earlier status: AdMob installed with Google's test ids. Export templates,
 the godot-admob v7 plugin (`addons/AdmobPlugin`, `addons/GMPShared`), Gradle build and the bridge
 (`scripts/ads/admob_bridge.gd`) are in. This file lists what is still needed, who does it, and in
 what order. iOS can follow the same path later.

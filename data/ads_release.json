@@ -1,0 +1,9 @@
+{
+	"_comment": "REAL AdMob ids (Zen Mahjong Journey app in the AdMob account). Used only by release builds on phones (AdsManager.release_ids). Debug builds, tests and the desktop always use the test ids in data/ads.json. Never put these ids in tests, and never tap ads served with them. The app_id must match [Release] app_id in addons/AdmobPlugin/android_export.cfg.",
+	"android": {
+		"app_id": "ca-app-pub-9885070769172212~4955462052",
+		"banner": "ca-app-pub-9885070769172212/5417215228",
+		"interstitial": "ca-app-pub-9885070769172212/1559142522",
+		"rewarded": "ca-app-pub-9885070769172212/5894681196"
+	}
+}

@@ -64,6 +64,9 @@ jobs:
           mkdir -p build/web
           ~/godot/godot --headless --path . --export-release "Web" build/web/index.html
           test -f build/web/index.html
+          # Static pages next to the game (privacy policy for Google Play).
+          cp -r site/. build/web/
+          test -f build/web/privacy.html
 
       - uses: actions/upload-pages-artifact@v3
         with:
