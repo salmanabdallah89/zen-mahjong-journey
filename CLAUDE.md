@@ -160,6 +160,9 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
   `%FeedbackLane`, a strip that `BoardView` (its `footer`) places 24 px under the tiles and
   centres together with the board; it clips its contents, so messages never cover a tile. Match sound, haptics and praise land
   when the pair touches (`BoardView.play_removal` returns the contact time), in match order.
+- **Background balance:** `BackgroundStyle` holds per-background scenery dim and board-shade
+  strength (measured, gentle). A new background needs an entry there (unit-tested). Hearts live in
+  the top bar (`%Hearts` inside `HeartsPill`); there is no separate hearts panel.
 - **Saves:** player data (`progress.cfg`, `settings.cfg`) is read and written only through
   `SafeConfig` (temp file + `.bak` backup + recovery), never `ConfigFile.save` directly. Tests
   delete save files with `SafeConfig.remove_all(path)` so no `.bak` brings old data back.

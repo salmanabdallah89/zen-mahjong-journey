@@ -31,9 +31,11 @@ var _tween: Tween
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	# Fill the lane whatever its size is right now (it is sized later by the
+	# board's fit): anchors AND offsets, or a zero-width lane would stick.
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_row = HBoxContainer.new()
-	_row.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_row.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	_row.add_theme_constant_override("separation", 18)
 	_row.mouse_filter = Control.MOUSE_FILTER_IGNORE

@@ -103,7 +103,7 @@ horizontal_alignment = 1
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
-theme_override_constants/separation = -6
+theme_override_constants/separation = 2
 
 [node name="LevelValue" type="Label" parent="SafeArea/Layout/Hud/Row/LevelBox"]
 unique_name_in_owner = true
@@ -119,6 +119,25 @@ theme_type_variation = &"HudCaptionLabel"
 text = "LEVEL"
 horizontal_alignment = 1
 text_overrun_behavior = 3
+
+[node name="HeartsPill" type="PanelContainer" parent="SafeArea/Layout/Hud/Row/LevelBox"]
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+theme_type_variation = &"HeartsPill"
+
+[node name="Hearts" type="HBoxContainer" parent="SafeArea/Layout/Hud/Row/LevelBox/HeartsPill"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="HeartsGap" type="Control" parent="SafeArea/Layout/Hud/Row/LevelBox"]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+mouse_filter = 2
 
 [node name="TilesBox" type="VBoxContainer" parent="SafeArea/Layout/Hud/Row"]
 custom_minimum_size = Vector2(160, 0)
@@ -153,20 +172,6 @@ theme_type_variation = &"CircleButton"
 icon = ExtResource("5_pause")
 icon_alignment = 1
 expand_icon = true
-
-[node name="MistakesPanel" type="PanelContainer" parent="SafeArea/Layout"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 4
-mouse_filter = 2
-theme_type_variation = &"ToastPanel"
-
-[node name="Hearts" type="HBoxContainer" parent="SafeArea/Layout/MistakesPanel"]
-unique_name_in_owner = true
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 2
-alignment = 1
 
 [node name="Board" type="Control" parent="SafeArea/Layout"]
 unique_name_in_owner = true

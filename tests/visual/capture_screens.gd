@@ -7,7 +7,8 @@ const STARTUP_SCENE := preload("res://scenes/screens/startup_screen.tscn")
 const GAME_SCENE := preload("res://scenes/screens/game_screen.tscn")
 ## Window sizes; with the 1080-wide canvas these give 9:16, 9:19.5 and 3:4.
 const SHAPES := {"phone_9x16": Vector2i(540, 960), "phone_9x19": Vector2i(540, 1170),
-	"tablet_3x4": Vector2i(720, 960)}
+	"tablet_3x4": Vector2i(720, 960), "w320x568": Vector2i(320, 568), "w375x812": Vector2i(375, 812),
+	"w390x844": Vector2i(390, 844), "w768x1024": Vector2i(768, 1024)}
 
 var _out_dir := "user://screens"
 

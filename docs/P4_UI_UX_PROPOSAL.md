@@ -1,6 +1,6 @@
 # P4 proposal: board, background and screen UX (not implemented)
 
-Status: **step 1 implemented (P4.1 layout, P4.3 effect taming); steps 2 to 4 are still proposals.**
+Status: **steps 1 and 2 implemented (P4.1, P4.3; P4.2 option A, P4.4 hearts merge); steps 3 and 4 are still proposals.**
 See "Step 1: implemented" at the end. Based on the live web build of `879063c`, tested on
 the following viewports:
 
@@ -151,3 +151,37 @@ Acceptance, as automated checks on 9:16, 9:19.5, 9:21 and 3:4:
 
 Not done in step 1: steps 2 to 4 (background balance, compact HUD, journey labels, onboarding, web
 loading, accessibility).
+
+
+## Step 2: implemented
+
+Decisions applied: per-background shading only (no blurred copies); hearts merged into the top bar.
+
+Before/after at 320 × 568, 375 × 812, 390 × 844 and 768 × 1024 (pairs, left before):
+`docs/screenshots/p4_step2_before_after.png`. Hint, Zen Master! and Level Complete at 320 × 568,
+390 × 844 and the tablet: `docs/screenshots/p4_step2_states.png`.
+
+| Item | Change | File |
+|------|--------|------|
+| P4.2 A | `BackgroundStyle`: per-background scenery dim and board-shade strength, tuned from the measured brightness and detail. Golden Sakura and Bamboo Forest: scenery ×0.86, shade 0.68. Misty Temple: ×0.90, 0.62. Moonlight Sanctuary: ×0.97, 0.48 (already dark). Plain colour multiplies on existing nodes: no new textures, nodes or passes. | `scripts/core/background_style.gd` (new), `board_view.gd` (`set_backdrop_strength`), `game_screen.gd` |
+| P4.4 | Hearts moved into the top bar, on a slim dark pill under the level name (54 px hearts, which read clearly on the ivory bar). The separate hearts panel is gone, so the board starts higher. | `game_screen.tscn`, `game_screen.gd` (`HEART_SIZE`), theme `HeartsPill` |
+| Fix | Combo praise was left-aligned (cut off on tablets) since step 1 moved the lane: it was created before the lane was sized and kept a zero width. It now fills the lane and is centred on every shape. | `combo_feedback.gd` |
+
+Measured on the 9:16 level screenshots, over the board area (tiles included):
+
+| Background | Brightness | Detail (edges) |
+|------------|------------|----------------|
+| Golden Sakura | −2 % | −8 % |
+| Bamboo Forest | −5 % | −9 % |
+| Misty Temple | −3 % | −6 % |
+| Moonlight Sanctuary | 0 % | +1 % |
+
+The tiles themselves are not shaded (tested).
+
+Acceptance (automated, on 9:16, 9:19.5, 9:21 and 3:4):
+- hearts are inside the top bar;
+- the top bar is fully on screen and at most 240 px tall;
+- no tile reaches the top bar;
+- every level background has its own shading within gentle bounds;
+- free tiles are never dimmed;
+- praise is centred in the lane (within 4 px) and fits inside it.

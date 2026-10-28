@@ -13,6 +13,8 @@ const TIME_WARNING_SECONDS := 30.0
 ## tab, a slow device) can't cost the player a big chunk of time at once.
 const MAX_CLOCK_STEP := 0.25
 const HEART_TEXTURE := preload("res://assets/ui/icons/icon_heart.png")
+## Hearts sit in the top bar under the level name.
+const HEART_SIZE := 54.0
 const PETAL_TEXTURE := preload("res://assets/effects/petal_02.png")
 ## "Zen Master!" (the top praise tier) also glows softly at the screen edges.
 const EDGE_GLOW_SECONDS := 1.1
@@ -149,6 +151,9 @@ func _start_level() -> void:
 		GameSession.go_home()
 		return
 	_background.texture = load(_level.background_path())
+	# Per-background shading keeps the tiles the focus (BackgroundStyle).
+	_background.modulate = BackgroundStyle.scenery_tint(_level.background)
+	_board.set_backdrop_strength(BackgroundStyle.board_shade(_level.background))
 	AudioManager.play_music("gameplay")
 	AudioManager.reset_melody()
 	AudioManager.set_ambience(AudioCatalog.AMBIENCE_FOR_BACKGROUND.get(_level.background, AudioCatalog.MENU_AMBIENCE))
@@ -709,7 +714,7 @@ func _build_hearts() -> void:
 	for i in _level.mistake_limit:
 		var heart := TextureRect.new()
 		heart.texture = HEART_TEXTURE
-		heart.custom_minimum_size = Vector2(76, 76)
+		heart.custom_minimum_size = Vector2(HEART_SIZE, HEART_SIZE)
 		heart.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		heart.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		heart.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS

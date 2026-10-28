@@ -49,6 +49,7 @@ func _ready() -> void:
 	await _test_time_and_mistakes(2)
 	await _test_journey_and_stars()
 	await _test_audit_fixes(3)
+	await _test_background_shading()
 	await _test_tile_animations(4)
 	await _test_reduced_motion(2)
 	await _test_combo_feedback(4)
@@ -185,6 +186,12 @@ func _test_responsive_layout(level_number: int) -> void:
 		_check(board_rect.grow(1.0).encloses(tiles_rect), "%s: all tiles inside the board area" % shape)
 		_check(not tiles_rect.intersects(hud.get_global_rect()), "%s: tiles clear of the HUD" % shape)
 		_check(not tiles_rect.intersects(toolbar.get_global_rect()), "%s: tiles clear of the toolbar" % shape)
+		# Hearts live in the top bar, fully visible, with the level and controls.
+		var hearts_rect := (screen.get_node("%Hearts") as Control).get_global_rect()
+		_check(hud.get_global_rect().encloses(hearts_rect), "%s: hearts sit inside the top bar" % shape)
+		_check(screen.get_global_rect().encloses(hud.get_global_rect()), "%s: the top bar is fully on screen" % shape)
+		_check(hud.get_global_rect().size.y <= 240.0, "%s: the top bar stays compact (%.0f px)" % [shape, hud.get_global_rect().size.y])
+		_check(not tiles_rect.intersects(hud.get_global_rect()), "%s: tiles clear of the top bar and hearts" % shape)
 		_check(tile_width >= 100.0, "%s: tiles stay tappable (%.0f px wide)" % [shape, tile_width])
 		_check(screen.get_global_rect().encloses(toolbar.get_global_rect()), "%s: toolbar on screen" % shape)
 	_frame.size = SCREEN_SHAPES[0]
@@ -542,6 +549,25 @@ func _test_journey_and_stars() -> void:
 	await _frames(2)
 
 
+## Per-background shading: each level's scenery and board shade follow
+## BackgroundStyle, and shading never touches the tiles themselves.
+func _test_background_shading() -> void:
+	for number in [1, 3, 5, 8]:
+		var screen := await _open_level(number)
+		var level := LevelCatalog.get_level(number)
+		var background: TextureRect = screen.get_node("%Background")
+		var board: BoardView = screen.get_node("%Board")
+		_check(background.modulate.is_equal_approx(BackgroundStyle.scenery_tint(level.background)),
+			"level %d: %s scenery shaded" % [number, level.background])
+		_check(is_equal_approx(board.backdrop_strength, BackgroundStyle.board_shade(level.background)),
+			"level %d: board shade %.2f" % [number, board.backdrop_strength])
+		var model: BoardModel = screen.get("_model")
+		var free_tile := model.free_tiles()[0]
+		_check(board.tile(free_tile).modulate == Color.WHITE, "level %d: free tiles are not dimmed by the shading" % number)
+		screen.queue_free()
+		await _frames(2)
+
+
 ## Regression checks for the October 2026 audit fixes (docs/AUDIT.md).
 func _test_audit_fixes(level_number: int) -> void:
 	var screen := await _open_level(level_number)
@@ -814,6 +840,20 @@ func _test_combo_feedback(level_number: int) -> void:
 		var old_width := old_scale * board.skin().style.face_rect.size.x
 		_check(board.face_width_on_screen() >= old_width - 0.5,
 			"%s: tiles not smaller than before (%.0f vs %.0f px)" % [shape, board.face_width_on_screen(), old_width])
+	# Praise is centred in the lane and fully inside it on every shape.
+	for shape in SCREEN_SHAPES:
+		_frame.size = shape
+		await _frames(3)
+		praise.show_combo(10)
+		await get_tree().create_timer(0.4).timeout
+		var row: Control = praise.get_child(0)
+		var text_rect := (row.get_child(0) as Control).get_global_rect().merge((row.get_child(1) as Control).get_global_rect())
+		var lane_rect := lane.get_global_rect()
+		_check(absf(text_rect.get_center().x - lane_rect.get_center().x) <= 4.0,
+			"%s: praise is centred (%.0f vs %.0f)" % [shape, text_rect.get_center().x, lane_rect.get_center().x])
+		_check(text_rect.position.x >= lane_rect.position.x and text_rect.end.x <= lane_rect.end.x,
+			"%s: Zen Master! fits inside the lane" % shape)
+		praise.dismiss()
 	_frame.size = SCREEN_SHAPES[0]
 	await _frames(3)
 

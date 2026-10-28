@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=30 format=3]
+[gd_resource type="Theme" load_steps=31 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/ui/buttons/btn_primary_empty.png" id="1_primary"]
 [ext_resource type="Texture2D" path="res://assets/ui/buttons/btn_secondary_empty.png" id="2_secondary"]
@@ -240,6 +240,23 @@ corner_radius_bottom_left = 40
 content_margin_left = 24.0
 content_margin_right = 24.0
 
+[sub_resource type="StyleBoxFlat" id="Hearts_pill"]
+bg_color = Color(0.15294118, 0.23137255, 0.3137255, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.78039217, 0.64705884, 0.41568628, 0.85)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+content_margin_left = 20.0
+content_margin_top = 5.0
+content_margin_right = 20.0
+content_margin_bottom = 5.0
+anti_aliasing = true
+
 [resource]
 default_font = SubResource("SystemFont_body")
 default_font_size = 44
@@ -346,6 +363,8 @@ ModalPanel/base_type = &"PanelContainer"
 ModalPanel/styles/panel = SubResource("Modal_panel")
 ToastLabel/base_type = &"Label"
 ToastLabel/font_sizes/font_size = 34
+HeartsPill/base_type = &"PanelContainer"
+HeartsPill/styles/panel = SubResource("Hearts_pill")
 ToastPanel/base_type = &"PanelContainer"
 ToastPanel/styles/panel = SubResource("Toast_panel")
 ToolLabel/base_type = &"Label"

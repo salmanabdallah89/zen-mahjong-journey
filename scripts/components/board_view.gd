@@ -50,6 +50,9 @@ var _shuffle_tween: Tween
 ## board and the footer are fitted and centred together, so on tall screens
 ## the spare height goes above and below the pair instead of between them.
 var footer: Control
+## Centre strength of the shade pool behind the tiles (BackgroundStyle). Set
+## before show_board(), or call set_backdrop_strength() any time.
+var backdrop_strength := 0.56
 
 
 func _ready() -> void:
@@ -79,7 +82,7 @@ func show_board(model: BoardModel, skin: TileSkin) -> void:
 	order.sort_custom(_draws_before)
 
 	_backdrop = TextureRect.new()
-	_backdrop.texture = _backdrop_texture()
+	_backdrop.texture = _backdrop_texture(backdrop_strength)
 	_backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_layer.add_child(_backdrop)
@@ -313,12 +316,22 @@ func _draws_before(a: int, b: int) -> bool:
 	return pa.x < pb.x
 
 
+func set_backdrop_strength(strength: float) -> void:
+	backdrop_strength = strength
+	if _backdrop:
+		_backdrop.texture = _backdrop_texture(strength)
+
+
 ## Soft dark pool of shade under the board so tiles stand out from busy art.
-static func _backdrop_texture() -> GradientTexture2D:
+## `strength` is the centre alpha; the middle ring keeps the same proportion.
+static func _backdrop_texture(strength: float) -> GradientTexture2D:
+	var key := snappedf(strength, 0.01)
+	if _backdrops.has(key):
+		return _backdrops[key]
 	var gradient := Gradient.new()
 	gradient.offsets = PackedFloat32Array([0.0, 0.55, 1.0])
-	gradient.colors = PackedColorArray([Color(0.08, 0.11, 0.1, 0.56),
-		Color(0.08, 0.11, 0.1, 0.36), Color(0.08, 0.11, 0.1, 0.0)])
+	gradient.colors = PackedColorArray([Color(0.08, 0.11, 0.1, key),
+		Color(0.08, 0.11, 0.1, key * 0.64), Color(0.08, 0.11, 0.1, 0.0)])
 	var texture := GradientTexture2D.new()
 	texture.gradient = gradient
 	texture.fill = GradientTexture2D.FILL_RADIAL
@@ -326,7 +339,11 @@ static func _backdrop_texture() -> GradientTexture2D:
 	texture.fill_to = Vector2(1.0, 0.5)
 	texture.width = 128
 	texture.height = 128
+	_backdrops[key] = texture
 	return texture
+
+
+static var _backdrops := {}
 
 
 func _apply_art(index: int) -> void:
