@@ -146,6 +146,8 @@ func _test_gameplay_sounds() -> void:
 	await _wait(0.1)
 	seq = AudioManager.event_seq
 	await _click_tile(screen, pair.y)
+	# The bell rings when the gliding pair touches.
+	await _wait(0.5)
 	_check(AudioManager.count_played("tile_match", seq) == 1, "5: a match plays the match sound once")
 	_check(AudioManager.count_requested("tile_select", seq) == 0, "5: completing a match plays no select sound")
 
@@ -193,7 +195,7 @@ func _test_level_complete_and_ducking() -> void:
 		screen.call("_on_tile_pressed", pair.x)
 		screen.call("_on_tile_pressed", pair.y)
 		await _wait(0.09)
-	await _frames(3)
+	await _wait(1.0)
 	_check(AudioManager.count_played("level_complete", seq) == 1, "8: level completion plays the victory sound once")
 	await _wait(1.0)
 	_check(AudioManager.count_played("star", seq) >= 1, "stars on level complete ring a chime each")
@@ -320,6 +322,7 @@ func _test_match_melody() -> void:
 		await _wait(0.12)
 		await _click_tile(screen, deal.solution[k].x)
 		await _click_tile(screen, deal.solution[k].y)
+	await _wait(0.5)
 	_check(_match_files(seq) == AudioCatalog.MATCH_NOTES.slice(0, 3), "in play, quick matches ring rising bells")
 	await _click(screen.get_node("%UndoButton"))
 	_check(AudioManager.melody_step() == 1, "undoing a match steps the melody back")

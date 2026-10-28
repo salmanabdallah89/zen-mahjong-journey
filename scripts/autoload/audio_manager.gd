@@ -261,14 +261,25 @@ func play_sfx(effect_id: String, file_override := "", steal := false) -> bool:
 ## A matched pair: the next bell of the melody. Quick successive matches climb
 ## the scale (holding on the top note); a pause restarts from the bottom.
 func play_match_note() -> bool:
+	return play_match_step(next_match_step())
+
+
+## Advances the melody for a new match (on the tap) and returns its step;
+## the bell itself can ring later, when the tiles touch (play_match_step).
+func next_match_step() -> int:
 	var now := Time.get_ticks_msec() / 1000.0
 	if now - _last_match_time > melody_window:
 		_melody_step = 0
 	else:
 		_melody_step = mini(_melody_step + 1, AudioCatalog.MATCH_NOTES.size() - 1)
 	_last_match_time = now
+	return _melody_step
+
+
+## Rings the bell for a melody step.
+func play_match_step(step: int) -> bool:
 	# A melody note is never skipped: if too many bells ring, the oldest is damped.
-	return play_sfx("tile_match", AudioCatalog.MATCH_NOTES[_melody_step], true)
+	return play_sfx("tile_match", AudioCatalog.MATCH_NOTES[clampi(step, 0, AudioCatalog.MATCH_NOTES.size() - 1)], true)
 
 
 ## Undoing a match takes the melody back one note.

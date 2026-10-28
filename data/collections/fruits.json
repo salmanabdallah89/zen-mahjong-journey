@@ -9,7 +9,7 @@
 	"thumbnail": "res://assets/collections/fruits/thumbnail.png",
 	"tile_style": "res://data/tile_art/ivory_body_v1.json",
 	"body": "res://assets/tiles/bodies/tile_body_ivory.png",
-	"symbol_padding": 0.1,
+	"symbol_padding": 0.06,
 	"_symbol_region": "Frames the drawings (the batch-1 replacements reach x 59-202, y 32-177; the original emoji x 64-192) and leaves out the English caption baked into the original PNGs below y=200.",
 	"symbol_region": [
 		52,

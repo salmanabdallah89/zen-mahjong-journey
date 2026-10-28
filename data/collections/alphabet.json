@@ -9,7 +9,7 @@
 	"thumbnail": "res://assets/collections/alphabet/thumbnail.png",
 	"tile_style": "res://data/tile_art/ivory_body_v1.json",
 	"body": "res://assets/tiles/bodies/tile_body_ivory.png",
-	"symbol_padding": 0.1,
+	"symbol_padding": 0.06,
 	"source": "ZenMahjongJourney_PremiumCollections v1 (pictograms based on Noto Color Emoji; see assets/collections/LICENSES.md)",
 	"symbols": [
 		{

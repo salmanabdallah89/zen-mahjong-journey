@@ -75,8 +75,9 @@ func _test_full_playthrough(level_number: int) -> void:
 			_check(false, "level %d: clicking pair %s removed it" % [level_number, pair])
 			break
 	_check(model.is_cleared(), "level %d: board cleared by clicking" % level_number)
-	await _frames(3)
 	var dialog: ModalDialog = screen.get_node("%Dialog")
+	_check(not dialog.visible, "level %d: the last pair finishes before Level Complete" % level_number)
+	await _wait_dialog(screen)
 	_check(dialog.visible, "level %d: completion dialog shown" % level_number)
 	var title: Label = dialog.get_node("%Title")
 	var expected := "Level Complete!" if level_number < LevelCatalog.count() else "Journey Complete!"
@@ -727,7 +728,9 @@ func _test_tile_animations(level_number: int) -> void:
 		var p: Vector2i = solution[k]
 		await _click_tile(screen, p.x)
 		await _click_tile(screen, p.y)
-	await _frames(2)
+	# Combo text appears when the third pair touches (bells ring in order,
+	# spaced apart, so the third lands about 0.6 s after quick taps).
+	await get_tree().create_timer(0.8).timeout
 	var combo_shown := false
 	for child in screen.get_children():
 		if child is Label and (child as Label).text == "Combo ×3":
@@ -743,7 +746,7 @@ func _test_tile_animations(level_number: int) -> void:
 	for p: Vector2i in _expected_deal(1).solution:
 		screen.call("_on_tile_pressed", p.x)
 		screen.call("_on_tile_pressed", p.y)
-	await get_tree().create_timer(1.8).timeout
+	await get_tree().create_timer(2.8).timeout
 	var dialog: ModalDialog = screen.get_node("%Dialog")
 	_check(AudioManager.count_played("star", seq) == int(dialog.call("stars_shown")), "each earned star rings once")
 	_check(screen.get_node_or_null("Celebration") != null, "a petal shower celebrates the clear")
@@ -777,6 +780,16 @@ func _test_reduced_motion(level_number: int) -> void:
 	screen.queue_free()
 	await _frames(2)
 	Motion.set_reduced(false)
+
+
+## Waits for the Level Complete dialog: it opens once the last pair has met.
+func _wait_dialog(screen: Control) -> void:
+	var dialog: ModalDialog = screen.get_node("%Dialog")
+	for i in 120:
+		if dialog.visible:
+			break
+		await _frames(1)
+	await _frames(2)
 
 
 ## Waits until a running shuffle has settled (tiles ignore taps until then).
@@ -838,7 +851,7 @@ func _clear_level_by_clicking(level_number: int, mistakes: int) -> void:
 	for pair in _expected_deal(level_number).solution:
 		await _click_tile(screen, pair.x)
 		await _click_tile(screen, pair.y)
-	await _frames(3)
+	await _wait_dialog(screen)
 	var dialog: ModalDialog = screen.get_node("%Dialog")
 	var expected := LevelRating.stars(float(screen.get("_time_left")), LevelCatalog.get_level(level_number).time_limit, mistakes)
 	_check(dialog.call("stars_shown") == expected, "level %d complete dialog shows %d stars" % [level_number, expected])

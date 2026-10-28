@@ -17,15 +17,13 @@ const TILE_SCENE := preload("res://scenes/components/tile_view.tscn")
 const BURST_SCENE := preload("res://scenes/components/match_burst.tscn")
 ## Largest on-screen width of a tile's top face, in canvas pixels. Keeps small
 ## boards from filling the screen.
-const MAX_FACE_WIDTH := 148.0
+const MAX_FACE_WIDTH := 190.0
 ## Share of the available width / height the board may use.
-const FIT_WIDTH := 0.9
-const FIT_HEIGHT := 0.94
+const FIT_WIDTH := 0.95
+const FIT_HEIGHT := 0.96
 ## Glide time of a matched pair: short hops are quick, long ones a bit slower.
 const MATCH_TRAVEL_MIN := 0.16
 const MATCH_TRAVEL_MAX := 0.3
-## Swell before the glide (TileView.play_match).
-const MATCH_SWELL := 0.08
 ## Newly uncovered tiles pop once the matched pair has met.
 const REVEAL_DELAY := 0.24
 ## Shuffle: gather, swap faces, spread out again.
@@ -89,7 +87,7 @@ func show_board(model: BoardModel, skin: TileSkin) -> void:
 		var rect := Rect2(view.position + _art.body_rect.position, _art.body_rect.size)
 		_content = rect if _content.size == Vector2.ZERO else _content.merge(rect)
 
-	var pad := _content.size * 0.18
+	var pad := _content.size * 0.22
 	_backdrop.position = _content.position - pad
 	_backdrop.size = _content.size + pad * 2.0
 
@@ -166,18 +164,21 @@ func clear_highlights() -> void:
 
 ## A matched pair glides together, touches and blooms away; the burst grows
 ## with the combo (matches in a row). Tiles uncovered by it pop afterwards.
-func play_removal(a: int, b: int, combo := 1) -> void:
+## Returns the seconds until the pair touches, so sound and haptics can land
+## on that moment.
+func play_removal(a: int, b: int, combo := 1) -> float:
 	var meet := meeting_points(a, b)
 	var travel := _travel_time(a, b)
 	_tiles[a].play_match(meet[0], travel)
 	_tiles[b].play_match(meet[1], travel)
-	var contact := 0.0 if Motion.reduced else MATCH_SWELL + travel
+	var contact := 0.0 if Motion.reduced else TileView.MATCH_ANTICIPATION + travel
 	var burst: Node2D = BURST_SCENE.instantiate()
 	burst.set("strength", combo)
 	burst.set("delay", contact)
 	burst.position = (meet[0] + meet[1]) / 2.0 + _tiles[a].face_center()
 	_effects.add_child(burst)
 	refresh_free_states(contact)
+	return contact
 
 
 ## Undo of a match: the pair reappears where it met and glides back home.
@@ -288,8 +289,8 @@ func _draws_before(a: int, b: int) -> bool:
 static func _backdrop_texture() -> GradientTexture2D:
 	var gradient := Gradient.new()
 	gradient.offsets = PackedFloat32Array([0.0, 0.55, 1.0])
-	gradient.colors = PackedColorArray([Color(0.1, 0.14, 0.13, 0.42),
-		Color(0.1, 0.14, 0.13, 0.26), Color(0.1, 0.14, 0.13, 0.0)])
+	gradient.colors = PackedColorArray([Color(0.08, 0.11, 0.1, 0.56),
+		Color(0.08, 0.11, 0.1, 0.36), Color(0.08, 0.11, 0.1, 0.0)])
 	var texture := GradientTexture2D.new()
 	texture.gradient = gradient
 	texture.fill = GradientTexture2D.FILL_RADIAL

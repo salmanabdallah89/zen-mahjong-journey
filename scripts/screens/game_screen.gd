@@ -20,6 +20,11 @@ const COMBO_SHOWN_FROM := 3
 const COMBO_CHIMES: Array[int] = [3, 5, 8, 10]
 ## Level-complete stars ring a rising D major chord: D6, F#6, A6 (melody notes).
 const STAR_NOTES: Array[int] = [5, 7, 8]
+## Seconds between the last pair touching and the level-complete dialog.
+const LAST_PAIR_PAUSE := 0.3
+## Match bells ring in match order and at least this far apart, even when a
+## later pair (shorter glide) touches before an earlier one.
+const BELL_SPACING := 0.09
 const TIME_NORMAL := Color(0.20784314, 0.30980393, 0.26666668)
 const TIME_WARNING := Color(0.72, 0.22, 0.25)
 
@@ -49,6 +54,8 @@ var _free_hints := 0
 var _second_chances := 0
 var _last_loss := LossReason.TIME
 var _pause_open := false
+## When the latest scheduled match bell rings (Time.get_ticks_msec seconds).
+var _last_bell_at := -1.0
 
 @onready var _background: TextureRect = %Background
 @onready var _board: BoardView = %Board
@@ -217,26 +224,50 @@ func _covered_now(index: int) -> bool:
 	return false
 
 
+## The model changes at once; the bell, the haptic and any combo text land
+## when the gliding pair actually touches (BoardView.play_removal's contact).
 func _remove_pair(a: int, b: int) -> void:
 	_set_selected(-1)
 	_clear_hint()
 	_model.remove_pair(a, b)
 	_undo_stack.append({"kind": UndoKind.MATCH, "pair": Vector2i(a, b)})
 	_matches += 1
+	var cleared := _model.is_cleared()
 	# The last pair is celebrated by the level-complete sound instead.
-	if not _model.is_cleared():
-		AudioManager.play_match_note()
-	var combo := combo_count()
-	_board.play_removal(a, b, combo)
+	var step := AudioManager.melody_step() if cleared else AudioManager.next_match_step()
+	var combo := step + 1
+	var meet_at := _board.meeting_point_global(a, b)
+	var contact := _board.play_removal(a, b, combo)
 	_update_hud()
-	if combo >= COMBO_SHOWN_FROM and not _model.is_cleared():
-		_show_combo(combo, _board.meeting_point_global(a, b))
-	else:
-		AudioManager.vibrate()
-	if _model.is_cleared():
-		_show_level_complete.call_deferred()
+	var now := Time.get_ticks_msec() / 1000.0
+	var ring_in := maxf(contact, _last_bell_at + BELL_SPACING - now)
+	_last_bell_at = now + ring_in
+	_after(ring_in, _on_pair_met.bind(step, combo, meet_at, cleared))
+	if cleared:
+		# Let the last pair meet and bloom before the celebration.
+		_after(contact + (0.0 if Motion.reduced else LAST_PAIR_PAUSE), _show_level_complete)
 	elif not _model.has_moves():
 		_show_no_moves()
+
+
+func _on_pair_met(step: int, combo: int, at: Vector2, cleared: bool) -> void:
+	if cleared:
+		return
+	AudioManager.play_match_step(step)
+	if combo >= COMBO_SHOWN_FROM:
+		_show_combo(combo, at)
+	else:
+		AudioManager.vibrate()
+
+
+## Runs `action` after `seconds` (next frame for 0), unless this screen is gone.
+func _after(seconds: float, action: Callable) -> void:
+	if seconds <= 0.0:
+		action.call_deferred()
+		return
+	var tween := create_tween()
+	tween.tween_interval(seconds)
+	tween.tween_callback(action)
 
 
 ## Matches in a row, counting the last one: the match melody's step, which
@@ -392,6 +423,9 @@ func _update_hud() -> void:
 
 
 func _open_pause_menu() -> void:
+	# A cleared board is about to show Level Complete.
+	if _model and _model.is_cleared():
+		return
 	_pause_open = true
 	_dialog.open("Paused", "Level %d · %s" % [_level.number, _level.title])
 	_dialog.add_action("Resume", _resume, true)

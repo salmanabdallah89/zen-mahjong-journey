@@ -148,7 +148,8 @@ func _test_interstitial_cadence() -> void:
 	for pair in BoardGenerator.generate(level.load_layout().build_geometry(), level.face_pool(), level.deal_seed).solution:
 		screen.call("_on_tile_pressed", pair.x)
 		screen.call("_on_tile_pressed", pair.y)
-	await _frames(3)
+	# Level Complete opens once the last pair has met.
+	await _wait(1.0)
 	var dialog: ModalDialog = screen.get_node("%Dialog")
 	GameSession.scene_changes_enabled = false
 	GameSession.last_requested_scene = ""

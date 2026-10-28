@@ -22,16 +22,25 @@ const SAKURA := Color(0.92, 0.42, 0.56)
 const ROSE := Color(0.86, 0.45, 0.45)
 ## Outline for tiles that block the one the player just tapped.
 const BLOCKER := Color(0.2, 0.36, 0.3)
-## Strength of the ivory wash over blocked tiles' faces.
-const BLOCKED_VEIL_ALPHA := 0.5
+## Blocked tiles are dimmed and slightly cooled, not washed out, so their
+## symbols stay readable for planning ahead while free tiles clearly stand out.
+## Strength of the soft ivory film over blocked faces (takes the edge off saturation).
+const BLOCKED_VEIL_ALPHA := 0.14
 ## Brightness of a blocked tile's whole body, edge included.
-const BLOCKED_BODY := Color(0.9, 0.88, 0.85)
+const BLOCKED_BODY := Color(0.85, 0.845, 0.84)
+## Darkening per layer below the top one, so stacks read as raised.
+const LAYER_DARKEN := 0.05
 const SELECTED_LIFT := 12.0
 const SELECTED_SCALE := 1.05
 const HINT_SCALE := 1.035
 const STATE_FADE := 0.22
 ## Draw order while a matched tile travels, above resting tiles and glows.
 const FLIGHT_Z := 10
+## Match: a quick dip-and-swell before the glide (seconds), the extra height
+## of the glide's arc, and the soft squash when the pair touches.
+const MATCH_ANTICIPATION := 0.09
+const MATCH_ARC := 18.0
+const CONTACT_SQUASH := Vector2(1.12, 0.92)
 
 var index: int = -1
 ## Tile geometry to build from; set before the tile enters the tree.
@@ -85,8 +94,8 @@ func place_at(point: Vector2) -> void:
 ## read as physically raised.
 func set_layer(z: int, top_layer: int) -> void:
 	var depth := top_layer - z
-	_layer_tint = Color.WHITE.darkened(0.035 * depth)
-	_base_shadow_offset = Vector2(5, 8) + Vector2(2, 3) * z
+	_layer_tint = Color.WHITE.darkened(LAYER_DARKEN * depth)
+	_base_shadow_offset = Vector2(6, 10) + Vector2(3, 4) * z
 	_shadow.add_theme_stylebox_override("panel", _shadow_style(z))
 	_shadow.position = _art.body_rect.position + _base_shadow_offset
 	_apply_look(false)
@@ -155,8 +164,10 @@ func is_moving() -> bool:
 	return _motion_tween != null and _motion_tween.is_running()
 
 
-## Match: the tile swells, glides to `meet` (where it touches its partner),
-## then both bloom and fade together. `travel` is the glide time.
+## Match: a quick dip-and-swell, a short glide along a gentle arc to `meet`
+## (where it touches its partner), a soft squash on contact with a bright
+## flash, then both bloom and fade together. `travel` is the glide time; the
+## pair touches MATCH_ANTICIPATION + travel seconds after this call.
 func play_match(meet: Vector2, travel: float) -> void:
 	_stop_motion()
 	# Stop taking taps at once so the leaving tile never hides the one beneath.
@@ -168,10 +179,22 @@ func play_match(meet: Vector2, travel: float) -> void:
 	if Motion.reduced:
 		_motion_tween.tween_property(self, "modulate:a", 0.0, 0.16).set_trans(Tween.TRANS_SINE)
 	else:
-		_motion_tween.tween_property(self, "scale", Vector2(1.07, 1.07), 0.08).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-		_motion_tween.tween_property(self, "position", meet, travel).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-		_motion_tween.tween_property(self, "scale", Vector2(1.14, 1.14), 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-		_motion_tween.parallel().tween_property(self, "modulate", Color(1.2, 1.12, 1.0, 0.0), 0.16).set_trans(Tween.TRANS_SINE)
+		var half := MATCH_ANTICIPATION / 2.0
+		_motion_tween.tween_property(self, "scale", Vector2(0.95, 0.95), half).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		_motion_tween.tween_property(self, "scale", Vector2(1.07, 1.07), half).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		if travel > 0.0:
+			_motion_tween.tween_property(self, "position", meet, travel).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+			# The art rises and settles during the glide: a gentle arc.
+			var rest_y := _lift.position.y
+			_accent_tween = create_tween()
+			_accent_tween.tween_interval(MATCH_ANTICIPATION)
+			_accent_tween.tween_property(_lift, "position:y", rest_y - MATCH_ARC, travel / 2.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+			_accent_tween.tween_property(_lift, "position:y", rest_y, travel / 2.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+		# Contact: a soft squash and a warm flash, then bloom away.
+		_motion_tween.tween_property(self, "scale", CONTACT_SQUASH, 0.05).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		_motion_tween.parallel().tween_property(self, "modulate", Color(1.35, 1.28, 1.12), 0.05)
+		_motion_tween.tween_property(self, "scale", Vector2(1.2, 1.2), 0.17).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		_motion_tween.parallel().tween_property(self, "modulate", Color(1.35, 1.28, 1.12, 0.0), 0.17).set_trans(Tween.TRANS_SINE)
 	_motion_tween.tween_callback(_finish_removal)
 
 
@@ -425,10 +448,10 @@ static func _shadow_style(z: int) -> StyleBoxFlat:
 	var key := "shadow_%d" % z
 	if not _styles.has(key):
 		var style := StyleBoxFlat.new()
-		style.bg_color = Color(0.08, 0.1, 0.09, 0.4)
+		style.bg_color = Color(0.06, 0.08, 0.07, 0.45)
 		style.set_corner_radius_all(18)
-		style.shadow_color = Color(0.05, 0.07, 0.06, 0.42)
-		style.shadow_size = 10 + z * 3
+		style.shadow_color = Color(0.04, 0.06, 0.05, 0.5)
+		style.shadow_size = 12 + z * 4
 		style.anti_aliasing = true
 		_styles[key] = style
 	return _styles[key]

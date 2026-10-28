@@ -9,7 +9,7 @@
 	"thumbnail": "res://assets/collections/mixed/thumbnail.png",
 	"tile_style": "res://data/tile_art/ivory_body_v1.json",
 	"body": "res://assets/tiles/bodies/tile_body_ivory.png",
-	"symbol_padding": 0.1,
+	"symbol_padding": 0.06,
 	"_symbol_region": "Frames the drawing (measured union of all symbols in this collection, plus a margin) and leaves out the English caption each PNG has baked in below y=200, which is unreadable at tile size and not translatable.",
 	"symbol_region": [
 		50,
