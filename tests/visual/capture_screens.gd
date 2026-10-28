@@ -319,7 +319,10 @@ func _capture_level(shape: String, number: int, with_states: bool) -> void:
 
 ## First-play tutorial: step 1 (glowing pair) and step 2, as a new player.
 func _capture_tutorial(shape: String) -> void:
+	# A brand-new player: no tutorial state and no progress (a cleared
+	# level 1 counts as a returning player).
 	SafeConfig.remove_all(GameSession.tutorial_settings_path)
+	GameSession.progress.reset()
 	GameSession.current_level = 1
 	var screen: Control = GAME_SCENE.instantiate()
 	add_child(screen)
