@@ -1,251 +1,322 @@
 class_name JourneyWorld
 extends Control
-## The journey drawn in perspective: a stepping-stone path running away from
-## the viewer toward the horizon, with level markers standing on it. Near
-## levels are large at the bottom of the screen, farther ones shrink and fade
-## into the mist. Swiping moves the camera along the path (with momentum);
+## The journey map seen from above: one long garden that scrolls vertically,
+## with a winding stepping-stone path climbing from level 1 at the bottom to
+## the last level at the top. Each run of levels that share a background is a
+## chapter of that garden (the same painting the levels are played on); a band
+## of mist hides each seam and carries the chapter banner. The path behind the
+## player is lit with lanterns' warm gold, the path ahead stays plain stone.
+## A lotus badge marks the current level.
+##
+## The whole map is built once on `_map`; scrolling only moves `_map`, so it
+## costs almost nothing per frame. Swiping (with momentum) moves the camera;
 ## markers are ordinary LevelNode controls, so taps work as before.
 ##
 ## Positions along the path are in "level units": level N sits at N - 1.
+## `camera` is the level unit shown at FOCUS_Y of the screen.
 
 signal camera_moved(camera: float)
 
-## Distance (in level units) at which a marker is drawn at full size.
-const FOCAL := 2.6
-## Where the ground meets the sky, and the nearest ground line, as shares of height.
-const HORIZON := 0.1
-## Ground line for a level at the camera; its labels hang below this.
-const GROUND := 0.8
-## Sideways swing of the path at full size (canvas px).
-const SWING := 250.0
-const PATH_WIDTH := 240.0
-## How far ahead and behind the camera markers are drawn.
-const VISIBLE_AHEAD := 5.5
-const VISIBLE_BEHIND := 0.25
-## The current level sits this far ahead of the camera.
-const FOCUS_AHEAD := 0.35
-## Markers float this high above their shadow at full size.
-const LIFT := 26.0
-const NODE_SCALE := 1.55
-## Swipe: level units travelled per pixel dragged, and momentum decay per second.
-const DRAG_SPEED := 0.0034
+## Vertical distance between two levels on the map (canvas px).
+const SPACING := 330.0
+## Sideways swing of the path, as a share of the map width.
+const SWING := 0.25
+## Room below level 1 (first chapter banner) and above the last level.
+const BOTTOM_PAD := 430.0
+const TOP_PAD := 560.0
+## The camera's level sits this far down the screen (share of height).
+const FOCUS_Y := 0.62
+## Markers count as on screen within this margin (canvas px).
+const VISIBLE_MARGIN := 160.0
+## Swipe: momentum decay per second; a press that moves less stays a tap.
 const FRICTION := 4.0
 const TAP_SLOP := 18.0
 
-## Stepping stones: dark underside (thickness), weathered top, soft highlight.
-const STONE_SIDE := Color(0.16, 0.17, 0.14, 0.95)
-const STONE_TOP := Color(0.55, 0.55, 0.5)
-const STONE_LIGHT := Color(0.82, 0.81, 0.76, 0.6)
-## Markers smaller than this hide their title and difficulty (too small to read).
-const LABEL_MIN_SCALE := 0.85
-const STONE_MOSS := Color(0.45, 0.56, 0.36, 0.45)
-const STONES_PER_LEVEL := 3
-const HAZE := Color(0.86, 0.88, 0.92)
-const ARROW := Color(0.96, 0.8, 0.42)
-const ARROW_EDGE := Color(0.38, 0.27, 0.12)
+## Stepping stones (seen from above): rim, weathered top, highlight, moss.
+const STONE_RIM := Color(0.2, 0.21, 0.18, 0.85)
+const STONE_TOP := Color(0.62, 0.61, 0.56)
+const STONE_LIGHT := Color(0.86, 0.85, 0.8, 0.55)
+const STONE_MOSS := Color(0.45, 0.56, 0.36, 0.4)
+## Stones on the path already walked get a warm lantern glow.
+const STONE_LIT := Color(0.98, 0.84, 0.52)
+const STONES_PER_LEVEL := 4
+const PATH_GROUND := Color(0.93, 0.86, 0.7, 0.28)
+const MIST := Color(0.95, 0.94, 0.92)
+const MIST_HEIGHT := 240.0
+const MIST_PEAK := 0.6
+const PETAL := preload("res://assets/effects/petal_02.png")
 
 var camera := 0.0
 var current_index := 0
+## Returns true while something covers the map (a dialog); swipes are ignored then.
+var input_blocker := Callable()
 
 var _nodes: Array[LevelNode] = []
+var _map: Control
+var _ground: Control
+var _path: _PathLayer
+var _badge: _LotusBadge
 var _velocity := 0.0
 var _press_pos := Vector2.ZERO
 var _pressing := false
 var _dragging := false
-## Returns true while something covers the map (a dialog); swipes are ignored then.
-var input_blocker := Callable()
 var _focus_tween: Tween
-var _time := 0.0
+var _badge_tween: Tween
+var _built_width := -1.0
 
 
 func _ready() -> void:
 	clip_contents = true
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	_map = Control.new()
+	_map.name = "Map"
+	_map.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_map)
+	_ground = Control.new()
+	_ground.name = "Ground"
+	_ground.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_map.add_child(_ground)
+	_path = _PathLayer.new()
+	_path.world = self
+	_path.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_map.add_child(_path)
+	_badge = _LotusBadge.new()
+	_badge.name = "LotusBadge"
+	_map.add_child(_badge)
 	resized.connect(_layout)
 
 
 func set_nodes(nodes: Array[LevelNode]) -> void:
 	_nodes = nodes
 	for node in _nodes:
-		if node.get_parent() != self:
-			add_child(node)
+		if node.get_parent() != _map:
+			_map.add_child(node)
+	_built_width = -1.0
 	_layout()
 
 
+## Total height of the map (canvas px).
+func map_height() -> float:
+	return BOTTOM_PAD + maxf(_nodes.size() - 1, 0) * SPACING + TOP_PAD
+
+
+## Map point of path position `t` (level units), in map coordinates.
+func map_point(t: float) -> Vector2:
+	var x := size.x / 2.0 + SWING * size.x * sin(t * 1.05 + 0.4)
+	return Vector2(x, map_height() - BOTTOM_PAD - t * SPACING)
+
+
+## Where `_map` sits for a given camera: the camera's level at FOCUS_Y.
+func _offset_for(value: float) -> float:
+	return size.y * FOCUS_Y - (map_height() - BOTTOM_PAD - value * SPACING)
+
+
 func max_camera() -> float:
-	return maxf(0.0, _nodes.size() - 1.0) - FOCUS_AHEAD
+	# The map's top edge may not come below the screen's top.
+	var limit := (map_height() - BOTTOM_PAD - size.y * FOCUS_Y) / SPACING
+	return maxf(limit, min_camera())
 
 
 func min_camera() -> float:
-	return -FOCUS_AHEAD
+	# The map's bottom edge may not come above the screen's bottom.
+	return (size.y * (1.0 - FOCUS_Y) - BOTTOM_PAD) / SPACING
 
 
-## Moves the camera so `level_number` is in view, near the bottom.
+## Moves the camera so `level_number` is in view.
 func focus_level(level_number: int, animate := true) -> void:
-	var target := clampf(level_number - 1 - FOCUS_AHEAD, min_camera(), max_camera())
+	var target := clampf(level_number - 1, min_camera(), max_camera())
 	_velocity = 0.0
 	if _focus_tween:
 		_focus_tween.kill()
-	if not animate:
+	if not animate or Motion.reduced:
 		_set_camera(target)
 		return
 	_focus_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	_focus_tween.tween_method(_set_camera, camera, target, 0.9)
 
 
-## Screen position on the ground for path position `t`, and its scale.
+## Screen position of path position `t` (for effects and tests).
 func project(t: float) -> Dictionary:
-	var rel := t - camera
-	var s := FOCAL / maxf(rel + FOCAL, 0.05)
-	var horizon := size.y * HORIZON
-	var y := horizon + (size.y * GROUND - horizon) * s
-	var x := size.x / 2.0 + _lateral(t) * s
-	return {"pos": Vector2(x, y), "scale": s, "rel": rel}
+	var point := map_point(t) + Vector2(0, _offset_for(camera))
+	return {"pos": point, "scale": 1.0, "rel": t - camera}
 
 
 func is_level_visible(index: int) -> bool:
-	var rel := index - camera
-	return rel >= -VISIBLE_BEHIND and rel <= VISIBLE_AHEAD
+	var y := map_point(index).y + _offset_for(camera)
+	return y > -VISIBLE_MARGIN and y < size.y + VISIBLE_MARGIN
 
 
-func _lateral(t: float) -> float:
-	return SWING * sin(t * 0.95 + 0.35)
+## Puts the lotus badge on `index`; with `from_index` it glides there.
+func set_current(index: int, from_index := -1) -> void:
+	current_index = index
+	_path.queue_redraw()
+	if _badge_tween:
+		_badge_tween.kill()
+	var target := _badge_spot(index)
+	if from_index < 0 or from_index == index or Motion.reduced:
+		_badge.position = target
+		return
+	_badge.position = _badge_spot(from_index)
+	_badge_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_badge_tween.tween_property(_badge, "position", target, 1.1)
+
+
+func badge_position() -> Vector2:
+	return _badge.position
+
+
+## Chapters: runs of consecutive levels with the same background, bottom up.
+## Each entry: {"background", "first" (index), "last" (index)}.
+func chapters() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for i in _nodes.size():
+		var level := LevelCatalog.get_level(_nodes[i].level_number)
+		var background := level.background if level else ""
+		if result.is_empty() or result[-1]["background"] != background:
+			result.append({"background": background, "first": i, "last": i})
+		else:
+			result[-1]["last"] = i
+	return result
 
 
 func _process(delta: float) -> void:
-	_time += delta
 	if absf(_velocity) > 0.001 and not _pressing:
 		_set_camera(camera + _velocity * delta)
 		_velocity = move_toward(_velocity, 0.0, absf(_velocity) * FRICTION * delta + 0.002)
-	# The "you are here" arrow bobs, so keep drawing while it is on screen.
-	if is_level_visible(current_index):
-		queue_redraw()
 
 
 func _set_camera(value: float) -> void:
 	var clamped := clampf(value, min_camera(), max_camera())
 	if clamped != value:
 		_velocity = 0.0
-	if is_equal_approx(clamped, camera):
+	if is_equal_approx(clamped, camera) and _map.position.y == _offset_for(clamped):
 		return
 	camera = clamped
-	_layout()
+	_map.position.y = _offset_for(camera)
+	_update_visibility()
 	camera_moved.emit(camera)
 
 
 func _layout() -> void:
-	_place_nodes()
-	queue_redraw()
-
-
-## Stands each marker on the path at its projected size, far ones behind.
-func _place_nodes() -> void:
-	if size.y <= 0.0:
+	if size.x <= 0.0 or size.y <= 0.0 or _map == null:
 		return
-	var order: Array = []
+	if not is_equal_approx(_built_width, size.x):
+		_build()
+	_set_camera(camera)
+	_map.position.y = _offset_for(camera)
+	_update_visibility()
+
+
+## Builds the static map: garden chapters, mist seams with banners, the path,
+## the level markers and the badge.
+func _build() -> void:
+	_built_width = size.x
+	_map.size = Vector2(size.x, map_height())
+	for child in _ground.get_children():
+		child.queue_free()
+	var parts := chapters()
+	for k in parts.size():
+		var part: Dictionary = parts[k]
+		# A chapter reaches halfway to the neighbouring levels (or the map edge).
+		var bottom := map_height() if k == 0 else map_point(part["first"] - 0.5).y
+		var top := 0.0 if k == parts.size() - 1 else map_point(part["last"] + 0.5).y
+		var garden := TextureRect.new()
+		var level := LevelCatalog.get_level(_nodes[part["first"]].level_number)
+		garden.texture = load(level.background_path()) if level else null
+		garden.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		garden.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		garden.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		garden.position = Vector2(0, top)
+		garden.size = Vector2(size.x, bottom - top)
+		_ground.add_child(garden)
+	# Mist over each seam, and a small sign naming the garden ahead, on the
+	# side of the map away from the path.
+	for k in parts.size():
+		var part: Dictionary = parts[k]
+		var at: float = -0.75 if k == 0 else part["first"] - 0.5
+		var seam := map_point(at).y
+		if k > 0:
+			_ground.add_child(_mist_band(seam))
+		var away := -1 if map_point(at).x > size.x / 2.0 else 1
+		_ground.add_child(_garden_sign(k + 1, BackgroundStyle.garden_name(part["background"]), seam, away))
+	_path.position = Vector2.ZERO
+	_path.size = _map.size
+	_path.queue_redraw()
 	for i in _nodes.size():
 		var node := _nodes[i]
-		node.visible = is_level_visible(i)
-		if not node.visible:
-			continue
-		var p := project(i)
-		var s: float = p["scale"] * NODE_SCALE
-		node.scale = Vector2(s, s)
-		var foot := Vector2(node.marker_center().x, node.marker_center().y * 2.0)
-		node.position = (p["pos"] as Vector2) - Vector2(0, LIFT * s) - foot * s
-		# Distant markers fade into the haze.
-		var fade := clampf((p["rel"] - 2.5) / (VISIBLE_AHEAD - 2.5), 0.0, 1.0)
-		node.modulate = Color.WHITE.lerp(HAZE, fade * 0.55)
-		node.modulate.a = 1.0 - fade * 0.65
-		node.set_labels_visible(s >= LABEL_MIN_SCALE or i == current_index)
-		order.append([p["rel"], node])
-	order.sort_custom(func(a: Array, b: Array) -> bool: return a[0] > b[0])
-	for k in order.size():
-		move_child(order[k][1], k)
-	# A name plate never draws over a nearer level: hide the farther one's
-	# plate when it would touch a nearer marker or plate (the current level's
-	# plate always stays).
-	for k in order.size():
-		var far: LevelNode = order[k][1]
-		if not far.labels_shown() or _nodes.find(far) == current_index:
-			continue
-		var plate := far.label_rect()
-		for j in range(k + 1, order.size()):
-			var near: LevelNode = order[j][1]
-			if near.marker_rect().intersects(plate) or (near.labels_shown() and near.label_rect().intersects(plate)):
-				far.set_labels_visible(false)
-				break
+		node.scale = Vector2.ONE
+		node.position = map_point(i) - node.marker_center()
+		node.set_labels_visible(true)
+		# Name plates sit beside the marker, toward the middle of the map.
+		node.place_plate(-1 if map_point(i).x > size.x / 2.0 else 1)
+	# The badge draws above the markers.
+	_map.move_child(_badge, _map.get_child_count() - 1)
+	_badge.position = _badge_spot(current_index)
 
 
-func _draw() -> void:
-	if size.y <= 0.0:
-		return
-	var start := maxf(camera - VISIBLE_BEHIND - 0.3, -0.6)
-	var finish := minf(camera + VISIBLE_AHEAD + 1.0, _nodes.size() + 0.4)
-	# Stepping stones, far to near so nearer stones overlap farther ones.
-	var step := 1.0 / STONES_PER_LEVEL
-	var t := ceilf(finish / step) * step
-	while t >= start:
-		var p := project(t)
-		if p["rel"] > -VISIBLE_BEHIND - 0.3:
-			_draw_stone(p, t)
-		t -= step
-	# Ground shadows under the markers.
+## Lotus badge spot: hovering just above the level's marker.
+func _badge_spot(index: int) -> Vector2:
+	return map_point(index) + Vector2(0, -132)
+
+
+func _update_visibility() -> void:
 	for i in _nodes.size():
-		if not is_level_visible(i):
-			continue
-		var p := project(i)
-		var s: float = p["scale"]
-		_draw_ellipse(p["pos"], Vector2(78, 22) * s, Color(0, 0, 0, 0.32 * clampf(1.4 - p["rel"] * 0.15, 0.3, 1.0)))
-	# "You are here" arrow above the current level.
-	if is_level_visible(current_index):
-		var p := project(current_index)
-		var s: float = p["scale"]
-		var lift := (LIFT + 150.0 * NODE_SCALE + 14.0 * sin(_time * 3.0)) * s
-		var tip := (p["pos"] as Vector2) - Vector2(0, lift)
-		var w := 46.0 * s
-		var arrow := PackedVector2Array([tip, tip + Vector2(-w, -w * 1.1), tip + Vector2(-w * 0.4, -w * 1.1),
-			tip + Vector2(-w * 0.4, -w * 2.1), tip + Vector2(w * 0.4, -w * 2.1), tip + Vector2(w * 0.4, -w * 1.1),
-			tip + Vector2(w, -w * 1.1)])
-		var outline := arrow.duplicate()
-		outline.append(arrow[0])
-		draw_colored_polygon(arrow, ARROW)
-		draw_polyline(outline, ARROW_EDGE, maxf(3.0 * s, 1.5), true)
+		_nodes[i].visible = is_level_visible(i)
 
 
-## One oval stepping stone lying on the ground: flattened by perspective,
-## with a dark rim for thickness, a weathered top and a little moss.
-func _draw_stone(p: Dictionary, t: float) -> void:
-	var s: float = p["scale"]
-	var center: Vector2 = p["pos"]
-	var wobble := sin(t * 12.9) * 0.12
-	var radius := Vector2(PATH_WIDTH * 0.42 * (1.0 + wobble), PATH_WIDTH * 0.17 * (1.0 - wobble)) * s * Vector2(1.0, clampf(s, 0.45, 1.2))
-	var fade := clampf(((p["rel"] as float) - 2.5) / (VISIBLE_AHEAD - 2.0), 0.0, 1.0)
-	var keep := 1.0 - fade * 0.55
-	_draw_ellipse(center + Vector2(0, radius.y * 0.45), radius * 1.02, _fade(STONE_SIDE, fade, keep))
-	_draw_ellipse(center, radius, _fade(STONE_TOP, fade, keep))
-	_draw_ellipse(center + Vector2(radius.x * 0.28, radius.y * 0.15), radius * Vector2(0.4, 0.45), _fade(STONE_MOSS, fade, keep))
-	_draw_ellipse(center - radius * Vector2(0.25, 0.3), radius * Vector2(0.5, 0.42), _fade(STONE_LIGHT, fade, keep))
+func _mist_band(center_y: float) -> TextureRect:
+	var band := TextureRect.new()
+	band.texture = _mist_texture()
+	band.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	band.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	band.position = Vector2(0, center_y - MIST_HEIGHT / 2.0)
+	band.size = Vector2(size.x, MIST_HEIGHT)
+	return band
 
 
-func _fade(color: Color, fade: float, keep: float) -> Color:
-	var faded := color.lerp(HAZE, fade * 0.6)
-	faded.a = color.a * keep
-	return faded
+## A small sign at a seam naming the garden that starts there, placed on
+## `side` (-1 left, 1 right) of the map.
+func _garden_sign(number: int, garden: String, center_y: float, side: int) -> Control:
+	var plate := PanelContainer.new()
+	plate.theme_type_variation = &"MapLabelPlate"
+	plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var title := Label.new()
+	title.text = garden
+	title.theme_type_variation = &"ToolLabel"
+	title.add_theme_font_size_override("font_size", 36)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	plate.add_child(title)
+	plate.reset_size()
+	var margin := 28.0
+	var x := margin if side < 0 else size.x - margin - plate.size.x
+	plate.position = Vector2(x, center_y - plate.size.y / 2.0)
+	plate.name = "Garden%d" % number
+	return plate
 
 
-func _draw_ellipse(center: Vector2, radius: Vector2, color: Color) -> void:
-	var points := PackedVector2Array()
-	for k in 24:
-		var angle := TAU * k / 24.0
-		points.append(center + Vector2(cos(angle) * radius.x, sin(angle) * radius.y))
-	draw_colored_polygon(points, color)
+static var _mist: GradientTexture2D
+
+
+static func _mist_texture() -> GradientTexture2D:
+	if _mist == null:
+		var gradient := Gradient.new()
+		gradient.offsets = PackedFloat32Array([0.0, 0.35, 0.5, 0.65, 1.0])
+		gradient.colors = PackedColorArray([Color(MIST, 0.0), Color(MIST, MIST_PEAK * 0.75), Color(MIST, MIST_PEAK),
+			Color(MIST, MIST_PEAK * 0.75), Color(MIST, 0.0)])
+		_mist = GradientTexture2D.new()
+		_mist.gradient = gradient
+		_mist.fill_from = Vector2(0.5, 0.0)
+		_mist.fill_to = Vector2(0.5, 1.0)
+		_mist.width = 8
+		_mist.height = 128
+	return _mist
 
 
 # --- Swipe to travel -------------------------------------------------------
 
 ## Drags anywhere (including on markers) move the camera; a press that barely
-## moves stays a tap for the marker under it.
+## moves stays a tap for the marker under it. Dragging down travels forward
+## (up the map), as the map follows the finger.
 func _input(event: InputEvent) -> void:
 	if not is_visible_in_tree():
 		return
@@ -279,10 +350,10 @@ func _input(event: InputEvent) -> void:
 		if not _dragging and motion.position.distance_to(_press_pos) > TAP_SLOP:
 			_dragging = true
 		if _dragging:
-			var step := motion.relative.y * DRAG_SPEED
+			var step := motion.relative.y / SPACING
 			_set_camera(camera + step)
 			_velocity = step / maxf(get_process_delta_time(), 0.001)
-			_velocity = clampf(_velocity, -6.0, 6.0)
+			_velocity = clampf(_velocity, -8.0, 8.0)
 
 
 func _nudge(amount: float) -> void:
@@ -294,3 +365,77 @@ func _nudge(amount: float) -> void:
 
 func _hit(point: Vector2) -> bool:
 	return get_global_rect().has_point(point)
+
+
+## The winding path, drawn once on the map: a soft sandy trail with stepping
+## stones; stones up to the current level glow warm gold.
+class _PathLayer extends Control:
+	var world: JourneyWorld
+
+	func _draw() -> void:
+		if world == null or world._nodes.is_empty():
+			return
+		var last := world._nodes.size() - 1
+		var trail := PackedVector2Array()
+		var t := -0.8
+		while t <= last + 0.8:
+			trail.append(world.map_point(t))
+			t += 0.04
+		draw_polyline(trail, JourneyWorld.PATH_GROUND, 150.0, true)
+		var step := 1.0 / JourneyWorld.STONES_PER_LEVEL
+		var s := -0.75
+		while s <= last + 0.75:
+			# Stones sit between the markers, not under them.
+			if absf(s - roundf(s)) > 0.2:
+				_stone(world.map_point(s), s, s <= world.current_index)
+			s += step
+
+	func _stone(center: Vector2, t: float, lit: bool) -> void:
+		var wobble := sin(t * 12.9) * 0.15
+		var radius := Vector2(46.0 * (1.0 + wobble), 34.0 * (1.0 - wobble))
+		_ellipse(center + Vector2(0, 5), radius * 1.06, JourneyWorld.STONE_RIM)
+		var top := JourneyWorld.STONE_TOP.lerp(JourneyWorld.STONE_LIT, 0.55) if lit else JourneyWorld.STONE_TOP
+		_ellipse(center, radius, top)
+		_ellipse(center + Vector2(radius.x * 0.3, radius.y * 0.2), radius * Vector2(0.4, 0.45), JourneyWorld.STONE_MOSS)
+		_ellipse(center - radius * Vector2(0.25, 0.3), radius * Vector2(0.5, 0.42), JourneyWorld.STONE_LIGHT)
+		if lit:
+			_ellipse(center, radius * 1.5, Color(JourneyWorld.STONE_LIT, 0.16))
+
+	func _ellipse(center: Vector2, radius: Vector2, color: Color) -> void:
+		var points := PackedVector2Array()
+		for k in 20:
+			var angle := TAU * k / 20.0
+			points.append(center + Vector2(cos(angle) * radius.x, sin(angle) * radius.y))
+		draw_colored_polygon(points, color)
+
+
+## "You are here": a lotus of five sakura petals on an ivory disc with a gold
+## ring, gently bobbing (still with reduced animations).
+class _LotusBadge extends Control:
+	const RADIUS := 52.0
+	var _time := 0.0
+
+	func _ready() -> void:
+		# Drawn above the markers by child order (not z_index), so dialogs
+		# on the screen still cover it.
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _process(delta: float) -> void:
+		if Motion.reduced:
+			return
+		_time += delta
+		queue_redraw()
+
+	func _draw() -> void:
+		var bob := Vector2(0, -8.0 * sin(_time * 2.4))
+		draw_circle(bob + Vector2(0, 8), RADIUS + 6, Color(0, 0, 0, 0.25))
+		draw_circle(bob, RADIUS + 6, Color(0.78, 0.65, 0.42))
+		draw_circle(bob, RADIUS, Color(0.96, 0.93, 0.87))
+		var petal := JourneyWorld.PETAL
+		var petal_size := Vector2(54, 54)
+		for k in 5:
+			var angle := TAU * k / 5.0 - PI / 2.0
+			draw_set_transform(bob + Vector2(cos(angle), sin(angle)) * 18.0, angle + PI / 2.0, Vector2.ONE)
+			draw_texture_rect(petal, Rect2(-petal_size / 2.0, petal_size), false, Color(1, 0.86, 0.9))
+		draw_set_transform(Vector2.ZERO)
+		draw_circle(bob, 9.0, Color(0.93, 0.76, 0.42))

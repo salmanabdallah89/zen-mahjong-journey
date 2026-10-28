@@ -1,7 +1,7 @@
 extends Control
-## The journey map: every level as a stop on a stepping-stone path that
-## runs away into the garden in perspective (JourneyWorld). Swipe to travel
-## along it. Shows stars, difficulty and what is locked; tapping an open level
+## The journey map: every level as a stop on a winding stepping-stone path
+## through the gardens, seen from above (JourneyWorld). Swipe to travel along
+## it; a lotus badge marks where the player is. Shows stars, difficulty and what is locked; tapping an open level
 ## shows its card with a Play button.
 
 const NODE_SCENE := preload("res://scenes/components/level_node.tscn")
@@ -67,7 +67,7 @@ func refresh() -> void:
 	for i in _nodes.size():
 		var level := LevelCatalog.get_level(i + 1)
 		_nodes[i].setup(level, progress.stars(level.number), progress.is_unlocked(level.number), level.number == current)
-	_world.current_index = current - 1
+	_world.set_current(current - 1)
 	_stars_value.text = "%d / %d" % [progress.total_stars(count), count * LevelRating.MAX_STARS]
 
 
@@ -92,6 +92,8 @@ func _celebrate_unlock() -> void:
 	if level <= 0 or level > _nodes.size():
 		return
 	AudioManager.play_sfx("unlock")
+	# The lotus badge walks from the level just cleared to the new one.
+	_world.set_current(level - 1, level - 2)
 	_world.focus_level(level)
 	_nodes[level - 1].play_unlock()
 	_show_toast("Level %d unlocked: %s" % [level, LevelCatalog.get_level(level).title])

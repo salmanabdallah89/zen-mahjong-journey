@@ -209,8 +209,11 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
    generated music loops, Reduced Animations setting.
 2j. ✅ Phase 3a/3b (docs/GAP_ANALYSIS.md): larger tiles, readable blocked tiles, contact-synced
    match feedback; combo praise tiers in the feedback lane with tier cues and escalating bursts.
-2f. ✅ Journey map (`journey_screen`, drawn in perspective by `JourneyWorld`: swipe down = forward,
-   markers off-camera are hidden, so tests must `focus_level()` before tapping one): Play opens it; markers per level with stars, difficulty
+2f. ✅ Journey map (`journey_screen`; `JourneyWorld` is a top-down map that scrolls vertically:
+   garden chapters from the levels' own backgrounds, mist at the seams with small garden signs, a
+   winding stepping-stone path lit gold up to the current level, a lotus badge on the current level,
+   padlocks on locked stops; swipe down = forward, markers off screen are hidden, so tests must
+   `focus_level()` before tapping one): Play opens it; markers per level with stars, difficulty
    and lock state; level card (difficulty, tiles, time, hearts, best, star rules); progress saved
    by `ProgressStore` (user://progress.cfg) via `GameSession.progress`; stars from
    `LevelRating` (1 clear, 2 at most 1 mistake, 3 no mistakes and half the time left). Tests and

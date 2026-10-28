@@ -11,12 +11,12 @@ extends RefCounted
 ## colour multiplies on existing nodes: no extra textures or passes.
 
 const STYLES := {
-	"bg_golden_sakura": {"scenery": 0.86, "board": 0.68},
-	"bg_bamboo_forest": {"scenery": 0.86, "board": 0.68},
-	"bg_misty_temple": {"scenery": 0.9, "board": 0.62},
-	"bg_moonlight_sanctuary": {"scenery": 0.97, "board": 0.48},
+	"bg_golden_sakura": {"scenery": 0.86, "board": 0.68, "name": "Sakura Garden"},
+	"bg_bamboo_forest": {"scenery": 0.86, "board": 0.68, "name": "Bamboo Forest"},
+	"bg_misty_temple": {"scenery": 0.9, "board": 0.62, "name": "Misty Temple"},
+	"bg_moonlight_sanctuary": {"scenery": 0.97, "board": 0.48, "name": "Moonlight Sanctuary"},
 }
-const DEFAULT := {"scenery": 0.92, "board": 0.58}
+const DEFAULT := {"scenery": 0.92, "board": 0.58, "name": "Garden"}
 
 
 ## Colour to multiply the level background with (a touch cooler when dimmed,
@@ -29,6 +29,11 @@ static func scenery_tint(background: String) -> Color:
 ## Strength (centre alpha) of the shade pool behind the board.
 static func board_shade(background: String) -> float:
 	return float(_style(background)["board"])
+
+
+## Display name of the garden (journey map chapters).
+static func garden_name(background: String) -> String:
+	return str(_style(background)["name"])
 
 
 static func _style(background: String) -> Dictionary:
