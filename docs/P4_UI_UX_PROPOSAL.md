@@ -1,6 +1,7 @@
 # P4 proposal: board, background and screen UX (not implemented)
 
-Status: **steps 1 and 2 implemented (P4.1, P4.3; P4.2 option A, P4.4 hearts merge); steps 3 and 4 are still proposals.**
+Status: **all steps implemented** (step 1: P4.1, P4.3; step 2: P4.2 A, P4.4; steps 3–4: P4.5 journey,
+P4.6 tutorial, P4.7 web loading page, P4.8 accessibility). See the step sections at the end.
 See "Step 1: implemented" at the end. Based on the live web build of `879063c`, tested on
 the following viewports:
 
@@ -185,3 +186,51 @@ Acceptance (automated, on 9:16, 9:19.5, 9:21 and 3:4):
 - every level background has its own shading within gentle bounds;
 - free tiles are never dimmed;
 - praise is centred in the lane (within 4 px) and fits inside it.
+
+
+## Steps 3–4: implemented
+
+Screenshots at 320 × 568, 375 × 812, 390 × 844 and 768 × 1024: `docs/screenshots/p4_steps3_4_four_sizes.png`.
+Each row shows the tutorial, a hint, Zen Master!, Level Complete and the journey map. Also:
+`p4_tutorial.png`, `p4_journey.png`, `p4_settings_320x568.png`.
+
+### P4.6 First-play tutorial (`scripts/components/first_play_tutorial.gd`)
+- **Three interactive steps on the real level-1 board,** in the message lane, so it never covers a tile:
+  1. a glowing free pair with identical pictures, which the player taps;
+  2. "a tile is free when…", then the player finds a pair alone;
+  3. Hint, Shuffle and Undo; the next move or **Start Playing** ends it.
+- **Skip** (120 px tall) is always visible.
+- **No penalties while it runs:** the clock waits, a wrong pair costs no heart, toasts become coach
+  remarks, and combo praise stays out of the lane.
+- **Never unsolvable:** the highlighted pair is chosen so the board stays solvable (solver-checked).
+  The tutorial only highlights and never changes the board. It works in every collection, because it
+  uses identical faces, not specific symbols.
+- **Saved** in user settings (`tutorial/level1_done` plus the outcome, completed or skipped). Returning
+  players are never interrupted. **How to Play** in Settings replays it on level 1.
+
+### P4.7 Web loading page (`web/shell.html`, details in `docs/WEB_HOSTING.md`)
+- An original, branded loading screen; a percentage only when the size is known; reduced-motion aware.
+- Audio resumes on the first tap or key press. **No extra Tap to Start:** browsers allow sound after
+  the player's first interaction, which is already the title screen's Play tap.
+- Measured on the live site before this change: the engine (10 MB) and game data (7 MB) are already
+  gzip-compressed and finish downloading about 3.6 s after the page opens. The longer starts seen
+  earlier were measured in a hidden, throttled browser pane. `window.__zenLoad` now records the real
+  timings.
+- **Needs checking after deployment.** Only GitHub's build machine has web export templates, so the
+  page has been checked here with a stand-in engine only.
+
+### P4.5 Journey map (`level_node.tscn/.gd`, `journey_world.gd`)
+- Name plates (MapLabelPlate) with 40 / 28 px text.
+- A farther plate hides when it would touch a nearer marker or plate.
+- Locked levels say LOCKED, unplayed levels show only their difficulty, cleared levels show their stars.
+- Unlock and progress logic unchanged.
+
+### P4.8 Accessibility
+| Check | Result |
+|-------|--------|
+| Text contrast (WCAG AA 4.5:1) | HUD values / dialog text 7.74; HUD captions 4.67; low-time clock 4.96; primary buttons 7.74; toasts, coach and plates 7.64; hearts on pill 4.93. Locked level names were 3.91 at 60 % opacity, **raised to 80 %** (passes) |
+| Touch targets (≥ 120 canvas px) | Settings toggles were 110 and sliders 80, **now 120**. All buttons and sliders on the game screen and in Settings are tested |
+| Text size at 320 × 568 (canvas × 0.296) | HUD captions 26 → **30** (8.9 css px); toasts and coach 34 → **36** (10.7 css px); tool labels 38, body 44 and above |
+| Not colour alone | Free vs blocked: brightness and veil, plus a nudge when tapped. Hearts: spent hearts fade. Journey: LOCKED text, stars only when cleared, arrow on the current level. Time warning: the number itself |
+| Reduced motion | Journey petals now off; previously done: tile travel, bursts, drift, praise pop, loading-page petals |
+| Safe areas / aspect ratios | All three screens use `SafeAreaContainer`; the web page pads with `env(safe-area-inset-*)`; layout tested on 9:16, 9:19.5, 9:21 and 3:4 |

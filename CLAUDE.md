@@ -163,6 +163,12 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
 - **Background balance:** `BackgroundStyle` holds per-background scenery dim and board-shade
   strength (measured, gentle). A new background needs an entry there (unit-tested). Hearts live in
   the top bar (`%Hearts` inside `HeartsPill`); there is no separate hearts panel.
+- **Tutorial:** `FirstPlayTutorial` runs on level 1 for new players (state in user settings via
+  `GameSession.tutorial_seen()`; "How to Play" sets `GameSession.tutorial_requested`). Tests and
+  tools that open level 1 must point `GameSession.tutorial_settings_path` at their throwaway file
+  and call `set_tutorial_seen()`, or the tutorial will pause the clock and change toasts.
+- **Accessibility:** touch targets ≥ 120 canvas px, captions ≥ 30 px, text contrast ≥ 4.5:1, no
+  state shown by colour alone; the playthrough test checks buttons and sliders.
 - **Saves:** player data (`progress.cfg`, `settings.cfg`) is read and written only through
   `SafeConfig` (temp file + `.bak` backup + recovery), never `ConfigFile.save` directly. Tests
   delete save files with `SafeConfig.remove_all(path)` so no `.bak` brings old data back.

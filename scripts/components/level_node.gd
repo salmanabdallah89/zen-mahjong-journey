@@ -48,7 +48,8 @@ func setup(level: LevelCatalog.LevelDefinition, earned_stars: int, is_unlocked: 
 	else:
 		_marker.texture_normal = MARKER_OPEN
 	_number.modulate.a = 1.0 if is_unlocked else 0.45
-	_title.modulate.a = 1.0 if is_unlocked else 0.6
+	# Locked names stay readable (contrast above 4.5:1 on the plate).
+	_title.modulate.a = 1.0 if is_unlocked else 0.8
 	for child in _stars.get_children():
 		child.queue_free()
 	for i in LevelRating.MAX_STARS:

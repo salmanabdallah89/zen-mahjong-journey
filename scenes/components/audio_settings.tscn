@@ -66,7 +66,7 @@ text = "70%"
 
 [node name="MusicSlider" type="HSlider" parent="Center/Panel/Content/MusicRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 80)
+custom_minimum_size = Vector2(0, 120)
 layout_mode = 2
 max_value = 1.0
 step = 0.01
@@ -94,7 +94,7 @@ text = "70%"
 
 [node name="SfxSlider" type="HSlider" parent="Center/Panel/Content/SfxRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 80)
+custom_minimum_size = Vector2(0, 120)
 layout_mode = 2
 max_value = 1.0
 step = 0.01
@@ -122,7 +122,7 @@ text = "70%"
 
 [node name="AmbienceSlider" type="HSlider" parent="Center/Panel/Content/AmbienceRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 80)
+custom_minimum_size = Vector2(0, 120)
 layout_mode = 2
 max_value = 1.0
 step = 0.01
@@ -140,7 +140,7 @@ text = "Vibration"
 
 [node name="VibrationToggle" type="Button" parent="Center/Panel/Content/VibrationRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(250, 110)
+custom_minimum_size = Vector2(250, 120)
 layout_mode = 2
 theme_type_variation = &"ToggleButton"
 toggle_mode = true
@@ -158,7 +158,7 @@ text = "Reduced Animations"
 
 [node name="MotionToggle" type="Button" parent="Center/Panel/Content/MotionRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(250, 110)
+custom_minimum_size = Vector2(250, 120)
 layout_mode = 2
 theme_type_variation = &"ToggleButton"
 toggle_mode = true
@@ -176,7 +176,7 @@ text = "All Sound"
 
 [node name="MuteToggle" type="Button" parent="Center/Panel/Content/MuteRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(250, 110)
+custom_minimum_size = Vector2(250, 120)
 layout_mode = 2
 theme_type_variation = &"ToggleButton"
 toggle_mode = true

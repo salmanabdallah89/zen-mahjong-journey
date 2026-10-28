@@ -40,6 +40,9 @@ func _ready() -> void:
 	_world.focus_level(GameSession.progress.current_level(LevelCatalog.count()), false)
 	_on_camera_moved(_world.camera)
 	_celebrate_unlock.call_deferred()
+	# Falling petals are decoration: off with reduced animations.
+	($Petals as CPUParticles2D).emitting = not Motion.reduced
+	($Petals as CPUParticles2D).visible = not Motion.reduced
 	AdsManager.show_banner()
 	_banner_gap.custom_minimum_size.y = AdsManager.banner_height()
 

@@ -58,6 +58,7 @@ func _ready() -> void:
 	await _test_combo_feedback(4)
 	await _test_tutorial()
 	await _test_journey_readability()
+	await _test_accessibility()
 	SafeConfig.remove_all(ISOLATED_SETTINGS)
 	Motion.settings_path = UserSettings.DEFAULT_PATH
 	Motion.restore()
@@ -1154,6 +1155,41 @@ func _test_journey_readability() -> void:
 		await _frames(2)
 	_frame.size = SCREEN_SHAPES[0]
 	GameSession.progress.reset()
+
+
+## Accessibility: touch targets, text size, panels on short screens, and
+## decoration that follows Reduced Animations.
+func _test_accessibility() -> void:
+	var screen := await _open_level(2)
+	var settings: Control = screen.get_node("%AudioSettings")
+	settings.call("open")
+	await _frames(3)
+	var small := PackedStringArray()
+	for root: Node in [screen.get_node("SafeArea"), settings]:
+		for node in root.find_children("*", "BaseButton", true, false):
+			var control := node as Control
+			if control.is_visible_in_tree() and control.get_global_rect().size.y < 119.5:
+				small.append("%s %.0f" % [control.name, control.get_global_rect().size.y])
+		for node in root.find_children("*", "Slider", true, false):
+			var slider := node as Control
+			if slider.is_visible_in_tree() and slider.get_global_rect().size.y < 119.5:
+				small.append("%s %.0f" % [slider.name, slider.get_global_rect().size.y])
+	_check(small.is_empty(), "every button and slider is at least 120 px tall (%s)" % ", ".join(small))
+	var panel: Control = settings.get_node("Center/Panel")
+	_check(screen.get_global_rect().encloses(panel.get_global_rect()), "Settings fits the shortest screen (1080 x 1920 canvas, as 320 x 568)")
+	var caption: Label = screen.get_node("SafeArea/Layout/Hud/Row/TimeBox/TimeCaption")
+	_check(caption.get_theme_font_size("font_size") >= 30, "HUD captions are at least 30 px")
+	settings.call("close")
+	screen.queue_free()
+	await _frames(2)
+	Motion.set_reduced(true)
+	var journey: Control = JOURNEY_SCENE.instantiate()
+	_frame.add_child(journey)
+	await _frames(3)
+	_check(not (journey.get_node("Petals") as CPUParticles2D).emitting, "journey petals stop with reduced animations")
+	journey.queue_free()
+	await _frames(2)
+	Motion.set_reduced(false)
 
 
 func _drag(from: Vector2, delta: Vector2) -> void:
