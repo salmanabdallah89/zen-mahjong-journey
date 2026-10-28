@@ -100,7 +100,7 @@ func _ready() -> void:
 	# first time each one plays. Music and ambience load when first needed.
 	for entry: Array in AudioCatalog.EFFECTS.values():
 		_stream(str(entry[0]), false)
-	for note in AudioCatalog.MATCH_NOTES:
+	for note in AudioCatalog.MATCH_NOTES + AudioCatalog.COMBO_CUES:
 		_stream(note, false)
 	restore()
 
@@ -224,8 +224,10 @@ func ambience_level_db(ambience_id: String) -> float:
 
 ## Plays an effect. Repeats within the effect's minimum gap, and more than its
 ## overlap cap, are dropped. `file_override` plays another file under the same
-## id and limits (used for melody notes). With `steal`, a sound over its cap
-## cuts off its own oldest copy instead of being dropped. Returns true if it played.
+## id and limits (used for melody notes). With `steal` (sounds that must never
+## be skipped: melody bells, combo cues, whose callers already space them), a
+## sound over its cap cuts off its own oldest copy and the minimum gap is not
+## applied. Returns true if it played.
 func play_sfx(effect_id: String, file_override := "", steal := false) -> bool:
 	if not AudioCatalog.EFFECTS.has(effect_id):
 		_record(effect_id, "sfx", false)
@@ -234,7 +236,8 @@ func play_sfx(effect_id: String, file_override := "", steal := false) -> bool:
 	var cap := int(entry[4]) if entry.size() > 4 else MAX_SAME_EFFECT
 	var now := Time.get_ticks_msec() / 1000.0
 	var over_cap := _count_playing(effect_id) >= cap
-	if now - float(_last_played.get(effect_id, -1000.0)) < float(entry[3]) or (over_cap and not steal):
+	var too_soon := now - float(_last_played.get(effect_id, -1000.0)) < float(entry[3])
+	if (too_soon and not steal) or (over_cap and not steal):
 		_record(effect_id, "sfx_limited", false)
 		return false
 	var file := file_override if not file_override.is_empty() else str(entry[0])

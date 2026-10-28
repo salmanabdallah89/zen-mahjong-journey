@@ -9,6 +9,8 @@ const LIFETIME := 1.3
 ## Combo from which the ring appears, and from which it is at its fullest.
 const RING_COMBO := 3
 const BIG_COMBO := 5
+## Major combo: a second, later ring and a few more petals (still small).
+const MAJOR_COMBO := 8
 
 ## Matches in a row, counting this one (set before adding to the tree).
 var strength := 1
@@ -29,6 +31,9 @@ func _ready() -> void:
 	if Motion.reduced:
 		_sparkles.amount = 6
 		_petals.amount = 2
+	elif strength >= MAJOR_COMBO:
+		_sparkles.amount = 34
+		_petals.amount = 12
 	elif strength >= RING_COMBO:
 		_sparkles.amount = 30 if big else 22
 		_petals.amount = 10 if big else 8
@@ -56,6 +61,10 @@ func _play() -> void:
 	_add_ring(1.7, 0.55, 0.32)
 	if strength >= RING_COMBO:
 		_add_ring(3.4 if strength >= BIG_COMBO else 2.6, 0.9, 0.6)
+	if strength >= MAJOR_COMBO:
+		var echo := create_tween()
+		echo.tween_interval(0.14)
+		echo.tween_callback(_add_ring.bind(4.2, 0.6, 0.75))
 
 
 ## A thin gold ring that widens to `reach` and fades.

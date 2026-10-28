@@ -25,7 +25,7 @@ place under the exact name below and it is used automatically. No code change is
 | `assets/audio/sfx/sfx_level_complete.wav` | ✅ generated | WAV | 3.7 s | Bell run up the scale resolving on a D chord with a low koto D |
 | `assets/audio/sfx/sfx_reward.wav` | ✅ generated | WAV | 1.20 s | Bright double chime: rewarded ad pays out (second chance) |
 | `assets/audio/sfx/sfx_unlock.wav` | ✅ generated | WAV | 1.80 s | Soft gong: a new level opens on the journey map |
-| `assets/audio/sfx/sfx_combo.wav` | ✅ generated | WAV | 1.4 s | Combo shimmer (A6 D7 F#7 A7, quiet) at 3, 5, 8 and 10 matches in a row |
+| `assets/audio/sfx/sfx_combo_1.wav` … `sfx_combo_5.wav` | ✅ generated | WAV | 1.0–2.4 s | Combo tier cues for Nice! (2 in a row), Great! (3), Amazing! (5), Excellent! (7), Zen Master! (10): rolled D major chords, each richer and higher; peaks −11 to −8 dBFS, under the match bells |
 | `assets/audio/sfx/sfx_shuffle_land.wav` | ✅ generated | WAV | 0.6 s | Soft low wooden patter as shuffled tiles settle back |
 | (level-complete stars) | ✅ reuses melody bells | — | — | Effect id `star`: each earned star rings D6, F#6, A6 (a D major chord) |
 

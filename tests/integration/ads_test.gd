@@ -149,7 +149,7 @@ func _test_interstitial_cadence() -> void:
 		screen.call("_on_tile_pressed", pair.x)
 		screen.call("_on_tile_pressed", pair.y)
 	# Level Complete opens once the last pair has met.
-	await _wait(1.0)
+	await _wait(1.5)
 	var dialog: ModalDialog = screen.get_node("%Dialog")
 	GameSession.scene_changes_enabled = false
 	GameSession.last_requested_scene = ""

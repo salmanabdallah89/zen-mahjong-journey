@@ -25,6 +25,14 @@ const MATCH_NOTES: PackedStringArray = [
 	"res://assets/audio/sfx/sfx_match_09.wav", "res://assets/audio/sfx/sfx_match_10.wav",
 ]
 
+## Combo cues, one per praise tier (ComboFeedback.TIERS): each rings a richer
+## D major chord a little higher, so a long streak builds up musically.
+const COMBO_CUES: PackedStringArray = [
+	"res://assets/audio/sfx/sfx_combo_1.wav", "res://assets/audio/sfx/sfx_combo_2.wav",
+	"res://assets/audio/sfx/sfx_combo_3.wav", "res://assets/audio/sfx/sfx_combo_4.wav",
+	"res://assets/audio/sfx/sfx_combo_5.wav",
+]
+
 ## id -> [file, bus, pitch variation (+/- share), minimum gap between plays (s),
 ##        most copies sounding at once]
 const EFFECTS := {
@@ -41,8 +49,9 @@ const EFFECTS := {
 	"reward": ["res://assets/audio/sfx/sfx_reward.wav", "SFX", 0.0, 0.3, 1],
 	"unlock": ["res://assets/audio/sfx/sfx_unlock.wav", "SFX", 0.0, 0.5, 1],
 	"button_click": ["res://assets/audio/sfx/sfx_button_click.wav", "UI", 0.03, 0.04, 2],
-	# Combo milestones: a soft shimmer above the climbing bell melody.
-	"combo": ["res://assets/audio/sfx/sfx_combo.wav", "SFX", 0.0, 0.3, 1],
+	# Combo tiers: a soft cue above the climbing bell melody (file per tier,
+	# COMBO_CUES). Short gap: tiers can be reached on consecutive matches.
+	"combo": ["res://assets/audio/sfx/sfx_combo_1.wav", "SFX", 0.0, 0.06, 2],
 	# Level-complete stars: melody bells (a D major chord), one per star.
 	"star": ["res://assets/audio/sfx/sfx_match_06.wav", "SFX", 0.0, 0.1, 3],
 	# Shuffled tiles landing back in place: a soft wooden patter.
@@ -73,4 +82,5 @@ static func all_paths() -> PackedStringArray:
 	for entry: Array in EFFECTS.values():
 		paths.append(str(entry[0]))
 	paths.append_array(MATCH_NOTES)
+	paths.append_array(COMBO_CUES)
 	return paths

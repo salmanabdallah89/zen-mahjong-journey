@@ -25,6 +25,7 @@ func _ready() -> void:
 		await _frames(4)
 		await _capture_startup(shape)
 		await _capture_level(shape, 1, true)
+		await _capture_combo(shape)
 		if shape == "phone_9x16":
 			for level in [3, 5, 8, 10]:
 				await _capture_level(shape, level, false)
@@ -290,8 +291,38 @@ func _capture_level(shape: String, number: int, with_states: bool) -> void:
 		for pair in deal.solution:
 			screen.call("_on_tile_pressed", pair.x)
 			screen.call("_on_tile_pressed", pair.y)
-		await _wait(0.6)
+		# Level Complete opens once the last pair has met, then the stars pop.
+		await _wait(1.8)
 		await _save("%s_level%02d_complete" % [shape, number])
+	screen.queue_free()
+	await _frames(2)
+
+
+## Combo praise in the message lane below the board: "Nice!" at 2 in a row,
+## "Zen Master!" at 10, and a toast, to check nothing overlaps the tiles.
+func _capture_combo(shape: String) -> void:
+	GameSession.current_level = 4
+	var screen: Control = GAME_SCENE.instantiate()
+	add_child(screen)
+	await _wait(0.4)
+	var level := LevelCatalog.get_level(4)
+	var deal := BoardGenerator.generate(level.load_layout().build_geometry(), level.face_pool(), level.deal_seed)
+	AudioManager.reset_melody()
+	for k in 2:
+		screen.call("_on_tile_pressed", deal.solution[k].x)
+		screen.call("_on_tile_pressed", deal.solution[k].y)
+	await _wait(0.55)
+	await _save("%s_combo_nice" % shape)
+	for k in range(2, 10):
+		screen.call("_on_tile_pressed", deal.solution[k].x)
+		screen.call("_on_tile_pressed", deal.solution[k].y)
+		await _wait(0.12)
+	await _wait(0.45)
+	await _save("%s_combo_zen_master" % shape)
+	await _wait(1.0)
+	screen.call("_show_toast", "A tile can be picked when its left or right side is open.")
+	await _wait(0.3)
+	await _save("%s_toast_lane" % shape)
 	screen.queue_free()
 	await _frames(2)
 

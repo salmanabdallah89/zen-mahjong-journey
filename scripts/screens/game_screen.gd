@@ -14,10 +14,8 @@ const TIME_WARNING_SECONDS := 30.0
 const MAX_CLOCK_STEP := 0.25
 const HEART_TEXTURE := preload("res://assets/ui/icons/icon_heart.png")
 const PETAL_TEXTURE := preload("res://assets/effects/petal_02.png")
-## Matches in a row from which a combo is shown, and the counts that also
-## get a shimmer sound (the bell melody itself climbs on every match).
-const COMBO_SHOWN_FROM := 3
-const COMBO_CHIMES: Array[int] = [3, 5, 8, 10]
+## "Zen Master!" (the top praise tier) also glows softly at the screen edges.
+const EDGE_GLOW_SECONDS := 1.1
 ## Level-complete stars ring a rising D major chord: D6, F#6, A6 (melody notes).
 const STAR_NOTES: Array[int] = [5, 7, 8]
 ## Seconds between the last pair touching and the level-complete dialog.
@@ -25,6 +23,9 @@ const LAST_PAIR_PAUSE := 0.3
 ## Match bells ring in match order and at least this far apart, even when a
 ## later pair (shorter glide) touches before an earlier one.
 const BELL_SPACING := 0.09
+## Longest the Level Complete dialog waits for queued bells after the last
+## pair touches (only very fast play builds a queue).
+const MAX_BELL_WAIT := 0.25
 const TIME_NORMAL := Color(0.20784314, 0.30980393, 0.26666668)
 const TIME_WARNING := Color(0.72, 0.22, 0.25)
 
@@ -74,6 +75,8 @@ var _last_bell_at := -1.0
 @onready var _dialog: ModalDialog = %Dialog
 @onready var _picker: CollectionPicker = %CollectionPicker
 @onready var _settings: AudioSettingsPanel = %AudioSettings
+@onready var _lane: Control = %FeedbackLane
+var _praise: ComboFeedback
 
 
 func _ready() -> void:
@@ -94,6 +97,12 @@ func _ready() -> void:
 	_settings.closed.connect(_on_picker_closed)
 	TileCollectionManager.collection_changed.connect(_on_collection_changed)
 	_dialog.star_popped.connect(_on_star_popped)
+	# Praise and messages share the lane below the board; nothing in it ever
+	# reaches over the tiles.
+	_lane.clip_contents = true
+	_praise = ComboFeedback.new()
+	_praise.name = "Praise"
+	_lane.add_child(_praise)
 	BackgroundDrift.start(_background)
 	_start_level()
 
@@ -164,6 +173,7 @@ func _start_level() -> void:
 	_failed = false
 	_elapsed = 0.0
 	_pause_open = false
+	_last_bell_at = -1.0
 	_build_hearts()
 	_board.show_board(_model, TileCollectionManager.skin_for_board(_model.faces, _level.deal_seed))
 	_update_hud()
@@ -236,28 +246,26 @@ func _remove_pair(a: int, b: int) -> void:
 	# The last pair is celebrated by the level-complete sound instead.
 	var step := AudioManager.melody_step() if cleared else AudioManager.next_match_step()
 	var combo := step + 1
-	var meet_at := _board.meeting_point_global(a, b)
 	var contact := _board.play_removal(a, b, combo)
 	_update_hud()
 	var now := Time.get_ticks_msec() / 1000.0
 	var ring_in := maxf(contact, _last_bell_at + BELL_SPACING - now)
 	_last_bell_at = now + ring_in
-	_after(ring_in, _on_pair_met.bind(step, combo, meet_at, cleared))
+	_after(ring_in, _on_pair_met.bind(step, combo, cleared))
 	if cleared:
-		# Let the last pair meet and bloom before the celebration.
-		_after(contact + (0.0 if Motion.reduced else LAST_PAIR_PAUSE), _show_level_complete)
+		# Let the last pair meet and bloom (and a short bell queue finish) first.
+		var settle := minf(ring_in, contact + MAX_BELL_WAIT)
+		_after(settle + (0.0 if Motion.reduced else LAST_PAIR_PAUSE), _show_level_complete)
 	elif not _model.has_moves():
 		_show_no_moves()
 
 
-func _on_pair_met(step: int, combo: int, at: Vector2, cleared: bool) -> void:
-	if cleared:
+func _on_pair_met(step: int, combo: int, cleared: bool) -> void:
+	# Once Level Complete is up, late bells and praise would only distract.
+	if cleared or (_model.is_cleared() and _dialog.visible):
 		return
 	AudioManager.play_match_step(step)
-	if combo >= COMBO_SHOWN_FROM:
-		_show_combo(combo, at)
-	else:
-		AudioManager.vibrate()
+	_show_combo(combo)
 
 
 ## Runs `action` after `seconds` (next frame for 0), unless this screen is gone.
@@ -276,31 +284,59 @@ func combo_count() -> int:
 	return AudioManager.melody_step() + 1
 
 
-## Combo: a small floating "Combo ×N" where the pair met, a shimmer at a few
-## milestones and a slightly longer buzz.
-func _show_combo(combo: int, at: Vector2) -> void:
-	if combo in COMBO_CHIMES:
-		AudioManager.play_sfx("combo")
-	AudioManager.vibrate(35)
-	var label := Label.new()
-	label.text = "Combo ×%d" % combo
-	label.theme_type_variation = &"ComboLabel"
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.z_index = 20
-	add_child(label)
-	label.reset_size()
-	label.pivot_offset = label.size / 2.0
-	label.global_position = at - label.size / 2.0 - Vector2(0, 40)
-	label.modulate.a = 0.0
-	var rise := 0.0 if Motion.reduced else 70.0
-	var tween := label.create_tween()
-	tween.tween_property(label, "modulate:a", 1.0, 0.12)
-	if not Motion.reduced:
-		label.scale = Vector2(0.7, 0.7)
-		tween.parallel().tween_property(label, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_property(label, "position:y", label.position.y - rise, 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.parallel().tween_property(label, "modulate:a", 0.0, 0.7).set_delay(0.25)
-	tween.tween_callback(label.queue_free)
+## Praise for matches in a row, in the feedback lane below the board: a cue
+## when a new tier is reached ("Nice!" … "Zen Master!"), a buzz that grows
+## with the tier, and a soft edge glow for the top tier.
+func _show_combo(combo: int) -> void:
+	var tier := _praise.show_combo(combo)
+	if tier == 0:
+		AudioManager.vibrate()
+		return
+	_toast.hide()
+	if ComboFeedback.reaches_tier(combo):
+		# A new tier is never silent: its cue cuts off the oldest one still ringing.
+		AudioManager.play_sfx("combo", AudioCatalog.COMBO_CUES[tier - 1], true)
+		if tier == ComboFeedback.TIERS.size():
+			_play_edge_glow()
+	AudioManager.vibrate(20 + 8 * tier)
+
+
+## A soft golden glow around the screen edges, never over the middle.
+func _play_edge_glow() -> void:
+	if Motion.reduced:
+		return
+	var glow := TextureRect.new()
+	glow.name = "EdgeGlow"
+	glow.texture = _edge_glow_texture()
+	glow.set_anchors_preset(Control.PRESET_FULL_RECT)
+	glow.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	glow.modulate.a = 0.0
+	add_child(glow)
+	move_child(glow, _dialog.get_index())
+	var tween := glow.create_tween()
+	tween.tween_property(glow, "modulate:a", 1.0, EDGE_GLOW_SECONDS * 0.3).set_trans(Tween.TRANS_SINE)
+	tween.tween_property(glow, "modulate:a", 0.0, EDGE_GLOW_SECONDS * 0.7).set_trans(Tween.TRANS_SINE)
+	tween.tween_callback(glow.queue_free)
+
+
+static var _edge_texture: GradientTexture2D
+
+
+static func _edge_glow_texture() -> GradientTexture2D:
+	if _edge_texture == null:
+		var gradient := Gradient.new()
+		# Clear over the board; only the outer rim (and the corners) warms up.
+		gradient.offsets = PackedFloat32Array([0.0, 0.86, 1.0])
+		gradient.colors = PackedColorArray([Color(1, 0.85, 0.5, 0), Color(1, 0.85, 0.5, 0), Color(1, 0.82, 0.45, 0.26)])
+		_edge_texture = GradientTexture2D.new()
+		_edge_texture.gradient = gradient
+		_edge_texture.fill = GradientTexture2D.FILL_RADIAL
+		_edge_texture.fill_from = Vector2(0.5, 0.5)
+		_edge_texture.fill_to = Vector2(1.0, 0.5)
+		_edge_texture.width = 64
+		_edge_texture.height = 64
+	return _edge_texture
 
 
 func _on_hint_pressed() -> void:
@@ -484,6 +520,7 @@ func _show_no_moves() -> void:
 
 
 func _show_level_complete() -> void:
+	_praise.dismiss()
 	AudioManager.play_sfx("level_complete")
 	AudioManager.duck_music_for(3.0)
 	var seconds := int(_elapsed)
@@ -718,6 +755,8 @@ func _count(amount: int, singular: String, plural: String) -> String:
 
 
 func _show_toast(text: String) -> void:
+	if _praise:
+		_praise.dismiss()
 	_toast_label.text = text
 	_toast.show()
 	if _toast_tween:

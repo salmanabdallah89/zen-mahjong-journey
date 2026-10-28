@@ -51,6 +51,7 @@ func _ready() -> void:
 	await _test_audit_fixes(3)
 	await _test_tile_animations(4)
 	await _test_reduced_motion(2)
+	await _test_combo_feedback(4)
 	SafeConfig.remove_all(ISOLATED_SETTINGS)
 	Motion.settings_path = UserSettings.DEFAULT_PATH
 	Motion.restore()
@@ -721,22 +722,19 @@ func _test_tile_animations(level_number: int) -> void:
 	_check(model.remaining == model.tile_count() and _tiles_at_rest(board, model),
 		"shuffle mid-match and two undos leave every tile home and tappable")
 
-	# Combo: quick matches in a row show "Combo ×3" and ring the shimmer.
+	# Praise: three quick matches in a row show "Great! ×3" in the lane.
 	AudioManager.reset_melody()
 	var seq := AudioManager.event_seq
 	for k in 3:
 		var p: Vector2i = solution[k]
 		await _click_tile(screen, p.x)
 		await _click_tile(screen, p.y)
-	# Combo text appears when the third pair touches (bells ring in order,
+	# Praise appears when the third pair touches (bells ring in order,
 	# spaced apart, so the third lands about 0.6 s after quick taps).
 	await get_tree().create_timer(0.8).timeout
-	var combo_shown := false
-	for child in screen.get_children():
-		if child is Label and (child as Label).text == "Combo ×3":
-			combo_shown = true
-	_check(int(screen.call("combo_count")) == 3 and combo_shown, "three quick matches show Combo ×3")
-	_check(AudioManager.count_played("combo", seq) == 1, "the third match in a row rings the combo shimmer")
+	var praise: ComboFeedback = screen.get_node("%FeedbackLane").get_node("Praise")
+	_check(int(screen.call("combo_count")) == 3 and praise.text() == "Great!", "three quick matches praise Great!")
+	_check(AudioManager.count_played("combo", seq) == 2, "Nice! and Great! each ring their cue")
 	screen.queue_free()
 	await _frames(2)
 
@@ -782,13 +780,115 @@ func _test_reduced_motion(level_number: int) -> void:
 	Motion.set_reduced(false)
 
 
+## P3 combos: praise in the lane below the board, synced to contact, tiers
+## that escalate, cues per new tier, and nothing ever over the tiles.
+func _test_combo_feedback(level_number: int) -> void:
+	var screen := await _open_level(level_number)
+	var board: BoardView = screen.get_node("%Board")
+	var model: BoardModel = screen.get("_model")
+	var lane: Control = screen.get_node("%FeedbackLane")
+	var praise: ComboFeedback = lane.get_node("Praise")
+	var toast: Control = screen.get_node("%Toast")
+	var solution := _expected_deal(level_number).solution
+
+	# The lane sits between the board and the toolbar on every screen shape.
+	for shape in SCREEN_SHAPES:
+		_frame.size = shape
+		await _frames(3)
+		var tiles := _tiles_rect(board, model)
+		_check(not tiles.intersects(lane.get_global_rect()), "%s: no tile reaches into the message lane" % shape)
+		_check(lane.get_global_rect().size.y >= 130.0, "%s: the message lane keeps its height" % shape)
+	_frame.size = SCREEN_SHAPES[0]
+	await _frames(3)
+
+	# Toasts live in the lane too, clear of the tiles.
+	screen.call("_show_toast", "A tile can be picked when its left or right side is open.")
+	await _frames(2)
+	_check(lane.get_global_rect().grow(1.0).encloses(toast.get_global_rect()), "a two-line toast fits inside the lane")
+	_check(not toast.get_global_rect().intersects(_tiles_rect(board, model)), "the toast never covers a tile")
+
+	# Ten quick matches: praise climbs Nice! → Great! → Amazing! → Excellent!
+	# → Zen Master!, each tier's cue rings once, at contact, never before.
+	AudioManager.reset_melody()
+	var seq := AudioManager.event_seq
+	var words := PackedStringArray()
+	praise.shown.connect(func(_tier: int, word: String) -> void:
+		if words.is_empty() or words[-1] != word:
+			words.append(word))
+	await _click_tile(screen, solution[0].x)
+	await _click_tile(screen, solution[0].y)
+	await _click_tile(screen, solution[1].x)
+	await _click_tile(screen, solution[1].y)
+	_check(not praise.is_showing(), "praise waits for the pair to touch")
+	for k in range(2, 10):
+		await _click_tile(screen, solution[k].x)
+		await _click_tile(screen, solution[k].y)
+		# Taps keep working while praise and bursts play.
+		_check(model.is_removed(solution[k].x), "rapid match %d registers at once" % (k + 1))
+	await get_tree().create_timer(1.6).timeout
+	_check(words == PackedStringArray(["Nice!", "Great!", "Amazing!", "Excellent!", "Zen Master!"]),
+		"praise escalates through every tier (%s)" % ", ".join(words))
+	_check(AudioManager.count_played("combo", seq) == 5, "each new tier rings its cue once (%d)" % AudioManager.count_played("combo", seq))
+	_check(_match_bells(seq) == 10, "every match still rings its bell (%d)" % _match_bells(seq))
+	_check(lane.clip_contents, "lane effects are clipped to the lane")
+
+	# Undo, shuffle and hint still behave; praise never blocks them.
+	screen.call("_on_undo_pressed")
+	await get_tree().create_timer(0.6).timeout
+	_check(not model.is_removed(solution[9].x), "undo works after a long combo")
+	screen.call("_on_shuffle_pressed")
+	await _settle(screen)
+	_check(_tiles_at_rest(board, model), "shuffle after a combo leaves every tile at rest")
+	screen.call("_on_hint_pressed")
+	_check((screen.get("_hint") as Vector2i).x >= 0, "hint works after a combo")
+	# A toast takes the lane from praise.
+	screen.call("_show_toast", "Tiles shuffled")
+	_check(not praise.is_showing() and toast.visible, "a toast replaces praise in the lane")
+	screen.queue_free()
+	await _frames(2)
+
+	# Reduced animations: praise still appears, as a plain fade.
+	Motion.set_reduced(true)
+	screen = await _open_level(level_number)
+	praise = screen.get_node("%FeedbackLane").get_node("Praise")
+	AudioManager.reset_melody()
+	for k in 2:
+		screen.call("_on_tile_pressed", solution[k].x)
+		screen.call("_on_tile_pressed", solution[k].y)
+	await get_tree().create_timer(0.3).timeout
+	_check(praise.is_showing() and praise.text() == "Nice!" and is_zero_approx(praise.rotation),
+		"reduced: praise fades in without pop or tilt")
+	screen.queue_free()
+	await _frames(2)
+	Motion.set_reduced(false)
+
+
+func _tiles_rect(board: BoardView, model: BoardModel) -> Rect2:
+	var rect := Rect2()
+	for i in model.tile_count():
+		if model.is_removed(i):
+			continue
+		var view := board.tile(i)
+		var r := view.get_global_transform() * board.skin().style.body_rect
+		rect = r if rect.size == Vector2.ZERO else rect.merge(r)
+	return rect
+
+
+func _match_bells(since_seq: int) -> int:
+	var count := 0
+	for event in AudioManager.history:
+		if int(event["seq"]) >= since_seq and event["id"] == "tile_match" and event["played"]:
+			count += 1
+	return count
+
+
 ## Waits for the Level Complete dialog: it opens once the last pair has met.
 func _wait_dialog(screen: Control) -> void:
 	var dialog: ModalDialog = screen.get_node("%Dialog")
-	for i in 120:
-		if dialog.visible:
-			break
-		await _frames(1)
+	var waited := 0.0
+	while not dialog.visible and waited < 3.0:
+		await get_tree().create_timer(0.05).timeout
+		waited += 0.05
 	await _frames(2)
 
 

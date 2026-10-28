@@ -175,6 +175,35 @@ size_flags_vertical = 3
 mouse_filter = 2
 script = ExtResource("4_board")
 
+[node name="FeedbackLane" type="Control" parent="SafeArea/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 140)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Toast" type="PanelContainer" parent="SafeArea/Layout/FeedbackLane"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_type_variation = &"ToastPanel"
+
+[node name="ToastLabel" type="Label" parent="SafeArea/Layout/FeedbackLane/Toast"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(920, 0)
+layout_mode = 2
+theme_type_variation = &"ToastLabel"
+text = "Message"
+horizontal_alignment = 1
+autowrap_mode = 3
+
 [node name="Toolbar" type="HBoxContainer" parent="SafeArea/Layout"]
 layout_mode = 2
 theme_override_constants/separation = 80
@@ -250,31 +279,6 @@ layout_mode = 2
 theme_type_variation = &"ToolLabel"
 text = "Undo"
 horizontal_alignment = 1
-
-[node name="Toast" type="PanelContainer" parent="."]
-unique_name_in_owner = true
-visible = false
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_top = -420.0
-offset_bottom = -340.0
-grow_horizontal = 2
-grow_vertical = 0
-mouse_filter = 2
-theme_type_variation = &"ToastPanel"
-
-[node name="ToastLabel" type="Label" parent="Toast"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(840, 0)
-layout_mode = 2
-theme_type_variation = &"ToastLabel"
-text = "Message"
-horizontal_alignment = 1
-autowrap_mode = 3
 
 [node name="Dialog" parent="." instance=ExtResource("9_dialog")]
 unique_name_in_owner = true

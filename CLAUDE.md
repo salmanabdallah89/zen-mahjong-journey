@@ -156,6 +156,10 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
   the model, which is always updated first; anything that animates a tile must run on TileView's
   tweens so `reset_visual()` can stop it and put the tile back at `home_position`. Tests point
   `Motion.settings_path` at their throwaway settings file.
+- **Feedback lane:** game-screen messages (toasts, combo praise `ComboFeedback`) appear only in
+  `%FeedbackLane`, the strip between the board and the toolbar; it clips its contents, and the
+  board is fitted above it, so messages never cover a tile. Match sound, haptics and praise land
+  when the pair touches (`BoardView.play_removal` returns the contact time), in match order.
 - **Saves:** player data (`progress.cfg`, `settings.cfg`) is read and written only through
   `SafeConfig` (temp file + `.bak` backup + recovery), never `ConfigFile.save` directly. Tests
   delete save files with `SafeConfig.remove_all(path)` so no `.bak` brings old data back.
@@ -194,6 +198,8 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
    bloom, reverse undo, gather-and-spread shuffle, reveal pop, breathing hint, soft mistake shake,
    combos (text, ring, shimmer), star chimes, petal shower, screen fades, background drift,
    generated music loops, Reduced Animations setting.
+2j. ✅ Phase 3a/3b (docs/GAP_ANALYSIS.md): larger tiles, readable blocked tiles, contact-synced
+   match feedback; combo praise tiers in the feedback lane with tier cues and escalating bursts.
 2f. ✅ Journey map (`journey_screen`, drawn in perspective by `JourneyWorld`: swipe down = forward,
    markers off-camera are hidden, so tests must `focus_level()` before tapping one): Play opens it; markers per level with stars, difficulty
    and lock state; level card (difficulty, tiles, time, hearts, best, star rules); progress saved

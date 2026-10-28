@@ -79,9 +79,15 @@ ffmpeg -loglevel error -y -i "$SFX/.shuffle_knocks.wav" -i "$SFX/.shuffle_air.wa
 normalize "$SFX/.shuffle_mix.wav" "$SFX/sfx_shuffle.wav" -6
 rm -f "$SFX/.shuffle_knocks.wav" "$SFX/.shuffle_air.wav"
 
-# Combo milestone: a soft high shimmer (A6 D7 F#7 A7) that sits above the
-# climbing match bells without masking them.
-voice sfx_combo 1.3 "$(bell 1760 0 0.35 5)+$(bell 2349.32 0.05 0.32 5.5)+$(bell 2959.96 0.10 0.28 6)+$(bell 3520 0.15 0.22 7)" -10
+# Combo tier cues ("Nice!" ... "Zen Master!"): each a richer D major chord,
+# a little higher, rolled like a harp over the climbing match bells. Soft
+# (-11 to -8 dBFS) so the bells stay in front.
+voice sfx_combo_1 1.0 "$(bell 1174.66 0 0.4 5)+$(bell 1479.98 0.06 0.35 5)" -11
+voice sfx_combo_2 1.2 "$(bell 1174.66 0 0.38 4.5)+$(bell 1479.98 0.05 0.34 4.5)+$(bell 1760 0.10 0.3 5)" -10
+voice sfx_combo_3 1.4 "$(bell 1760 0 0.35 5)+$(bell 2349.32 0.05 0.32 5.5)+$(bell 2959.96 0.10 0.28 6)+$(bell 3520 0.15 0.22 7)" -10
+voice sfx_combo_4 1.6 "$(bell 1174.66 0 0.3 3.5)+$(bell 1760 0.05 0.3 4)+$(bell 2349.32 0.10 0.3 4.5)+$(bell 2959.96 0.15 0.26 5)+$(bell 3520 0.20 0.2 6)" -9
+voice sfx_combo_5 2.4 "$(koto 293.66 0 0.5)+$(bell 587.33 0 0.3 2)+$(bell 880 0.06 0.28 2.4)+$(bell 1174.66 0.12 0.3 2.8)+$(bell 1479.98 0.18 0.28 3.2)+$(bell 1760 0.24 0.26 3.6)+$(bell 2349.32 0.30 0.24 4)+$(bell 2959.96 0.36 0.2 4.5)" -8
+rm -f "$SFX/sfx_combo.wav" "$SFX/sfx_combo.wav.import"
 # Shuffle landing: tiles settling back in place, a soft low wooden patter.
 voice sfx_shuffle_land 0.45 "$(wood 587.33 0 0.7)+$(wood 659.26 0.045 0.6)+$(wood 523.25 0.095 0.55)+$(wood 739.99 0.15 0.5)+$(wood 587.33 0.21 0.4)" -10
 

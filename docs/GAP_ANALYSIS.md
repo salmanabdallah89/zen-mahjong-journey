@@ -84,12 +84,27 @@ Tests: unit 69 passed; playthrough 228 checks, audio 72, ads 48, all passed. Tes
 the contact moment before checking the bell, combo text or Level Complete. A new check confirms the
 dialog does not cover the last pair.
 
+## Phase 3b: combo system and feedback lane (P3)
+
+Screens: `docs/screenshots/phase3_combo_praise.png` ("Nice!", "Zen Master!", a two-line toast in
+the lane, a clean Level Complete, and Vegetables).
+
+| Change | Detail | File |
+|--------|--------|------|
+| Feedback lane | A 140 px strip between the board and the toolbar holds all toasts and praise. It clips its contents; the board is fitted above it. **Fixes toasts covering the bottom tile row.** | `game_screen.tscn`, `game_screen.gd` |
+| Praise tiers | Nice! (2 in a row), Great! (3), Amazing! (5), Excellent! (7), Zen Master! (10), with the count (×N). Each tier is larger and warmer; pop with a small overshoot, a slight tilt from Amazing!, then a drift up and fade. Excellent! and Zen Master! add glints inside the lane (petals for Zen Master!). | `combo_feedback.gd` (new), theme `PraiseLabel`, `PraiseCountLabel` |
+| Board bursts | Every match: glints and a faint shockwave. 3+: gold ring. 5+: bigger. 8+: a second, later ring and a few more petals. All stay small. | `match_burst.gd` |
+| Major combo | Zen Master! also warms the screen rim for about a second (the middle stays clear). | `game_screen.gd` |
+| Sound | The match bells keep climbing the pentatonic scale (one per match); each new tier adds its own cue, a rolled D major chord that gets richer and higher. All are on the SFX bus, so volume and mute settings apply. Cues and bells are never skipped and keep their order. | `sfx_combo_1..5.wav` (new, generated), `audio_catalog.gd`, `audio_manager.gd` |
+| Sync | Bell, cue, haptic (20 to 60 ms, growing with the tier) and praise all land when the pair touches. Level Complete waits for the last pair (and at most 0.25 s for queued bells), then clears any praise. | `game_screen.gd` |
+| Reduced motion | Praise fades in and out: no pop, tilt, glints, rings or rim glow. | all of the above |
+
+Nothing blocks taps: matches register at once while praise and bursts play (tested with ten
+quick matches). The old floating "Combo ×N" text over the board is gone.
+
 ## Still to do
 
-- **P3 combos:** escalating praise words, tiered cues, combo meter.
 - **P4 background balance:** per-background contrast, softer background behind the board.
-  Toasts (for example the blocked-tile tip) now overlap the bottom tile row more often because
-  tiles are larger. Move toasts to a spot that never covers the board.
 - **P5 level complete:** staged banner, star meter, stat count-up, journey progress.
 - **Tile art itself** (needs the artist): classic captions ("PLUM", "SPRING") are still tiny,
   16 classic faces are unusable, Fruits and Vegetables look-alikes.
