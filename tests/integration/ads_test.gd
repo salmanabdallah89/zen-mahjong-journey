@@ -29,6 +29,7 @@ func _ready() -> void:
 
 	_check(AdsManager.provider == "simulated", "desktop debug runs use stand-in test ads (%s)" % AdsManager.provider)
 	_check(AdsManager.unit_id("rewarded").begins_with("ca-app-pub-3940256099942544/"), "configured ids are Google's test ids")
+	_check(not AdsManager.admob_installed(), "AdMob is not installed yet: phones stay ad-free until the bridge exists")
 	await _test_hints()
 	await _test_second_chance_time()
 	await _test_second_chance_heart()

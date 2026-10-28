@@ -4,8 +4,10 @@ extends Node
 ## which ad network (if any) serves them is decided here.
 ##
 ## Providers:
-##  - "admob":     the AdMob plugin on Android/iOS (not installed yet; see
-##                 docs/ADS.md). Until it is, phones get no ads.
+##  - "admob":     Google AdMob on Android/iOS through the godot-admob plugin
+##                 (godot-sdk-integrations, v7, for Godot 4.7) and our bridge
+##                 script. Neither is installed yet (docs/ADMOB_SETUP.md);
+##                 until both are, phones get no ads.
 ##  - "simulated": stand-in test ads drawn by the game, on desktop debug runs
 ##                 (data/ads.json "simulate_on_desktop"), so every placement
 ##                 can be played and tested.
@@ -17,7 +19,10 @@ signal ad_started(kind: String, placement: String)
 signal ad_finished(kind: String, placement: String, rewarded: bool)
 
 const CONFIG_PATH := "res://data/ads.json"
-const ADMOB_SINGLETON := "PoingGodotAdMob"
+## The AdMob plugin's folder, and our bridge to it (written once the plugin
+## is installed). Phones use AdMob only when both are present.
+const ADMOB_PLUGIN_DIR := "res://addons/AdmobPlugin"
+const ADMOB_BRIDGE := "res://scripts/ads/admob_bridge.gd"
 const BANNER_HEIGHT := 130.0
 
 var provider := "none"
@@ -48,10 +53,15 @@ func _pick_provider() -> String:
 	if OS.has_feature("web"):
 		return "none"
 	if OS.has_feature("mobile"):
-		return "admob" if Engine.has_singleton(ADMOB_SINGLETON) else "none"
+		return "admob" if admob_installed() else "none"
 	if OS.is_debug_build() and bool(config.get("simulate_on_desktop", true)):
 		return "simulated"
 	return "none"
+
+
+## True when the AdMob plugin and our bridge to it are both in the project.
+static func admob_installed() -> bool:
+	return DirAccess.dir_exists_absolute(ADMOB_PLUGIN_DIR) and ResourceLoader.exists(ADMOB_BRIDGE)
 
 
 ## True when ads can be shown right now (so ad-based offers should appear).

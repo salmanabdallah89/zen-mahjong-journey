@@ -40,6 +40,9 @@ can get the AdMob account banned.
 
 ## Steps to real ads
 
+**Current plan and checklist: `docs/ADMOB_SETUP.md`** (plugin chosen: godot-admob v7 for Godot 4.7).
+The steps below are the original outline.
+
 1. **AdMob account**: create one at admob.google.com, add the app (Android), and create a Banner,
    an Interstitial and a Rewarded ad unit. Put the App ID and the three unit ids in
    `data/ads.json` for release builds. Keep the test ids while developing.
