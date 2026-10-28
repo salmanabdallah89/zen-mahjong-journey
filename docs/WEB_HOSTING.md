@@ -30,3 +30,23 @@ Free GitHub accounts can only use Pages with **public** repositories.
 GitHub can also host the Android APK for download: Repository → **Releases → Draft a new release**,
 attach `build/zen-mahjong-journey-debug.apk`. Building the APK needs the export templates on this
 PC (Godot → Editor → Manage Export Templates).
+
+## Loading page
+
+`web/shell.html` is the Web preset's custom HTML shell (`html/custom_html_shell`). It is an
+original loading page:
+- forest-green background, matching the game's boot colour, so there is no flash on hand-over;
+- the title in the game's colours, a few CSS petals (hidden under `prefers-reduced-motion`);
+- a progress bar that shows a percentage only when the download size is known, otherwise a soft sheen.
+
+Its engine start-up script is Godot 4.7.2's `full-size.html`, unchanged apart from driving that bar.
+
+**Audio:** browsers only allow sound after the player interacts with the page. The shell resumes the
+game's audio on the first tap or key press anywhere (normally the title screen's Play button), so no
+separate "Tap to Start" step is needed and nothing plays before the player acts.
+
+**Diagnostics:** `window.__zenLoad` records `downloaded` and `started` (milliseconds since the page
+opened), and `window.__zenAudioContexts` lists the audio contexts and their state.
+
+GitHub Pages already serves `index.wasm` and `index.pck` gzip-compressed (measured: about 10 MB and
+7 MB on the wire, both downloaded about 3.6 s after the page opened on a fast connection).
