@@ -205,7 +205,8 @@ Each row shows the tutorial, a hint, Zen Master!, Level Complete and the journey
 - **Never unsolvable:** the highlighted pair is chosen so the board stays solvable (solver-checked).
   The tutorial only highlights and never changes the board. It works in every collection, because it
   uses identical faces, not specific symbols.
-- **Saved** in user settings (`tutorial/level1_done` plus the outcome, completed or skipped). Returning
+- **Saved** in user settings (`tutorial/level1_done` plus the outcome, completed or skipped). Players who
+  already cleared level 1 (including before the tutorial existed) also count as returning. Returning
   players are never interrupted. **How to Play** in Settings replays it on level 1.
 
 ### P4.7 Web loading page (`web/shell.html`, details in `docs/WEB_HOSTING.md`)

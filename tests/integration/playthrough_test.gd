@@ -962,6 +962,8 @@ func _test_tutorial() -> void:
 	var saved_path := GameSession.tutorial_settings_path
 	GameSession.tutorial_settings_path = PATH
 	SafeConfig.remove_all(PATH)
+	# A brand-new player: no progress either.
+	GameSession.progress.reset()
 
 	# A first-time player gets the tutorial on level 1, on the real board.
 	var screen := await _open_level(1)
@@ -1057,6 +1059,22 @@ func _test_tutorial() -> void:
 	_check(not GameSession.tutorial_requested, "the replay request is used once")
 	screen.queue_free()
 	await _frames(2)
+
+	# A player who cleared level 1 before the tutorial existed (no tutorial
+	# state saved) is returning: no interruption. How to Play still shows it.
+	SafeConfig.remove_all(PATH)
+	GameSession.progress.record_clear(1, 2, 30.0, LevelCatalog.count())
+	screen = await _open_level(1)
+	_check(not bool(screen.call("tutorial_active")), "existing player who cleared level 1: no tutorial")
+	screen.queue_free()
+	await _frames(2)
+	GameSession.tutorial_requested = true
+	screen = await _open_level(1)
+	_check(bool(screen.call("tutorial_active")), "existing player: How to Play still shows it")
+	(_find_button(screen.get_node("%FeedbackLane").get_node("Tutorial"), "Skip") as Button).emit_signal("pressed")
+	screen.queue_free()
+	await _frames(2)
+	GameSession.progress.reset()
 
 	# Every collection: the highlighted pair shows the same picture.
 	var manager: Node = TileCollectionManager

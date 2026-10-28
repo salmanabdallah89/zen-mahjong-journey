@@ -70,8 +70,13 @@ func set_tutorial_seen(how: String) -> void:
 	tutorial_requested = false
 
 
+## New players only: anyone who has already cleared level 1 (for example
+## before the tutorial existed) counts as returning. "How to Play" always
+## shows it.
 func should_show_tutorial(level_number: int) -> bool:
-	return level_number == 1 and (tutorial_requested or not tutorial_seen())
+	if level_number != 1:
+		return false
+	return tutorial_requested or (not tutorial_seen() and not progress.is_cleared(1))
 
 
 ## "How to Play": replays the tutorial on level 1.
