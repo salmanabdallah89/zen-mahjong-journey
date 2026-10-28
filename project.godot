@@ -14,11 +14,11 @@ config/name="Zen Mahjong Journey"
 config/description="A calm, Android-first Mahjong Solitaire journey."
 config/version="1.0.0"
 run/main_scene="res://scenes/screens/startup_screen.tscn"
+config/quit_on_go_back=false
 config/features=PackedStringArray("4.7", "GL Compatibility")
 boot_splash/bg_color=Color(0.20784314, 0.30980393, 0.26666668, 1)
 boot_splash/show_image=false
 config/icon="res://assets/branding/app_icon_preview_512.png"
-config/quit_on_go_back=false
 
 [autoload]
 
@@ -38,6 +38,10 @@ window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/handheld/orientation=1
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/AdmobPlugin/plugin.cfg")
+
 [gui]
 
 theme/custom="res://themes/zen_theme.tres"
@@ -55,14 +59,9 @@ pointing/emulate_touch_from_mouse=true
 rendering_device/driver.windows="d3d12"
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
-textures/canvas_textures/default_texture_filter=1
 textures/vram_compression/import_etc2_astc=true
 environment/defaults/default_clear_color=Color(0.20784314, 0.30980393, 0.26666668, 1)
 
 [zen_mahjong]
 
 tiles/art_set="res://data/tile_art/classic_v1.json"
-
-[editor_plugins]
-
-enabled=PackedStringArray("res://addons/AdmobPlugin/plugin.cfg")
