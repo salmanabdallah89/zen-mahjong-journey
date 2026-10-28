@@ -59,6 +59,7 @@ func _ready() -> void:
 	await _test_tutorial()
 	await _test_journey_readability()
 	await _test_accessibility()
+	await _test_long_journey()
 	SafeConfig.remove_all(ISOLATED_SETTINGS)
 	Motion.settings_path = UserSettings.DEFAULT_PATH
 	Motion.restore()
@@ -492,11 +493,14 @@ func _test_time_and_mistakes(level_number: int) -> void:
 ## The journey map, stars earned on clears, unlocking and best results.
 func _test_journey_and_stars() -> void:
 	GameSession.progress.reset()
+	# Earlier tests clear level 10, which unlocks level 11: no pending unlock.
+	GameSession.just_unlocked = 0
 	var journey: Control = JOURNEY_SCENE.instantiate()
 	_frame.add_child(journey)
 	await _frames(4)
 	var dialog: ModalDialog = journey.get_node("%Dialog")
-	_check((journey.get_node("%StarsValue") as Label).text == "0 / 30", "fresh journey shows 0 / 30 stars")
+	var total := LevelCatalog.count() * LevelRating.MAX_STARS
+	_check((journey.get_node("%StarsValue") as Label).text == "0 / %d" % total, "fresh journey shows 0 / %d stars" % total)
 	var level_one: LevelNode = journey.call("level_node", 1)
 	var level_three: LevelNode = journey.call("level_node", 3)
 	_check(level_one.unlocked and not (journey.call("level_node", 2) as LevelNode).unlocked, "only level 1 is open")
@@ -528,7 +532,8 @@ func _test_journey_and_stars() -> void:
 	journey = JOURNEY_SCENE.instantiate()
 	_frame.add_child(journey)
 	await _frames(4)
-	_check((journey.get_node("%StarsValue") as Label).text == "5 / 30", "journey total shows 5 stars")
+	_check((journey.get_node("%StarsValue") as Label).text == "5 / %d" % (LevelCatalog.count() * LevelRating.MAX_STARS),
+		"journey total shows 5 stars")
 	_check((journey.call("level_node", 3) as LevelNode).unlocked, "level 3 is open after clearing level 2")
 	_check((journey.get_node("%Toast") as Control).visible and GameSession.just_unlocked == 0, "a new unlock is announced once")
 	# The map opens on the current level, with the lotus badge on it; the
@@ -537,7 +542,7 @@ func _test_journey_and_stars() -> void:
 	var level_two: LevelNode = journey.call("level_node", 2)
 	_check(world.is_level_visible(2) and not world.is_level_visible(9), "the map opens on the current level, the far levels off screen")
 	await get_tree().create_timer(1.4).timeout
-	_check(world.badge_position().distance_to(world.map_point(2) + Vector2(0, -132)) < 2.0, "the lotus badge walks to the new level")
+	_check(world.badge_position().distance_to(world.screen_point(2) + Vector2(0, -JourneyWorld.BADGE_LIFT)) < 2.0, "the lotus badge walks to the new level")
 	# The path winds: neighbouring levels sit on different sides of the middle.
 	var sides := 0
 	for i in range(LevelCatalog.count() - 1):
@@ -563,7 +568,10 @@ func _test_journey_and_stars() -> void:
 	world.focus_level(2, false)
 	await _frames(2)
 	_check(world.is_level_visible(1), "level 2 comes into view")
-	_check(level_two.scale.is_equal_approx(Vector2.ONE), "markers keep one size on the top-down map")
+	# Stops are reused while scrolling: ask for level 2's stop again.
+	level_two = journey.call("level_node", 2)
+	_check(level_two != null and level_two.level_number == 2 and level_two.scale.is_equal_approx(Vector2.ONE),
+		"level 2 has its own stop, at one size")
 	await _click_at(level_two.get_global_transform() * level_two.marker_center())
 	dialog = journey.get_node("%Dialog")
 	_check(dialog.call("stars_shown") == 2 and (dialog.get_node("%Message") as Label).text.contains("Best: 2 of 3 stars"),
@@ -1118,6 +1126,41 @@ func _find_button(root: Node, text: String) -> Button:
 	return null
 
 
+## A 1000-level journey: only the stops on screen exist, far levels can be
+## reached, the backdrop follows the chapter, and nothing breaks at the ends.
+func _test_long_journey() -> void:
+	GameSession.progress.reset()
+	GameSession.just_unlocked = 0
+	var journey: Control = JOURNEY_SCENE.instantiate()
+	_frame.add_child(journey)
+	await _frames(4)
+	var world: JourneyWorld = journey.get_node("%World")
+	var stops := func() -> int:
+		return world.get_children().filter(func(c: Node) -> bool: return c is LevelNode).size()
+	_check(world.level_count == LevelRecipe.TOTAL_LEVELS, "the map spans all %d levels" % LevelRecipe.TOTAL_LEVELS)
+	var built_at_start: int = stops.call()
+	for number in [237, 640, 1000, 1, 512]:
+		world.focus_level(number, false)
+		await _frames(1)
+		var node: LevelNode = journey.call("level_node", number)
+		_check(node != null and node.level_number == number, "level %d has its stop when in view" % number)
+		var chapter := LevelRecipe.chapter_of(number)
+		var back: TextureRect = world.get_node("Backdrop")
+		_check(back.texture.resource_path.contains(LevelRecipe.garden_of_chapter(int(world.chapter_at_camera().x))),
+			"level %d: the backdrop shows the chapter's garden" % number)
+		_check(absi(int(world.chapter_at_camera().x) - chapter) <= 1, "level %d: the camera is in its chapter" % number)
+	_check(stops.call() <= built_at_start + 4 and stops.call() <= 16, "stops are reused, not built per level (%d)" % stops.call())
+	# Locked far levels say so; tapping one explains instead of opening.
+	world.focus_level(640, false)
+	await _frames(2)
+	var far: LevelNode = journey.call("level_node", 640)
+	_check(far.is_padlocked(), "level 640 starts locked")
+	await _click_at(far.get_global_transform() * far.marker_center())
+	_check(not (journey.get_node("%Dialog") as Control).visible, "a far locked level does not open")
+	journey.queue_free()
+	await _frames(2)
+
+
 ## Waits for the Level Complete dialog: it opens once the last pair has met.
 func _wait_dialog(screen: Control) -> void:
 	var dialog: ModalDialog = screen.get_node("%Dialog")
@@ -1154,6 +1197,7 @@ func _tiles_at_rest(board: BoardView, model: BoardModel) -> bool:
 ## told apart without colour, at every screen shape.
 func _test_journey_readability() -> void:
 	GameSession.progress.reset()
+	GameSession.just_unlocked = 0
 	GameSession.progress.record_clear(1, 3, 120.0, 10)
 	GameSession.progress.record_clear(2, 1, 20.0, 10)
 	for shape in SCREEN_SHAPES:
@@ -1163,9 +1207,9 @@ func _test_journey_readability() -> void:
 		await _frames(4)
 		var world: JourneyWorld = journey.get_node("%World")
 		var shown: Array[LevelNode] = []
-		for number in range(1, LevelCatalog.count() + 1):
+		for number in range(1, 40):
 			var node: LevelNode = journey.call("level_node", number)
-			if node.visible:
+			if node != null and node.visible:
 				shown.append(node)
 		var clean := true
 		for a in shown:

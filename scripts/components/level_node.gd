@@ -56,7 +56,8 @@ func setup(level: LevelCatalog.LevelDefinition, earned_stars: int, is_unlocked: 
 		_marker.texture_normal = MARKER_DONE
 	else:
 		_marker.texture_normal = MARKER_OPEN
-	_number.modulate.a = 1.0 if is_unlocked else 0.45
+	# Locked numbers stay readable; the padlock marks the lock.
+	_number.modulate.a = 1.0 if is_unlocked else 0.8
 	# Locked names stay readable (contrast above 4.5:1 on the plate).
 	_title.modulate.a = 1.0 if is_unlocked else 0.8
 	for child in _stars.get_children():

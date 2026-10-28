@@ -1,6 +1,8 @@
 class_name LevelCatalog
 extends RefCounted
-## Loads level definitions from data/levels/levels.json.
+## The journey's levels: the hand-made ones from data/levels/levels.json,
+## then generated ones up to LevelRecipe.TOTAL_LEVELS (built from each
+## level's number, so they never change between runs or devices).
 
 const LEVELS_PATH := "res://data/levels/levels.json"
 const BACKGROUND_PATTERN := "res://assets/backgrounds/%s.png"
@@ -20,8 +22,12 @@ class LevelDefinition extends RefCounted:
 	var suits: PackedStringArray = PackedStringArray()
 	var background: String = ""
 
+	## Layouts are read once and shared (they are never changed after
+	## loading; boards are built from them with build_geometry()).
 	func load_layout() -> BoardLayout:
-		return BoardLayout.load_json(layout_path)
+		if not LevelCatalog._layouts.has(layout_path):
+			LevelCatalog._layouts[layout_path] = BoardLayout.load_json(layout_path)
+		return LevelCatalog._layouts[layout_path]
 
 	## Faces this level deals from: its suits, minus any face whose artwork the
 	## active tile collection marks as unverified.
@@ -40,6 +46,7 @@ class LevelDefinition extends RefCounted:
 
 
 static var _levels: Array[LevelDefinition] = []
+static var _layouts := {}
 
 
 static func levels() -> Array[LevelDefinition]:
@@ -77,3 +84,9 @@ static func _load() -> void:
 		level.mistake_limit = int(entry.get("mistakes", 3))
 		level.difficulty = int(entry.get("difficulty", 1))
 		_levels.append(level)
+	# The rest of the journey is generated from each level's number.
+	while _levels.size() < LevelRecipe.TOTAL_LEVELS:
+		var generated := LevelDefinition.new()
+		generated.number = _levels.size() + 1
+		LevelRecipe.build(generated)
+		_levels.append(generated)

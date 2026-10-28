@@ -1,15 +1,13 @@
 extends Control
 ## The journey map: every level as a stop on a winding stepping-stone path
-## through the gardens, seen from above (JourneyWorld). Swipe to travel along
-## it; a lotus badge marks where the player is. Shows stars, difficulty and what is locked; tapping an open level
-## shows its card with a Play button.
+## over a calm garden backdrop (JourneyWorld, which only builds the stops on
+## screen, so the whole 1000-level journey scrolls smoothly). Swipe to travel
+## along it; a lotus badge marks where the player is. Shows stars, difficulty
+## and what is locked; tapping an open level shows its card with a Play button.
 
-const NODE_SCENE := preload("res://scenes/components/level_node.tscn")
-## How far the background drifts over the whole journey (parallax).
-const PARALLAX := 160.0
-
-var _nodes: Array[LevelNode] = []
 var _card_level := 0
+## The level the journey continues from (1-based).
+var _current := 1
 var _toast_tween: Tween
 
 @onready var _world: JourneyWorld = %World
@@ -28,17 +26,13 @@ func _ready() -> void:
 	_toast.hide()
 	AudioManager.play_music("main_menu")
 	AudioManager.set_ambience(AudioCatalog.MENU_AMBIENCE)
-	for level in LevelCatalog.levels():
-		var node: LevelNode = NODE_SCENE.instantiate()
-		node.pressed.connect(_on_level_pressed)
-		_nodes.append(node)
-	_world.set_nodes(_nodes)
-	_world.camera_moved.connect(_on_camera_moved)
+	# The map paints its own garden backdrop.
+	_background.hide()
 	# Swipes inside the level card must not move the map behind it.
 	_world.input_blocker = func() -> bool: return _dialog.visible
 	refresh()
-	_world.focus_level(GameSession.progress.current_level(LevelCatalog.count()), false)
-	_on_camera_moved(_world.camera)
+	_world.setup(LevelCatalog.count(), _setup_node)
+	_world.focus_level(_current, false)
 	_celebrate_unlock.call_deferred()
 	# Falling petals are decoration: off with reduced animations.
 	($Petals as CPUParticles2D).emitting = not Motion.reduced
@@ -59,50 +53,51 @@ func _notification(what: int) -> void:
 			GameSession.go_home()
 
 
-## Re-reads progress into every stop.
+## Re-reads progress into the stops on screen.
 func refresh() -> void:
 	var progress := GameSession.progress
 	var count := LevelCatalog.count()
-	var current := progress.current_level(count)
-	for i in _nodes.size():
-		var level := LevelCatalog.get_level(i + 1)
-		_nodes[i].setup(level, progress.stars(level.number), progress.is_unlocked(level.number), level.number == current)
-	_world.set_current(current - 1)
+	_current = progress.current_level(count)
+	_world.set_current(_current - 1)
+	_world.refresh_nodes()
 	_stars_value.text = "%d / %d" % [progress.total_stars(count), count * LevelRating.MAX_STARS]
 
 
+## Fills a stop as it comes into view (the map reuses stops while scrolling).
+func _setup_node(node: LevelNode, number: int) -> void:
+	if not node.has_meta("wired"):
+		node.set_meta("wired", true)
+		node.pressed.connect(_on_level_pressed)
+	var progress := GameSession.progress
+	node.setup(LevelCatalog.get_level(number), progress.stars(number), progress.is_unlocked(number), number == _current)
+
+
+## The stop for level `number` if it is on screen (else null).
 func level_node(number: int) -> LevelNode:
-	return _nodes[number - 1]
-
-
-## Background drifts slightly as you travel, for depth.
-func _on_camera_moved(camera: float) -> void:
-	var span := maxf(_world.max_camera() - _world.min_camera(), 0.001)
-	var progress := (camera - _world.min_camera()) / span
-	# The background is PARALLAX taller above and below; travelling forward
-	# lets the scenery come toward you.
-	var shift := lerpf(-PARALLAX, PARALLAX, progress)
-	_background.offset_top = -PARALLAX + shift
-	_background.offset_bottom = PARALLAX + shift
+	return _world.node_for(number)
 
 
 func _celebrate_unlock() -> void:
 	var level := GameSession.just_unlocked
 	GameSession.just_unlocked = 0
-	if level <= 0 or level > _nodes.size():
+	if level <= 0 or level > LevelCatalog.count():
 		return
 	AudioManager.play_sfx("unlock")
 	# The lotus badge walks from the level just cleared to the new one.
+	_world.focus_level(level, false)
 	_world.set_current(level - 1, level - 2)
-	_world.focus_level(level)
-	_nodes[level - 1].play_unlock()
+	var node := _world.node_for(level)
+	if node:
+		node.play_unlock()
 	_show_toast("Level %d unlocked: %s" % [level, LevelCatalog.get_level(level).title])
 
 
 func _on_level_pressed(number: int) -> void:
 	var progress := GameSession.progress
 	if not progress.is_unlocked(number):
-		_nodes[number - 1].play_locked_nudge()
+		var node := _world.node_for(number)
+		if node:
+			node.play_locked_nudge()
 		AudioManager.play_sfx("tile_blocked")
 		_show_toast("Clear Level %d to unlock this level." % (number - 1))
 		return

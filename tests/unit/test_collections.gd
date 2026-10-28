@@ -137,7 +137,7 @@ func test_no_two_match_groups_look_alike() -> void:
 	var library := _library()
 	for collection_id in ["classic", "animals", "alphabet", "mixed", "fruits", "vegetables", "test_symbols", "test_mixed"]:
 		var collection := library.get_collection(collection_id)
-		for level in LevelCatalog.levels():
+		for level in _sample_levels():
 			var faces := _level_faces(level.number)
 			var skin := TileSkin.build(collection, TileArtSet.active(), faces, level.deal_seed, _load).skin
 			assert_true(skin != null, "%s skins level %d" % [collection_id, level.number])
@@ -151,6 +151,17 @@ func test_no_two_match_groups_look_alike() -> void:
 				if owner.has(key) and owner[key] != group:
 					failures.append("%s level %d: %s and %s share %s" % [collection_id, level.number, owner[key], group, key])
 				owner[key] = group
+
+
+## The hand-made levels plus every 50th generated one: generated levels
+## reuse the same layouts and suit sets with new seeds, so a spread sample
+## covers them without skinning all 1000 boards in every collection.
+func _sample_levels() -> Array[LevelCatalog.LevelDefinition]:
+	var sample: Array[LevelCatalog.LevelDefinition] = []
+	for level in LevelCatalog.levels():
+		if level.number <= 10 or level.number % 50 == 0:
+			sample.append(level)
+	return sample
 
 
 func test_fixture_symbol_images_are_distinct() -> void:

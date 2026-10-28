@@ -169,6 +169,10 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
   and call `set_tutorial_seen()`, or the tutorial will pause the clock and change toasts.
 - **Accessibility:** touch targets ≥ 120 canvas px, captions ≥ 30 px, text contrast ≥ 4.5:1, no
   state shown by colour alone; the playthrough test checks buttons and sliders.
+- **Levels:** 1000. Levels 1–10 are hand-made (`levels.json`); 11–1000 come from `LevelRecipe`
+  (chapters of 20 cycling the four gardens, difficulty waves ending on a summit, layout by
+  difficulty, time from tile count), built from the level number only, so never change them in a
+  way that alters existing levels: saved stars are keyed by level number.
 - **Saves:** player data (`progress.cfg`, `settings.cfg`) is read and written only through
   `SafeConfig` (temp file + `.bak` backup + recovery), never `ConfigFile.save` directly. Tests
   delete save files with `SafeConfig.remove_all(path)` so no `.bak` brings old data back.
@@ -209,11 +213,12 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
    generated music loops, Reduced Animations setting.
 2j. ✅ Phase 3a/3b (docs/GAP_ANALYSIS.md): larger tiles, readable blocked tiles, contact-synced
    match feedback; combo praise tiers in the feedback lane with tier cues and escalating bursts.
-2f. ✅ Journey map (`journey_screen`; `JourneyWorld` is a top-down map that scrolls vertically:
-   garden chapters from the levels' own backgrounds, mist at the seams with small garden signs, a
-   winding stepping-stone path lit gold up to the current level, a lotus badge on the current level,
-   padlocks on locked stops; swipe down = forward, markers off screen are hidden, so tests must
-   `focus_level()` before tapping one): Play opens it; markers per level with stars, difficulty
+2f. ✅ Journey map (`journey_screen`; `JourneyWorld` is a top-down map that scrolls vertically over a
+   fixed, dimmed garden painting per chapter of 20 levels (blending into the next garden over a
+   chapter's last levels), a winding stepping-stone path lit gold up to the current level, a lotus
+   badge, padlocks on locked stops, chapter signs. Only stops on screen exist (pooled LevelNodes
+   filled by `node_setup`), so `level_node(n)` is null off screen: tests must `focus_level()` first.
+   Swipe down = forward): Play opens it; markers per level with stars, difficulty
    and lock state; level card (difficulty, tiles, time, hearts, best, star rules); progress saved
    by `ProgressStore` (user://progress.cfg) via `GameSession.progress`; stars from
    `LevelRating` (1 clear, 2 at most 1 mistake, 3 no mistakes and half the time left). Tests and
