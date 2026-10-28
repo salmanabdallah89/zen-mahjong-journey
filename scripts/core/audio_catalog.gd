@@ -41,6 +41,12 @@ const EFFECTS := {
 	"reward": ["res://assets/audio/sfx/sfx_reward.wav", "SFX", 0.0, 0.3, 1],
 	"unlock": ["res://assets/audio/sfx/sfx_unlock.wav", "SFX", 0.0, 0.5, 1],
 	"button_click": ["res://assets/audio/sfx/sfx_button_click.wav", "UI", 0.03, 0.04, 2],
+	# Combo milestones: a soft shimmer above the climbing bell melody.
+	"combo": ["res://assets/audio/sfx/sfx_combo.wav", "SFX", 0.0, 0.3, 1],
+	# Level-complete stars: melody bells (a D major chord), one per star.
+	"star": ["res://assets/audio/sfx/sfx_match_06.wav", "SFX", 0.0, 0.1, 3],
+	# Shuffled tiles landing back in place: a soft wooden patter.
+	"shuffle_land": ["res://assets/audio/sfx/sfx_shuffle_land.wav", "SFX", 0.0, 0.25, 1],
 }
 
 ## Ambience mix per level background: id -> relative level (0..1).

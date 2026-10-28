@@ -149,6 +149,13 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
   after an action succeeds. Buttons get a click automatically; set meta `custom_sound` on buttons
   that play their own sound. Headless runs don't start playback (no device) but keep all state.
   File checklist: `docs/AUDIO_ASSETS.md`.
+- **Motion:** autoload `Motion` holds the player's "Reduced animations" setting (user settings,
+  section `display`; on web the default follows the browser's prefers-reduced-motion). Every new
+  animation checks `Motion.reduced` (or uses `Motion.duration()`) and degrades to a short fade:
+  no travel, bounce, pulses, particles showers or drifting backgrounds. Animations only *show*
+  the model, which is always updated first; anything that animates a tile must run on TileView's
+  tweens so `reset_visual()` can stop it and put the tile back at `home_position`. Tests point
+  `Motion.settings_path` at their throwaway settings file.
 - **Saves:** player data (`progress.cfg`, `settings.cfg`) is read and written only through
   `SafeConfig` (temp file + `.bak` backup + recovery), never `ConfigFile.save` directly. Tests
   delete save files with `SafeConfig.remove_all(path)` so no `.bak` brings old data back.
@@ -183,6 +190,10 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
    templates not installed on this PC.
 2h. ✅ Phase 1 audit and fixes (docs/AUDIT.md): undo/animation race, crash-safe saves, focus-loss
    pause, back button on every screen, hint charging, journey glitches, lossy backgrounds.
+2i. ✅ Phase 2 feel (docs/PHASE2_ANIMATION_AUDIO.md): select lift/swell, pairs glide together and
+   bloom, reverse undo, gather-and-spread shuffle, reveal pop, breathing hint, soft mistake shake,
+   combos (text, ring, shimmer), star chimes, petal shower, screen fades, background drift,
+   generated music loops, Reduced Animations setting.
 2f. ✅ Journey map (`journey_screen`, drawn in perspective by `JourneyWorld`: swipe down = forward,
    markers off-camera are hidden, so tests must `focus_level()` before tapping one): Play opens it; markers per level with stars, difficulty
    and lock state; level card (difficulty, tiles, time, hearts, best, star rules); progress saved

@@ -18,6 +18,7 @@ func _ready() -> void:
 	_settings.hide()
 	AudioManager.play_music("main_menu")
 	AudioManager.set_ambience(AudioCatalog.MENU_AMBIENCE)
+	BackgroundDrift.start($Background)
 	_play_intro()
 
 

@@ -27,6 +27,9 @@ func _ready() -> void:
 	SafeConfig.remove_all(ISOLATED_SETTINGS)
 	TileCollectionManager.settings_path = ISOLATED_SETTINGS
 	TileCollectionManager.restore()
+	# Reduced-animation preference also goes to the throwaway settings file.
+	Motion.settings_path = ISOLATED_SETTINGS
+	Motion.restore()
 	# Ads have their own test (ads_test); keep these flows ad-free and fixed.
 	AdsManager.provider = "none"
 	# Never touch the player's real journey either.
@@ -46,7 +49,11 @@ func _ready() -> void:
 	await _test_time_and_mistakes(2)
 	await _test_journey_and_stars()
 	await _test_audit_fixes(3)
+	await _test_tile_animations(4)
+	await _test_reduced_motion(2)
 	SafeConfig.remove_all(ISOLATED_SETTINGS)
+	Motion.settings_path = UserSettings.DEFAULT_PATH
+	Motion.restore()
 	GameSession.progress.reset()
 	SafeConfig.remove_all(ISOLATED_PROGRESS)
 	GameSession.progress = ProgressStore.new()
@@ -127,8 +134,15 @@ func _test_tools_and_pause(level_number: int) -> void:
 	await _click_control(screen.get_node("%ShuffleButton"))
 	_check(model.faces != before, "shuffle changes the arrangement")
 	_check(BoardSolver.solve(model, 200000).solved, "shuffled board is solvable")
+	var board_view: BoardView = screen.get_node("%Board")
+	_check(board_view.is_busy(), "the shuffle animates")
+	await _click_control(undo)
+	_check(model.faces != before, "tools wait while the shuffle animates")
+	await _settle(screen)
+	_check(_tiles_at_rest(board_view, model), "after the shuffle every tile is back in place and tappable")
 	await _click_control(undo)
 	_check(model.faces == before, "undo reverts the shuffle")
+	await _settle(screen)
 
 	# Pause blocks the board; Restart deals the same board again.
 	await _click_control(screen.get_node("%PauseButton"))
@@ -277,7 +291,9 @@ func _test_tile_collections(level_number: int) -> void:
 	var symbol_of := board.skin().symbol_texture(model.faces[first.x])
 	await _click_control(screen.get_node("%ShuffleButton"))
 	_check(board.skin().symbol_texture(model.faces[first.x]) != null, "shuffle keeps tiles skinned")
+	await _settle(screen)
 	await _click_control(screen.get_node("%UndoButton"))
+	await _settle(screen)
 	_check(board.skin().symbol_texture(model.faces[first.x]) == symbol_of, "same symbol for the same tile after undoing shuffle")
 
 	# Unavailable choices are refused with a message.
@@ -366,8 +382,10 @@ func _test_premium_collections(level_number: int) -> void:
 	_check(model.remaining == model.tile_count(), "premium: undo after switching restores the pair")
 	await _click_control(screen.get_node("%ShuffleButton"))
 	_check(_all_tiles_have_art(board, model), "premium: shuffle in Animals keeps every tile drawn")
+	await _settle(screen)
 	await _click_control(screen.get_node("%UndoButton"))
 	_check(model.faces == faces_before, "premium: undo reverts the shuffle")
+	await _settle(screen)
 	for pair in deal.solution:
 		await _click_tile(screen, pair.x)
 		await _click_tile(screen, pair.y)
@@ -613,6 +631,174 @@ func _test_audit_fixes(level_number: int) -> void:
 	_check(is_equal_approx(world.camera, camera_before), "swiping on the open card leaves the map still")
 	journey.queue_free()
 	await _frames(2)
+
+
+## Phase 2: tile animations show the model without ever blocking or
+## corrupting it, and every interruption leaves the board at rest.
+func _test_tile_animations(level_number: int) -> void:
+	var screen := await _open_level(level_number)
+	var board: BoardView = screen.get_node("%Board")
+	var model: BoardModel = screen.get("_model")
+	var solution := _expected_deal(level_number).solution
+
+	# Select: the tile lifts and swells; picking it again settles it back.
+	var pair: Vector2i = solution[0]
+	var view := board.tile(pair.x)
+	await _click_tile(screen, pair.x)
+	await get_tree().create_timer(0.25).timeout
+	var lift: Control = view.get_node("%Lift")
+	_check(lift.position.y < -5.0 and lift.scale.x > 1.02, "a selected tile lifts and swells")
+	await _click_tile(screen, pair.x)
+	await get_tree().create_timer(0.25).timeout
+	_check(is_zero_approx(lift.position.y) and lift.scale.is_equal_approx(Vector2.ONE), "deselecting settles it back")
+
+	# Rapid taps on one tile never leave it stuck selected or out of place.
+	for i in 9:
+		await _click_tile(screen, pair.x)
+	await get_tree().create_timer(0.3).timeout
+	_check(int(screen.get("_selected")) == pair.x and view.highlight() == TileView.Highlight.SELECTED,
+		"nine quick taps end selected, as the ninth tap says")
+	await _click_tile(screen, pair.x)
+	await get_tree().create_timer(0.25).timeout
+
+	# Match: the pair glides together, then leaves; the model is updated at once.
+	var b_view := board.tile(pair.y)
+	var meet := board.meeting_points(pair.x, pair.y)
+	var glides := not meet[0].is_equal_approx(view.home_position)
+	var gap_before := view.position.distance_to(b_view.position)
+	await _click_tile(screen, pair.x)
+	await _click_tile(screen, pair.y)
+	_check(model.is_removed(pair.x) and model.is_removed(pair.y), "the model removes the pair at once")
+	await get_tree().create_timer(0.2).timeout
+	_check(not glides or view.position.distance_to(b_view.position) < gap_before - 1.0,
+		"the matched pair glides toward each other")
+	await _click_tile(screen, pair.x)
+	_check(int(screen.get("_selected")) != pair.x, "a leaving tile ignores taps")
+	await get_tree().create_timer(0.6).timeout
+	_check(not view.visible and not b_view.visible and view.z_index == 0, "the pair is gone after the animation")
+
+	# Undo plays the match backwards: from the meeting point back home.
+	screen.call("_on_undo_pressed")
+	await _frames(2)
+	_check(view.visible and (not glides or not view.position.is_equal_approx(view.home_position)),
+		"undo starts where the pair met")
+	await get_tree().create_timer(0.7).timeout
+	_check(_tiles_at_rest(board, model), "after undo both tiles are home and tappable")
+
+	# Mistake feedback settles completely.
+	var wrong := _non_matching_free_pair(model)
+	if wrong.x >= 0:
+		await _click_tile(screen, wrong.x)
+		await _click_tile(screen, wrong.y)
+		await get_tree().create_timer(0.6).timeout
+		var wrong_lift: Control = board.tile(wrong.x).get_node("%Lift")
+		_check(is_zero_approx(wrong_lift.position.x) and int(screen.get("_selected")) == -1,
+			"a mismatched pair shakes gently and settles, nothing selected")
+
+	# Hint breathes, and clearing it puts the tiles back to rest.
+	screen.call("_on_hint_pressed")
+	var hint: Vector2i = screen.get("_hint")
+	await get_tree().create_timer(0.5).timeout
+	_check(hint.x >= 0 and board.tile(hint.x).highlight() == TileView.Highlight.HINT, "hint highlights a pair")
+	screen.call("_clear_hint")
+	await get_tree().create_timer(0.3).timeout
+	if hint.x >= 0:
+		var hint_lift: Control = board.tile(hint.x).get_node("%Lift")
+		_check(hint_lift.scale.is_equal_approx(Vector2.ONE), "a cleared hint stops breathing")
+
+	# Interruptions: match, then shuffle while the pair is still gliding, then
+	# undo twice. The model and the tiles must agree throughout.
+	await _click_tile(screen, solution[0].x)
+	await _click_tile(screen, solution[0].y)
+	screen.call("_on_shuffle_pressed")
+	await _settle(screen)
+	_check(not board.tile(solution[0].x).visible, "a pair matched just before a shuffle stays gone")
+	screen.call("_on_undo_pressed")
+	await _settle(screen)
+	screen.call("_on_undo_pressed")
+	await get_tree().create_timer(0.7).timeout
+	_check(model.remaining == model.tile_count() and _tiles_at_rest(board, model),
+		"shuffle mid-match and two undos leave every tile home and tappable")
+
+	# Combo: quick matches in a row show "Combo ×3" and ring the shimmer.
+	AudioManager.reset_melody()
+	var seq := AudioManager.event_seq
+	for k in 3:
+		var p: Vector2i = solution[k]
+		await _click_tile(screen, p.x)
+		await _click_tile(screen, p.y)
+	await _frames(2)
+	var combo_shown := false
+	for child in screen.get_children():
+		if child is Label and (child as Label).text == "Combo ×3":
+			combo_shown = true
+	_check(int(screen.call("combo_count")) == 3 and combo_shown, "three quick matches show Combo ×3")
+	_check(AudioManager.count_played("combo", seq) == 1, "the third match in a row rings the combo shimmer")
+	screen.queue_free()
+	await _frames(2)
+
+	# Level complete: one chime per earned star, as each star pops in.
+	screen = await _open_level(1)
+	seq = AudioManager.event_seq
+	for p: Vector2i in _expected_deal(1).solution:
+		screen.call("_on_tile_pressed", p.x)
+		screen.call("_on_tile_pressed", p.y)
+	await get_tree().create_timer(1.8).timeout
+	var dialog: ModalDialog = screen.get_node("%Dialog")
+	_check(AudioManager.count_played("star", seq) == int(dialog.call("stars_shown")), "each earned star rings once")
+	_check(screen.get_node_or_null("Celebration") != null, "a petal shower celebrates the clear")
+	screen.queue_free()
+	await _frames(2)
+
+
+## Reduced animations: no travel or bounce, quick fades, same game; the
+## choice is saved and restored.
+func _test_reduced_motion(level_number: int) -> void:
+	Motion.set_reduced(true)
+	Motion.reduced = false
+	Motion.restore()
+	_check(Motion.reduced, "reduced animations is saved and restored")
+	var screen := await _open_level(level_number)
+	var board: BoardView = screen.get_node("%Board")
+	var model: BoardModel = screen.get("_model")
+	var pair: Vector2i = _expected_deal(level_number).solution[0]
+	var view := board.tile(pair.x)
+	await _click_tile(screen, pair.x)
+	await get_tree().create_timer(0.2).timeout
+	_check((view.get_node("%Lift") as Control).scale.is_equal_approx(Vector2.ONE), "reduced: selection lifts without swelling")
+	await _click_tile(screen, pair.y)
+	await get_tree().create_timer(0.05).timeout
+	_check(view.position.is_equal_approx(view.home_position), "reduced: matched tiles fade in place")
+	await get_tree().create_timer(0.25).timeout
+	_check(not view.visible, "reduced: the fade is quick")
+	screen.call("_on_shuffle_pressed")
+	await get_tree().create_timer(0.35).timeout
+	_check(not board.is_busy() and _tiles_at_rest(board, model), "reduced: shuffle is a quick fade")
+	screen.queue_free()
+	await _frames(2)
+	Motion.set_reduced(false)
+
+
+## Waits until a running shuffle has settled (tiles ignore taps until then).
+func _settle(screen: Control) -> void:
+	var board: BoardView = screen.get_node("%Board")
+	for i in 120:
+		if not board.is_busy():
+			break
+		await _frames(1)
+	await _frames(1)
+
+
+## Every tile still on the board is visible, unscaled, at its home spot and
+## takes taps; no animation left it stuck.
+func _tiles_at_rest(board: BoardView, model: BoardModel) -> bool:
+	for i in model.tile_count():
+		if model.is_removed(i):
+			continue
+		var view := board.tile(i)
+		if not view.visible or view.mouse_filter != Control.MOUSE_FILTER_STOP or view.is_moving() 				or not view.position.is_equal_approx(view.home_position) or not view.scale.is_equal_approx(Vector2.ONE) 				or view.modulate.a < 0.99:
+			return false
+	return true
 
 
 func _drag(from: Vector2, delta: Vector2) -> void:

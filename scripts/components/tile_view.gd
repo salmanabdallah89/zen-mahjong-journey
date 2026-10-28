@@ -4,6 +4,12 @@ extends Control
 ## the face image, an ivory veil that washes out blocked tiles, and a glow for
 ## selection or hints. Only the art's top face responds to presses, so a
 ## tile's drawn edge never steals taps from its neighbours.
+##
+## Motion: every animation runs on one of a few tweens that reset_visual()
+## kills, and the tile always returns to `home_position`, so an interrupted
+## animation (Undo, Shuffle, Restart mid-flight) can never leave a tile stuck,
+## hidden or out of place. With Motion.reduced, travel, bounce and pulses
+## become short fades.
 
 signal pressed(tile: TileView)
 
@@ -12,19 +18,27 @@ enum Highlight { NONE, SELECTED, HINT }
 const IVORY := Color(0.9647059, 0.93333334, 0.8745098)
 const GOLD := Color(0.93, 0.76, 0.42)
 const SAKURA := Color(0.92, 0.42, 0.56)
+## Soft rose outline for a mismatched pair (gentler than a red warning).
+const ROSE := Color(0.86, 0.45, 0.45)
 ## Outline for tiles that block the one the player just tapped.
 const BLOCKER := Color(0.2, 0.36, 0.3)
 ## Strength of the ivory wash over blocked tiles' faces.
 const BLOCKED_VEIL_ALPHA := 0.5
 ## Brightness of a blocked tile's whole body, edge included.
 const BLOCKED_BODY := Color(0.9, 0.88, 0.85)
-const SELECTED_LIFT := 10.0
+const SELECTED_LIFT := 12.0
+const SELECTED_SCALE := 1.05
+const HINT_SCALE := 1.035
 const STATE_FADE := 0.22
+## Draw order while a matched tile travels, above resting tiles and glows.
+const FLIGHT_Z := 10
 
 var index: int = -1
 ## Tile geometry to build from; set before the tile enters the tree.
 ## Defaults to the active TileArtSet.
 var style: TileArtSet
+## Resting position on the board; every animation returns here.
+var home_position := Vector2.ZERO
 
 var _art: TileArtSet
 var _free := true
@@ -33,8 +47,10 @@ var _layer_tint := Color.WHITE
 var _base_shadow_offset := Vector2.ZERO
 var _pulse: Tween
 var _state_tween: Tween
-var _lift_tween: Tween
-var _removal_tween: Tween
+## Travel, match, restore and shuffle moves of the whole tile.
+var _motion_tween: Tween
+## Shakes and the "just uncovered" pop of the art inside the tile.
+var _accent_tween: Tween
 
 @onready var _shadow: Panel = %Shadow
 @onready var _lift: Control = %Lift
@@ -50,12 +66,19 @@ func _ready() -> void:
 	custom_minimum_size = _art.image_size
 	pivot_offset = _art.face_rect.get_center()
 	_lift.size = _art.image_size
+	_lift.pivot_offset = _art.face_rect.get_center()
 	_face.size = _art.image_size
 	_place(_veil, _art.face_rect)
 	_place(_glow, _art.face_rect)
 	_place(_shadow, _art.body_rect)
 	_veil.add_theme_stylebox_override("panel", _veil_style())
 	_apply_look(false)
+
+
+## Places the tile at its resting spot on the board.
+func place_at(point: Vector2) -> void:
+	home_position = point
+	position = point
 
 
 ## Shadow depth and a slight darkening grow toward the bottom layer, so stacks
@@ -84,10 +107,18 @@ func has_art() -> bool:
 	return _face.texture != null and (not _symbol.visible or _symbol.texture != null)
 
 
-func set_free(value: bool, animate := true) -> void:
+## `reveal_delay` >= 0 plays the "just uncovered" pop after that many seconds
+## when the tile becomes free.
+func set_free(value: bool, animate := true, reveal_delay := -1.0) -> void:
 	if _free != value:
 		_free = value
 		_apply_look(animate)
+		if value and animate and reveal_delay >= 0.0:
+			play_reveal(reveal_delay)
+
+
+func is_free_look() -> bool:
+	return _free
 
 
 func set_highlight(value: Highlight) -> void:
@@ -96,57 +127,129 @@ func set_highlight(value: Highlight) -> void:
 		_apply_look(true)
 
 
-## Clears any animation state so the tile shows plainly.
+func highlight() -> Highlight:
+	return _highlight
+
+
+## Stops every animation and shows the tile plainly at its resting spot.
 func reset_visual() -> void:
-	# An unfinished removal (Undo or Shuffle right after a match) must not
-	# hide the tile again once it is back in play.
-	if _removal_tween:
-		_removal_tween.kill()
-		_removal_tween = null
+	_stop_motion()
 	visible = true
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	modulate = Color.WHITE
 	scale = Vector2.ONE
+	rotation = 0.0
+	position = home_position
+	z_index = 0
 	_face.position = Vector2.ZERO
+	_lift.position.x = 0.0
 
 
-## Match: a gentle golden swell, then the tile settles away.
-func play_removal() -> void:
-	# Stop taking taps at once so the fading tile never hides the one beneath.
+## True while a match animation is playing (the tile is leaving the board).
+func is_removing() -> bool:
+	return _motion_tween != null and _motion_tween.is_running() and mouse_filter == Control.MOUSE_FILTER_IGNORE
+
+
+## True while any whole-tile move (match, restore, shuffle) is playing.
+func is_moving() -> bool:
+	return _motion_tween != null and _motion_tween.is_running()
+
+
+## Match: the tile swells, glides to `meet` (where it touches its partner),
+## then both bloom and fade together. `travel` is the glide time.
+func play_match(meet: Vector2, travel: float) -> void:
+	_stop_motion()
+	# Stop taking taps at once so the leaving tile never hides the one beneath.
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_highlight = Highlight.SELECTED
 	_apply_look(false)
-	if _removal_tween:
-		_removal_tween.kill()
-	_removal_tween = create_tween()
-	_removal_tween.tween_property(self, "scale", Vector2(1.08, 1.08), 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	_removal_tween.parallel().tween_property(self, "modulate", Color(1.15, 1.1, 1.0), 0.12)
-	_removal_tween.tween_property(self, "scale", Vector2(0.86, 0.86), 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	_removal_tween.parallel().tween_property(self, "modulate", Color(1.15, 1.1, 1.0, 0.0), 0.22)
-	_removal_tween.tween_callback(_finish_removal)
+	z_index = FLIGHT_Z
+	_motion_tween = create_tween()
+	if Motion.reduced:
+		_motion_tween.tween_property(self, "modulate:a", 0.0, 0.16).set_trans(Tween.TRANS_SINE)
+	else:
+		_motion_tween.tween_property(self, "scale", Vector2(1.07, 1.07), 0.08).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		_motion_tween.tween_property(self, "position", meet, travel).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+		_motion_tween.tween_property(self, "scale", Vector2(1.14, 1.14), 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		_motion_tween.parallel().tween_property(self, "modulate", Color(1.2, 1.12, 1.0, 0.0), 0.16).set_trans(Tween.TRANS_SINE)
+	_motion_tween.tween_callback(_finish_removal)
 
 
-## True while the match animation is still playing.
-func is_removing() -> bool:
-	return _removal_tween != null and _removal_tween.is_running()
-
-
-func play_restore() -> void:
+## Undo: the reverse of play_match. The tile appears where the pair met and
+## glides back to its spot.
+func play_restore(from: Vector2, travel: float) -> void:
 	reset_visual()
 	_highlight = Highlight.NONE
 	_apply_look(false)
-	modulate.a = 0.0
-	scale = Vector2(0.9, 0.9)
-	var tween := create_tween().set_parallel()
-	tween.tween_property(self, "scale", Vector2.ONE, 0.24).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_property(self, "modulate:a", 1.0, 0.2).set_trans(Tween.TRANS_SINE)
+	_motion_tween = create_tween()
+	if Motion.reduced:
+		modulate.a = 0.0
+		_motion_tween.tween_property(self, "modulate:a", 1.0, 0.16).set_trans(Tween.TRANS_SINE)
+		return
+	z_index = FLIGHT_Z
+	position = from
+	scale = Vector2(1.14, 1.14)
+	modulate = Color(1.2, 1.12, 1.0, 0.0)
+	_motion_tween.tween_property(self, "modulate", Color.WHITE, 0.14).set_trans(Tween.TRANS_SINE)
+	_motion_tween.parallel().tween_property(self, "scale", Vector2(1.04, 1.04), 0.14).set_trans(Tween.TRANS_SINE)
+	_motion_tween.tween_property(self, "position", home_position, travel).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	_motion_tween.tween_property(self, "scale", Vector2.ONE, 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_motion_tween.tween_callback(func() -> void: z_index = 0)
 
 
-## Small sideways shake telling the player a blocked tile cannot be picked.
+## Shuffle, first half: glide toward `gather` and shrink a little. The board
+## swaps the art while tiles are gathered, then calls shuffle_return().
+func shuffle_gather(gather: Vector2, delay: float, seconds: float) -> void:
+	reset_visual()
+	_motion_tween = create_tween()
+	if Motion.reduced:
+		_motion_tween.tween_property(self, "modulate:a", 0.0, seconds).set_trans(Tween.TRANS_SINE)
+		return
+	_motion_tween.tween_interval(delay)
+	_motion_tween.tween_property(self, "position", gather, seconds).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	_motion_tween.parallel().tween_property(self, "scale", Vector2(0.86, 0.86), seconds).set_trans(Tween.TRANS_SINE)
+	_motion_tween.parallel().tween_property(self, "rotation", deg_to_rad(6.0 if index % 2 == 0 else -6.0), seconds)
+
+
+## Shuffle, second half: spread back out to the resting spot.
+func shuffle_return(delay: float, seconds: float) -> void:
+	if _motion_tween:
+		_motion_tween.kill()
+	_motion_tween = create_tween()
+	if Motion.reduced:
+		_motion_tween.tween_property(self, "modulate:a", 1.0, seconds).set_trans(Tween.TRANS_SINE)
+		return
+	_motion_tween.tween_interval(delay)
+	_motion_tween.tween_property(self, "position", home_position, seconds).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_motion_tween.parallel().tween_property(self, "scale", Vector2.ONE, seconds).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_motion_tween.parallel().tween_property(self, "rotation", 0.0, seconds).set_trans(Tween.TRANS_SINE)
+
+
+## A blocked tile can't be picked: a small sideways nudge.
 func play_blocked_nudge() -> void:
-	var tween := create_tween()
-	for offset in [8.0, -8.0, 5.0, 0.0]:
-		tween.tween_property(_face, "position:x", offset, 0.05)
+	if Motion.reduced:
+		return
+	_shake([6.0, -5.0, 3.0, 0.0], 0.05)
+
+
+## A mismatched pair: a soft, damped shake and a brief rose outline. No harsh
+## flash or colour change of the tile itself.
+func play_mistake() -> void:
+	if not Motion.reduced:
+		_shake([7.0, -6.0, 4.0, -2.0, 0.0], 0.065)
+	_flash_outline(ROSE, 0.25, 0.4)
+
+
+## A tile that just became free brightens and swells slightly, then settles.
+func play_reveal(delay := 0.0) -> void:
+	if Motion.reduced:
+		return
+	_restart_accent()
+	_accent_tween.tween_interval(delay)
+	_accent_tween.tween_property(_lift, "scale", Vector2(1.045, 1.045), 0.14).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_accent_tween.parallel().tween_property(self, "modulate", Color(1.1, 1.08, 1.02), 0.14)
+	_accent_tween.tween_property(_lift, "scale", _rest_scale(), 0.26).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_accent_tween.parallel().tween_property(self, "modulate", Color.WHITE, 0.26)
 
 
 ## Briefly outlines this tile as the reason another tile is blocked. The
@@ -155,15 +258,7 @@ func play_blocked_nudge() -> void:
 func play_blocker_flash() -> void:
 	if _highlight != Highlight.NONE:
 		return
-	if _pulse:
-		_pulse.kill()
-	_glow.add_theme_stylebox_override("panel", _glow_style(BLOCKER))
-	_glow.visible = true
-	_glow.modulate.a = 1.0
-	_pulse = create_tween()
-	_pulse.tween_interval(0.5)
-	_pulse.tween_property(_glow, "modulate:a", 0.0, 0.5).set_trans(Tween.TRANS_SINE)
-	_pulse.tween_callback(_apply_look.bind(false))
+	_flash_outline(BLOCKER, 0.5, 0.5)
 
 
 ## Centre of the tap area in this tile's local coordinates.
@@ -184,10 +279,56 @@ func _gui_input(event: InputEvent) -> void:
 
 
 func _finish_removal() -> void:
-	_removal_tween = null
 	hide()
+	z_index = 0
 	_highlight = Highlight.NONE
 	_apply_look(false)
+
+
+func _stop_motion() -> void:
+	for tween: Tween in [_motion_tween, _accent_tween]:
+		if tween:
+			tween.kill()
+	_motion_tween = null
+	_accent_tween = null
+	if is_node_ready():
+		_lift.scale = _rest_scale()
+
+
+## Kills the running accent (shake or reveal), puts the art back to rest and
+## starts a fresh accent tween.
+func _restart_accent() -> void:
+	if _accent_tween:
+		_accent_tween.kill()
+	_lift.position.x = 0.0
+	_lift.scale = _rest_scale()
+	if mouse_filter != Control.MOUSE_FILTER_IGNORE:
+		modulate = Color.WHITE
+	_accent_tween = create_tween()
+
+
+func _shake(offsets: Array, step: float) -> void:
+	_restart_accent()
+	for offset: float in offsets:
+		_accent_tween.tween_property(_lift, "position:x", offset, step).set_trans(Tween.TRANS_SINE)
+
+
+func _flash_outline(color: Color, hold: float, fade: float) -> void:
+	if _highlight != Highlight.NONE:
+		return
+	if _pulse:
+		_pulse.kill()
+	_glow.add_theme_stylebox_override("panel", _glow_style(color))
+	_glow.visible = true
+	_glow.modulate.a = 1.0
+	_pulse = create_tween()
+	_pulse.tween_interval(hold)
+	_pulse.tween_property(_glow, "modulate:a", 0.0, fade).set_trans(Tween.TRANS_SINE)
+	_pulse.tween_callback(_apply_look.bind(false))
+
+
+func _rest_scale() -> Vector2:
+	return Vector2(SELECTED_SCALE, SELECTED_SCALE) if _highlight == Highlight.SELECTED and not Motion.reduced else Vector2.ONE
 
 
 func _apply_look(animate: bool) -> void:
@@ -202,7 +343,8 @@ func _apply_look(animate: bool) -> void:
 	var face_tint := _layer_tint * (BLOCKED_BODY if blocked else Color.WHITE)
 	face_tint.a = 1.0
 	var lift_y := -SELECTED_LIFT if lifted else 0.0
-	var shadow_offset := _base_shadow_offset + (Vector2(4, 8) if lifted else Vector2.ZERO)
+	var shadow_offset := _base_shadow_offset + (Vector2(4, 9) if lifted else Vector2.ZERO)
+	var lift_scale := _rest_scale()
 
 	if _state_tween:
 		_state_tween.kill()
@@ -210,12 +352,19 @@ func _apply_look(animate: bool) -> void:
 		_state_tween = create_tween().set_parallel().set_trans(Tween.TRANS_SINE)
 		_state_tween.tween_property(_veil, "modulate:a", veil_alpha, STATE_FADE)
 		_state_tween.tween_property(_face, "modulate", face_tint, STATE_FADE)
-		_state_tween.tween_property(_lift, "position:y", lift_y, 0.14)
-		_state_tween.tween_property(_shadow, "position", _art.body_rect.position + shadow_offset, 0.14)
+		var lift_time := Motion.duration(0.16)
+		# Picking a tile pops it up with a little overshoot; letting go settles.
+		var pop := _state_tween.tween_property(_lift, "scale", lift_scale, lift_time)
+		var rise := _state_tween.tween_property(_lift, "position:y", lift_y, lift_time)
+		if lifted:
+			pop.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+			rise.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		_state_tween.tween_property(_shadow, "position", _art.body_rect.position + shadow_offset, lift_time)
 	else:
 		_veil.modulate.a = veil_alpha
 		_face.modulate = face_tint
 		_lift.position.y = lift_y
+		_lift.scale = lift_scale
 		_shadow.position = _art.body_rect.position + shadow_offset
 
 	match _highlight:
@@ -227,9 +376,13 @@ func _apply_look(animate: bool) -> void:
 			_glow.add_theme_stylebox_override("panel", _glow_style(SAKURA))
 			_glow.visible = true
 			_glow.modulate.a = 1.0
-			_pulse = create_tween().set_loops()
-			_pulse.tween_property(_glow, "modulate:a", 0.6, 0.55).set_trans(Tween.TRANS_SINE)
-			_pulse.tween_property(_glow, "modulate:a", 1.0, 0.55).set_trans(Tween.TRANS_SINE)
+			if not Motion.reduced:
+				# Soft breathing: the glow and the tile swell together.
+				_pulse = create_tween().set_loops().set_trans(Tween.TRANS_SINE)
+				_pulse.tween_property(_glow, "modulate:a", 0.55, 0.7)
+				_pulse.parallel().tween_property(_lift, "scale", Vector2(HINT_SCALE, HINT_SCALE), 0.7)
+				_pulse.tween_property(_glow, "modulate:a", 1.0, 0.7)
+				_pulse.parallel().tween_property(_lift, "scale", Vector2.ONE, 0.7)
 		_:
 			_glow.visible = false
 

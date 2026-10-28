@@ -8,8 +8,8 @@ place under the exact name below and it is used automatically. No code change is
 
 | File | Status | Format | Duration | Notes |
 |------|--------|--------|----------|-------|
-| `assets/audio/music/music_main_menu.ogg` | ❌ **missing** | Ogg Vorbis, 44.1 kHz stereo, ~128–160 kbps | 2–3 min, seamless loop | Calm koto/shakuhachi/pads, no loud percussion |
-| `assets/audio/music/music_gameplay.ogg` | ❌ **missing** | Ogg Vorbis, 44.1 kHz stereo | 3–4 min, seamless loop | Even calmer than the menu, unobtrusive under tile sounds |
+| `assets/audio/music/music_main_menu.ogg` | ✅ generated | Ogg Vorbis, 44.1 kHz stereo | 58 s seamless loop | Warm pads (D, Bm, G, Asus2 at 66 BPM), koto-style pentatonic melody, a soft bell every second chord. Seam checked: jump at the loop point 44 vs a typical sample step of 421 |
+| `assets/audio/music/music_gameplay.ogg` | ✅ generated | Ogg Vorbis, 44.1 kHz stereo | 99 s seamless loop | Same palette at 58 BPM, sparser and quieter so tile sounds stay in front. Seam jump 35 vs typical step 227 |
 | `assets/audio/ambient/ambient_waterfall.ogg` | ✅ generated | Ogg Vorbis, 44.1 kHz mono | 30 s loop | Filtered pink noise |
 | `assets/audio/ambient/ambient_wind.ogg` | ✅ generated | Ogg Vorbis, 44.1 kHz mono | 30 s loop | Filtered brown noise with a slow 0.1 Hz swell |
 | `assets/audio/ambient/ambient_birds.ogg` | ❌ **missing** | Ogg Vorbis, 44.1 kHz stereo | 30–60 s loop | Sparse, distant songbirds. Not synthesized: fake birdsong sounds artificial |
@@ -23,12 +23,18 @@ place under the exact name below and it is used automatically. No code change is
 | `assets/audio/sfx/sfx_level_failed.wav` | ✅ generated | WAV | 2.3 s | Gentle koto line falling to low D, soft bell |
 | `assets/audio/sfx/sfx_button_click.wav` | ✅ generated | WAV | 0.08 s | Tiny bamboo tick |
 | `assets/audio/sfx/sfx_level_complete.wav` | ✅ generated | WAV | 3.7 s | Bell run up the scale resolving on a D chord with a low koto D |
-| `assets/audio/sfx/sfx_reward.wav` | ✅ generated | WAV | 1.20 s | Bright double chime. **Not triggered yet:** the game has no rewards |
-| `assets/audio/sfx/sfx_unlock.wav` | ✅ generated | WAV | 1.80 s | Soft gong. **Not triggered yet:** nothing is locked/unlocked |
+| `assets/audio/sfx/sfx_reward.wav` | ✅ generated | WAV | 1.20 s | Bright double chime: rewarded ad pays out (second chance) |
+| `assets/audio/sfx/sfx_unlock.wav` | ✅ generated | WAV | 1.80 s | Soft gong: a new level opens on the journey map |
+| `assets/audio/sfx/sfx_combo.wav` | ✅ generated | WAV | 1.4 s | Combo shimmer (A6 D7 F#7 A7, quiet) at 3, 5, 8 and 10 matches in a row |
+| `assets/audio/sfx/sfx_shuffle_land.wav` | ✅ generated | WAV | 0.6 s | Soft low wooden patter as shuffled tiles settle back |
+| (level-complete stars) | ✅ reuses melody bells | — | — | Effect id `star`: each earned star rings D6, F#6, A6 (a D major chord) |
 
 "Generated" files are original and procedural (pure tones, envelopes and filtered noise via
-ffmpeg, no samples), so there are no third-party rights. Regenerate or tweak them with
-`bash tools/audio/generate_audio.sh` from the project root. They were checked for duration,
+ffmpeg; music synthesised note by note in Python; no samples, loops or presets from anyone
+else), so there are no third-party rights. Regenerate or tweak them from the project root with
+`bash tools/audio/generate_audio.sh` (effects, ambience) and `python tools/audio/generate_music.py`
+(music; deterministic seeds, about 20 s). Re-running rewrites the `.ogg` files with new stream
+serial numbers even when the audio is identical, so restore unchanged ones with `git checkout`. They were checked for duration,
 peak level (normalized to −3 … −6 dBFS, no clipping) and the bells' pitch (each 20–110× stronger
 at its note than a semitone away), but **nobody has listened to them yet**. Audition them, and replace any you don't like with recorded or commissioned sounds
 under the same names.

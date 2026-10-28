@@ -61,10 +61,12 @@ func _ready() -> void:
 ## 12. Missing audio never crashes and is reported.
 func _test_missing_files_are_safe() -> void:
 	_check(not AudioManager.play_sfx("no_such_effect"), "unknown effect id is ignored")
+	var absent := "res://assets/audio/sfx/no_such_file.wav"
+	_check(not AudioManager.play_sfx("hint", absent), "a missing effect file plays nothing")
+	_check(AudioManager.missing.has(absent), "a missing effect file is recorded")
 	AudioManager.play_music("main_menu")
-	_check(AudioManager.current_music == "main_menu", "missing music still sets the current track")
-	_check(AudioManager.active_music_player() == null, "missing music file plays nothing")
-	_check(AudioManager.missing.has(AudioCatalog.MUSIC["main_menu"]), "missing music file is recorded")
+	_check(AudioManager.current_music == "main_menu" and AudioManager.active_music_player() != null,
+		"the installed menu music starts")
 	AudioManager.set_ambience({"birds": 1.0})
 	_check(AudioManager.missing.has(AudioCatalog.AMBIENCE["birds"]), "missing birds ambience is recorded")
 	AudioManager.set_ambience({})
@@ -160,6 +162,9 @@ func _test_gameplay_sounds() -> void:
 
 	for tool in [["HintButton", "hint"], ["ShuffleButton", "shuffle"], ["UndoButton", "undo"]]:
 		await _wait(0.3)
+		# Tools wait for a running shuffle animation to settle.
+		while (screen.get_node("%Board") as BoardView).is_busy():
+			await _frames(1)
 		seq = AudioManager.event_seq
 		await _click(screen.get_node("%" + tool[0]))
 		_check(AudioManager.count_played(tool[1], seq) == 1, "7: %s plays its sound" % tool[1])
@@ -191,7 +196,7 @@ func _test_level_complete_and_ducking() -> void:
 	await _frames(3)
 	_check(AudioManager.count_played("level_complete", seq) == 1, "8: level completion plays the victory sound once")
 	await _wait(1.0)
-	_check(AudioManager.count_played("reward", seq) == 1, "stars on level complete play the reward chime")
+	_check(AudioManager.count_played("star", seq) >= 1, "stars on level complete ring a chime each")
 	_check(AudioManager.count_requested("tile_match", seq) == deal.solution.size() - 1,
 		"8: every match but the last plays the match sound (%d of %d)" % [AudioManager.count_requested("tile_match", seq), deal.solution.size() - 1])
 	await _wait(0.5)

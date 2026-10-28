@@ -146,6 +146,24 @@ theme_type_variation = &"ToggleButton"
 toggle_mode = true
 text = "Off"
 
+[node name="MotionRow" type="HBoxContainer" parent="Center/Panel/Content"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="MotionLabel" type="Label" parent="Center/Panel/Content/MotionRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"DialogBodyLabel"
+text = "Reduced Animations"
+
+[node name="MotionToggle" type="Button" parent="Center/Panel/Content/MotionRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(250, 110)
+layout_mode = 2
+theme_type_variation = &"ToggleButton"
+toggle_mode = true
+text = "Off"
+
 [node name="MuteRow" type="HBoxContainer" parent="Center/Panel/Content"]
 layout_mode = 2
 theme_override_constants/separation = 16

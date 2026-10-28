@@ -22,6 +22,7 @@ config/quit_on_go_back=false
 
 [autoload]
 
+Motion="*res://scripts/autoload/motion.gd"
 GameSession="*res://scripts/autoload/game_session.gd"
 TileCollectionManager="*res://scripts/autoload/tile_collection_manager.gd"
 AudioManager="*res://scripts/autoload/audio_manager.gd"

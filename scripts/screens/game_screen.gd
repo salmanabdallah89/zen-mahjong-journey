@@ -13,6 +13,13 @@ const TIME_WARNING_SECONDS := 30.0
 ## tab, a slow device) can't cost the player a big chunk of time at once.
 const MAX_CLOCK_STEP := 0.25
 const HEART_TEXTURE := preload("res://assets/ui/icons/icon_heart.png")
+const PETAL_TEXTURE := preload("res://assets/effects/petal_02.png")
+## Matches in a row from which a combo is shown, and the counts that also
+## get a shimmer sound (the bell melody itself climbs on every match).
+const COMBO_SHOWN_FROM := 3
+const COMBO_CHIMES: Array[int] = [3, 5, 8, 10]
+## Level-complete stars ring a rising D major chord: D6, F#6, A6 (melody notes).
+const STAR_NOTES: Array[int] = [5, 7, 8]
 const TIME_NORMAL := Color(0.20784314, 0.30980393, 0.26666668)
 const TIME_WARNING := Color(0.72, 0.22, 0.25)
 
@@ -64,6 +71,7 @@ var _pause_open := false
 
 func _ready() -> void:
 	_board.tile_pressed.connect(_on_tile_pressed)
+	_board.shuffle_spreading.connect(func() -> void: AudioManager.play_sfx("shuffle_land"))
 	_pause_button.pressed.connect(_open_pause_menu)
 	_hint_button.pressed.connect(_on_hint_pressed)
 	_shuffle_button.pressed.connect(_on_shuffle_pressed)
@@ -78,6 +86,8 @@ func _ready() -> void:
 	_settings.hide()
 	_settings.closed.connect(_on_picker_closed)
 	TileCollectionManager.collection_changed.connect(_on_collection_changed)
+	_dialog.star_popped.connect(_on_star_popped)
+	BackgroundDrift.start(_background)
 	_start_level()
 
 
@@ -156,6 +166,9 @@ func _start_level() -> void:
 func _on_tile_pressed(index: int) -> void:
 	if _failed or _dialog.visible or _picker.visible or _settings.visible or _model.is_cleared() or AdsManager.is_showing():
 		return
+	# Faces change mid-shuffle; wait until the tiles have settled.
+	if _board.is_busy():
+		return
 	if not _model.is_free(index):
 		_explain_blocked(index)
 		return
@@ -171,6 +184,7 @@ func _on_tile_pressed(index: int) -> void:
 		return
 	_set_selected(index)
 	AudioManager.play_sfx("tile_select")
+	AudioManager.vibrate(10)
 
 
 ## Shakes a blocked tile and outlines what is blocking it, including tiles
@@ -209,21 +223,57 @@ func _remove_pair(a: int, b: int) -> void:
 	_model.remove_pair(a, b)
 	_undo_stack.append({"kind": UndoKind.MATCH, "pair": Vector2i(a, b)})
 	_matches += 1
-	_board.play_removal(a, b)
-	_board.refresh_free_states()
-	_update_hud()
-	AudioManager.vibrate()
 	# The last pair is celebrated by the level-complete sound instead.
 	if not _model.is_cleared():
 		AudioManager.play_match_note()
+	var combo := combo_count()
+	_board.play_removal(a, b, combo)
+	_update_hud()
+	if combo >= COMBO_SHOWN_FROM and not _model.is_cleared():
+		_show_combo(combo, _board.meeting_point_global(a, b))
+	else:
+		AudioManager.vibrate()
 	if _model.is_cleared():
 		_show_level_complete.call_deferred()
 	elif not _model.has_moves():
 		_show_no_moves()
 
 
+## Matches in a row, counting the last one: the match melody's step, which
+## climbs while matches come within AudioManager.melody_window of each other.
+func combo_count() -> int:
+	return AudioManager.melody_step() + 1
+
+
+## Combo: a small floating "Combo ×N" where the pair met, a shimmer at a few
+## milestones and a slightly longer buzz.
+func _show_combo(combo: int, at: Vector2) -> void:
+	if combo in COMBO_CHIMES:
+		AudioManager.play_sfx("combo")
+	AudioManager.vibrate(35)
+	var label := Label.new()
+	label.text = "Combo ×%d" % combo
+	label.theme_type_variation = &"ComboLabel"
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.z_index = 20
+	add_child(label)
+	label.reset_size()
+	label.pivot_offset = label.size / 2.0
+	label.global_position = at - label.size / 2.0 - Vector2(0, 40)
+	label.modulate.a = 0.0
+	var rise := 0.0 if Motion.reduced else 70.0
+	var tween := label.create_tween()
+	tween.tween_property(label, "modulate:a", 1.0, 0.12)
+	if not Motion.reduced:
+		label.scale = Vector2(0.7, 0.7)
+		tween.parallel().tween_property(label, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(label, "position:y", label.position.y - rise, 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(label, "modulate:a", 0.0, 0.7).set_delay(0.25)
+	tween.tween_callback(label.queue_free)
+
+
 func _on_hint_pressed() -> void:
-	if _model.is_cleared() or _failed or _dialog.visible:
+	if _model.is_cleared() or _failed or _dialog.visible or _board.is_busy():
 		return
 	# Never spend a free hint or ask for an ad when there is nothing to show.
 	if not _model.has_moves():
@@ -273,7 +323,7 @@ func _give_hint() -> void:
 
 
 func _on_shuffle_pressed() -> void:
-	if _model.is_cleared() or _failed or _dialog.visible:
+	if _model.is_cleared() or _failed or _dialog.visible or _board.is_busy():
 		return
 	var result := BoardGenerator.reshuffle(_model, _level.deal_seed + 7919 * (_shuffles + 1))
 	if not result.ok:
@@ -286,13 +336,13 @@ func _on_shuffle_pressed() -> void:
 	AudioManager.reset_melody()
 	_set_selected(-1)
 	_clear_hint()
-	_board.refresh_all()
+	_board.play_shuffle()
 	_update_hud()
 	_show_toast("Tiles shuffled")
 
 
 func _on_undo_pressed() -> void:
-	if _undo_stack.is_empty() or _failed or _dialog.visible or _model.is_cleared():
+	if _undo_stack.is_empty() or _failed or _dialog.visible or _model.is_cleared() or _board.is_busy():
 		return
 	var entry: Dictionary = _undo_stack.pop_back()
 	AudioManager.play_sfx("undo")
@@ -306,7 +356,7 @@ func _on_undo_pressed() -> void:
 		_board.play_restore(pair.x, pair.y)
 	else:
 		_model.set_faces(entry["faces"])
-		_board.refresh_all()
+		_board.play_shuffle()
 	_update_hud()
 
 
@@ -424,7 +474,52 @@ func _show_level_complete() -> void:
 	_dialog.set_stars(earned, LevelRating.MAX_STARS, true)
 	_dialog.add_action("Replay", func() -> void: AdsManager.after_level_complete(_restart), not GameSession.has_next_level())
 	_dialog.add_action("Levels", func() -> void: AdsManager.after_level_complete(GameSession.go_levels))
-	get_tree().create_timer(0.9).timeout.connect(func() -> void: AudioManager.play_sfx("reward"))
+	_play_celebration()
+	AudioManager.vibrate(60)
+
+
+func _on_star_popped(index: int) -> void:
+	var note: int = STAR_NOTES[mini(index, STAR_NOTES.size() - 1)]
+	AudioManager.play_sfx("star", AudioCatalog.MATCH_NOTES[note])
+	AudioManager.vibrate(15)
+
+
+## A gentle shower of sakura petals over the whole screen, behind the dialog.
+func _play_celebration() -> void:
+	if Motion.reduced:
+		return
+	var shower := CPUParticles2D.new()
+	shower.name = "Celebration"
+	shower.texture = PETAL_TEXTURE
+	shower.amount = 26
+	shower.lifetime = 4.0
+	shower.one_shot = true
+	shower.explosiveness = 0.35
+	shower.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	shower.emission_rect_extents = Vector2(size.x / 2.0, 20.0)
+	shower.position = Vector2(size.x / 2.0, -40.0)
+	shower.direction = Vector2(0.2, 1.0)
+	shower.spread = 25.0
+	shower.gravity = Vector2(0, 90)
+	shower.initial_velocity_min = 120.0
+	shower.initial_velocity_max = 260.0
+	shower.angular_velocity_min = -90.0
+	shower.angular_velocity_max = 90.0
+	shower.angle_min = -180.0
+	shower.angle_max = 180.0
+	shower.scale_amount_min = 0.45
+	shower.scale_amount_max = 0.8
+	var fade := Gradient.new()
+	fade.offsets = PackedFloat32Array([0.0, 0.1, 0.8, 1.0])
+	fade.colors = PackedColorArray([Color(1, 1, 1, 0), Color.WHITE, Color.WHITE, Color(1, 1, 1, 0)])
+	shower.color_ramp = fade
+	# Above the board, below the dialog (which is drawn later in the tree).
+	add_child(shower)
+	move_child(shower, _dialog.get_index())
+	shower.emitting = true
+	var tween := shower.create_tween()
+	tween.tween_interval(shower.lifetime + 1.0)
+	tween.tween_callback(shower.queue_free)
 
 
 func _next_star_tip(earned: int) -> String:
@@ -461,8 +556,8 @@ func _register_mistake(a: int, b: int) -> void:
 	_mistakes += 1
 	_set_selected(-1)
 	_clear_hint()
-	_board.tile(a).play_blocked_nudge()
-	_board.tile(b).play_blocked_nudge()
+	_board.tile(a).play_mistake()
+	_board.tile(b).play_mistake()
 	AudioManager.play_sfx("mistake")
 	AudioManager.vibrate(60)
 	_update_hearts()

@@ -1,7 +1,7 @@
 class_name AudioSettingsPanel
 extends Control
 ## Settings panel: music, sound-effect and nature-ambience volume sliders,
-## vibration and mute toggles. Changes apply immediately through
+## vibration, reduced-animation and mute toggles. Changes apply immediately through
 ## AudioManager, which saves them. Opening or closing it never touches the
 ## music, so the soundtrack keeps playing.
 
@@ -14,6 +14,7 @@ signal closed
 @onready var _sfx_value: Label = %SfxValue
 @onready var _ambience_value: Label = %AmbienceValue
 @onready var _vibration: Button = %VibrationToggle
+@onready var _motion: Button = %MotionToggle
 @onready var _mute: Button = %MuteToggle
 @onready var _back: Button = %BackButton
 
@@ -35,6 +36,9 @@ func _ready() -> void:
 		if on:
 			AudioManager.vibrate(40)
 		_sync_labels())
+	_motion.toggled.connect(func(on: bool) -> void:
+		Motion.set_reduced(on)
+		_sync_labels())
 	_mute.toggled.connect(func(on: bool) -> void:
 		AudioManager.set_muted(on)
 		_sync_labels())
@@ -47,11 +51,12 @@ func open(back_label := "Back") -> void:
 	_sfx.set_value_no_signal(AudioManager.sfx_volume)
 	_ambience.set_value_no_signal(AudioManager.ambience_volume)
 	_vibration.set_pressed_no_signal(AudioManager.vibration)
+	_motion.set_pressed_no_signal(Motion.reduced)
 	_mute.set_pressed_no_signal(AudioManager.muted)
 	_sync_labels()
 	show()
 	modulate.a = 0.0
-	create_tween().tween_property(self, "modulate:a", 1.0, 0.2).set_trans(Tween.TRANS_SINE)
+	create_tween().tween_property(self, "modulate:a", 1.0, Motion.duration(0.2)).set_trans(Tween.TRANS_SINE)
 
 
 func _sync_labels() -> void:
@@ -59,6 +64,7 @@ func _sync_labels() -> void:
 	_sfx_value.text = "%d%%" % roundi(_sfx.value * 100.0)
 	_ambience_value.text = "%d%%" % roundi(_ambience.value * 100.0)
 	_vibration.text = "On" if _vibration.button_pressed else "Off"
+	_motion.text = "On" if _motion.button_pressed else "Off"
 	_mute.text = "Muted" if _mute.button_pressed else "Sound on"
 	# Sliders read as inactive while everything is muted.
 	for slider in [_music, _sfx, _ambience]:

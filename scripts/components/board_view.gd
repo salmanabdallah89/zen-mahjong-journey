@@ -4,9 +4,14 @@ extends Control
 ## space this Control is given, leaving the garden visible around it. Tile
 ## spacing and layer raise come from the active TileArtSet; what each face
 ## looks like comes from a TileSkin, which can be swapped without touching the
-## model. Forwards tile presses by index and plays match effects.
+## model. Forwards tile presses by index and plays the board's animations:
+## matched pairs gliding together, undo reversing that, and shuffles that
+## gather the tiles and spread them out again. The model is always updated
+## first; animations only show it, and every one can be interrupted.
 
 signal tile_pressed(index: int)
+## A shuffle has swapped the faces and the tiles start spreading back out.
+signal shuffle_spreading
 
 const TILE_SCENE := preload("res://scenes/components/tile_view.tscn")
 const BURST_SCENE := preload("res://scenes/components/match_burst.tscn")
@@ -16,6 +21,17 @@ const MAX_FACE_WIDTH := 148.0
 ## Share of the available width / height the board may use.
 const FIT_WIDTH := 0.9
 const FIT_HEIGHT := 0.94
+## Glide time of a matched pair: short hops are quick, long ones a bit slower.
+const MATCH_TRAVEL_MIN := 0.16
+const MATCH_TRAVEL_MAX := 0.3
+## Swell before the glide (TileView.play_match).
+const MATCH_SWELL := 0.08
+## Newly uncovered tiles pop once the matched pair has met.
+const REVEAL_DELAY := 0.24
+## Shuffle: gather, swap faces, spread out again.
+const SHUFFLE_GATHER := 0.24
+const SHUFFLE_SPREAD := 0.34
+const SHUFFLE_STAGGER := 0.12
 
 var _model: BoardModel
 var _art: TileArtSet
@@ -25,6 +41,7 @@ var _layer: Control
 var _backdrop: TextureRect
 var _effects: Control
 var _content := Rect2()
+var _shuffle_tween: Tween
 
 
 func _ready() -> void:
@@ -35,6 +52,9 @@ func show_board(model: BoardModel, skin: TileSkin) -> void:
 	_model = model
 	_skin = skin
 	_art = skin.style
+	if _shuffle_tween:
+		_shuffle_tween.kill()
+		_shuffle_tween = null
 	if _layer:
 		_layer.queue_free()
 	_layer = Control.new()
@@ -61,7 +81,7 @@ func show_board(model: BoardModel, skin: TileSkin) -> void:
 		var view: TileView = TILE_SCENE.instantiate()
 		view.style = _art
 		view.index = i
-		view.position = tile_origin(i)
+		view.place_at(tile_origin(i))
 		view.pressed.connect(_on_tile_pressed)
 		_layer.add_child(view)
 		view.set_layer(model.geometry.positions[i].z, top_layer)
@@ -76,7 +96,8 @@ func show_board(model: BoardModel, skin: TileSkin) -> void:
 	_effects = Control.new()
 	_effects.name = "Effects"
 	_effects.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_effects.z_index = 2
+	# Above resting tiles, glows (z 1) and flying tiles (TileView.FLIGHT_Z).
+	_effects.z_index = TileView.FLIGHT_Z + 1
 	_layer.add_child(_effects)
 
 	refresh_all()
@@ -120,11 +141,17 @@ func skin() -> TileSkin:
 	return _skin
 
 
-## Updates only the blocked/free look of tiles still on the board.
-func refresh_free_states() -> void:
+## Updates only the blocked/free look of tiles still on the board. With
+## `reveal_delay` >= 0, tiles that just became free pop after that delay.
+func refresh_free_states(reveal_delay := -1.0) -> void:
 	for i in _tiles.size():
 		if not _model.is_removed(i):
-			_tiles[i].set_free(_model.is_free(i))
+			_tiles[i].set_free(_model.is_free(i), true, reveal_delay)
+
+
+## True while a shuffle is playing; the board ignores taps until it settles.
+func is_busy() -> bool:
+	return _shuffle_tween != null and _shuffle_tween.is_running()
 
 
 func set_highlight(index: int, highlight: TileView.Highlight) -> void:
@@ -137,20 +164,98 @@ func clear_highlights() -> void:
 		view.set_highlight(TileView.Highlight.NONE)
 
 
-func play_removal(a: int, b: int) -> void:
-	for i in [a, b]:
-		var view := _tiles[i]
-		view.play_removal()
-		var burst: Node2D = BURST_SCENE.instantiate()
-		burst.position = view.position + view.face_center()
-		_effects.add_child(burst)
+## A matched pair glides together, touches and blooms away; the burst grows
+## with the combo (matches in a row). Tiles uncovered by it pop afterwards.
+func play_removal(a: int, b: int, combo := 1) -> void:
+	var meet := meeting_points(a, b)
+	var travel := _travel_time(a, b)
+	_tiles[a].play_match(meet[0], travel)
+	_tiles[b].play_match(meet[1], travel)
+	var contact := 0.0 if Motion.reduced else MATCH_SWELL + travel
+	var burst: Node2D = BURST_SCENE.instantiate()
+	burst.set("strength", combo)
+	burst.set("delay", contact)
+	burst.position = (meet[0] + meet[1]) / 2.0 + _tiles[a].face_center()
+	_effects.add_child(burst)
+	refresh_free_states(contact)
 
 
+## Undo of a match: the pair reappears where it met and glides back home.
 func play_restore(a: int, b: int) -> void:
-	for i in [a, b]:
+	var meet := meeting_points(a, b)
+	var travel := _travel_time(a, b)
+	for k in 2:
+		var i: int = [a, b][k]
 		_apply_art(i)
-		_tiles[i].play_restore()
+		_tiles[i].play_restore(meet[k], travel)
 	refresh_free_states()
+
+
+## Where tiles `a` and `b` meet when matched: side by side (or one above the
+## other) at the midpoint between them. Tiles already touching stay put.
+func meeting_points(a: int, b: int) -> Array[Vector2]:
+	var home_a := _tiles[a].home_position
+	var home_b := _tiles[b].home_position
+	var apart := home_b - home_a
+	var face := _art.face_rect.size
+	if apart.length() < 1.0:
+		return [home_a, home_b]
+	var along := apart.normalized()
+	# Distance between centres when the faces just touch along that direction.
+	var touch := minf(face.x / maxf(absf(along.x), 0.001), face.y / maxf(absf(along.y), 0.001)) * 0.92
+	if apart.length() <= touch:
+		return [home_a, home_b]
+	var middle := (home_a + home_b) / 2.0
+	return [middle - along * touch / 2.0, middle + along * touch / 2.0]
+
+
+## Screen position where a pair meets (for combo text and effects).
+func meeting_point_global(a: int, b: int) -> Vector2:
+	var meet := meeting_points(a, b)
+	return _layer.get_global_transform() * ((meet[0] + meet[1]) / 2.0 + _tiles[a].face_center())
+
+
+## Shuffle: tiles still on the board gather toward the centre, change faces
+## while gathered, and spread back out. Taps wait until it settles (is_busy).
+func play_shuffle() -> void:
+	if _shuffle_tween:
+		_shuffle_tween.kill()
+	var center := _content.get_center() - _art.face_rect.get_center()
+	var gather := Motion.duration(SHUFFLE_GATHER)
+	var spread := Motion.duration(SHUFFLE_SPREAD)
+	var stagger := 0.0 if Motion.reduced else SHUFFLE_STAGGER
+	var count := maxi(_tiles.size() - 1, 1)
+	for i in _tiles.size():
+		if _model.is_removed(i):
+			continue
+		var view := _tiles[i]
+		# Pull each tile 70 % of the way in, so the pile keeps a loose shape.
+		var target := view.home_position.lerp(center, 0.7)
+		view.shuffle_gather(target, stagger * i / count, gather)
+	_shuffle_tween = create_tween()
+	_shuffle_tween.tween_interval(gather + stagger)
+	_shuffle_tween.tween_callback(_swap_and_spread.bind(spread, stagger))
+	_shuffle_tween.tween_interval(spread + stagger)
+	_shuffle_tween.tween_callback(func() -> void: refresh_all())
+
+
+func _swap_and_spread(spread: float, stagger: float) -> void:
+	shuffle_spreading.emit()
+	var count := maxi(_tiles.size() - 1, 1)
+	for i in _tiles.size():
+		if _model.is_removed(i):
+			continue
+		_apply_art(i)
+		_tiles[i].set_free(_model.is_free(i), false)
+		_tiles[i].shuffle_return(stagger * (count - i) / count, spread)
+
+
+func _travel_time(a: int, b: int) -> float:
+	if Motion.reduced:
+		return 0.0
+	var apart := _tiles[a].home_position.distance_to(_tiles[b].home_position)
+	var reach := clampf(apart / (_art.face_rect.size.x * 6.0), 0.0, 1.0)
+	return lerpf(MATCH_TRAVEL_MIN, MATCH_TRAVEL_MAX, reach)
 
 
 ## On-screen width of one tile's top face, in canvas pixels.
