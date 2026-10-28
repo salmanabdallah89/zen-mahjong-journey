@@ -1,3 +1,4 @@
+class_name MatchBurst
 extends Node2D
 ## One-shot effect played where a matched pair meets: a soft golden flash, a
 ## small shockwave, four-point glints and a few drifting sakura petals. Combos
@@ -11,6 +12,8 @@ const RING_COMBO := 3
 const BIG_COMBO := 5
 ## Major combo: a second, later ring and a few more petals (still small).
 const MAJOR_COMBO := 8
+## Rings on screen at once, across all bursts: quick streaks stay calm.
+const MAX_RINGS := 2
 
 ## Matches in a row, counting this one (set before adding to the tree).
 var strength := 1
@@ -18,6 +21,12 @@ var strength := 1
 var delay := 0.0
 ## False for small accents (level-complete stars): sparkles only, no petals.
 var with_petals := true
+## Compact accent for the message lane: glints only, no flash or rings, and
+## short enough to stay inside the lane.
+var compact := false
+
+## Rings currently on screen (all bursts).
+static var active_rings := 0
 
 @onready var _flash: Sprite2D = %Flash
 @onready var _petals: CPUParticles2D = %Petals
@@ -28,7 +37,19 @@ func _ready() -> void:
 	visible = false
 	_sparkles.texture = _glint_texture()
 	var big := strength >= BIG_COMBO
-	if Motion.reduced:
+	if compact:
+		_sparkles.amount = 10
+		_sparkles.initial_velocity_min = 50.0
+		_sparkles.initial_velocity_max = 110.0
+		_sparkles.emission_sphere_radius = 20.0
+		_petals.amount = 4
+		_petals.initial_velocity_min = 30.0
+		_petals.initial_velocity_max = 70.0
+		_petals.gravity = Vector2(0, 40)
+		_petals.direction = Vector2(1, 0)
+		_petals.spread = 180.0
+		_flash.hide()
+	elif Motion.reduced:
 		_sparkles.amount = 6
 		_petals.amount = 2
 	elif strength >= MAJOR_COMBO:
@@ -50,6 +71,8 @@ func _play() -> void:
 	_petals.emitting = with_petals
 	_sparkles.emitting = true
 	var reach := 1.6 if strength < RING_COMBO else (2.2 if strength < BIG_COMBO else 2.6)
+	if compact:
+		return
 	_flash.scale = Vector2(0.4, 0.4)
 	_flash.modulate.a = 0.9
 	var tween := create_tween().set_parallel()
@@ -67,8 +90,12 @@ func _play() -> void:
 		echo.tween_callback(_add_ring.bind(4.2, 0.6, 0.75))
 
 
-## A thin gold ring that widens to `reach` and fades.
+## A thin gold ring that widens to `reach` and fades. Skipped while
+## MAX_RINGS are already showing.
 func _add_ring(reach: float, alpha: float, seconds: float) -> void:
+	if active_rings >= MAX_RINGS:
+		return
+	active_rings += 1
 	var ring := Sprite2D.new()
 	ring.texture = _ring_texture()
 	ring.scale = Vector2(0.5, 0.5)
@@ -77,6 +104,19 @@ func _add_ring(reach: float, alpha: float, seconds: float) -> void:
 	var tween := create_tween().set_parallel()
 	tween.tween_property(ring, "scale", Vector2(reach, reach), seconds).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	tween.tween_property(ring, "modulate:a", 0.0, seconds).set_trans(Tween.TRANS_SINE)
+	tween.chain().tween_callback(_ring_done.bind(ring))
+	# A burst freed early (the level ends) must still release its ring.
+	ring.tree_exiting.connect(_release_ring.bind(ring), CONNECT_ONE_SHOT)
+
+
+func _ring_done(ring: Sprite2D) -> void:
+	ring.queue_free()
+
+
+func _release_ring(ring: Sprite2D) -> void:
+	if not ring.has_meta("released"):
+		ring.set_meta("released", true)
+		active_rings = maxi(active_rings - 1, 0)
 
 
 static var _ring: GradientTexture2D

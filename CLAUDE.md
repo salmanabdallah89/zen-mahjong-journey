@@ -157,8 +157,8 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
   tweens so `reset_visual()` can stop it and put the tile back at `home_position`. Tests point
   `Motion.settings_path` at their throwaway settings file.
 - **Feedback lane:** game-screen messages (toasts, combo praise `ComboFeedback`) appear only in
-  `%FeedbackLane`, the strip between the board and the toolbar; it clips its contents, and the
-  board is fitted above it, so messages never cover a tile. Match sound, haptics and praise land
+  `%FeedbackLane`, a strip that `BoardView` (its `footer`) places 24 px under the tiles and
+  centres together with the board; it clips its contents, so messages never cover a tile. Match sound, haptics and praise land
   when the pair touches (`BoardView.play_removal` returns the contact time), in match order.
 - **Saves:** player data (`progress.cfg`, `settings.cfg`) is read and written only through
   `SafeConfig` (temp file + `.bak` backup + recovery), never `ConfigFile.save` directly. Tests

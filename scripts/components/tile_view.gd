@@ -174,6 +174,9 @@ func play_match(meet: Vector2, travel: float) -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_highlight = Highlight.SELECTED
 	_apply_look(false)
+	# No gold outline while gliding: several quick matches would otherwise
+	# stack glows; the contact flash marks the moment instead.
+	_glow.visible = false
 	z_index = FLIGHT_Z
 	_motion_tween = create_tween()
 	if Motion.reduced:

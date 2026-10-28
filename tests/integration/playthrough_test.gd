@@ -198,8 +198,8 @@ func _test_small_board_keeps_margins(level_number: int) -> void:
 	for shape in SCREEN_SHAPES:
 		_frame.size = shape
 		await _frames(3)
-		_check(board.face_width_on_screen() <= BoardView.MAX_FACE_WIDTH + 0.5,
-			"%s: level %d tiles capped at %.0f px" % [shape, level_number, BoardView.MAX_FACE_WIDTH])
+		_check(board.face_width_on_screen() <= board.max_face_width() + 0.5 and board.max_face_width() <= BoardView.MAX_FACE_WIDTH_TALL,
+			"%s: level %d tiles capped at %.0f px" % [shape, level_number, board.max_face_width()])
 		var model: BoardModel = screen.get("_model")
 		var tiles_rect := Rect2()
 		for i in model.tile_count():
@@ -671,6 +671,7 @@ func _test_tile_animations(level_number: int) -> void:
 	await _click_tile(screen, pair.x)
 	await _click_tile(screen, pair.y)
 	_check(model.is_removed(pair.x) and model.is_removed(pair.y), "the model removes the pair at once")
+	_check(not (view.get_node("%Glow") as Control).visible, "a gliding tile drops its gold outline")
 	await get_tree().create_timer(0.2).timeout
 	_check(not glides or view.position.distance_to(b_view.position) < gap_before - 1.0,
 		"the matched pair glides toward each other")
@@ -791,13 +792,28 @@ func _test_combo_feedback(level_number: int) -> void:
 	var toast: Control = screen.get_node("%Toast")
 	var solution := _expected_deal(level_number).solution
 
-	# The lane sits between the board and the toolbar on every screen shape.
+	# The lane sits right under the tiles on every screen shape; the board
+	# and lane are centred together, and tiles are never smaller than the
+	# old layout (lane fixed above the toolbar) gave them.
 	for shape in SCREEN_SHAPES:
 		_frame.size = shape
 		await _frames(3)
 		var tiles := _tiles_rect(board, model)
-		_check(not tiles.intersects(lane.get_global_rect()), "%s: no tile reaches into the message lane" % shape)
-		_check(lane.get_global_rect().size.y >= 130.0, "%s: the message lane keeps its height" % shape)
+		var lane_rect := lane.get_global_rect()
+		var area := board.get_global_rect()
+		_check(not tiles.intersects(lane_rect), "%s: no tile reaches into the message lane" % shape)
+		_check(lane_rect.size.y >= 130.0, "%s: the message lane keeps its height" % shape)
+		_check(lane_rect.position.y - tiles.end.y <= shape.y * 0.05,
+			"%s: lane follows the tiles (gap %.0f px)" % [shape, lane_rect.position.y - tiles.end.y])
+		var above := tiles.position.y - area.position.y
+		var below := area.end.y - lane_rect.end.y
+		_check(absf(above - below) <= 40.0, "%s: spare height split above and below (%.0f / %.0f)" % [shape, above, below])
+		_check(area.encloses(lane_rect.grow(-1.0)), "%s: the lane stays inside the board area" % shape)
+		var old_scale := minf(minf(area.size.x * 0.95 / board.content_size().x,
+			(area.size.y - 140.0) * 0.96 / board.content_size().y), BoardView.MAX_FACE_WIDTH / board.skin().style.face_rect.size.x)
+		var old_width := old_scale * board.skin().style.face_rect.size.x
+		_check(board.face_width_on_screen() >= old_width - 0.5,
+			"%s: tiles not smaller than before (%.0f vs %.0f px)" % [shape, board.face_width_on_screen(), old_width])
 	_frame.size = SCREEN_SHAPES[0]
 	await _frames(3)
 
@@ -820,12 +836,22 @@ func _test_combo_feedback(level_number: int) -> void:
 	await _click_tile(screen, solution[1].x)
 	await _click_tile(screen, solution[1].y)
 	_check(not praise.is_showing(), "praise waits for the pair to touch")
+	var most_rings := 0
 	for k in range(2, 10):
 		await _click_tile(screen, solution[k].x)
 		await _click_tile(screen, solution[k].y)
+		most_rings = maxi(most_rings, MatchBurst.active_rings)
 		# Taps keep working while praise and bursts play.
 		_check(model.is_removed(solution[k].x), "rapid match %d registers at once" % (k + 1))
-	await get_tree().create_timer(1.6).timeout
+	for f in 100:
+		await _frames(1)
+		most_rings = maxi(most_rings, MatchBurst.active_rings)
+		var lane_bursts := lane.get_children().filter(func(c: Node) -> bool: return c is Node2D)
+		for burst: Node in lane_bursts:
+			if not burst.get("compact"):
+				_check(false, "lane glints use the compact style")
+	_check(most_rings <= MatchBurst.MAX_RINGS, "a fast streak never shows more than %d rings (%d)" % [MatchBurst.MAX_RINGS, most_rings])
+	await get_tree().create_timer(0.4).timeout
 	_check(words == PackedStringArray(["Nice!", "Great!", "Amazing!", "Excellent!", "Zen Master!"]),
 		"praise escalates through every tier (%s)" % ", ".join(words))
 	_check(AudioManager.count_played("combo", seq) == 5, "each new tier rings its cue once (%d)" % AudioManager.count_played("combo", seq))

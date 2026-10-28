@@ -100,6 +100,7 @@ func _ready() -> void:
 	# Praise and messages share the lane below the board; nothing in it ever
 	# reaches over the tiles.
 	_lane.clip_contents = true
+	_board.footer = _lane
 	_praise = ComboFeedback.new()
 	_praise.name = "Praise"
 	_lane.add_child(_praise)

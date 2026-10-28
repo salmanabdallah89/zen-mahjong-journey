@@ -18,9 +18,15 @@ const BURST_SCENE := preload("res://scenes/components/match_burst.tscn")
 ## Largest on-screen width of a tile's top face, in canvas pixels. Keeps small
 ## boards from filling the screen.
 const MAX_FACE_WIDTH := 190.0
+## On tall board areas (height at least TALL_RATIO × width, as on 9:19.5 and
+## longer phones) tiles may grow a little more.
+const MAX_FACE_WIDTH_TALL := 210.0
+const TALL_RATIO := 1.3
+## Gap between the board's bottom edge and the footer (the message lane).
+const FOOTER_GAP := 24.0
 ## Share of the available width / height the board may use.
 const FIT_WIDTH := 0.95
-const FIT_HEIGHT := 0.96
+const FIT_HEIGHT := 0.98
 ## Glide time of a matched pair: short hops are quick, long ones a bit slower.
 const MATCH_TRAVEL_MIN := 0.16
 const MATCH_TRAVEL_MAX := 0.3
@@ -40,6 +46,10 @@ var _backdrop: TextureRect
 var _effects: Control
 var _content := Rect2()
 var _shuffle_tween: Tween
+## Optional strip shown right under the tiles (the game's message lane). The
+## board and the footer are fitted and centred together, so on tall screens
+## the spare height goes above and below the pair instead of between them.
+var footer: Control
 
 
 func _ready() -> void:
@@ -267,10 +277,28 @@ func face_width_on_screen() -> float:
 func _fit() -> void:
 	if not _layer or _content.size == Vector2.ZERO or size.x <= 0.0 or size.y <= 0.0:
 		return
-	var fit := minf(size.x * FIT_WIDTH / _content.size.x, size.y * FIT_HEIGHT / _content.size.y)
-	var board_scale := minf(fit, MAX_FACE_WIDTH / _art.face_rect.size.x)
+	var reserve := footer.custom_minimum_size.y + FOOTER_GAP if footer else 0.0
+	var room := Vector2(size.x, maxf(size.y - reserve, 1.0))
+	var fit := minf(room.x * FIT_WIDTH / _content.size.x, room.y * FIT_HEIGHT / _content.size.y)
+	var board_scale := minf(fit, max_face_width() / _art.face_rect.size.x)
 	_layer.scale = Vector2(board_scale, board_scale)
-	_layer.position = (size - _content.size * board_scale) / 2.0 - _content.position * board_scale
+	var board_size := _content.size * board_scale
+	var top := (size.y - board_size.y - reserve) / 2.0
+	_layer.position = Vector2((size.x - board_size.x) / 2.0, top) - _content.position * board_scale
+	if footer:
+		footer.position = Vector2(0.0, top + board_size.y + FOOTER_GAP)
+		footer.size = Vector2(size.x, footer.custom_minimum_size.y)
+
+
+## Size of the tiles' bounding box before scaling (tests, layout checks).
+func content_size() -> Vector2:
+	return _content.size
+
+
+## Largest on-screen tile face width for the current board area.
+func max_face_width() -> float:
+	var reserve := footer.custom_minimum_size.y + FOOTER_GAP if footer else 0.0
+	return MAX_FACE_WIDTH_TALL if size.y - reserve >= size.x * TALL_RATIO else MAX_FACE_WIDTH
 
 
 ## Lower layers first; within a layer top-to-bottom then left-to-right, so

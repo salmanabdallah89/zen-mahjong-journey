@@ -175,13 +175,15 @@ size_flags_vertical = 3
 mouse_filter = 2
 script = ExtResource("4_board")
 
-[node name="FeedbackLane" type="Control" parent="SafeArea/Layout"]
+[node name="FeedbackLane" type="Control" parent="SafeArea/Layout/Board"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 140)
-layout_mode = 2
+layout_mode = 0
+offset_right = 1080.0
+offset_bottom = 140.0
 mouse_filter = 2
 
-[node name="Toast" type="PanelContainer" parent="SafeArea/Layout/FeedbackLane"]
+[node name="Toast" type="PanelContainer" parent="SafeArea/Layout/Board/FeedbackLane"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 1
@@ -195,7 +197,7 @@ grow_vertical = 2
 mouse_filter = 2
 theme_type_variation = &"ToastPanel"
 
-[node name="ToastLabel" type="Label" parent="SafeArea/Layout/FeedbackLane/Toast"]
+[node name="ToastLabel" type="Label" parent="SafeArea/Layout/Board/FeedbackLane/Toast"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(920, 0)
 layout_mode = 2
