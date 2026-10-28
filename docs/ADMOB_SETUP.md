@@ -1,8 +1,35 @@
 # AdMob setup plan (Android first)
 
-Status: **preparation done; AdMob not installed yet.** The game's ad placements, test IDs and
-stand-in ads are ready (`docs/ADS.md`). This file lists what is still needed, who does it, and in
+Status: **AdMob installed with Google's test ids; not yet tried on a phone.** Export templates,
+the godot-admob v7 plugin (`addons/AdmobPlugin`, `addons/GMPShared`), Gradle build and the bridge
+(`scripts/ads/admob_bridge.gd`) are in. This file lists what is still needed, who does it, and in
 what order. iOS can follow the same path later.
+
+## How it is wired
+
+- `AdsManager` creates the bridge on phones when the plugin and bridge exist (`provider = "admob"`).
+  Screens still talk only to `AdsManager`.
+- **Start-up:** consent (UMP) → `initialize()` → preload one rewarded and one interstitial ad. Failed
+  loads retry after 60 s.
+- **Offers follow readiness:** Ad Hint / Watch Ad appear only while a rewarded ad is loaded; the
+  interstitial is skipped when none is loaded.
+- **Rewards** only on `rewarded_ad_user_earned_reward` (checked 0.3 s after the ad closes).
+- **Banner:** adaptive, bottom, safe-area anchored, journey map only; the map's `BannerGap` follows
+  `AdsManager.banner_changed`.
+- **Privacy Options** button in Settings when the consent status is required/obtained.
+- **Ids:** unit ids come from `data/ads.json` (test ids); the App ID for the manifest comes from
+  `addons/AdmobPlugin/android_export.cfg` (`is_real=false`, test App ID in both sections).
+- **Build:** `gradle_build/use_gradle_build=true`; debug APK →
+  `godot --headless --path . --export-debug "Android" build/zen-mahjong-journey-debug.apk`
+  (first time add `--install-android-build-template`; `android/` is git-ignored). For Google Play set
+  `gradle_build/export_format=1` (AAB) and a release keystore.
+- **Gradle "Unable to establish loopback connection":** JDK 17 on Windows failed to open its
+  Unix-domain socket in the temp folder on this PC (command-line export). Fix: run the export with
+  `JAVA_TOOL_OPTIONS=-Djdk.net.unixdomain.tmpdir=<a short writable folder>` (we used
+  `android/build/.jtmp`). If the editor's export hits the same error, set that variable for your
+  user account and restart Godot.
+- **First debug APK:** built 2026-10-28 (182 MB debug, both ARM architectures; a release build is
+  much smaller). Manifest checked: test App ID, INTERNET, AD_ID, min SDK 24, target SDK 36.
 
 ## Plugin
 
@@ -46,7 +73,7 @@ what order. iOS can follow the same path later.
      host it if the developer site is `salmanabdallah89.github.io`; that needs a repository named
      `salmanabdallah89.github.io`.
 
-## What I will do (after the downloads are approved)
+## What I did (done 2026-10-28, except the phone test)
 
 1. Install the export templates, then **Project → Install Android Build Template** (creates `android/`).
 2. Android preset:
@@ -67,7 +94,7 @@ what order. iOS can follow the same path later.
    - **Settings:** a "Privacy options" button appears when the consent rules require it, so players can
      change their choice.
    - **Mute:** game audio is muted while an ad plays (already handled by `AdsManager`).
-5. Test on your phone with **test ads only**:
+5. **Still to do:** test on your phone with **test ads only**:
    - every placement: hint, second chance, interstitial every 3rd clear, map banner;
    - the consent form, using a test device set to the EEA;
    - offline behaviour (no ads, game still works).

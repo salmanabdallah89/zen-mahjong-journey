@@ -6,8 +6,9 @@ extends Node
 ## Providers:
 ##  - "admob":     Google AdMob on Android/iOS through the godot-admob plugin
 ##                 (godot-sdk-integrations, v7, for Godot 4.7) and our bridge
-##                 script. Neither is installed yet (docs/ADMOB_SETUP.md);
-##                 until both are, phones get no ads.
+##                 (scripts/ads/admob_bridge.gd: consent, loading, retries).
+##                 Offers appear only while an ad is ready, so offline phones
+##                 play like the web build (docs/ADMOB_SETUP.md).
 ##  - "simulated": stand-in test ads drawn by the game, on desktop debug runs
 ##                 (data/ads.json "simulate_on_desktop"), so every placement
 ##                 can be played and tested.
@@ -17,10 +18,12 @@ extends Node
 
 signal ad_started(kind: String, placement: String)
 signal ad_finished(kind: String, placement: String, rewarded: bool)
+## The banner appeared, went away or changed height (screens leave room for it).
+signal banner_changed
 
 const CONFIG_PATH := "res://data/ads.json"
-## The AdMob plugin's folder, and our bridge to it (written once the plugin
-## is installed). Phones use AdMob only when both are present.
+## The AdMob plugin's folder, and our bridge to it. Phones use AdMob only
+## when both are present.
 const ADMOB_PLUGIN_DIR := "res://addons/AdmobPlugin"
 const ADMOB_BRIDGE := "res://scripts/ads/admob_bridge.gd"
 const BANNER_HEIGHT := 130.0
@@ -37,6 +40,8 @@ var _banner_wanted := false
 var _layer: CanvasLayer
 var _banner: Control
 var _overlay: Control
+## The AdMob bridge (provider "admob" only).
+var _admob: Node
 
 
 func _ready() -> void:
@@ -47,6 +52,13 @@ func _ready() -> void:
 	_layer = CanvasLayer.new()
 	_layer.layer = 100
 	add_child(_layer)
+	if provider == "admob":
+		_admob = (load(ADMOB_BRIDGE) as GDScript).new()
+		_admob.name = "AdmobBridge"
+		add_child(_admob)
+		_admob.banner_changed.connect(banner_changed.emit)
+		var platform := "ios" if OS.has_feature("ios") else "android"
+		_admob.start(config.get(platform, {}))
 
 
 func _pick_provider() -> String:
@@ -64,9 +76,15 @@ static func admob_installed() -> bool:
 	return DirAccess.dir_exists_absolute(ADMOB_PLUGIN_DIR) and ResourceLoader.exists(ADMOB_BRIDGE)
 
 
-## True when ads can be shown right now (so ad-based offers should appear).
+## True when a rewarded ad can be shown right now (so ad-based offers should
+## appear). With AdMob that means one is loaded and ready.
 func is_available() -> bool:
-	return provider != "none"
+	match provider:
+		"none":
+			return false
+		"admob":
+			return _admob != null and _admob.rewarded_ready()
+	return true
 
 
 func is_showing() -> bool:
@@ -96,8 +114,9 @@ func show_rewarded(placement: String, on_done: Callable) -> void:
 	match provider:
 		"simulated":
 			_show_simulated("rewarded", placement, on_done)
+		"admob":
+			_admob.show_rewarded(func(rewarded: bool) -> void: _end("rewarded", placement, rewarded, on_done))
 		_:
-			# Real AdMob calls go here once the plugin is installed (docs/ADS.md).
 			_end("rewarded", placement, false, on_done)
 
 
@@ -108,13 +127,16 @@ func show_rewarded(placement: String, on_done: Callable) -> void:
 func after_level_complete(then: Callable) -> void:
 	levels_completed += 1
 	var every := int(config.get("interstitial_every_levels", 3))
-	if not is_available() or every <= 0 or levels_completed % every != 0:
+	if provider == "none" or every <= 0 or levels_completed % every != 0 			or (provider == "admob" and not _admob.interstitial_ready()):
 		then.call()
 		return
 	_begin("interstitial", "level_complete")
 	match provider:
 		"simulated":
 			_show_simulated("interstitial", "level_complete", func(_r: bool) -> void: then.call())
+		"admob":
+			_admob.show_interstitial(func(_r: bool) -> void:
+				_end("interstitial", "level_complete", false, func(_r2: bool) -> void: then.call()))
 		_:
 			_end("interstitial", "level_complete", false, func(_r: bool) -> void: then.call())
 
@@ -123,9 +145,11 @@ func after_level_complete(then: Callable) -> void:
 
 func show_banner() -> void:
 	_banner_wanted = true
-	if not is_available():
+	if provider == "none":
 		return
-	if provider == "simulated" and _banner == null:
+	if provider == "admob":
+		_admob.show_banner()
+	elif _banner == null:
 		_banner = _make_banner()
 		_layer.add_child(_banner)
 	history.append({"kind": "banner", "placement": "journey", "rewarded": false})
@@ -133,18 +157,35 @@ func show_banner() -> void:
 
 func hide_banner() -> void:
 	_banner_wanted = false
+	if _admob:
+		_admob.hide_banner()
 	if _banner:
 		_banner.queue_free()
 		_banner = null
 
 
 func is_banner_visible() -> bool:
+	if _admob:
+		return _admob.banner_visible
 	return _banner != null and _banner.visible
 
 
 ## Canvas height the banner covers at the bottom (screens leave room for it).
 func banner_height() -> float:
+	if _admob:
+		return _admob.banner_height(get_viewport().get_visible_rect().size.y)
 	return BANNER_HEIGHT if is_banner_visible() else 0.0
+
+
+## True when the player may change their ad consent choice (Settings shows
+## a "Privacy options" button). Only AdMob in consent regions.
+func privacy_options_available() -> bool:
+	return _admob != null and _admob.privacy_options_available()
+
+
+func show_privacy_options() -> void:
+	if _admob:
+		_admob.show_privacy_options()
 
 
 # --- Simulated ads ----------------------------------------------------------

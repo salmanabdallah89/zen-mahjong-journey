@@ -18,6 +18,7 @@ signal closed
 @onready var _mute: Button = %MuteToggle
 @onready var _back: Button = %BackButton
 @onready var _how_to_play: Button = %HowToPlayButton
+@onready var _privacy: Button = %PrivacyButton
 @onready var _credits: Label = %Credits
 
 
@@ -53,6 +54,8 @@ func _ready() -> void:
 		AudioManager.flush_settings()
 		hide()
 		GameSession.start_tutorial())
+	# Ad consent (AdMob, consent regions only): Google's form, shown again.
+	_privacy.pressed.connect(AdsManager.show_privacy_options)
 
 
 func open(back_label := "Back") -> void:
@@ -63,6 +66,7 @@ func open(back_label := "Back") -> void:
 	_vibration.set_pressed_no_signal(AudioManager.vibration)
 	_motion.set_pressed_no_signal(Motion.reduced)
 	_mute.set_pressed_no_signal(AudioManager.muted)
+	_privacy.visible = AdsManager.privacy_options_available()
 	_sync_labels()
 	show()
 	modulate.a = 0.0

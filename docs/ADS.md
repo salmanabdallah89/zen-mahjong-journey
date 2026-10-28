@@ -27,10 +27,13 @@ and `hide_banner()`. It picks a provider:
 | Provider | Where | Status |
 |----------|-------|--------|
 | `simulated` | Desktop debug runs (editor, tests) | ✅ Working: stand-in test ads drawn by the game, so every placement can be played and tested |
-| `admob` | Android/iOS with the AdMob plugin installed | ⏳ **Not installed yet**: phones currently get no ads |
+| `admob` | Android (iOS later) through godot-admob v7 + `scripts/ads/admob_bridge.gd` | ✅ Installed with **test ids**; not yet tried on a phone |
 | `none` | Web build, release desktop builds, phones without the plugin | ✅ Game works without ads |
 
-Tests: `tests/integration/ads_test.tscn` (48 checks).
+With AdMob, ad offers (Ad Hint, Watch Ad second chance) appear only while a rewarded ad is loaded,
+and an interstitial is skipped when none is loaded, so an offline phone plays like the web build.
+
+Tests: `tests/integration/ads_test.tscn` (65 checks; AdMob routing through a stand-in bridge).
 
 ## Ad unit ids
 
@@ -40,8 +43,8 @@ can get the AdMob account banned.
 
 ## Steps to real ads
 
-**Current plan and checklist: `docs/ADMOB_SETUP.md`** (plugin chosen: godot-admob v7 for Godot 4.7).
-The steps below are the original outline.
+**Current status and checklist: `docs/ADMOB_SETUP.md`** (godot-admob v7 for Godot 4.7, installed).
+The steps below are the original outline; steps 2–4 are done.
 
 1. **AdMob account**: create one at admob.google.com, add the app (Android), and create a Banner,
    an Interstitial and a Rewarded ad unit. Put the App ID and the three unit ids in

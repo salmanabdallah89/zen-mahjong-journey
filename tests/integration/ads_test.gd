@@ -3,6 +3,8 @@ extends Node
 ## free then ad-based hints, rewarded second chance (time and heart),
 ## interstitial every Nth clear, journey banner, clock and audio paused during
 ## ads, skipped ads never pay, and a no-ads build (web) keeps the game whole.
+## AdsManager's AdMob routing is checked with a stand-in bridge (_FakeBridge):
+## the real plugin only runs on a phone.
 ##   godot --headless --path . res://tests/integration/ads_test.tscn
 
 const GAME_SCENE := preload("res://scenes/screens/game_screen.tscn")
@@ -12,6 +14,50 @@ const AD_SECONDS := 0.4
 var _failures := PackedStringArray()
 var _checks := 0
 var _frame: Control
+
+
+## Stands in for scripts/ads/admob_bridge.gd: same methods, ads finished by hand.
+class _FakeBridge extends Node:
+	signal banner_changed
+	var rewarded_loaded := false
+	var interstitial_loaded := false
+	var banner_visible := false
+	var privacy := false
+	var pending := Callable()
+
+	func rewarded_ready() -> bool:
+		return rewarded_loaded
+
+	func interstitial_ready() -> bool:
+		return interstitial_loaded
+
+	func show_rewarded(on_done: Callable) -> void:
+		pending = on_done
+
+	func show_interstitial(on_done: Callable) -> void:
+		pending = on_done
+
+	## Closes the "ad": `rewarded` says whether the reward was earned.
+	func finish(rewarded: bool) -> void:
+		var callback := pending
+		pending = Callable()
+		callback.call(rewarded)
+
+	func show_banner() -> void:
+		pass
+
+	func hide_banner() -> void:
+		banner_visible = false
+		banner_changed.emit()
+
+	func banner_height(_canvas_height: float) -> float:
+		return 150.0 if banner_visible else 0.0
+
+	func privacy_options_available() -> bool:
+		return privacy
+
+	func show_privacy_options() -> void:
+		pass
 
 
 func _ready() -> void:
@@ -29,7 +75,10 @@ func _ready() -> void:
 
 	_check(AdsManager.provider == "simulated", "desktop debug runs use stand-in test ads (%s)" % AdsManager.provider)
 	_check(AdsManager.unit_id("rewarded").begins_with("ca-app-pub-3940256099942544/"), "configured ids are Google's test ids")
-	_check(not AdsManager.admob_installed(), "AdMob is not installed yet: phones stay ad-free until the bridge exists")
+	_check(AdsManager.admob_installed(), "the AdMob plugin and bridge are installed")
+	var bridge_script: Variant = load(AdsManager.ADMOB_BRIDGE)
+	_check(bridge_script is GDScript and (bridge_script as GDScript).can_instantiate(), "the AdMob bridge compiles")
+	_check(not AdsManager.privacy_options_available(), "no privacy options button without AdMob")
 	await _test_hints()
 	await _test_second_chance_time()
 	await _test_second_chance_heart()
@@ -37,6 +86,7 @@ func _ready() -> void:
 	await _test_banner()
 	await _test_without_ads()
 	await _test_leaving_during_ad()
+	await _test_admob_routing()
 
 	GameSession.progress.reset()
 	for path in ["user://test_ads_progress.cfg", "user://test_ads_audio.cfg"]:
@@ -221,6 +271,66 @@ func _test_leaving_during_ad() -> void:
 	await _close(screen)
 	_check(not AdsManager.is_showing(), "leaving the level closes the ad")
 	_check(not AudioServer.is_bus_mute(AudioServer.get_bus_index("Master")), "game audio is back after leaving")
+
+
+## AdsManager with the AdMob provider: offers only while an ad is ready,
+## rewards only when earned, interstitials skipped when none is loaded, and
+## the map's banner gap follows the real banner.
+func _test_admob_routing() -> void:
+	var fake := _FakeBridge.new()
+	AdsManager.add_child(fake)
+	fake.banner_changed.connect(AdsManager.banner_changed.emit)
+	AdsManager.set("_admob", fake)
+	AdsManager.provider = "admob"
+
+	_check(not AdsManager.is_available(), "AdMob: no ad loaded means no ad offers")
+	var result := [null]
+	AdsManager.show_rewarded("hint", func(r: bool) -> void: result[0] = r)
+	_check(result[0] == false and not AdsManager.is_showing(), "AdMob: asking without a ready ad pays nothing")
+	AdsManager.levels_completed = 2
+	var ran := [false]
+	AdsManager.after_level_complete(func() -> void: ran[0] = true)
+	_check(ran[0] and not AdsManager.is_showing(), "AdMob: no interstitial loaded, the game moves on at once")
+
+	fake.rewarded_loaded = true
+	_check(AdsManager.is_available(), "AdMob: a loaded rewarded ad brings the offers back")
+	result[0] = null
+	AdsManager.show_rewarded("hint", func(r: bool) -> void: result[0] = r)
+	_check(AdsManager.is_showing() and AudioServer.is_bus_mute(AudioServer.get_bus_index("Master")),
+		"AdMob: the game is silent while the ad shows")
+	fake.finish(false)
+	_check(result[0] == false and not AdsManager.is_showing(), "AdMob: closing early pays nothing")
+	AdsManager.show_rewarded("second_chance", func(r: bool) -> void: result[0] = r)
+	fake.finish(true)
+	_check(result[0] == true and AdsManager.history[-1]["rewarded"], "AdMob: an earned reward pays")
+	_check(not AudioServer.is_bus_mute(AudioServer.get_bus_index("Master")), "AdMob: sound returns after the ad")
+
+	fake.interstitial_loaded = true
+	AdsManager.levels_completed = 2
+	ran[0] = false
+	AdsManager.after_level_complete(func() -> void: ran[0] = true)
+	_check(AdsManager.is_showing() and not ran[0], "AdMob: the 3rd clear shows the interstitial first")
+	fake.finish(false)
+	_check(ran[0] and not AdsManager.is_showing(), "AdMob: the game moves on after the interstitial")
+
+	var journey: Control = JOURNEY_SCENE.instantiate()
+	_frame.add_child(journey)
+	await _frames(3)
+	var gap := journey.get_node("%BannerGap") as Control
+	_check(gap.custom_minimum_size.y == 0.0, "AdMob: no gap before the banner has loaded")
+	fake.banner_visible = true
+	fake.banner_changed.emit()
+	_check(gap.custom_minimum_size.y == 150.0, "AdMob: the map makes room when the banner appears")
+	journey.queue_free()
+	await _frames(2)
+	_check(not AdsManager.is_banner_visible(), "AdMob: the banner goes away with the map")
+	fake.privacy = true
+	_check(AdsManager.privacy_options_available(), "AdMob: consent regions get a privacy options button")
+
+	AdsManager.provider = "simulated"
+	AdsManager.set("_admob", null)
+	fake.queue_free()
+	await _frames(1)
 
 
 func _open_level(number: int) -> Control:

@@ -37,12 +37,18 @@ func _ready() -> void:
 	# Falling petals are decoration: off with reduced animations.
 	($Petals as CPUParticles2D).emitting = not Motion.reduced
 	($Petals as CPUParticles2D).visible = not Motion.reduced
+	# A real banner arrives after it loads: leave room for it when it does.
+	AdsManager.banner_changed.connect(_fit_banner_gap)
 	AdsManager.show_banner()
-	_banner_gap.custom_minimum_size.y = AdsManager.banner_height()
+	_fit_banner_gap()
 
 
 func _exit_tree() -> void:
 	AdsManager.hide_banner()
+
+
+func _fit_banner_gap() -> void:
+	_banner_gap.custom_minimum_size.y = AdsManager.banner_height()
 
 
 func _notification(what: int) -> void:

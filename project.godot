@@ -62,3 +62,7 @@ environment/defaults/default_clear_color=Color(0.20784314, 0.30980393, 0.2666666
 [zen_mahjong]
 
 tiles/art_set="res://data/tile_art/classic_v1.json"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/AdmobPlugin/plugin.cfg")

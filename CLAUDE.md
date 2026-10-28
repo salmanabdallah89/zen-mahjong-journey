@@ -203,8 +203,8 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
    plum and Vegetables 13 look-alike copies until replaced (docs/TILE_COLLECTIONS.md).
 2g. ✅ Web build + GitHub Pages workflow (docs/WEB_HOSTING.md); ads via `AdsManager` with stand-in
    test ads on desktop: rewarded second chance and hints, interstitial every 3rd clear, journey
-   banner. Real AdMob plugin not installed yet (docs/ADS.md). Android export preset exists; export
-   templates not installed on this PC.
+   banner. AdMob (godot-admob v7, `scripts/ads/admob_bridge.gd`, test ids) installed, Gradle build
+   on, export templates installed; not yet tried on a phone (docs/ADMOB_SETUP.md).
 2h. ✅ Phase 1 audit and fixes (docs/AUDIT.md): undo/animation race, crash-safe saves, focus-loss
    pause, back button on every screen, hint charging, journey glitches, lossy backgrounds.
 2i. ✅ Phase 2 feel (docs/PHASE2_ANIMATION_AUDIO.md): select lift/swell, pairs glide together and

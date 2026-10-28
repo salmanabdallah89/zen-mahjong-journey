@@ -2,7 +2,7 @@
 	"_comment": "Ad settings. The ids below are Google's official AdMob TEST ids: safe to use, they never pay. Replace them with your AdMob app's real ids before publishing (docs/ADS.md). Ads only run in the Android/iOS app; the web build has none.",
 	"android": {
 		"app_id": "ca-app-pub-3940256099942544~3347511713",
-		"banner": "ca-app-pub-3940256099942544/6300978111",
+		"banner": "ca-app-pub-3940256099942544/9214589741",
 		"interstitial": "ca-app-pub-3940256099942544/1033173712",
 		"rewarded": "ca-app-pub-3940256099942544/5224354917"
 	},
