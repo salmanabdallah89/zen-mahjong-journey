@@ -63,6 +63,9 @@ const EFFECTS := {
 	"star": ["res://assets/audio/sfx/sfx_match_06.wav", "SFX", 0.0, 0.1, 3],
 	# Shuffled tiles landing back in place: a soft wooden patter.
 	"shuffle_land": ["res://assets/audio/sfx/sfx_shuffle_land.wav", "SFX", 0.0, 0.25, 1],
+	# Level milestones (halfway, last tiles): a combo chord, richer for the finale.
+	"milestone": ["res://assets/audio/sfx/sfx_combo_3.wav", "SFX", 0.0, 1.0, 1],
+	"milestone_final": ["res://assets/audio/sfx/sfx_combo_5.wav", "SFX", 0.0, 1.0, 1],
 }
 
 ## Ambience mix per level background: id -> relative level (0..1).

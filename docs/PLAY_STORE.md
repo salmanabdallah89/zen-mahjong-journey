@@ -77,7 +77,7 @@ FEATURES
 • A winding journey map that follows your progress, with stars to earn on every level
 • Six tile collections: Classic Mahjong, Cute Animals, Fruits, Vegetables, Alphabet and Mixed
 • Every board is guaranteed to be solvable
-• Helpful tools when you need them: Hint, Shuffle and Undo
+• Helpful tools when you need them: Hint, Shuffle and Undo (up to 3 moves back)
 • Gentle challenge: a relaxed timer and hearts for mistakes, with a second chance if you need one
 • Soft music, nature sounds and smooth, calming animations
 • Reduced Animations option and large, easy-to-read tiles
@@ -124,9 +124,9 @@ https://developers.google.com/admob/android/privacy/play-data-disclosure
   **Fraud prevention, security, and compliance**):
   - **Location → Approximate location** (from IP address)
   - **App activity → App interactions**
-  - **App info and performance → Crash logs, Diagnostics**
+  - **App info and performance → Diagnostics**
   - **Device or other IDs** (advertising ID)
-- Shared: per Google's guide, mark data sent to the AdMob SDK as **shared** for Advertising.
+- All four are **collected and shared** (Google's AdMob disclosure page, checked 2026-10-28).
 
 ## 4. Testing tracks (required order for new personal accounts)
 

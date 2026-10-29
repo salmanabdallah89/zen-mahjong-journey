@@ -1,6 +1,6 @@
 class_name ProgressStore
 extends RefCounted
-## The player's journey: best stars and best time left per level, saved in a
+## The player's journey: best stars, best time left and best score per level, saved in a
 ## ConfigFile (user://progress.cfg). Level 1 is always open; each cleared
 ## level opens the next.
 
@@ -33,6 +33,19 @@ func best_time_left(level: int) -> float:
 	return float(_config.get_value(_section(level), "best_time_left", -1.0))
 
 
+## Highest score ever made on a level (LevelScore), 0 if none yet.
+func best_score(level: int) -> int:
+	return int(_config.get_value(_section(level), "best_score", 0))
+
+
+## The leaderboard score: every level's best score added up.
+func total_score(level_count: int) -> int:
+	var total := 0
+	for level in range(1, level_count + 1):
+		total += best_score(level)
+	return total
+
+
 func total_stars(level_count: int) -> int:
 	var total := 0
 	for level in range(1, level_count + 1):
@@ -53,12 +66,15 @@ class Result extends RefCounted:
 	var previous_stars: int = 0
 	var new_best_stars: bool = false
 	var new_best_time: bool = false
+	var previous_score: int = 0
+	## A higher score than an earlier clear (never true on the first clear).
+	var new_best_score: bool = false
 	## Level number that this result opened for the first time, or 0.
 	var unlocked: int = 0
 
 
-## Saves a clear, keeping the best stars and best time separately.
-func record_clear(level: int, earned_stars: int, time_left: float, level_count: int) -> Result:
+## Saves a clear, keeping the best stars, best time and best score separately.
+func record_clear(level: int, earned_stars: int, time_left: float, level_count: int, score := 0) -> Result:
 	var result := Result.new()
 	result.stars = earned_stars
 	result.previous_stars = stars(level)
@@ -69,6 +85,10 @@ func record_clear(level: int, earned_stars: int, time_left: float, level_count: 
 	if time_left > best_time_left(level):
 		_config.set_value(_section(level), "best_time_left", time_left)
 		result.new_best_time = result.previous_stars > 0
+	result.previous_score = best_score(level)
+	if score > result.previous_score:
+		_config.set_value(_section(level), "best_score", score)
+		result.new_best_score = result.previous_stars > 0
 	if next_was_locked and is_unlocked(level + 1):
 		result.unlocked = level + 1
 	SafeConfig.save(_config, path)

@@ -22,11 +22,15 @@ const BURST_SCENE := preload("res://scenes/components/match_burst.tscn")
 ## so bigger moments aren't missed in fast play.
 const HOLD := 0.55
 const HOLD_HIGH := 0.75
+## How long a milestone message keeps the lane before praise may replace it.
+const MESSAGE_HOLD_MSEC := 1400
 
 var _row: HBoxContainer
 var _word: Label
 var _count: Label
 var _tween: Tween
+## A milestone message keeps the lane until then (Time.get_ticks_msec).
+var _message_until := 0
 
 
 func _ready() -> void:
@@ -77,6 +81,9 @@ func show_combo(combo: int) -> int:
 	var tier := tier_for(combo)
 	if tier == 0:
 		return 0
+	# A milestone is read to the end; the streak's cues still ring.
+	if Time.get_ticks_msec() < _message_until:
+		return tier
 	var entry: Array = TIERS[tier - 1]
 	var tint: Color = entry[2]
 	var size_scale: float = entry[3]
@@ -118,8 +125,37 @@ func show_combo(combo: int) -> int:
 	return tier
 
 
+## A level milestone ("Halfway there!") in the praise style, without a count.
+## A combo arriving later simply replaces it.
+func show_message(text: String) -> void:
+	if _tween:
+		_tween.kill()
+	_word.text = text
+	_count.text = ""
+	_message_until = Time.get_ticks_msec() + MESSAGE_HOLD_MSEC
+	show()
+	pivot_offset = size / 2.0
+	_row.position.y = 0.0
+	rotation = 0.0
+	modulate = Color(1.0, 0.9, 0.92, 0.0)
+	_tween = create_tween()
+	if Motion.reduced:
+		scale = Vector2.ONE * 0.9
+		_tween.tween_property(self, "modulate:a", 1.0, 0.1)
+	else:
+		scale = Vector2.ONE * 0.6
+		_tween.set_parallel()
+		_tween.tween_property(self, "modulate:a", 1.0, 0.15)
+		_tween.tween_property(self, "scale", Vector2.ONE * 0.95, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		_tween.chain().tween_interval(0.0)
+	_tween.chain().tween_interval(1.1)
+	_tween.chain().tween_property(self, "modulate:a", 0.0, 0.35).set_trans(Tween.TRANS_SINE)
+	_tween.chain().tween_callback(hide)
+
+
 ## Hides the praise at once (a toast is taking the lane).
 func dismiss() -> void:
+	_message_until = 0
 	if _tween:
 		_tween.kill()
 	hide()

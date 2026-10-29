@@ -19,6 +19,7 @@
 	"interstitial_every_levels": 2,
 	"interstitial_min_gap_seconds": 30,
 	"free_hints_per_level": 1,
+	"free_shuffles_per_level": 1,
 	"second_chance_seconds": 60,
 	"second_chance_hearts": 1,
 	"second_chances_per_attempt": 1

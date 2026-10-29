@@ -7,6 +7,7 @@ extends Node
 ## Exits with code 1 on any failure.
 
 const GAME_SCENE := preload("res://scenes/screens/game_screen.tscn")
+const GameScreenScript := preload("res://scripts/screens/game_screen.gd")
 ## Canvas sizes for common phone shapes (9:16, 9:19.5, 9:21) and a tablet (3:4).
 const SCREEN_SHAPES: Array[Vector2] = [Vector2(1080, 1920), Vector2(1080, 2340),
 	Vector2(1080, 2520), Vector2(1440, 1920)]
@@ -43,6 +44,7 @@ func _ready() -> void:
 	add_child(_frame)
 	await _test_full_playthrough(1)
 	await _test_tools_and_pause(3)
+	await _test_score_and_milestones(10)
 	await _test_full_playthrough(10)
 	await _test_responsive_layout(10)
 	await _test_small_board_keeps_margins(1)
@@ -95,6 +97,79 @@ func _test_full_playthrough(level_number: int) -> void:
 	_check((screen.get_node("%TilesValue") as Label).text == "0", "level %d: HUD shows 0 tiles" % level_number)
 	screen.queue_free()
 	await _frames(2)
+
+
+## Points, combo multiplier and bar, milestones and the score finale.
+func _test_score_and_milestones(level_number: int) -> void:
+	var screen := await _open_level(level_number)
+	var model: BoardModel = screen.get("_model")
+	var meter: ScoreMeter = screen.get_node("%ScoreMeter")
+	var praise: ComboFeedback = screen.get_node("%FeedbackLane").get_node("Praise")
+	var dialog: ModalDialog = screen.get_node("%Dialog")
+	var solution := _expected_deal(level_number).solution
+	_check(model.tile_count() > 2 * GameScreenScript.FINAL_TILES, "score test board is big enough for both milestones")
+	_check(meter.score_shown() == 0 and meter.multiplier_text() == "", "score starts at 0 with no multiplier")
+
+	await _click_tile(screen, solution[0].x)
+	await _click_tile(screen, solution[0].y)
+	_check(int(screen.call("match_points")) == 100, "a first match is 100 points")
+	await get_tree().create_timer(0.5).timeout
+	_check(_has_child_named(screen, "Points"), "points rise from the matched pair")
+	await _click_tile(screen, solution[1].x)
+	await _click_tile(screen, solution[1].y)
+	_check(int(screen.call("match_points")) == 300, "a second match in a row is doubled")
+	await _frames(2)
+	_check(meter.multiplier_text() == "×2" and meter.combo_fraction() > 0.5, "the pill shows ×2 and a full combo bar")
+	await get_tree().create_timer(1.4).timeout
+	_check(meter.score_shown() == 300, "the score counts up as the points land (%d)" % meter.score_shown())
+	screen.call("_on_undo_pressed")
+	_check(int(screen.call("match_points")) == 100, "undo takes the match's points back")
+	await _settle(screen)
+	await get_tree().create_timer(0.8).timeout
+	_check(meter.score_shown() == 100, "the score counts back down after undo")
+
+	var half_seen := false
+	var final_seen := false
+	for k in range(1, solution.size()):
+		var pair: Vector2i = solution[k]
+		await _click_tile(screen, pair.x)
+		await _click_tile(screen, pair.y)
+		var crossed_half := not half_seen and model.remaining * 2 <= model.tile_count()
+		var crossed_final := not final_seen and model.remaining == GameScreenScript.FINAL_TILES
+		if crossed_half or crossed_final:
+			# Bells (and so milestones) queue up behind fast taps: wait for it.
+			var wanted := "Halfway there!" if crossed_half else "Last 10 tiles!"
+			for t in 60:
+				if praise.text() == wanted:
+					break
+				await get_tree().create_timer(0.1).timeout
+			if crossed_half:
+				half_seen = true
+				_check(praise.text() == "Halfway there!", "halfway milestone shows (%s)" % praise.text())
+				_check(_has_child_named(screen, "Sweep"), "a light sweep crosses the board at halfway")
+			else:
+				final_seen = true
+				_check(praise.text() == "Last 10 tiles!", "last-tiles milestone shows (%s)" % praise.text())
+				_check(AudioManager.music_duck() > 1.0, "the music swells for the last tiles")
+	_check(half_seen and final_seen, "both milestones were reached")
+	_check(model.is_cleared(), "score test level cleared")
+	await _wait_dialog(screen)
+	var time_left := float(screen.get("_time_left"))
+	var expected := int(screen.call("match_points")) + LevelScore.time_bonus(time_left) + LevelScore.FLAWLESS_BONUS
+	_check(int(screen.call("final_score")) == expected, "final score = matches + time bonus + flawless (%d vs %d)" % [int(screen.call("final_score")), expected])
+	_check(GameSession.progress.best_score(level_number) == expected, "the best score is saved for the leaderboard")
+	await get_tree().create_timer(3.0).timeout
+	_check(dialog.score_text() == "Score %s" % ScoreMeter.format_points(expected), "Level Complete counts up to the score (%s)" % dialog.score_text())
+	_check(meter.score_shown() == expected, "the pill ends on the final score, not the last match")
+	screen.queue_free()
+	await _frames(2)
+
+
+func _has_child_named(root: Node, prefix: String) -> bool:
+	for child in root.get_children():
+		if str(child.name).begins_with(prefix):
+			return true
+	return false
 
 
 func _test_tools_and_pause(level_number: int) -> void:
@@ -155,6 +230,23 @@ func _test_tools_and_pause(level_number: int) -> void:
 	_check(model.faces == before, "undo reverts the shuffle")
 	await _settle(screen)
 
+	# Three undos per attempt: two used, one left, then the button stays off.
+	var undo_label: Label = screen.get_node("SafeArea/Layout/Toolbar/UndoTool/UndoLabel")
+	_check(undo_label.text == "Undo (1)", "undo shows the undos left (%s)" % undo_label.text)
+	await _click_tile(screen, first.x)
+	await _click_tile(screen, first.y)
+	await _click_control(undo)
+	_check(not model.is_removed(first.x), "the last undo still works")
+	_check(undo.disabled and undo_label.text == "Undo (0)", "after 3 undos the button is off")
+	await _settle(screen)
+	await get_tree().create_timer(0.6).timeout
+	await _click_tile(screen, first.x)
+	await _click_tile(screen, first.y)
+	_check(model.is_removed(first.x) and undo.disabled, "no more undos this attempt, even after a new match")
+	screen.call("_on_undo_pressed")
+	_check(model.is_removed(first.x), "a fourth undo does nothing")
+	await _settle(screen)
+
 	# Pause blocks the board; Restart deals the same board again.
 	await _click_control(screen.get_node("%PauseButton"))
 	var dialog: ModalDialog = screen.get_node("%Dialog")
@@ -171,6 +263,7 @@ func _test_tools_and_pause(level_number: int) -> void:
 	var restarted: BoardModel = screen.get("_model")
 	_check(not dialog.visible, "dialog closes on restart")
 	_check(restarted.faces == deal.faces and restarted.remaining == restarted.tile_count(), "restart deals the same full board")
+	_check(int(screen.call("undos_left")) == 3 and undo_label.text == "Undo (3)", "restart gives the 3 undos back")
 	screen.queue_free()
 	await _frames(2)
 
@@ -830,6 +923,7 @@ func _test_reduced_motion(level_number: int) -> void:
 	_check(view.position.is_equal_approx(view.home_position), "reduced: matched tiles fade in place")
 	await get_tree().create_timer(0.25).timeout
 	_check(not view.visible, "reduced: the fade is quick")
+	_check(not _has_child_named(screen, "Points") and int(screen.call("match_points")) > 0, "reduced: points count up without gliding")
 	screen.call("_on_shuffle_pressed")
 	await get_tree().create_timer(0.35).timeout
 	_check(not board.is_busy() and _tiles_at_rest(board, model), "reduced: shuffle is a quick fade")

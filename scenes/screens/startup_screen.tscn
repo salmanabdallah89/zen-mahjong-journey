@@ -151,6 +151,20 @@ size_flags_horizontal = 4
 theme_type_variation = &"SecondaryButton"
 text = "Settings"
 
+[node name="LeaderboardGap" type="Control" parent="SafeArea/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="LeaderboardButton" type="Button" parent="SafeArea/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(620, 136)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"SecondaryButton"
+text = "Leaderboard"
+
 [node name="BottomSpacer" type="Control" parent="SafeArea/Layout"]
 layout_mode = 2
 size_flags_vertical = 3

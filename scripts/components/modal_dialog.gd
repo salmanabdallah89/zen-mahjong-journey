@@ -6,6 +6,8 @@ extends Control
 
 ## An earned star finished popping in (index from 0), for its chime.
 signal star_popped(index: int)
+## The level score finished counting up (set_score).
+signal score_counted
 
 const BURST_SCENE := preload("res://scenes/components/match_burst.tscn")
 const BUTTON_SIZE := Vector2(560, 136)
@@ -17,6 +19,9 @@ const STAR_SIZE := Vector2(110, 110)
 @onready var _message: Label = %Message
 @onready var _buttons: VBoxContainer = %Buttons
 @onready var _stars: HBoxContainer = %Stars
+var _score: Label
+var _score_detail: Label
+var _score_tween: Tween
 
 
 func open(title: String, message: String) -> void:
@@ -26,6 +31,11 @@ func open(title: String, message: String) -> void:
 	for child in _buttons.get_children():
 		child.queue_free()
 	_stars.hide()
+	if _score != null:
+		if _score_tween:
+			_score_tween.kill()
+		_score.hide()
+		_score_detail.hide()
 	show()
 	modulate.a = 0.0
 	create_tween().tween_property(self, "modulate:a", 1.0, Motion.duration(0.2)).set_trans(Tween.TRANS_SINE)
@@ -70,6 +80,59 @@ func set_stars(earned: int, total := LevelRating.MAX_STARS, animate := false) ->
 				tween.tween_property(star, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_SINE)
 			tween.tween_callback(star_popped.emit.bind(i))
 	_stars.show()
+
+
+## Shows a level's score under the stars, counting up from 0 once the
+## `earned` stars have popped in, with its breakdown below. Emits
+## `score_counted` when the count lands (the screen plays its chime).
+func set_score(total: int, detail: String, earned := 0) -> void:
+	if _score == null:
+		_score = Label.new()
+		_score.name = "Score"
+		_score.theme_type_variation = &"DialogScoreLabel"
+		_score.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_score_detail = Label.new()
+		_score_detail.name = "ScoreDetail"
+		_score_detail.theme_type_variation = &"DialogBodyLabel"
+		_score_detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_score_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_score_detail.custom_minimum_size = Vector2(STAR_SIZE.x * 6.0, 0)
+		var content := _stars.get_parent()
+		content.add_child(_score)
+		content.move_child(_score, _stars.get_index() + 1)
+		content.add_child(_score_detail)
+		content.move_child(_score_detail, _score.get_index() + 1)
+	_score_detail.text = detail
+	_score.show()
+	_score_detail.show()
+	if _score_tween:
+		_score_tween.kill()
+	_score_tween = create_tween()
+	if Motion.reduced:
+		_show_score(float(total))
+		_score_tween.tween_interval(0.45 + 0.32 * earned)
+	else:
+		_show_score(0.0)
+		_score_tween.tween_interval(0.45 + 0.32 * earned + 0.2)
+		_score_tween.tween_method(_show_score, 0.0, float(total), 1.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		_score_tween.tween_callback(_pop_score)
+	_score_tween.tween_callback(score_counted.emit)
+
+
+func _show_score(value: float) -> void:
+	_score.text = "Score %s" % ScoreMeter.format_points(roundi(value))
+
+
+func _pop_score() -> void:
+	_score.pivot_offset = _score.size / 2.0
+	var tween := _score.create_tween()
+	tween.tween_property(_score, "scale", Vector2(1.12, 1.12), 0.12).set_trans(Tween.TRANS_SINE)
+	tween.tween_property(_score, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_SINE)
+
+
+## The score text as shown right now ("" when the dialog has no score).
+func score_text() -> String:
+	return _score.text if _score != null and _score.visible else ""
 
 
 func _sparkle(star: Control) -> void:

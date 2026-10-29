@@ -17,6 +17,8 @@ const EFFECT_VOICES := 6
 const MAX_SAME_EFFECT := 2
 ## Music level while the level-complete celebration plays (linear).
 const CELEBRATION_DUCK := 0.35
+## Music swells this much (linear) for the last tiles of a level.
+const FINALE_LIFT := 1.35
 const MUSIC_DB := -6.0
 const AMBIENCE_DB := -12.0
 const HISTORY_LIMIT := 64
@@ -164,6 +166,17 @@ func duck_music_for(seconds: float) -> void:
 	_duck_tween.tween_method(_set_duck, CELEBRATION_DUCK, 1.0, 1.2)
 
 
+## The music swells a little for `seconds` (the last tiles of a level), then
+## eases back. A celebration duck started later replaces it.
+func lift_music_for(seconds: float) -> void:
+	if _duck_tween:
+		_duck_tween.kill()
+	_duck_tween = create_tween()
+	_duck_tween.tween_method(_set_duck, _duck, FINALE_LIFT, 1.5).set_trans(Tween.TRANS_SINE)
+	_duck_tween.tween_interval(seconds)
+	_duck_tween.tween_method(_set_duck, FINALE_LIFT, 1.0, 2.0).set_trans(Tween.TRANS_SINE)
+
+
 func music_duck() -> float:
 	return _duck
 
@@ -298,6 +311,13 @@ func reset_melody() -> void:
 
 func melody_step() -> int:
 	return _melody_step
+
+
+## Seconds left for the next match to keep the streak (0 = streak over).
+func melody_time_left() -> float:
+	if _melody_step < 0:
+		return 0.0
+	return maxf(melody_window - (Time.get_ticks_msec() / 1000.0 - _last_match_time), 0.0)
 
 
 ## Short haptic tick on phones, if the player allows vibration. Vibration has

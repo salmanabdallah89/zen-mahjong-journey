@@ -1,6 +1,7 @@
 extends Control
 ## First screen shown on launch: environment background, game title and a
-## Play button that opens the journey map, and the Tile Collection chooser.
+## Play button that opens the journey map, the Tile Collection chooser,
+## Settings and (with Google Play Games) the leaderboard.
 
 @onready var _title_block: Control = %TitleBlock
 @onready var _play_button: Button = %PlayButton
@@ -8,6 +9,8 @@ extends Control
 @onready var _picker: CollectionPicker = %CollectionPicker
 @onready var _settings_button: Button = %SettingsButton
 @onready var _settings: AudioSettingsPanel = %AudioSettings
+@onready var _leaderboard_button: Button = %LeaderboardButton
+@onready var _leaderboard_gap: Control = %LeaderboardGap
 
 
 func _ready() -> void:
@@ -16,6 +19,8 @@ func _ready() -> void:
 	_picker.hide()
 	_settings_button.pressed.connect(_settings.open)
 	_settings.hide()
+	_leaderboard_button.pressed.connect(PlayGames.show_leaderboard)
+	_update_leaderboard_button()
 	AudioManager.play_music("main_menu")
 	AudioManager.set_ambience(AudioCatalog.MENU_AMBIENCE)
 	BackgroundDrift.start($Background)
@@ -40,11 +45,21 @@ func _play_intro() -> void:
 	_play_button.modulate.a = 0.0
 	_collection_button.modulate.a = 0.0
 	_settings_button.modulate.a = 0.0
+	_leaderboard_button.modulate.a = 0.0
 	var tween := create_tween()
 	tween.tween_property(_title_block, "modulate:a", 1.0, 0.8).set_trans(Tween.TRANS_SINE)
 	tween.tween_property(_play_button, "modulate:a", 1.0, 0.5).set_trans(Tween.TRANS_SINE)
 	tween.parallel().tween_property(_collection_button, "modulate:a", 1.0, 0.5).set_trans(Tween.TRANS_SINE)
 	tween.parallel().tween_property(_settings_button, "modulate:a", 1.0, 0.5).set_trans(Tween.TRANS_SINE)
+	tween.parallel().tween_property(_leaderboard_button, "modulate:a", 1.0, 0.5).set_trans(Tween.TRANS_SINE)
+
+
+## The leaderboard lives in Google Play Games, so the button only shows where
+## that is available (the Android app with Play Games set up).
+func _update_leaderboard_button() -> void:
+	var available := PlayGames.is_available()
+	_leaderboard_button.visible = available
+	_leaderboard_gap.visible = available
 
 
 func _on_play_pressed() -> void:

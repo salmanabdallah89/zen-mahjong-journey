@@ -9,6 +9,7 @@ extends Node
 
 const GAME_SCENE := preload("res://scenes/screens/game_screen.tscn")
 const JOURNEY_SCENE := preload("res://scenes/screens/journey_screen.tscn")
+const STARTUP_SCENE := preload("res://scenes/screens/startup_screen.tscn")
 const AD_SECONDS := 0.4
 
 var _failures := PackedStringArray()
@@ -17,6 +18,30 @@ var _frame: Control
 
 
 ## Stands in for scripts/ads/admob_bridge.gd: same methods, ads finished by hand.
+## Stand-in for the GodotPlayGameServices Android plugin: same method and
+## signal names, answers at once.
+class _FakePlayGames extends Object:
+	signal userAuthenticated(is_authenticated: bool)
+	signal scoreSubmitted(is_submitted: bool, leaderboard_id: String)
+	var accept_sign_in := false
+	var calls: Array[String] = []
+
+	func isAuthenticated() -> void:
+		calls.append("isAuthenticated")
+		userAuthenticated.emit(false)
+
+	func signIn() -> void:
+		calls.append("signIn")
+		userAuthenticated.emit(accept_sign_in)
+
+	func submitScore(board: String, score: int) -> void:
+		calls.append("submitScore %s %d" % [board, score])
+		scoreSubmitted.emit(true, board)
+
+	func showLeaderboard(board: String) -> void:
+		calls.append("showLeaderboard %s" % board)
+
+
 class _FakeBridge extends Node:
 	signal banner_changed
 	var rewarded_loaded := false
@@ -94,6 +119,7 @@ func _ready() -> void:
 	_check(bridge_script is GDScript and (bridge_script as GDScript).can_instantiate(), "the AdMob bridge compiles")
 	_check(not AdsManager.privacy_options_available(), "no privacy options button without AdMob")
 	await _test_hints()
+	await _test_shuffles()
 	await _test_second_chance_time()
 	await _test_second_chance_heart()
 	await _test_interstitial_cadence()
@@ -101,6 +127,7 @@ func _ready() -> void:
 	await _test_without_ads()
 	await _test_leaving_during_ad()
 	await _test_admob_routing()
+	await _test_play_games()
 
 	GameSession.progress.reset()
 	for path in ["user://test_ads_progress.cfg", "user://test_ads_audio.cfg"]:
@@ -146,6 +173,39 @@ func _test_hints() -> void:
 	await _frames(2)
 	_check((screen.get("_hint") as Vector2i).x >= 0, "watching the whole ad reveals a hint")
 	_check(AdsManager.history[-1]["placement"] == "hint" and AdsManager.history[-1]["rewarded"], "hint ad recorded as rewarded")
+	await _close(screen)
+
+
+func _test_shuffles() -> void:
+	var screen := await _open_level(3)
+	var model: BoardModel = screen.get("_model")
+	var board: BoardView = screen.get_node("%Board")
+	var dialog: ModalDialog = screen.get_node("%Dialog")
+	var label: Label = screen.get_node("SafeArea/Layout/Toolbar/ShuffleTool/ShuffleLabel")
+	_check(label.text == "Shuffle (1)", "one free shuffle per level (%s)" % label.text)
+	var before := model.faces.duplicate()
+	screen.call("_on_shuffle_pressed")
+	_check(model.faces != before and not dialog.visible, "the free shuffle happens at once")
+	_check(label.text == "Ad Shuffle", "after the free shuffle the button offers an ad shuffle")
+	while board.is_busy():
+		await _frames(1)
+
+	before = model.faces.duplicate()
+	screen.call("_on_shuffle_pressed")
+	_check(dialog.visible and (dialog.get_node("%Title") as Label).text == "Need a Shuffle?", "next shuffle asks to watch an ad")
+	_check(model.faces == before, "asking does not shuffle")
+	await _press(dialog, "Watch Ad")
+	AdsManager.press_simulated_close()
+	await _frames(2)
+	_check(model.faces == before, "skipping the ad gives no shuffle")
+
+	screen.call("_on_shuffle_pressed")
+	await _press(dialog, "Watch Ad")
+	await _wait(AD_SECONDS + 0.3)
+	AdsManager.press_simulated_close()
+	await _frames(2)
+	_check(model.faces != before, "watching the whole ad shuffles the tiles")
+	_check(AdsManager.history[-1]["placement"] == "shuffle" and AdsManager.history[-1]["rewarded"], "shuffle ad recorded as rewarded")
 	await _close(screen)
 
 
@@ -296,6 +356,14 @@ func _test_without_ads() -> void:
 		screen.call("_clear_hint")
 		screen.call("_on_hint_pressed")
 		_check((screen.get("_hint") as Vector2i).x >= 0, "without ads every hint is free (%d)" % (i + 1))
+	var model: BoardModel = screen.get("_model")
+	var board: BoardView = screen.get_node("%Board")
+	for i in 2:
+		while board.is_busy():
+			await _frames(1)
+		var faces := model.faces.duplicate()
+		screen.call("_on_shuffle_pressed")
+		_check(model.faces != faces, "without ads every shuffle is free (%d)" % (i + 1))
 	var dialog: ModalDialog = screen.get_node("%Dialog")
 	screen.set("_time_left", 0.15)
 	await _wait(0.4)
@@ -383,6 +451,65 @@ func _test_admob_routing() -> void:
 	AdsManager.set("_admob", null)
 	fake.queue_free()
 	await _frames(1)
+
+
+func _test_play_games() -> void:
+	_check(not PlayGames.is_available(), "Play Games is off on the desktop")
+	PlayGames.show_leaderboard()
+	PlayGames.submit_total(5000)
+	_check(PlayGames.submitted.is_empty(), "without Play Games nothing is sent")
+	var startup: Control = STARTUP_SCENE.instantiate()
+	_frame.add_child(startup)
+	await _frames(2)
+	_check(not (startup.get_node("%LeaderboardButton") as Button).visible, "no Leaderboard button without Play Games")
+	startup.queue_free()
+	await _frames(2)
+
+	var fake := _FakePlayGames.new()
+	var real_id := PlayGames.leaderboard_id
+	PlayGames.leaderboard_id = "TEST_BOARD"
+	PlayGames.use_plugin(fake)
+	GameSession.progress.reset()
+	GameSession.progress.record_clear(1, 3, 100.0, LevelCatalog.count(), 4200)
+	_check(PlayGames.is_available() and not PlayGames.signed_in, "with the plugin: available, not signed in yet")
+	PlayGames.submit_total(4200)
+	_check(PlayGames.submitted.is_empty(), "a score waits for sign-in")
+	startup = STARTUP_SCENE.instantiate()
+	_frame.add_child(startup)
+	await _frames(2)
+	var button: Button = startup.get_node("%LeaderboardButton")
+	_check(button.visible and button.size.y >= 120, "the start screen shows a Leaderboard button")
+	fake.accept_sign_in = true
+	button.pressed.emit()
+	_check(PlayGames.signed_in, "Leaderboard signs the player in")
+	_check(PlayGames.submitted == [4200], "after sign-in the total score is sent (%s)" % [PlayGames.submitted])
+	_check(fake.calls.has("showLeaderboard TEST_BOARD"), "then Google's leaderboard opens")
+	startup.queue_free()
+	await _frames(2)
+
+	# Clearing a level with a better score sends the new total.
+	var screen := await _open_level(2)
+	var model: BoardModel = screen.get("_model")
+	var level := LevelCatalog.get_level(2)
+	for pair in BoardGenerator.generate(model.geometry, level.face_pool(), level.deal_seed).solution:
+		screen.call("_on_tile_pressed", pair.x)
+		screen.call("_on_tile_pressed", pair.y)
+		while (screen.get_node("%Board") as BoardView).is_busy():
+			await _frames(1)
+	var dialog: ModalDialog = screen.get_node("%Dialog")
+	for i in 60:
+		if dialog.visible:
+			break
+		await _frames(2)
+	var total := GameSession.progress.total_score(LevelCatalog.count())
+	_check(total > 4200 and PlayGames.submitted.back() == total, "a new best score sends the new total (%d)" % total)
+	await _close(screen)
+
+	PlayGames.use_plugin(null)
+	PlayGames.leaderboard_id = real_id
+	PlayGames.submitted.clear()
+	fake.free()
+	GameSession.progress.reset()
 
 
 func _open_level(number: int) -> Control:

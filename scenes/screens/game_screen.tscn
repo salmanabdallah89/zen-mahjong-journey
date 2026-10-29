@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://scripts/screens/game_screen.gd" id="1_script"]
 [ext_resource type="PackedScene" path="res://scenes/components/audio_settings.tscn" id="11_settings"]
@@ -12,6 +12,7 @@
 [ext_resource type="Texture2D" path="res://assets/ui/icons/icon_undo.png" id="8_undo"]
 [ext_resource type="PackedScene" path="res://scenes/components/modal_dialog.tscn" id="9_dialog"]
 [ext_resource type="PackedScene" path="res://scenes/components/collection_picker.tscn" id="10_picker"]
+[ext_resource type="Script" path="res://scripts/components/score_meter.gd" id="13_score"]
 
 [sub_resource type="Gradient" id="Gradient_shade"]
 offsets = PackedFloat32Array(0, 0.2, 0.75, 1)
@@ -172,6 +173,14 @@ theme_type_variation = &"CircleButton"
 icon = ExtResource("5_pause")
 icon_alignment = 1
 expand_icon = true
+
+[node name="ScoreMeter" type="PanelContainer" parent="SafeArea/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+theme_type_variation = &"ScorePill"
+script = ExtResource("13_score")
 
 [node name="Board" type="Control" parent="SafeArea/Layout"]
 unique_name_in_owner = true

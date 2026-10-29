@@ -157,6 +157,12 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
   the model, which is always updated first; anything that animates a tile must run on TileView's
   tweens so `reset_visual()` can stop it and put the tile back at `home_position`. Tests point
   `Motion.settings_path` at their throwaway settings file.
+- **Score:** `LevelScore` (core): 100 per match × combo multiplier (x1..x5), undo takes it back,
+  clear adds 10/s left and 500 flawless. `ScoreMeter` (`%ScoreMeter` under the HUD) shows the
+  points, multiplier and a combo bar (the melody window, `AudioManager.melody_time_left()`); points
+  glide from the pair into it. Milestones "Halfway there!" / "Last 10 tiles!" (sweep, chord, music
+  lift) use `ComboFeedback.show_message`. Best score per level in `ProgressStore`; the total goes to
+  the Google Play Games leaderboard via autoload `PlayGames` (off until set up: docs/PLAY_GAMES.md).
 - **Feedback lane:** game-screen messages (toasts, combo praise `ComboFeedback`) appear only in
   `%FeedbackLane`, a strip that `BoardView` (its `footer`) places 24 px under the tiles and
   centres together with the board; it clips its contents, so messages never cover a tile. Match sound, haptics and praise land
@@ -203,7 +209,8 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
    fallbacks, tests. Premium pack integrated: all six collections enabled; Fruits holds back
    plum and Vegetables 13 look-alike copies until replaced (docs/TILE_COLLECTIONS.md).
 2g. ✅ Web build + GitHub Pages workflow (docs/WEB_HOSTING.md); ads via `AdsManager` with stand-in
-   test ads on desktop: rewarded second chance and hints, interstitial every 2nd finished level (wins and losses), journey
+   test ads on desktop: rewarded second chance, hints and shuffles (1 free each per level; Undo is
+   capped at 3 per attempt, ads or not), interstitial every 2nd finished level (wins and losses), journey
    banner. AdMob (godot-admob v7, `scripts/ads/admob_bridge.gd`, test ids) installed, Gradle build
    on, export templates installed; test ads checked on a phone (Infinix, Android 15). Release builds use
    the real AdMob app. Play release prep (AAB preset "Android Play", store art in `store/`, privacy

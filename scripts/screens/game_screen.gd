@@ -4,6 +4,8 @@ extends Control
 ## dialogs. Rules live in BoardModel; this script only orchestrates.
 
 const HINT_SEARCH_BUDGET := 20000
+## Undos allowed per attempt (a restart gives them back).
+const UNDOS_PER_LEVEL := 3
 const TOAST_SECONDS := 2.6
 ## How many times per level a blocked tap explains the rule in words.
 const MAX_BLOCKED_EXPLANATIONS := 3
@@ -28,6 +30,15 @@ const BELL_SPACING := 0.09
 ## Longest the Level Complete dialog waits for queued bells after the last
 ## pair touches (only very fast play builds a queue).
 const MAX_BELL_WAIT := 0.25
+## Milestones: "Last 10 tiles!" on boards larger than twice this.
+const FINAL_TILES := 10
+## A milestone waits for the match's own praise to be read first.
+const MILESTONE_DELAY := 0.9
+const SWEEP_SECONDS := 1.2
+## The last pair blooms like a top combo.
+const FINALE_BURST := 10
+## Seconds gliding points take to reach the score.
+const POINTS_RISE := 0.55
 const TIME_NORMAL := Color(0.20784314, 0.30980393, 0.26666668)
 const TIME_WARNING := Color(0.72, 0.22, 0.25)
 
@@ -52,8 +63,10 @@ var _time_left := 0.0
 var _shown_seconds := -1
 var _mistakes := 0
 var _failed := false
-## Ads: free hints left this attempt, and second chances used this attempt.
+## Ads: free hints and shuffles left this attempt, and second chances used this attempt.
 var _free_hints := 0
+var _free_shuffles := 0
+var _undos_left := 0
 var _second_chances := 0
 var _last_loss := LossReason.TIME
 var _pause_open := false
@@ -66,6 +79,8 @@ var _last_bell_at := -1.0
 @onready var _time_value: Label = %TimeValue
 @onready var _hearts: HBoxContainer = %Hearts
 @onready var _hint_label: Label = $SafeArea/Layout/Toolbar/HintTool/HintLabel
+@onready var _shuffle_label: Label = $SafeArea/Layout/Toolbar/ShuffleTool/ShuffleLabel
+@onready var _undo_label: Label = $SafeArea/Layout/Toolbar/UndoTool/UndoLabel
 @onready var _level_value: Label = %LevelValue
 @onready var _level_caption: Label = %LevelCaption
 @onready var _pause_button: Button = %PauseButton
@@ -79,6 +94,11 @@ var _last_bell_at := -1.0
 @onready var _settings: AudioSettingsPanel = %AudioSettings
 @onready var _lane: Control = %FeedbackLane
 var _praise: ComboFeedback
+@onready var _score_meter: ScoreMeter = %ScoreMeter
+var _score := LevelScore.new()
+var _final_score := 0
+var _half_reached := false
+var _final_reached := false
 var _tutorial: FirstPlayTutorial
 
 
@@ -100,6 +120,7 @@ func _ready() -> void:
 	_settings.closed.connect(_on_picker_closed)
 	TileCollectionManager.collection_changed.connect(_on_collection_changed)
 	_dialog.star_popped.connect(_on_star_popped)
+	_dialog.score_counted.connect(func() -> void: AudioManager.play_sfx("reward"))
 	# Praise and messages share the lane below the board; nothing in it ever
 	# reaches over the tiles.
 	_lane.clip_contents = true
@@ -178,6 +199,13 @@ func _start_level() -> void:
 	_matches = 0
 	_hints_used = 0
 	_free_hints = int(AdsManager.setting("free_hints_per_level", 1))
+	_free_shuffles = int(AdsManager.setting("free_shuffles_per_level", 1))
+	_undos_left = UNDOS_PER_LEVEL
+	_score = LevelScore.new()
+	_final_score = 0
+	_half_reached = false
+	_final_reached = false
+	_score_meter.reset()
 	_second_chances = 0
 	_shuffles = 0
 	_blocked_explanations = 0
@@ -283,7 +311,6 @@ func _remove_pair(a: int, b: int) -> void:
 	_set_selected(-1)
 	_clear_hint()
 	_model.remove_pair(a, b)
-	_undo_stack.append({"kind": UndoKind.MATCH, "pair": Vector2i(a, b)})
 	_matches += 1
 	if tutorial_active():
 		_tutorial.on_matched(a, b)
@@ -291,12 +318,19 @@ func _remove_pair(a: int, b: int) -> void:
 	# The last pair is celebrated by the level-complete sound instead.
 	var step := AudioManager.melody_step() if cleared else AudioManager.next_match_step()
 	var combo := step + 1
-	var contact := _board.play_removal(a, b, combo)
+	var points := _score.add_match(combo)
+	_undo_stack.append({"kind": UndoKind.MATCH, "pair": Vector2i(a, b), "points": points})
+	var contact := _board.play_removal(a, b, FINALE_BURST if cleared else combo)
+	_after(contact, _land_points.bind(points, _board.meeting_point_global(a, b)))
+	if cleared:
+		_after(contact, _play_edge_glow)
 	_update_hud()
 	var now := Time.get_ticks_msec() / 1000.0
 	var ring_in := maxf(contact, _last_bell_at + BELL_SPACING - now)
 	_last_bell_at = now + ring_in
 	_after(ring_in, _on_pair_met.bind(step, combo, cleared))
+	if not cleared:
+		_check_milestones(ring_in)
 	if cleared:
 		# Let the last pair meet and bloom (and a short bell queue finish) first.
 		var settle := minf(ring_in, contact + MAX_BELL_WAIT)
@@ -311,6 +345,108 @@ func _on_pair_met(step: int, combo: int, cleared: bool) -> void:
 		return
 	AudioManager.play_match_step(step)
 	_show_combo(combo)
+
+
+## Points rise from where the pair met and glide into the score, which counts
+## up as they land. Reduced animations: the score just counts up.
+func _land_points(points: int, from: Vector2) -> void:
+	if Motion.reduced:
+		_score_meter.set_score(_current_score())
+		return
+	var label := Label.new()
+	label.name = "Points"
+	label.text = "+%d" % points
+	label.theme_type_variation = &"FloatingPointsLabel"
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(label)
+	move_child(label, _dialog.get_index())
+	label.size = label.get_combined_minimum_size()
+	label.pivot_offset = label.size / 2.0
+	label.position = from - get_global_position() - label.size / 2.0
+	var target := _score_meter.target_global() - get_global_position() - label.size / 2.0
+	label.scale = Vector2(0.5, 0.5)
+	var tween := label.create_tween()
+	tween.tween_property(label, "scale", Vector2(1.1, 1.1), 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(label, "position:y", label.position.y - 40.0, 0.25).set_trans(Tween.TRANS_SINE)
+	tween.set_parallel()
+	tween.chain().tween_property(label, "position", target, POINTS_RISE).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.tween_property(label, "scale", Vector2(0.55, 0.55), POINTS_RISE).set_trans(Tween.TRANS_SINE)
+	tween.tween_property(label, "modulate:a", 0.4, POINTS_RISE).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.chain().tween_callback(func() -> void:
+		_score_meter.set_score(_current_score())
+		_score_meter.pulse()
+		label.queue_free())
+
+
+## Halfway, and the last 10 tiles on bigger boards: each once per attempt.
+func _check_milestones(delay: float) -> void:
+	var total := _model.tile_count()
+	if not _half_reached and _model.remaining * 2 <= total:
+		_half_reached = true
+		_after(delay + MILESTONE_DELAY, _play_milestone.bind("Halfway there!", false))
+	elif not _final_reached and total > FINAL_TILES * 2 and _model.remaining <= FINAL_TILES:
+		_final_reached = true
+		_after(delay + MILESTONE_DELAY, _play_milestone.bind("Last %d tiles!" % FINAL_TILES, true))
+
+
+## A milestone: words in the lane, a chord, a light sweep over the board and,
+## for the last tiles, the music swells until the level ends.
+func _play_milestone(text: String, final: bool) -> void:
+	if _model.is_cleared() or _failed or _dialog.visible or tutorial_active():
+		return
+	_toast.hide()
+	_praise.show_message(text)
+	AudioManager.play_sfx("milestone_final" if final else "milestone")
+	AudioManager.vibrate(30)
+	if final:
+		AudioManager.lift_music_for(maxf(_time_left, 10.0))
+	_play_board_sweep()
+
+
+## A soft band of golden light crossing the board once.
+func _play_board_sweep() -> void:
+	if Motion.reduced:
+		return
+	var area := _board.get_global_rect()
+	var clip := Control.new()
+	clip.name = "Sweep"
+	clip.clip_contents = true
+	clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	clip.position = area.position - get_global_position()
+	clip.size = area.size
+	add_child(clip)
+	move_child(clip, _dialog.get_index())
+	var band := TextureRect.new()
+	band.texture = _sweep_texture()
+	band.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	band.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var additive := CanvasItemMaterial.new()
+	additive.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	band.material = additive
+	band.size = Vector2(area.size.x * 0.4, area.size.y * 1.3)
+	band.pivot_offset = band.size / 2.0
+	band.rotation = deg_to_rad(14.0)
+	band.position = Vector2(-band.size.x * 1.2, -area.size.y * 0.15)
+	band.modulate.a = 0.55
+	clip.add_child(band)
+	var tween := clip.create_tween()
+	tween.tween_property(band, "position:x", area.size.x + band.size.x * 0.2, SWEEP_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_callback(clip.queue_free)
+
+
+static var _sweep_gradient: GradientTexture2D
+
+
+static func _sweep_texture() -> GradientTexture2D:
+	if _sweep_gradient == null:
+		var gradient := Gradient.new()
+		gradient.offsets = PackedFloat32Array([0.0, 0.5, 1.0])
+		gradient.colors = PackedColorArray([Color(0.98, 0.88, 0.62, 0.0), Color(0.98, 0.88, 0.62, 0.45), Color(0.98, 0.88, 0.62, 0.0)])
+		_sweep_gradient = GradientTexture2D.new()
+		_sweep_gradient.gradient = gradient
+		_sweep_gradient.width = 64
+		_sweep_gradient.height = 8
+	return _sweep_gradient
 
 
 ## Runs `action` after `seconds` (next frame for 0), unless this screen is gone.
@@ -443,10 +579,32 @@ func _give_hint() -> void:
 func _on_shuffle_pressed() -> void:
 	if _model.is_cleared() or _failed or _dialog.visible or _board.is_busy():
 		return
+	# With ads: a free shuffle per level, then one shuffle per rewarded ad.
+	# Without ads (web build, or no ad loaded) shuffles stay free.
+	if AdsManager.is_available() and _free_shuffles <= 0:
+		_dialog.open("Need a Shuffle?", "Watch a short ad to shuffle the tiles.")
+		_dialog.add_action("Watch Ad", func() -> void:
+			AdsManager.show_rewarded("shuffle", _on_shuffle_ad_done), true)
+		_dialog.add_action("No Thanks", func() -> void: pass)
+		return
+	if _shuffle_tiles() and AdsManager.is_available():
+		_free_shuffles -= 1
+		_update_hud()
+
+
+func _on_shuffle_ad_done(rewarded: bool) -> void:
+	if not rewarded:
+		_show_toast("Watch the whole ad to shuffle.")
+	elif not (_model.is_cleared() or _failed):
+		_shuffle_tiles()
+
+
+## Rearranges the tiles left; false when no solvable arrangement exists.
+func _shuffle_tiles() -> bool:
 	var result := BoardGenerator.reshuffle(_model, _level.deal_seed + 7919 * (_shuffles + 1))
 	if not result.ok:
 		_show_toast("These tiles can't be rearranged into a solvable board. Try Undo.")
-		return
+		return false
 	_undo_stack.append({"kind": UndoKind.SHUFFLE, "faces": _model.faces.duplicate()})
 	_model.set_faces(result.faces)
 	_shuffles += 1
@@ -459,12 +617,14 @@ func _on_shuffle_pressed() -> void:
 	_board.play_shuffle()
 	_update_hud()
 	_show_toast("Tiles shuffled")
+	return true
 
 
 func _on_undo_pressed() -> void:
-	if _undo_stack.is_empty() or _failed or _dialog.visible or _model.is_cleared() or _board.is_busy():
+	if not can_undo() or _failed or _dialog.visible or _model.is_cleared() or _board.is_busy():
 		return
 	var entry: Dictionary = _undo_stack.pop_back()
+	_undos_left -= 1
 	AudioManager.play_sfx("undo")
 	if tutorial_active():
 		_tutorial.on_tool_used()
@@ -475,6 +635,8 @@ func _on_undo_pressed() -> void:
 		var pair: Vector2i = entry["pair"]
 		_model.restore_pair(pair.x, pair.y)
 		_matches -= 1
+		_score.take_back(int(entry.get("points", 0)))
+		_score_meter.set_score(_current_score())
 		_board.play_restore(pair.x, pair.y)
 	else:
 		_model.set_faces(entry["faces"])
@@ -505,12 +667,15 @@ func _update_hud() -> void:
 	_tiles_value.text = str(_model.remaining)
 	if AdsManager.is_available():
 		_hint_label.text = "Hint (%d)" % _free_hints if _free_hints > 0 else "Ad Hint"
+		_shuffle_label.text = "Shuffle (%d)" % _free_shuffles if _free_shuffles > 0 else "Ad Shuffle"
 	else:
 		_hint_label.text = "Hint"
+		_shuffle_label.text = "Shuffle"
+	_undo_label.text = "Undo (%d)" % _undos_left
 	_update_timer_label()
 	_level_value.text = "Level %d" % _level.number
 	_level_caption.text = _level.title.to_upper()
-	_undo_button.disabled = _undo_stack.is_empty()
+	_undo_button.disabled = not can_undo()
 	_hint_button.disabled = _model.is_cleared()
 	_shuffle_button.disabled = _model.is_cleared()
 
@@ -572,7 +737,8 @@ func _restart() -> void:
 func _show_no_moves() -> void:
 	_dialog.open("No More Moves", "There are no free matching pairs left.")
 	_dialog.add_action("Shuffle", _on_shuffle_pressed, true)
-	_dialog.add_action("Undo", _on_undo_pressed)
+	if can_undo():
+		_dialog.add_action("Undo", _on_undo_pressed)
 	_dialog.add_action("Restart", _restart)
 
 
@@ -586,9 +752,15 @@ func _show_level_complete() -> void:
 		_count(_mistakes, "mistake", "mistakes"), _count(_hints_used, "hint", "hints"),
 		_count(_shuffles, "shuffle", "shuffles")]
 	var earned := LevelRating.stars(_time_left, _level.time_limit, _mistakes)
-	var record := GameSession.progress.record_clear(_level.number, earned, _time_left, LevelCatalog.count())
+	_final_score = _score.total(_time_left, _mistakes)
+	_score_meter.set_score(_final_score)
+	var record := GameSession.progress.record_clear(_level.number, earned, _time_left, LevelCatalog.count(), _final_score)
 	GameSession.just_unlocked = record.unlocked
-	if record.new_best_stars and record.previous_stars > 0:
+	if _final_score > record.previous_score:
+		PlayGames.submit_total(GameSession.progress.total_score(LevelCatalog.count()))
+	if record.new_best_score:
+		summary += "\nNew best score!"
+	elif record.new_best_stars and record.previous_stars > 0:
 		summary += "\nNew best: %d stars!" % earned
 	elif record.new_best_time:
 		summary += "\nNew best time!"
@@ -600,6 +772,7 @@ func _show_level_complete() -> void:
 	else:
 		_dialog.open("Journey Complete!", summary + "\nYou have finished every introductory level.")
 	_dialog.set_stars(earned, LevelRating.MAX_STARS, true)
+	_dialog.set_score(_final_score, _score_breakdown(), earned)
 	_dialog.add_action("Replay", func() -> void: AdsManager.after_level_complete(_restart), not GameSession.has_next_level())
 	_dialog.add_action("Levels", func() -> void: AdsManager.after_level_complete(GameSession.go_levels))
 	_play_celebration()
@@ -650,6 +823,15 @@ func _play_celebration() -> void:
 	tween.tween_callback(shower.queue_free)
 
 
+## "Matches 1,800 · Time +340 · Flawless +500"
+func _score_breakdown() -> String:
+	var parts := ["Matches %s" % ScoreMeter.format_points(_score.match_points),
+		"Time +%s" % ScoreMeter.format_points(LevelScore.time_bonus(_time_left))]
+	if LevelScore.flawless_bonus(_mistakes) > 0:
+		parts.append("Flawless +%s" % ScoreMeter.format_points(LevelScore.FLAWLESS_BONUS))
+	return " · ".join(parts)
+
+
 func _next_star_tip(earned: int) -> String:
 	if earned == 1:
 		return "For 2 stars: make at most 1 mistake."
@@ -663,6 +845,9 @@ func _exit_tree() -> void:
 
 
 func _process(delta: float) -> void:
+	if _model:
+		_score_meter.set_combo(LevelScore.multiplier(combo_count()),
+			AudioManager.melody_time_left() / maxf(AudioManager.melody_window, 0.001))
 	if not _clock_running():
 		return
 	var step := minf(delta, MAX_CLOCK_STEP)
@@ -764,8 +949,36 @@ func second_chances_used() -> int:
 	return _second_chances
 
 
+## What the score pill should show: the final score once cleared (points
+## still gliding in from the last pair must not count it back down).
+func _current_score() -> int:
+	return _final_score if _final_score > 0 else _score.match_points
+
+
+## Points from matches so far this attempt.
+func match_points() -> int:
+	return _score.match_points
+
+
+## The score of the last clear (0 until the level is cleared).
+func final_score() -> int:
+	return _final_score
+
+
 func free_hints_left() -> int:
 	return _free_hints
+
+
+func free_shuffles_left() -> int:
+	return _free_shuffles
+
+
+func undos_left() -> int:
+	return _undos_left
+
+
+func can_undo() -> bool:
+	return _undos_left > 0 and not _undo_stack.is_empty()
 
 
 func _build_hearts() -> void:
