@@ -162,7 +162,7 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
   points, multiplier and a combo bar (the melody window, `AudioManager.melody_time_left()`); points
   glide from the pair into it. Milestones "Halfway there!" / "Last 10 tiles!" (sweep, chord, music
   lift) use `ComboFeedback.show_message`. Best score per level in `ProgressStore`; the total goes to
-  the Google Play Games leaderboard via autoload `PlayGames` (off until set up: docs/PLAY_GAMES.md).
+  the Google Play Games leaderboard via autoload `PlayGames` (Android only; setup and ids: docs/PLAY_GAMES.md).
 - **Feedback lane:** game-screen messages (toasts, combo praise `ComboFeedback`) appear only in
   `%FeedbackLane`, a strip that `BoardView` (its `footer`) places 24 px under the tiles and
   centres together with the board; it clips its contents, so messages never cover a tile. Match sound, haptics and praise land

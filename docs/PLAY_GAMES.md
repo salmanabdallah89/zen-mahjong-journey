@@ -1,8 +1,9 @@
 # Google Play Games: sign-in and leaderboard
 
-Status (2026-10-29): code and plugin installed, **switched off** until the Play Console steps
-below give the two ids. Until then the game plays exactly as before and the Leaderboard button
-is hidden.
+Status (2026-10-29): **switched on** from version 1.0.2 (code 3). Play Games project id
+`342484810040` (export presets), leaderboard *Total Score* `CgkIuPK97fsJEAIQAg`
+(`data/play_games.json`). Android credentials exist for the app signing key and the upload key.
+On web and desktop the Leaderboard button stays hidden.
 
 ## What players get
 
