@@ -144,8 +144,8 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
   face → image, keyed by match group), `TileCollectionLibrary`, `UserSettings`, and the autoload
   `TileCollectionManager` (selection, save/restore, cache, `collection_changed`, Classic fallback).
   The board never depends on the collection. Zen Garden (porcelain body `zen_ivory_v1`, jade back)
-  is the default for new players only; `restore()` decides once and saves it, and anyone who has
-  played keeps Classic. Full design: `docs/TILE_COLLECTIONS.md`. Fixture
+  is the default for everyone who has not picked a collection (`collection_chosen` in settings);
+  a picked collection is always kept. Full design: `docs/TILE_COLLECTIONS.md`. Fixture
   collections in `tests/fixtures/collections/` are test-only stand-ins; never ship or show them.
 - **Audio:** autoload `AudioManager` (buses Master/Music/Ambience/SFX/UI in
   `default_bus_layout.tres`; sound ids in `AudioCatalog`). Call `AudioManager.play_sfx(id)` only
@@ -204,7 +204,9 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
   fetched value does not update the container. Use plain `Array` values for grouping.
 - **Views:** `BoardView` builds `TileView`s (draw order: z, then y, then x; each layer shifted
   up-left), adds a soft backdrop and an effects layer, and scales the board to fit
-  (`MAX_FACE_WIDTH` caps small boards, `FIT_WIDTH`/`FIT_HEIGHT` keep the garden visible).
+  (`MAX_FACE_WIDTH` caps tiles, `FIT_WIDTH`/`FIT_HEIGHT` keep the garden visible). Tiles are one size
+  on every level: the scale comes from a standard board (`REFERENCE_GRID` 6 × 6, `REFERENCE_LAYERS`
+  6), so layouts must stay within 6 × 6 whole tiles and big levels stack upward.
   `TileView` layers: drop shadow, then the face, an ivory veil (blocked) and a glow (gold =
   selected with lift, sakura pulse = hint). It hit-tests only `face_rect` and stops taking input
   as soon as its removal starts. `MatchBurst` plays the gold flash and petals on a match.

@@ -1,10 +1,75 @@
 {
 	"id": "temple_summit",
 	"layers": [
-		{"offset": [0, 0], "rows": [".XXXXXX.", "XXXXXXXX", "XXXXXXXX", "XXXXXXXX", "XXXXXXXX", "XXXXXXXX", "XXXXXXXX", ".XXXXXX."]},
-		{"offset": [2, 2], "rows": ["XXXXXX", "XXXXXX", "XXXXXX", "XXXXXX", "XXXXXX", "XXXXXX"]},
-		{"offset": [4, 4], "rows": ["XXXX", "XXXX", "XXXX", "XXXX"]},
-		{"offset": [6, 6], "rows": ["XX", "XX"]},
-		{"offset": [6, 7], "rows": ["XX"]}
+		{
+			"offset": [
+				0,
+				0
+			],
+			"rows": [
+				"XXXXXX",
+				"XXXXXX",
+				"XXXXXX",
+				"XXXXXX",
+				"XXXXXX",
+				"XXXXXX"
+			]
+		},
+		{
+			"offset": [
+				0,
+				0
+			],
+			"rows": [
+				"XXXXXX",
+				"XXXXXX",
+				"XXXXXX",
+				"XXXXXX",
+				"XXXXXX",
+				"XXXXXX"
+			]
+		},
+		{
+			"offset": [
+				0,
+				2
+			],
+			"rows": [
+				"XXXXXX",
+				"XXXXXX",
+				"XXXXXX",
+				"XXXXXX"
+			]
+		},
+		{
+			"offset": [
+				2,
+				2
+			],
+			"rows": [
+				"XXXX",
+				"XXXX",
+				"XXXX"
+			]
+		},
+		{
+			"offset": [
+				2,
+				3
+			],
+			"rows": [
+				"XXXX",
+				"XXXX"
+			]
+		},
+		{
+			"offset": [
+				4,
+				4
+			],
+			"rows": [
+				"XX"
+			]
+		}
 	]
 }

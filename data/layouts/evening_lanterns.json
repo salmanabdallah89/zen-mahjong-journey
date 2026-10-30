@@ -1,9 +1,61 @@
 {
 	"id": "evening_lanterns",
 	"layers": [
-		{"offset": [0, 0], "rows": ["XXXXXXXX", "XXXXXXXX", "XXXXXXXX", "XXXXXXXX", "XXXXXXXX", "XXXXXXXX"]},
-		{"offset": [2, 2], "rows": ["XXXXXX", "XXXXXX", "XXXXXX", "XXXXXX"]},
-		{"offset": [4, 4], "rows": ["XXXX", "XXXX"]},
-		{"offset": [6, 5], "rows": ["XX"]}
+		{
+			"offset": [
+				0,
+				0
+			],
+			"rows": [
+				"XXXXXX",
+				"XXXXXX",
+				"XXXXXX",
+				"XXXXXX",
+				"XXXXXX",
+				"XXXXXX"
+			]
+		},
+		{
+			"offset": [
+				0,
+				2
+			],
+			"rows": [
+				"XXXXXX",
+				"XXXXXX",
+				"XXXXXX",
+				"XXXXXX"
+			]
+		},
+		{
+			"offset": [
+				2,
+				2
+			],
+			"rows": [
+				"XXXX",
+				"XXXX",
+				"XXXX"
+			]
+		},
+		{
+			"offset": [
+				2,
+				3
+			],
+			"rows": [
+				"XXXX",
+				"XXXX"
+			]
+		},
+		{
+			"offset": [
+				4,
+				4
+			],
+			"rows": [
+				"XX"
+			]
+		}
 	]
 }

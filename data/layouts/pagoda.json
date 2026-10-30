@@ -1,8 +1,40 @@
 {
 	"id": "pagoda",
 	"layers": [
-		{"offset": [0, 0], "rows": ["..XXXX..", ".XXXXXX.", "XXXXXXXX", "XXXXXXXX", ".XXXXXX.", "..XXXX.."]},
-		{"offset": [4, 2], "rows": ["XXXX", "XXXX", "XXXX", "XXXX"]},
-		{"offset": [6, 5], "rows": ["XX"]}
+		{
+			"offset": [
+				0,
+				0
+			],
+			"rows": [
+				"XXXXXX",
+				"XXXXXX",
+				"XXXXXX",
+				"XXXXXX",
+				"XXXXXX"
+			]
+		},
+		{
+			"offset": [
+				2,
+				1
+			],
+			"rows": [
+				"XXXX",
+				"XXXX",
+				"XXXX",
+				"XXXX"
+			]
+		},
+		{
+			"offset": [
+				2,
+				3
+			],
+			"rows": [
+				"XXXX",
+				"XXXX"
+			]
+		}
 	]
 }

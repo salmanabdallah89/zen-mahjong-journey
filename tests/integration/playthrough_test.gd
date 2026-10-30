@@ -25,12 +25,13 @@ const STARTUP_SCENE := preload("res://scenes/screens/startup_screen.tscn")
 
 func _ready() -> void:
 	# Never read or write the player's real preferences; start on Classic
-	# (a returning player: see _test_starting_collection for new players).
+	# (see _test_starting_collection for the default).
 	SafeConfig.remove_all(ISOLATED_SETTINGS)
 	GameSession.tutorial_settings_path = ISOLATED_SETTINGS
 	GameSession.set_tutorial_seen("completed")
 	TileCollectionManager.settings_path = ISOLATED_SETTINGS
 	TileCollectionManager.restore()
+	TileCollectionManager.select("classic")
 	# Reduced-animation preference also goes to the throwaway settings file.
 	Motion.settings_path = ISOLATED_SETTINGS
 	Motion.restore()
@@ -63,6 +64,7 @@ func _ready() -> void:
 	await _test_combo_feedback(4)
 	await _test_special_tiles(5)
 	await _test_starting_collection()
+	await _test_same_tile_size()
 	await _test_zen_garden_tiles(10)
 	await _test_tutorial()
 	await _test_journey_readability()
@@ -156,6 +158,7 @@ func _test_score_and_milestones(level_number: int) -> void:
 			else:
 				final_seen = true
 				_check(praise.text() == "Last 10 tiles!", "last-tiles milestone shows (%s)" % praise.text())
+				await get_tree().create_timer(0.3).timeout
 				_check(AudioManager.music_duck() > 1.0, "the music swells for the last tiles")
 	_check(half_seen and final_seen, "both milestones were reached")
 	_check(model.is_cleared(), "score test level cleared")
@@ -365,7 +368,8 @@ func _test_tile_collections(level_number: int) -> void:
 	manager.settings_path = test_settings
 	manager.reload_library(dirs)
 	manager.restore()
-	_check(manager.selected_id == "classic", "collections: fresh settings start on Classic")
+	_check(manager.selected_id == "zen_garden", "collections: fresh settings start on Zen Garden")
+	manager.select("classic")
 
 	var screen := await _open_level(level_number)
 	var board: BoardView = screen.get_node("%Board")
@@ -975,11 +979,7 @@ func _test_combo_feedback(level_number: int) -> void:
 		var below := area.end.y - lane_rect.end.y
 		_check(absf(above - below) <= 40.0, "%s: spare height split above and below (%.0f / %.0f)" % [shape, above, below])
 		_check(area.encloses(lane_rect.grow(-1.0)), "%s: the lane stays inside the board area" % shape)
-		var old_scale := minf(minf(area.size.x * 0.95 / board.content_size().x,
-			(area.size.y - 140.0) * 0.96 / board.content_size().y), BoardView.MAX_FACE_WIDTH / board.skin().style.face_rect.size.x)
-		var old_width := old_scale * board.skin().style.face_rect.size.x
-		_check(board.face_width_on_screen() >= old_width - 0.5,
-			"%s: tiles not smaller than before (%.0f vs %.0f px)" % [shape, board.face_width_on_screen(), old_width])
+		_check(board.face_width_on_screen() >= 140.0, "%s: tiles stay large (%.0f px)" % [shape, board.face_width_on_screen()])
 	# Praise is centred in the lane and fully inside it on every shape.
 	for shape in SCREEN_SHAPES:
 		_frame.size = shape
@@ -1488,8 +1488,27 @@ func _test_special_tiles(level_number: int) -> void:
 	await _frames(2)
 
 
-## New players start on Zen Garden; anyone who has played keeps Classic; a
-## saved choice always wins. The answer is saved, so it never changes later.
+## Tiles are one size on every level; boards stay on the standard grid and big
+## levels stack upward.
+func _test_same_tile_size() -> void:
+	var widths := {}
+	for number in [1, 3, 5, 7, 8, 9, 10, 40, 199]:
+		var screen := await _open_level(number)
+		var board: BoardView = screen.get_node("%Board")
+		widths[snappedf(board.face_width_on_screen(), 0.1)] = true
+		screen.queue_free()
+		await _frames(2)
+		var layout := LevelCatalog.get_level(number).load_layout()
+		var box := Vector3i.ZERO
+		for p in layout.positions:
+			box = Vector3i(maxi(box.x, p.x), maxi(box.y, p.y), 0)
+		_check(box.x / 2 + 1 <= BoardView.REFERENCE_GRID.x and box.y / 2 + 1 <= BoardView.REFERENCE_GRID.y,
+			"level %d stays on the standard grid" % number)
+	_check(widths.size() == 1, "tiles are one size on all levels (%s)" % [widths.keys()])
+
+
+## Everyone is on Zen Garden until they pick something else; a saved Classic
+## nobody picked (older versions saved it by themselves) moves to it too.
 func _test_starting_collection() -> void:
 	var manager := TileCollectionManager
 	var real_settings := manager.settings_path
@@ -1499,25 +1518,17 @@ func _test_starting_collection() -> void:
 	GameSession.tutorial_settings_path = test_settings
 
 	SafeConfig.remove_all(test_settings)
-	GameSession.progress.reset()
 	manager.restore()
 	_check(manager.selected_id == "zen_garden", "start: a new player gets Zen Garden")
-	GameSession.progress.record_clear(1, 3, 100.0, LevelCatalog.count(), 1000)
+
 	GameSession.set_tutorial_seen("completed")
+	UserSettings.new(test_settings).set_value(manager.SETTINGS_SECTION, manager.SETTINGS_KEY, "classic")
 	manager.restore()
-	_check(manager.selected_id == "zen_garden", "start: the new player keeps it after playing")
+	_check(manager.selected_id == "zen_garden", "start: a Classic nobody picked moves to Zen Garden")
 
-	SafeConfig.remove_all(test_settings)
+	_check(manager.select("classic"), "start: Classic can still be picked")
 	manager.restore()
-	_check(manager.selected_id == "classic", "start: a returning player who never chose keeps Classic")
-	GameSession.progress.reset()
-	manager.restore()
-	_check(manager.selected_id == "classic", "start: that answer is saved")
-
-	SafeConfig.remove_all(test_settings)
-	GameSession.set_tutorial_seen("skipped")
-	manager.restore()
-	_check(manager.selected_id == "classic", "start: having seen the tutorial counts as returning")
+	_check(manager.selected_id == "classic", "start: a picked Classic is kept")
 
 	SafeConfig.remove_all(test_settings)
 	UserSettings.new(test_settings).set_value(manager.SETTINGS_SECTION, manager.SETTINGS_KEY, "animals")

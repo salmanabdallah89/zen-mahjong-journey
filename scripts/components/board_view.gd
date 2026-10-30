@@ -27,6 +27,11 @@ const FOOTER_GAP := 24.0
 ## Share of the available width / height the board may use.
 const FIT_WIDTH := 0.95
 const FIT_HEIGHT := 0.98
+## Every level uses the tile size that fits this board, so tiles are the same
+## size on all levels: boards stay within REFERENCE_GRID whole tiles and big
+## levels stack upward (up to REFERENCE_LAYERS layers) instead of spreading.
+const REFERENCE_GRID := Vector2(6, 6)
+const REFERENCE_LAYERS := 6
 ## Glide time of a matched pair: short hops are quick, long ones a bit slower.
 const MATCH_TRAVEL_MIN := 0.16
 const MATCH_TRAVEL_MAX := 0.3
@@ -291,7 +296,10 @@ func _fit() -> void:
 		return
 	var reserve := footer.custom_minimum_size.y + FOOTER_GAP if footer else 0.0
 	var room := Vector2(size.x, maxf(size.y - reserve, 1.0))
-	var fit := minf(room.x * FIT_WIDTH / _content.size.x, room.y * FIT_HEIGHT / _content.size.y)
+	var reference := _reference_size()
+	# A board larger than the standard one still fits (never expected in play).
+	var box := Vector2(maxf(reference.x, _content.size.x), maxf(reference.y, _content.size.y))
+	var fit := minf(room.x * FIT_WIDTH / box.x, room.y * FIT_HEIGHT / box.y)
 	var board_scale := minf(fit, max_face_width() / _art.face_rect.size.x)
 	_layer.scale = Vector2(board_scale, board_scale)
 	var board_size := _content.size * board_scale
@@ -300,6 +308,13 @@ func _fit() -> void:
 	if footer:
 		footer.position = Vector2(0.0, top + board_size.y + FOOTER_GAP)
 		footer.size = Vector2(size.x, footer.custom_minimum_size.y)
+
+
+## Bounding box of a full standard board, before scaling.
+func _reference_size() -> Vector2:
+	var step := _art.half_step() * 2.0
+	var depth := _art.layer_shift.abs() * (REFERENCE_LAYERS - 1)
+	return step * (REFERENCE_GRID - Vector2.ONE) + _art.body_rect.size + depth
 
 
 ## Size of the tiles' bounding box before scaling (tests, layout checks).
