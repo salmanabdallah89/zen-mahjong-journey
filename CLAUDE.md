@@ -205,8 +205,8 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
 - **Views:** `BoardView` builds `TileView`s (draw order: z, then y, then x; each layer shifted
   up-left), adds a soft backdrop and an effects layer, and scales the board to fit
   (`MAX_FACE_WIDTH` caps tiles, `FIT_WIDTH`/`FIT_HEIGHT` keep the garden visible). Tiles are one size
-  on every level: the scale comes from a standard board (`REFERENCE_GRID` 6 × 6, `REFERENCE_LAYERS`
-  6), so layouts must stay within 6 × 6 whole tiles and big levels stack upward.
+  on every level: the scale comes from a standard board (`REFERENCE_GRID` 6 × 6, lowest `REFERENCE_LAYERS`
+  3 at full width), so layouts must stay within 6 × 6 whole tiles and big levels stack upward.
   `TileView` layers: drop shadow, then the face, an ivory veil (blocked) and a glow (gold =
   selected with lift, sakura pulse = hint). It hit-tests only `face_rect` and stops taking input
   as soon as its removal starts. `MatchBurst` plays the gold flash and petals on a match.

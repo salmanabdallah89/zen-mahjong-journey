@@ -25,13 +25,14 @@ const TALL_RATIO := 1.3
 ## Gap between the board's bottom edge and the footer (the message lane).
 const FOOTER_GAP := 24.0
 ## Share of the available width / height the board may use.
-const FIT_WIDTH := 0.95
+const FIT_WIDTH := 0.98
 const FIT_HEIGHT := 0.98
 ## Every level uses the tile size that fits this board, so tiles are the same
 ## size on all levels: boards stay within REFERENCE_GRID whole tiles and big
-## levels stack upward (up to REFERENCE_LAYERS layers) instead of spreading.
+## levels stack upward instead of spreading. Only the lowest REFERENCE_LAYERS
+## layers may span the full grid; higher ones must sit inset, or they widen the board.
 const REFERENCE_GRID := Vector2(6, 6)
-const REFERENCE_LAYERS := 6
+const REFERENCE_LAYERS := 3
 ## Glide time of a matched pair: short hops are quick, long ones a bit slower.
 const MATCH_TRAVEL_MIN := 0.16
 const MATCH_TRAVEL_MAX := 0.3
