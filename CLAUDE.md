@@ -143,7 +143,9 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
 - **Tile collections** (player-chosen look): `TileCollection` (manifest), `TileSkin` (per-board
   face → image, keyed by match group), `TileCollectionLibrary`, `UserSettings`, and the autoload
   `TileCollectionManager` (selection, save/restore, cache, `collection_changed`, Classic fallback).
-  The board never depends on the collection. Full design: `docs/TILE_COLLECTIONS.md`. Fixture
+  The board never depends on the collection. Zen Garden (porcelain body `zen_ivory_v1`, jade back)
+  is the default for new players only; `restore()` decides once and saves it, and anyone who has
+  played keeps Classic. Full design: `docs/TILE_COLLECTIONS.md`. Fixture
   collections in `tests/fixtures/collections/` are test-only stand-ins; never ship or show them.
 - **Audio:** autoload `AudioManager` (buses Master/Music/Ambience/SFX/UI in
   `default_bus_layout.tres`; sound ids in `AudioCatalog`). Call `AudioManager.play_sfx(id)` only

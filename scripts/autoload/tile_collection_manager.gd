@@ -8,6 +8,8 @@ signal collection_changed(collection_id: String)
 
 const SETTINGS_SECTION := "tiles"
 const SETTINGS_KEY := "collection"
+## What a brand-new player starts with.
+const NEW_PLAYER_DEFAULT := "zen_garden"
 
 var settings_path := UserSettings.DEFAULT_PATH
 var library: TileCollectionLibrary
@@ -65,9 +67,13 @@ func select(collection_id: String) -> bool:
 
 ## Loads the saved choice. An unknown or incomplete saved collection falls
 ## back to Classic (the saved value is kept, so it returns once art exists).
+## With nothing saved, the starting look is decided once and saved.
 func restore() -> void:
-	var saved := str(UserSettings.new(settings_path).get_value(
-		SETTINGS_SECTION, SETTINGS_KEY, TileCollectionLibrary.FALLBACK_ID))
+	var settings := UserSettings.new(settings_path)
+	var saved := str(settings.get_value(SETTINGS_SECTION, SETTINGS_KEY, ""))
+	if saved.is_empty():
+		saved = _starting_collection()
+		settings.set_value(SETTINGS_SECTION, SETTINGS_KEY, saved)
 	if is_available(saved):
 		selected_id = saved
 	else:
@@ -75,6 +81,15 @@ func restore() -> void:
 		if saved != TileCollectionLibrary.FALLBACK_ID:
 			notice = "Your tile collection isn't available, so Classic is shown."
 	_textures.clear()
+
+
+## New players get the newest look. Anyone who has already played without ever
+## choosing was seeing Classic, so they keep it.
+func _starting_collection() -> String:
+	var returning := GameSession.tutorial_seen() or GameSession.progress.is_cleared(1)
+	if not returning and is_available(NEW_PLAYER_DEFAULT):
+		return NEW_PLAYER_DEFAULT
+	return TileCollectionLibrary.FALLBACK_ID
 
 
 ## The skin for a board whose full face list is `faces` (removed tiles

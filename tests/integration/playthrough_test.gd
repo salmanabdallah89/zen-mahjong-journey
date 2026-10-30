@@ -24,8 +24,11 @@ const STARTUP_SCENE := preload("res://scenes/screens/startup_screen.tscn")
 
 
 func _ready() -> void:
-	# Never read or write the player's real preferences; start on Classic.
+	# Never read or write the player's real preferences; start on Classic
+	# (a returning player: see _test_starting_collection for new players).
 	SafeConfig.remove_all(ISOLATED_SETTINGS)
+	GameSession.tutorial_settings_path = ISOLATED_SETTINGS
+	GameSession.set_tutorial_seen("completed")
 	TileCollectionManager.settings_path = ISOLATED_SETTINGS
 	TileCollectionManager.restore()
 	# Reduced-animation preference also goes to the throwaway settings file.
@@ -59,6 +62,8 @@ func _ready() -> void:
 	await _test_reduced_motion(2)
 	await _test_combo_feedback(4)
 	await _test_special_tiles(5)
+	await _test_starting_collection()
+	await _test_zen_garden_tiles(10)
 	await _test_tutorial()
 	await _test_journey_readability()
 	await _test_accessibility()
@@ -468,11 +473,12 @@ func _test_premium_collections(level_number: int) -> void:
 	var faces_before := model.faces.duplicate()
 	var removed_before := model.removed.duplicate()
 
-	for collection_id in ["animals", "alphabet", "mixed", "fruits", "vegetables"]:
+	for collection_id in ["zen_garden", "animals", "alphabet", "mixed", "fruits", "vegetables"]:
 		_check(manager.select(collection_id), "premium: %s can be applied" % collection_id)
 		await _frames(3)
 		_check(board.skin().collection_id == collection_id, "premium: board shows %s" % collection_id)
-		_check(board.skin().style.id == "ivory_body_v1", "premium: %s laid out on the ivory body" % collection_id)
+		var body_style := "zen_ivory_v1" if collection_id == "zen_garden" else "ivory_body_v1"
+		_check(board.skin().style.id == body_style, "premium: %s laid out on its tile body" % collection_id)
 		_check(model.faces == faces_before and model.removed == removed_before, "premium: %s keeps board state" % collection_id)
 		_check(_all_tiles_have_art(board, model), "premium: %s draws every tile" % collection_id)
 		var flower_keys := {}
@@ -1203,7 +1209,7 @@ func _test_tutorial() -> void:
 
 	# Every collection: the highlighted pair shows the same picture.
 	var manager: Node = TileCollectionManager
-	for collection_id in ["classic", "animals", "fruits", "vegetables", "alphabet", "mixed"]:
+	for collection_id in ["zen_garden", "classic", "animals", "fruits", "vegetables", "alphabet", "mixed"]:
 		manager.select(collection_id)
 		SafeConfig.remove_all(PATH)
 		screen = await _open_level(1)
@@ -1478,6 +1484,84 @@ func _test_special_tiles(level_number: int) -> void:
 	_check(model.is_cleared() and specials.mystery.is_empty(), "specials: every face-down tile turned over on the way")
 	screen.queue_free()
 	await _frames(2)
+
+
+## New players start on Zen Garden; anyone who has played keeps Classic; a
+## saved choice always wins. The answer is saved, so it never changes later.
+func _test_starting_collection() -> void:
+	var manager := TileCollectionManager
+	var real_settings := manager.settings_path
+	var real_tutorial := GameSession.tutorial_settings_path
+	var test_settings := "user://test_settings_starting.cfg"
+	manager.settings_path = test_settings
+	GameSession.tutorial_settings_path = test_settings
+
+	SafeConfig.remove_all(test_settings)
+	GameSession.progress.reset()
+	manager.restore()
+	_check(manager.selected_id == "zen_garden", "start: a new player gets Zen Garden")
+	GameSession.progress.record_clear(1, 3, 100.0, LevelCatalog.count(), 1000)
+	GameSession.set_tutorial_seen("completed")
+	manager.restore()
+	_check(manager.selected_id == "zen_garden", "start: the new player keeps it after playing")
+
+	SafeConfig.remove_all(test_settings)
+	manager.restore()
+	_check(manager.selected_id == "classic", "start: a returning player who never chose keeps Classic")
+	GameSession.progress.reset()
+	manager.restore()
+	_check(manager.selected_id == "classic", "start: that answer is saved")
+
+	SafeConfig.remove_all(test_settings)
+	GameSession.set_tutorial_seen("skipped")
+	manager.restore()
+	_check(manager.selected_id == "classic", "start: having seen the tutorial counts as returning")
+
+	SafeConfig.remove_all(test_settings)
+	UserSettings.new(test_settings).set_value(manager.SETTINGS_SECTION, manager.SETTINGS_KEY, "animals")
+	manager.restore()
+	_check(manager.selected_id == "animals", "start: a saved choice is kept")
+
+	SafeConfig.remove_all(test_settings)
+	manager.settings_path = real_settings
+	GameSession.tutorial_settings_path = real_tutorial
+	manager.restore()
+
+
+## Zen Garden: symbols sit on the porcelain body, stacks shift by the tile's
+## thickness, and face-down tiles show the whole jade back in the body's frame.
+func _test_zen_garden_tiles(level_number: int) -> void:
+	var manager := TileCollectionManager
+	_check(manager.select("zen_garden"), "zen: Zen Garden can be applied")
+	var screen := await _open_level(level_number)
+	var board: BoardView = screen.get_node("%Board")
+	var model: BoardModel = screen.get("_model")
+	var skin := board.skin()
+	_check(skin.style.id == "zen_ivory_v1", "zen: the board uses the porcelain style (%s)" % skin.style.id)
+	_check(skin.style.layer_shift == Vector2(-15, -24), "zen: layers shift by the tile's edge")
+	var seen := {}
+	for i in model.tile_count():
+		var view := board.tile(i)
+		_check(view.has_art(), "zen: tile %d has art" % i)
+		if view.is_face_down():
+			var cover := view.get_node("Lift/Cover") as TextureRect
+			if cover.size != skin.style.image_size or cover.position != Vector2.ZERO:
+				_check(false, "zen: tile %d back is out of frame" % i)
+		var symbol := skin.symbol_texture(model.face_of(i))
+		var group := TileCatalog.match_group(model.face_of(i))
+		if seen.has(group) and seen[group] != symbol:
+			_check(false, "zen: group %s shows two pictures" % group)
+		seen[group] = symbol
+	var deal := _expected_deal(level_number)
+	_check(model.faces == deal.faces, "zen: the deal does not depend on the look")
+	for pair in deal.solution:
+		await _click_tile(screen, pair.x)
+		await _click_tile(screen, pair.y)
+		await get_tree().create_timer(0.03).timeout
+	_check(model.is_cleared(), "zen: tiles are tapped exactly where they are drawn")
+	screen.queue_free()
+	await _frames(2)
+	manager.select("classic")
 
 
 func _open_level(level_number: int) -> Control:

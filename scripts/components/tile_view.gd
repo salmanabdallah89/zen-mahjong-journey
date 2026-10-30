@@ -48,6 +48,8 @@ const CONTACT_SQUASH := Vector2(1.12, 0.92)
 ## Golden lotus rim and its slow shimmer (seconds per half breath).
 const GOLDEN := Color(1.0, 0.8, 0.36)
 const GOLDEN_SHIMMER := 1.6
+## Face width the rim and badge are sized for; larger tile art scales them up.
+const GOLDEN_BASE_WIDTH := 232.0
 ## Flip of a mystery tile: seconds for each half (edge-on at the middle).
 const FLIP_HALF := 0.13
 
@@ -128,9 +130,11 @@ func set_art(tile: Texture2D, symbol: Texture2D = null, padding := 0.0) -> void:
 
 
 ## `back` shows face-down (a tile back over the face); null shows the face.
-func set_mystery(back: Texture2D) -> void:
+## `whole_tile`: `back` is a full tile image in the same frame as the body.
+func set_mystery(back: Texture2D, whole_tile := false) -> void:
 	_cover.texture = back
 	_cover.visible = back != null
+	_place(_cover, Rect2(Vector2.ZERO, _art.image_size) if whole_tile else _art.face_rect)
 	_cover.modulate.a = 1.0
 
 
@@ -381,7 +385,8 @@ func _build_specials() -> void:
 	_gilding = Panel.new()
 	_gilding.name = "Gilding"
 	_gilding.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_gilding.add_theme_stylebox_override("panel", _gilding_style())
+	var golden_scale := maxf(_art.face_rect.size.x / GOLDEN_BASE_WIDTH, 1.0)
+	_gilding.add_theme_stylebox_override("panel", _gilding_style(golden_scale))
 	_gilding.visible = false
 	_lift.add_child(_gilding)
 	_lift.move_child(_gilding, _glow.get_index())
@@ -395,10 +400,12 @@ func _build_specials() -> void:
 	_lift.add_child(_badge)
 	_lift.move_child(_badge, _glow.get_index())
 	_badge.size = _badge.get_combined_minimum_size()
+	_badge.scale = Vector2(golden_scale, golden_scale)
+	var badge_size := _badge.size * golden_scale
 	# Top-right corner of the face, inside the rim: neighbours drawn later
 	# never cover it.
 	var corner := Vector2(_art.face_rect.end.x, _art.face_rect.position.y)
-	_badge.position = corner + Vector2(-_badge.size.x - _art.face_rect.size.x * 0.02, -_badge.size.y * 0.12)
+	_badge.position = corner + Vector2(-badge_size.x - _art.face_rect.size.x * 0.02, -badge_size.y * 0.12)
 
 
 func _finish_removal() -> void:
@@ -534,18 +541,19 @@ static func _glow_style(color: Color) -> StyleBoxFlat:
 	return _styles[key]
 
 
-static func _gilding_style() -> StyleBoxFlat:
-	if not _styles.has("gilding"):
+static func _gilding_style(size_scale: float) -> StyleBoxFlat:
+	var key := "gilding_%.2f" % size_scale
+	if not _styles.has(key):
 		var style := StyleBoxFlat.new()
 		style.draw_center = false
 		style.border_color = GOLDEN
-		style.set_border_width_all(11)
-		style.set_corner_radius_all(16)
+		style.set_border_width_all(roundi(11.0 * size_scale))
+		style.set_corner_radius_all(roundi(16.0 * size_scale))
 		style.shadow_color = Color(GOLDEN, 0.75)
-		style.shadow_size = 26
+		style.shadow_size = roundi(26.0 * size_scale)
 		style.anti_aliasing = true
-		_styles["gilding"] = style
-	return _styles["gilding"]
+		_styles[key] = style
+	return _styles[key]
 
 
 static func _veil_style() -> StyleBoxFlat:

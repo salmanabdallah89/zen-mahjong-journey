@@ -1,0 +1,196 @@
+{
+	"id": "zen_garden",
+	"name": "Zen Garden",
+	"version": 1,
+	"order": 0,
+	"kind": "symbols",
+	"assignment": "fixed",
+	"description": "Colourful garden symbols on glossy porcelain tiles.",
+	"thumbnail": "res://assets/collections/zen_garden/thumbnail.png",
+	"tile_style": "res://data/tile_art/zen_ivory_v1.json",
+	"body": "res://assets/tiles/bodies/tile_body_zen_ivory.png",
+	"symbol_padding": 0.07,
+	"source": "Zen_Garden_Godot_Art_Pack (user-supplied, AI-generated); cleaned and resized copies, see assets/collections/zen_garden/README.md",
+	"symbols": [
+		{
+			"id": "sakura_branch",
+			"file": "res://assets/collections/zen_garden/zen_01_sakura_branch.png",
+			"pack_id": "symbol_01"
+		},
+		{
+			"id": "koi_fish",
+			"file": "res://assets/collections/zen_garden/zen_02_koi_fish.png",
+			"pack_id": "symbol_02"
+		},
+		{
+			"id": "bamboo",
+			"file": "res://assets/collections/zen_garden/zen_03_bamboo.png",
+			"pack_id": "symbol_03"
+		},
+		{
+			"id": "red_maple_leaf",
+			"file": "res://assets/collections/zen_garden/zen_04_red_maple_leaf.png",
+			"pack_id": "symbol_04"
+		},
+		{
+			"id": "butterfly",
+			"file": "res://assets/collections/zen_garden/zen_05_butterfly.png",
+			"pack_id": "symbol_05"
+		},
+		{
+			"id": "pink_lotus",
+			"file": "res://assets/collections/zen_garden/zen_06_pink_lotus.png",
+			"pack_id": "symbol_06"
+		},
+		{
+			"id": "blue_hydrangea",
+			"file": "res://assets/collections/zen_garden/zen_07_blue_hydrangea.png",
+			"pack_id": "symbol_07"
+		},
+		{
+			"id": "ginkgo_leaf",
+			"file": "res://assets/collections/zen_garden/zen_08_ginkgo_leaf.png",
+			"pack_id": "symbol_08"
+		},
+		{
+			"id": "bonsai_pine_tree",
+			"file": "res://assets/collections/zen_garden/zen_09_bonsai_pine_tree.png",
+			"pack_id": "symbol_09"
+		},
+		{
+			"id": "red_crowned_crane",
+			"file": "res://assets/collections/zen_garden/zen_10_red_crowned_crane.png",
+			"pack_id": "symbol_10"
+		},
+		{
+			"id": "red_paper_lantern",
+			"file": "res://assets/collections/zen_garden/zen_11_red_paper_lantern.png",
+			"pack_id": "symbol_11"
+		},
+		{
+			"id": "red_torii_gate",
+			"file": "res://assets/collections/zen_garden/zen_12_red_torii_gate.png",
+			"pack_id": "symbol_12"
+		},
+		{
+			"id": "mount_fuji_red_sun",
+			"file": "res://assets/collections/zen_garden/zen_13_mount_fuji_red_sun.png",
+			"pack_id": "symbol_13"
+		},
+		{
+			"id": "pagoda",
+			"file": "res://assets/collections/zen_garden/zen_14_pagoda.png",
+			"pack_id": "symbol_14"
+		},
+		{
+			"id": "stone_lantern",
+			"file": "res://assets/collections/zen_garden/zen_15_stone_lantern.png",
+			"pack_id": "symbol_15"
+		},
+		{
+			"id": "panda",
+			"file": "res://assets/collections/zen_garden/zen_16_panda.png",
+			"pack_id": "symbol_16"
+		},
+		{
+			"id": "purple_iris",
+			"file": "res://assets/collections/zen_garden/zen_17_purple_iris.png",
+			"pack_id": "symbol_17"
+		},
+		{
+			"id": "yellow_chrysanthemum",
+			"file": "res://assets/collections/zen_garden/zen_18_yellow_chrysanthemum.png",
+			"pack_id": "symbol_18"
+		},
+		{
+			"id": "teapot",
+			"file": "res://assets/collections/zen_garden/zen_19_teapot.png",
+			"pack_id": "symbol_19"
+		},
+		{
+			"id": "lily_pad_flower",
+			"file": "res://assets/collections/zen_garden/zen_20_lily_pad_flower.png",
+			"pack_id": "symbol_20"
+		},
+		{
+			"id": "small_bluebird",
+			"file": "res://assets/collections/zen_garden/zen_21_small_bluebird.png",
+			"pack_id": "symbol_21"
+		},
+		{
+			"id": "glass_wind_chime",
+			"file": "res://assets/collections/zen_garden/zen_22_glass_wind_chime.png",
+			"pack_id": "symbol_22"
+		},
+		{
+			"id": "folding_fan",
+			"file": "res://assets/collections/zen_garden/zen_23_folding_fan.png",
+			"pack_id": "symbol_23"
+		},
+		{
+			"id": "stacked_zen_stones",
+			"file": "res://assets/collections/zen_garden/zen_24_stacked_zen_stones.png",
+			"pack_id": "symbol_24"
+		},
+		{
+			"id": "crescent_moon",
+			"file": "res://assets/collections/zen_garden/zen_25_crescent_moon.png",
+			"pack_id": "symbol_25"
+		},
+		{
+			"id": "red_paper_umbrella",
+			"file": "res://assets/collections/zen_garden/zen_26_red_paper_umbrella.png",
+			"pack_id": "symbol_26"
+		},
+		{
+			"id": "red_daruma_doll",
+			"file": "res://assets/collections/zen_garden/zen_27_red_daruma_doll.png",
+			"pack_id": "symbol_27"
+		},
+		{
+			"id": "red_arched_bridge",
+			"file": "res://assets/collections/zen_garden/zen_28_red_arched_bridge.png",
+			"pack_id": "symbol_28"
+		},
+		{
+			"id": "white_rabbit",
+			"file": "res://assets/collections/zen_garden/zen_29_white_rabbit.png",
+			"pack_id": "symbol_29"
+		},
+		{
+			"id": "green_frog",
+			"file": "res://assets/collections/zen_garden/zen_30_green_frog.png",
+			"pack_id": "symbol_30"
+		},
+		{
+			"id": "bronze_temple_bell",
+			"file": "res://assets/collections/zen_garden/zen_31_bronze_temple_bell.png",
+			"pack_id": "symbol_31"
+		},
+		{
+			"id": "rice_ball_onigiri",
+			"file": "res://assets/collections/zen_garden/zen_32_rice_ball_onigiri.png",
+			"pack_id": "symbol_32"
+		},
+		{
+			"id": "ocean_wave",
+			"file": "res://assets/collections/zen_garden/zen_33_ocean_wave.png",
+			"pack_id": "symbol_33"
+		},
+		{
+			"id": "orange_fox",
+			"file": "res://assets/collections/zen_garden/zen_34_orange_fox.png",
+			"pack_id": "symbol_34"
+		},
+		{
+			"id": "snowflake",
+			"file": "res://assets/collections/zen_garden/zen_35_snowflake.png",
+			"pack_id": "symbol_35"
+		},
+		{
+			"id": "three_color_dango",
+			"file": "res://assets/collections/zen_garden/zen_36_three_color_dango.png",
+			"pack_id": "symbol_36"
+		}
+	]
+}

@@ -1,0 +1,31 @@
+{
+	"_comment": "Tile style for Zen Garden: glossy porcelain body (assets/tiles/bodies/tile_body_zen_ivory.png, 340 x 386), measured from the image: top face 6..323 x 4..361, gold edge 15 px right and 24 px bottom. layer_shift equals that edge, so stacks show exactly the tile's thickness. mystery_back is a full tile image with the same frame, shown instead of the per-garden backs.",
+	"id": "zen_ivory_v1",
+	"name": "Zen porcelain body",
+	"has_faces": false,
+	"image_size": [
+		340,
+		386
+	],
+	"body_rect": [
+		2,
+		2,
+		336,
+		382
+	],
+	"face_rect": [
+		6,
+		4,
+		317,
+		357
+	],
+	"grid_overlap": [
+		3,
+		5
+	],
+	"layer_shift": [
+		-15,
+		-24
+	],
+	"mystery_back": "res://assets/tiles/backs/tile_back_jade_lotus.png"
+}

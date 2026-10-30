@@ -41,6 +41,7 @@ func _ready() -> void:
 	get_window().size = SHAPES["phone_9x16"]
 	await _capture_losing()
 	await _capture_collections()
+	await _capture_zen_small()
 	await _measure_frame_times(10)
 	await _capture_journey()
 	await _capture_ads()
@@ -225,6 +226,31 @@ func _capture_losing() -> void:
 
 ## The collection picker and every enabled collection on real boards, plus
 ## a stand-in fixture board (file names marked "fixture").
+## Zen Garden at the smallest window, where tiles are their tiniest.
+func _capture_zen_small() -> void:
+	var manager := TileCollectionManager
+	var real_settings := manager.settings_path
+	manager.settings_path = "user://capture_settings.cfg"
+	SafeConfig.remove_all(manager.settings_path)
+	manager.restore()
+	manager.select("zen_garden")
+	get_window().size = SHAPES["w320x568"]
+	await _frames(4)
+	for number in [5, 10]:
+		GameSession.current_level = number
+		var screen: Control = GAME_SCENE.instantiate()
+		add_child(screen)
+		await _wait(0.6)
+		await _save("w320x568_zen_level%02d" % number)
+		screen.queue_free()
+		await _frames(2)
+	get_window().size = SHAPES["phone_9x16"]
+	await _frames(4)
+	SafeConfig.remove_all(manager.settings_path)
+	manager.settings_path = real_settings
+	manager.restore()
+
+
 func _capture_collections() -> void:
 	var manager := TileCollectionManager
 	var real_settings := manager.settings_path
@@ -254,7 +280,7 @@ func _capture_collections() -> void:
 	startup.queue_free()
 	await _frames(2)
 
-	for collection_id in ["classic", "animals", "alphabet", "mixed", "fruits", "vegetables"]:
+	for collection_id in ["zen_garden", "classic", "animals", "alphabet", "mixed", "fruits", "vegetables"]:
 		manager.select(collection_id)
 		for number in [5, 10]:
 			GameSession.current_level = number

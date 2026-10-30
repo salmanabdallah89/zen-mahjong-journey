@@ -2,7 +2,7 @@ extends TestCase
 ## Tile collections: manifests, validation, symbol assignment and skins.
 
 const FIXTURES := "res://tests/fixtures/collections/"
-const SHIPPED_IDS: PackedStringArray = ["classic", "animals", "fruits", "vegetables", "alphabet", "mixed"]
+const SHIPPED_IDS: PackedStringArray = ["zen_garden", "classic", "animals", "fruits", "vegetables", "alphabet", "mixed"]
 
 
 func _library() -> TileCollectionLibrary:
@@ -33,7 +33,7 @@ func test_every_shipped_collection_loads() -> void:
 		for error in collection.validate(TileArtSet.active()):
 			if not error.contains("look the same"):
 				failures.append("%s: %s" % [collection.id, error])
-	assert_eq(ids, SHIPPED_IDS, "six collections in menu order")
+	assert_eq(ids, SHIPPED_IDS, "seven collections in menu order")
 
 
 func test_symbol_counts_cover_levels() -> void:

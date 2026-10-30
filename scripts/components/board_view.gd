@@ -360,13 +360,15 @@ func _apply_art(index: int) -> void:
 	var view := _tiles[index]
 	view.set_art(_skin.tile_texture(face), _skin.symbol_texture(face), _skin.symbol_padding)
 	var face_down := specials != null and specials.is_mystery(index)
-	view.set_mystery(_mystery_cover() if face_down else null)
+	view.set_mystery(_mystery_cover() if face_down else null, not _art.mystery_back.is_empty())
 	view.set_golden(specials != null and specials.is_golden(index))
 
 
-## The face part of the tile back (its own rim and edge cropped away), drawn
-## over a mystery tile's face.
+## The tile style's own full back, or the face part of the garden's tile back
+## (its rim and edge cropped away), drawn over a mystery tile's face.
 func _mystery_cover() -> Texture2D:
+	if not _art.mystery_back.is_empty():
+		return load(_art.mystery_back)
 	if mystery_back == null:
 		return null
 	if not _covers.has(mystery_back):

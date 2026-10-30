@@ -28,6 +28,9 @@ var grid_overlap := Vector2.ZERO
 var layer_shift := Vector2.ZERO
 ## False for body-only styles used by symbol collections (no face images).
 var has_faces := true
+## Full tile image (same frame as the body) for face-down tiles; empty: the
+## board crops a garden's tile back instead.
+var mystery_back := ""
 
 var _face_folder: String = ""
 var _face_pattern: String = ""
@@ -80,6 +83,7 @@ static func from_dict(data: Dictionary) -> TileArtSet:
 	art.grid_overlap = _vec2(data.get("grid_overlap", [0, 0]))
 	art.layer_shift = _vec2(data.get("layer_shift", [0, 0]))
 	art.has_faces = bool(data.get("has_faces", true))
+	art.mystery_back = str(data.get("mystery_back", ""))
 	art._face_folder = str(data.get("face_folder", ""))
 	art._face_pattern = str(data.get("face_file_pattern", "tile_{face}.png"))
 	art._face_overrides = data.get("face_overrides", {})

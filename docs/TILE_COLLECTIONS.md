@@ -105,12 +105,21 @@ the tile style `data/tile_art/ivory_body_v1.json` (256 × 320, face 8,6 232 × 2
 
 | Collection | Status | Why |
 |------------|--------|-----|
+| Zen Garden | ✅ enabled, default for new players | 36 distinct symbols, fixed mapping, on the porcelain body (`zen_ivory_v1`, 340 × 386, face 6,4 317 × 357) with the jade `mystery_back`. Details below |
 | Classic | ✅ enabled | 16 faces held back pending replacement (see `KNOWN_ISSUES.md`) |
 | Cute Animals | ✅ enabled | 36 distinct symbols, fixed mapping |
 | Alphabet | ✅ enabled | 26 distinct letters, board-ordered (boards with more than 26 groups show Classic) |
 | Mixed | ✅ enabled | 36 distinct. The pack's `mixed_27_vegetables_07.png` (red pepper) is the same picture as green pepper, so the manifest uses `vegetables/vegetable_10_potato.png` in its place |
 | Fruits | ✅ enabled | 35 distinct symbols. Batch 1 fixed 10; **plum is held back** (`held_back_symbols`) because it is still the same picture as fig |
 | Vegetables | ✅ enabled | 23 distinct symbols; **13 copies held back** (`held_back_symbols`) until replaced |
+
+**Zen Garden** source: the user's `Zen_Garden_Godot_Art_Pack` (AI-generated, split from six sheets,
+about 512 px per symbol; not in the repository). Runtime copies were cleaned of stray fragments,
+trimmed, centred and scaled to 244 px on a 256 canvas; see `assets/collections/zen_garden/README.md`.
+Which collection a player starts on: `TileCollectionManager.restore()` saves the answer once. New
+players get Zen Garden; anyone with the tutorial seen or level 1 cleared keeps Classic; a saved
+choice always wins. Weakest symbols at 70 px, candidates for redraws: glass wind chime and white
+rabbit (pale on ivory), crescent moon (pale), pink lotus vs lily pad flower (similar).
 
 Look-alike groups (each needs distinct art before the collection can be enabled):
 - Fruits: plum is held back (it is the same purple circle as fig); everything else is distinct.
