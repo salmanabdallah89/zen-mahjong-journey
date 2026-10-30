@@ -37,6 +37,8 @@ const MILESTONE_DELAY := 0.9
 const SWEEP_SECONDS := 1.2
 ## The last pair blooms like a top combo.
 const FINALE_BURST := 10
+## Burst size (as a combo) for a golden lotus match.
+const GOLDEN_BURST := 6
 ## Seconds gliding points take to reach the score.
 const POINTS_RISE := 0.55
 const TIME_NORMAL := Color(0.20784314, 0.30980393, 0.26666668)
@@ -74,6 +76,8 @@ var _pause_open := false
 var _last_bell_at := -1.0
 ## Petals, motes, light rays and mist over the garden (GardenAmbience).
 var _ambience: GardenAmbience
+## Mystery (face-down) and golden lotus (double points) tiles of this board.
+var _specials := TileSpecials.new()
 
 @onready var _background: TextureRect = %Background
 @onready var _board: BoardView = %Board
@@ -197,6 +201,9 @@ func _start_level() -> void:
 		GameSession.go_home()
 		return
 	_model = BoardModel.new(geometry, deal.faces)
+	_specials = TileSpecials.plan(_level.number, _level.difficulty, _model, deal.solution, _level.deal_seed)
+	_board.specials = _specials
+	_board.mystery_back = load(TileArtSet.active().back_path(BackgroundStyle.tile_back(_level.background)))
 	_selected = -1
 	_hint = Vector2i(-1, -1)
 	_undo_stack.clear()
@@ -224,11 +231,20 @@ func _start_level() -> void:
 	_board.show_board(_model, TileCollectionManager.skin_for_board(_model.faces, _level.deal_seed))
 	_update_hud()
 	_show_collection_notice()
+	_introduce_specials()
 	if GameSession.should_show_tutorial(_level.number):
 		_tutorial.begin(_board, _tutorial_pair(deal.solution[0]))
 	elif _tutorial.is_active():
 		_tutorial.step = FirstPlayTutorial.Step.DONE
 		_tutorial.hide()
+
+
+## The first level with each kind of special tile says what it does.
+func _introduce_specials() -> void:
+	if _level.number == TileSpecials.FIRST_GOLDEN_LEVEL:
+		_show_toast("Golden lotus tiles score double points. Find their pair!")
+	elif _level.number == TileSpecials.FIRST_MYSTERY_LEVEL:
+		_show_toast("Face-down tiles turn over when you uncover them.")
 
 
 func tutorial_active() -> bool:
@@ -315,6 +331,8 @@ func _remove_pair(a: int, b: int) -> void:
 	_set_selected(-1)
 	_clear_hint()
 	_model.remove_pair(a, b)
+	var revealed := _specials.reveal_free(_model)
+	var factor := _specials.factor(a, b)
 	_matches += 1
 	if tutorial_active():
 		_tutorial.on_matched(a, b)
@@ -322,9 +340,12 @@ func _remove_pair(a: int, b: int) -> void:
 	# The last pair is celebrated by the level-complete sound instead.
 	var step := AudioManager.melody_step() if cleared else AudioManager.next_match_step()
 	var combo := step + 1
-	var points := _score.add_match(combo)
+	var points := _score.add_match(combo, factor)
 	_undo_stack.append({"kind": UndoKind.MATCH, "pair": Vector2i(a, b), "points": points})
-	var contact := _board.play_removal(a, b, FINALE_BURST if cleared else combo)
+	var burst := FINALE_BURST if cleared else (maxi(combo, GOLDEN_BURST) if factor > 1 else combo)
+	var contact := _board.play_removal(a, b, burst, revealed)
+	if not revealed.is_empty():
+		_after(contact, AudioManager.play_sfx.bind("star"))
 	_after(contact, _land_points.bind(points, _board.meeting_point_global(a, b)))
 	if cleared:
 		_after(contact, _play_edge_glow)
@@ -332,7 +353,7 @@ func _remove_pair(a: int, b: int) -> void:
 	var now := Time.get_ticks_msec() / 1000.0
 	var ring_in := maxf(contact, _last_bell_at + BELL_SPACING - now)
 	_last_bell_at = now + ring_in
-	_after(ring_in, _on_pair_met.bind(step, combo, cleared))
+	_after(ring_in, _on_pair_met.bind(step, combo, cleared, factor > 1))
 	if not cleared:
 		_check_milestones(ring_in)
 	if cleared:
@@ -343,11 +364,17 @@ func _remove_pair(a: int, b: int) -> void:
 		_show_no_moves()
 
 
-func _on_pair_met(step: int, combo: int, cleared: bool) -> void:
+func _on_pair_met(step: int, combo: int, cleared: bool, golden := false) -> void:
 	# Once Level Complete is up, late bells and praise would only distract.
 	if cleared or (_model.is_cleared() and _dialog.visible):
 		return
 	AudioManager.play_match_step(step)
+	if golden:
+		_toast.hide()
+		_praise.show_message("Golden Lotus ×%d!" % TileSpecials.GOLDEN_FACTOR)
+		AudioManager.play_sfx("reward")
+		AudioManager.vibrate(30)
+		return
 	_show_combo(combo)
 
 
@@ -957,6 +984,11 @@ func second_chances_used() -> int:
 ## still gliding in from the last pair must not count it back down).
 func _current_score() -> int:
 	return _final_score if _final_score > 0 else _score.match_points
+
+
+## Mystery and golden lotus tiles of the current board.
+func specials() -> TileSpecials:
+	return _specials
 
 
 ## Points from matches so far this attempt.

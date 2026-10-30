@@ -497,7 +497,8 @@ func _test_play_games() -> void:
 		while (screen.get_node("%Board") as BoardView).is_busy():
 			await _frames(1)
 	var dialog: ModalDialog = screen.get_node("%Dialog")
-	for i in 60:
+	# Level Complete waits for the last pair and the bell queue: allow a slow run.
+	for i in 300:
 		if dialog.visible:
 			break
 		await _frames(2)

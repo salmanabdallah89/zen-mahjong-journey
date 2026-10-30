@@ -10,6 +10,10 @@ extends Control
 ## animation (Undo, Shuffle, Restart mid-flight) can never leave a tile stuck,
 ## hidden or out of place. With Motion.reduced, travel, bounce and pulses
 ## become short fades.
+##
+## Special tiles (TileSpecials): a mystery tile shows a tile back over its face
+## until play_flip() turns it over; a golden lotus tile has a warm gold rim
+## that shimmers slowly and a "x2" badge.
 
 signal pressed(tile: TileView)
 
@@ -41,6 +45,11 @@ const FLIGHT_Z := 10
 const MATCH_ANTICIPATION := 0.09
 const MATCH_ARC := 18.0
 const CONTACT_SQUASH := Vector2(1.12, 0.92)
+## Golden lotus rim and its slow shimmer (seconds per half breath).
+const GOLDEN := Color(1.0, 0.8, 0.36)
+const GOLDEN_SHIMMER := 1.6
+## Flip of a mystery tile: seconds for each half (edge-on at the middle).
+const FLIP_HALF := 0.13
 
 var index: int = -1
 ## Tile geometry to build from; set before the tile enters the tree.
@@ -60,6 +69,11 @@ var _state_tween: Tween
 var _motion_tween: Tween
 ## Shakes and the "just uncovered" pop of the art inside the tile.
 var _accent_tween: Tween
+var _golden_tween: Tween
+## Tile back over the face of a mystery tile, the golden rim and its badge.
+var _cover: TextureRect
+var _gilding: Panel
+var _badge: Label
 
 @onready var _shadow: Panel = %Shadow
 @onready var _lift: Control = %Lift
@@ -81,6 +95,7 @@ func _ready() -> void:
 	_place(_glow, _art.face_rect)
 	_place(_shadow, _art.body_rect)
 	_veil.add_theme_stylebox_override("panel", _veil_style())
+	_build_specials()
 	_apply_look(false)
 
 
@@ -110,6 +125,55 @@ func set_art(tile: Texture2D, symbol: Texture2D = null, padding := 0.0) -> void:
 	if symbol:
 		var inset := _art.face_rect.size * padding
 		_place(_symbol, Rect2(_art.face_rect.position + inset, _art.face_rect.size - inset * 2.0))
+
+
+## `back` shows face-down (a tile back over the face); null shows the face.
+func set_mystery(back: Texture2D) -> void:
+	_cover.texture = back
+	_cover.visible = back != null
+	_cover.modulate.a = 1.0
+
+
+func is_face_down() -> bool:
+	return _cover.visible
+
+
+## A mystery tile turns over: it narrows to its edge, the face replaces the
+## back, and it widens again with a warm flash. Reduced animations: the back
+## fades away. Runs on the accent tween, so reset_visual() can stop it.
+func play_flip(delay := 0.0) -> void:
+	if not _cover.visible:
+		return
+	_restart_accent()
+	_accent_tween.tween_interval(delay)
+	if Motion.reduced:
+		_accent_tween.tween_property(_cover, "modulate:a", 0.0, 0.12)
+		_accent_tween.tween_callback(set_mystery.bind(null))
+		return
+	_accent_tween.tween_property(_lift, "scale:x", 0.0, FLIP_HALF).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	_accent_tween.tween_callback(set_mystery.bind(null))
+	_accent_tween.tween_property(_lift, "scale:x", 1.0, FLIP_HALF).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_accent_tween.parallel().tween_property(self, "modulate", Color(1.25, 1.2, 1.05), FLIP_HALF)
+	_accent_tween.tween_property(self, "modulate", Color.WHITE, 0.3).set_trans(Tween.TRANS_SINE)
+
+
+func set_golden(value: bool) -> void:
+	if value == _gilding.visible:
+		return
+	_gilding.visible = value
+	_badge.visible = value
+	if _golden_tween:
+		_golden_tween.kill()
+		_golden_tween = null
+	_gilding.modulate.a = 1.0
+	if value and not Motion.reduced:
+		_golden_tween = create_tween().set_loops().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		_golden_tween.tween_property(_gilding, "modulate:a", 0.7, GOLDEN_SHIMMER)
+		_golden_tween.tween_property(_gilding, "modulate:a", 1.0, GOLDEN_SHIMMER)
+
+
+func is_golden() -> bool:
+	return _gilding.visible
 
 
 func has_art() -> bool:
@@ -304,6 +368,39 @@ func _gui_input(event: InputEvent) -> void:
 		pressed.emit(self)
 
 
+func _build_specials() -> void:
+	_cover = TextureRect.new()
+	_cover.name = "Cover"
+	_cover.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_cover.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_cover.stretch_mode = TextureRect.STRETCH_SCALE
+	_cover.visible = false
+	_lift.add_child(_cover)
+	_lift.move_child(_cover, _veil.get_index())
+	_place(_cover, _art.face_rect)
+	_gilding = Panel.new()
+	_gilding.name = "Gilding"
+	_gilding.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_gilding.add_theme_stylebox_override("panel", _gilding_style())
+	_gilding.visible = false
+	_lift.add_child(_gilding)
+	_lift.move_child(_gilding, _glow.get_index())
+	_place(_gilding, _art.face_rect)
+	_badge = Label.new()
+	_badge.name = "GoldenBadge"
+	_badge.text = "×%d" % TileSpecials.GOLDEN_FACTOR
+	_badge.theme_type_variation = &"GoldenBadgeLabel"
+	_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_badge.visible = false
+	_lift.add_child(_badge)
+	_lift.move_child(_badge, _glow.get_index())
+	_badge.size = _badge.get_combined_minimum_size()
+	# Top-right corner of the face, inside the rim: neighbours drawn later
+	# never cover it.
+	var corner := Vector2(_art.face_rect.end.x, _art.face_rect.position.y)
+	_badge.position = corner + Vector2(-_badge.size.x - _art.face_rect.size.x * 0.02, -_badge.size.y * 0.12)
+
+
 func _finish_removal() -> void:
 	hide()
 	z_index = 0
@@ -435,6 +532,20 @@ static func _glow_style(color: Color) -> StyleBoxFlat:
 		style.anti_aliasing = true
 		_styles[key] = style
 	return _styles[key]
+
+
+static func _gilding_style() -> StyleBoxFlat:
+	if not _styles.has("gilding"):
+		var style := StyleBoxFlat.new()
+		style.draw_center = false
+		style.border_color = GOLDEN
+		style.set_border_width_all(11)
+		style.set_corner_radius_all(16)
+		style.shadow_color = Color(GOLDEN, 0.75)
+		style.shadow_size = 26
+		style.anti_aliasing = true
+		_styles["gilding"] = style
+	return _styles["gilding"]
 
 
 static func _veil_style() -> StyleBoxFlat:

@@ -11,12 +11,12 @@ extends RefCounted
 ## colour multiplies on existing nodes: no extra textures or passes.
 
 const STYLES := {
-	"bg_golden_sakura": {"scenery": 0.86, "board": 0.68, "name": "Sakura Garden"},
-	"bg_bamboo_forest": {"scenery": 0.86, "board": 0.68, "name": "Bamboo Forest"},
-	"bg_misty_temple": {"scenery": 0.9, "board": 0.62, "name": "Misty Temple"},
-	"bg_moonlight_sanctuary": {"scenery": 0.97, "board": 0.48, "name": "Moonlight Sanctuary"},
+	"bg_golden_sakura": {"scenery": 0.86, "board": 0.68, "name": "Sakura Garden", "tile_back": "forest"},
+	"bg_bamboo_forest": {"scenery": 0.86, "board": 0.68, "name": "Bamboo Forest", "tile_back": "forest"},
+	"bg_misty_temple": {"scenery": 0.9, "board": 0.62, "name": "Misty Temple", "tile_back": "sage"},
+	"bg_moonlight_sanctuary": {"scenery": 0.97, "board": 0.48, "name": "Moonlight Sanctuary", "tile_back": "night"},
 }
-const DEFAULT := {"scenery": 0.92, "board": 0.58, "name": "Garden"}
+const DEFAULT := {"scenery": 0.92, "board": 0.58, "name": "Garden", "tile_back": "forest"}
 
 
 ## Colour to multiply the level background with (a touch cooler when dimmed,
@@ -29,6 +29,12 @@ static func scenery_tint(background: String) -> Color:
 ## Strength (centre alpha) of the shade pool behind the board.
 static func board_shade(background: String) -> float:
 	return float(_style(background)["board"])
+
+
+## Tile back style for face-down mystery tiles in this garden
+## (TileArtSet.back_path).
+static func tile_back(background: String) -> String:
+	return str(_style(background)["tile_back"])
 
 
 ## Display name of the garden (journey map chapters).

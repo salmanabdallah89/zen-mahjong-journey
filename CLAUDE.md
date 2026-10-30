@@ -163,6 +163,12 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
   glide from the pair into it. Milestones "Halfway there!" / "Last 10 tiles!" (sweep, chord, music
   lift) use `ComboFeedback.show_message`. Best score per level in `ProgressStore`; the total goes to
   the Google Play Games leaderboard via autoload `PlayGames` (Android only; setup and ids: docs/PLAY_GAMES.md).
+- **Special tiles:** `TileSpecials` (core) picks per level, from its own RNG seeded from the deal
+  seed (deals unchanged): one golden lotus pair from level 3 (×2 points, gold rim + "×2" badge,
+  "Golden Lotus" praise) and, from level 4, face-down mystery tiles (a share of the tiles that start
+  blocked, by difficulty; tile back per garden in `BackgroundStyle`). The screen calls
+  `reveal_free()` after each removal and `BoardView.play_removal` flips them. Undo never hides a
+  tile again; solver, hints and shuffles see the real faces.
 - **Feedback lane:** game-screen messages (toasts, combo praise `ComboFeedback`) appear only in
   `%FeedbackLane`, a strip that `BoardView` (its `footer`) places 24 px under the tiles and
   centres together with the board; it clips its contents, so messages never cover a tile. Match sound, haptics and praise land

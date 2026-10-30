@@ -58,6 +58,7 @@ func _ready() -> void:
 	await _test_tile_animations(4)
 	await _test_reduced_motion(2)
 	await _test_combo_feedback(4)
+	await _test_special_tiles(5)
 	await _test_tutorial()
 	await _test_journey_readability()
 	await _test_accessibility()
@@ -1438,6 +1439,45 @@ func _visual_keys(board: BoardView, model: BoardModel) -> PackedStringArray:
 	for face in model.faces:
 		keys.append(board.skin().visual_key(face))
 	return keys
+
+
+## Mystery tiles lie face-down until uncovered, then turn over; the golden
+## lotus pair glows, wears a badge and scores double.
+func _test_special_tiles(level_number: int) -> void:
+	var screen := await _open_level(level_number)
+	var board: BoardView = screen.get_node("%Board")
+	var model: BoardModel = screen.get("_model")
+	var specials: TileSpecials = screen.call("specials")
+	var deal := _expected_deal(level_number)
+	_check(model.faces == deal.faces, "specials: the deal is unchanged")
+	var face_down := 0
+	var golden := 0
+	for i in model.tile_count():
+		face_down += 1 if board.tile(i).is_face_down() else 0
+		golden += 1 if board.tile(i).is_golden() else 0
+		if board.tile(i).is_face_down() and model.is_free(i):
+			_check(false, "specials: free tile %d starts face-down" % i)
+	_check(face_down > 0 and face_down == specials.mystery.size(), "specials: %d tiles start face-down" % face_down)
+	_check(golden == 2, "specials: one golden lotus pair glows (%d)" % golden)
+	var badge := board.tile(specials.golden.keys()[0]).get_node("Lift/GoldenBadge") as Label
+	_check(badge.visible and badge.text == "×2", "specials: the golden tile wears a ×2 badge")
+	var golden_points := 0
+	for pair in deal.solution:
+		var before := int(screen.call("match_points"))
+		await _click_tile(screen, pair.x)
+		await _click_tile(screen, pair.y)
+		if specials.is_golden(pair.x):
+			golden_points = int(screen.call("match_points")) - before
+		await get_tree().create_timer(0.05).timeout
+		for i in model.tile_count():
+			if not model.is_removed(i) and model.is_free(i) and specials.is_mystery(i):
+				_check(false, "specials: free tile %d stayed face-down" % i)
+				break
+	_check(golden_points > 0 and golden_points % (LevelScore.MATCH_POINTS * TileSpecials.GOLDEN_FACTOR) == 0,
+		"specials: the golden pair scored double (%d)" % golden_points)
+	_check(model.is_cleared() and specials.mystery.is_empty(), "specials: every face-down tile turned over on the way")
+	screen.queue_free()
+	await _frames(2)
 
 
 func _open_level(level_number: int) -> Control:

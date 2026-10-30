@@ -2,7 +2,8 @@ class_name LevelScore
 extends RefCounted
 ## Points for one attempt at a level (pure rules, no Nodes):
 ##   - every match earns MATCH_POINTS times the combo multiplier, which grows
-##     with matches in a row (x1 … x5); undo takes that match's points back
+##     with matches in a row (x1 … x5), doubled with a golden lotus tile; undo
+##     takes that match's points back
 ##   - clearing the level adds TIME_BONUS_PER_SECOND for every whole second
 ##     left and FLAWLESS_BONUS when no mistake was made
 ## The leaderboard ranks the sum of every level's best score (ProgressStore).
@@ -26,9 +27,10 @@ static func points_for(combo: int) -> int:
 	return MATCH_POINTS * multiplier(combo)
 
 
-## Adds a match and returns the points it earned.
-func add_match(combo: int) -> int:
-	var points := points_for(combo)
+## Adds a match and returns the points it earned. `factor` multiplies them
+## (TileSpecials.GOLDEN_FACTOR for a golden lotus tile).
+func add_match(combo: int, factor := 1) -> int:
+	var points := points_for(combo) * factor
 	match_points += points
 	return points
 

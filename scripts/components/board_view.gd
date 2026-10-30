@@ -36,6 +36,8 @@ const REVEAL_DELAY := 0.24
 const SHUFFLE_GATHER := 0.24
 const SHUFFLE_SPREAD := 0.34
 const SHUFFLE_STAGGER := 0.12
+## Face of the 192 x 240 tile back images (assets/tiles/backs), without the edge.
+const BACK_FACE_REGION := Rect2(7, 5, 165, 209)
 
 var _model: BoardModel
 var _art: TileArtSet
@@ -53,6 +55,11 @@ var footer: Control
 ## Centre strength of the shade pool behind the tiles (BackgroundStyle). Set
 ## before show_board(), or call set_backdrop_strength() any time.
 var backdrop_strength := 0.56
+## Mystery and golden lotus tiles of the current board (null: none). Set
+## before show_board(); the game screen updates it, the board only shows it.
+var specials: TileSpecials
+## Tile back shown on face-down mystery tiles.
+var mystery_back: Texture2D
 
 
 func _ready() -> void:
@@ -176,10 +183,10 @@ func clear_highlights() -> void:
 
 
 ## A matched pair glides together, touches and blooms away; the burst grows
-## with the combo (matches in a row). Tiles uncovered by it pop afterwards.
-## Returns the seconds until the pair touches, so sound and haptics can land
-## on that moment.
-func play_removal(a: int, b: int, combo := 1) -> float:
+## with the combo (matches in a row). Tiles uncovered by it pop afterwards, and
+## the face-down tiles in `revealed` turn over. Returns the seconds until the
+## pair touches, so sound and haptics can land on that moment.
+func play_removal(a: int, b: int, combo := 1, revealed := PackedInt32Array()) -> float:
 	var meet := meeting_points(a, b)
 	var travel := _travel_time(a, b)
 	_tiles[a].play_match(meet[0], travel)
@@ -191,6 +198,8 @@ func play_removal(a: int, b: int, combo := 1) -> float:
 	burst.position = (meet[0] + meet[1]) / 2.0 + _tiles[a].face_center()
 	_effects.add_child(burst)
 	refresh_free_states(contact)
+	for index in revealed:
+		_tiles[index].play_flip(contact)
 	return contact
 
 
@@ -348,7 +357,27 @@ static var _backdrops := {}
 
 func _apply_art(index: int) -> void:
 	var face := _model.face_of(index)
-	_tiles[index].set_art(_skin.tile_texture(face), _skin.symbol_texture(face), _skin.symbol_padding)
+	var view := _tiles[index]
+	view.set_art(_skin.tile_texture(face), _skin.symbol_texture(face), _skin.symbol_padding)
+	var face_down := specials != null and specials.is_mystery(index)
+	view.set_mystery(_mystery_cover() if face_down else null)
+	view.set_golden(specials != null and specials.is_golden(index))
+
+
+## The face part of the tile back (its own rim and edge cropped away), drawn
+## over a mystery tile's face.
+func _mystery_cover() -> Texture2D:
+	if mystery_back == null:
+		return null
+	if not _covers.has(mystery_back):
+		var cover := AtlasTexture.new()
+		cover.atlas = mystery_back
+		cover.region = BACK_FACE_REGION
+		_covers[mystery_back] = cover
+	return _covers[mystery_back]
+
+
+static var _covers := {}
 
 
 func _on_tile_pressed(view: TileView) -> void:
