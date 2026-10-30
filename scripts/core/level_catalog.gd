@@ -6,6 +6,8 @@ extends RefCounted
 
 const LEVELS_PATH := "res://data/levels/levels.json"
 const BACKGROUND_PATTERN := "res://assets/backgrounds/%s.png"
+## Higher-resolution repaint of a garden (docs/ART_REFRESH.md), used when present.
+const HD_BACKGROUND_PATTERN := "res://assets/backgrounds/hd/%s_hd.png"
 
 
 class LevelDefinition extends RefCounted:
@@ -42,7 +44,14 @@ class LevelDefinition extends RefCounted:
 		return pool
 
 	func background_path() -> String:
-		return BACKGROUND_PATTERN % background
+		return LevelCatalog.background_path_for(background)
+
+
+## The garden painting to show: the HD repaint when it exists, else the
+## original pack file.
+static func background_path_for(garden: String) -> String:
+	var hd := HD_BACKGROUND_PATTERN % garden
+	return hd if ResourceLoader.exists(hd) else BACKGROUND_PATTERN % garden
 
 
 static var _levels: Array[LevelDefinition] = []

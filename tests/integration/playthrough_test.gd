@@ -913,6 +913,8 @@ func _test_reduced_motion(level_number: int) -> void:
 	var screen := await _open_level(level_number)
 	var board: BoardView = screen.get_node("%Board")
 	var model: BoardModel = screen.get("_model")
+	var ambience: GardenAmbience = screen.get("_ambience")
+	_check(ambience.particle_count() == 0 and ambience.has_rays(), "reduced: the garden keeps its still light, no petals or motes")
 	var pair: Vector2i = _expected_deal(level_number).solution[0]
 	var view := board.tile(pair.x)
 	await _click_tile(screen, pair.x)
@@ -927,9 +929,13 @@ func _test_reduced_motion(level_number: int) -> void:
 	screen.call("_on_shuffle_pressed")
 	await get_tree().create_timer(0.35).timeout
 	_check(not board.is_busy() and _tiles_at_rest(board, model), "reduced: shuffle is a quick fade")
+	Motion.set_reduced(false)
+	_check(ambience.particle_count() > 0 and ambience.particle_count() <= AmbienceStyle.MAX_PARTICLES,
+		"full motion brings back the petals and motes (%d)" % ambience.particle_count())
+	_check(ambience.get_index() == (screen.get_node("%Background") as Node).get_index() + 1,
+		"the garden layer sits right above the painting, under the board")
 	screen.queue_free()
 	await _frames(2)
-	Motion.set_reduced(false)
 
 
 ## P3 combos: praise in the lane below the board, synced to contact, tiers

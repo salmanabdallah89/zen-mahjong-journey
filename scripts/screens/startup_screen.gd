@@ -3,6 +3,9 @@ extends Control
 ## Play button that opens the journey map, the Tile Collection chooser,
 ## Settings and (with Google Play Games) the leaderboard.
 
+## The garden behind the title (its HD repaint when there is one).
+const MENU_GARDEN := "bg_golden_sakura"
+
 @onready var _title_block: Control = %TitleBlock
 @onready var _play_button: Button = %PlayButton
 @onready var _collection_button: Button = %CollectionButton
@@ -23,7 +26,10 @@ func _ready() -> void:
 	_update_leaderboard_button()
 	AudioManager.play_music("main_menu")
 	AudioManager.set_ambience(AudioCatalog.MENU_AMBIENCE)
-	BackgroundDrift.start($Background)
+	var background := $Background as TextureRect
+	background.texture = load(LevelCatalog.background_path_for(MENU_GARDEN))
+	BackgroundDrift.start(background)
+	GardenAmbience.add_over(background).setup(MENU_GARDEN)
 	_play_intro()
 
 

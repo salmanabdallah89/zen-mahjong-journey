@@ -72,6 +72,8 @@ var _last_loss := LossReason.TIME
 var _pause_open := false
 ## When the latest scheduled match bell rings (Time.get_ticks_msec seconds).
 var _last_bell_at := -1.0
+## Petals, motes, light rays and mist over the garden (GardenAmbience).
+var _ambience: GardenAmbience
 
 @onready var _background: TextureRect = %Background
 @onready var _board: BoardView = %Board
@@ -136,6 +138,7 @@ func _ready() -> void:
 	_tutorial.hide()
 	_tutorial.finished.connect(_on_tutorial_finished)
 	BackgroundDrift.start(_background)
+	_ambience = GardenAmbience.add_over(_background)
 	_start_level()
 
 
@@ -183,6 +186,7 @@ func _start_level() -> void:
 	# Per-background shading keeps the tiles the focus (BackgroundStyle).
 	_background.modulate = BackgroundStyle.scenery_tint(_level.background)
 	_board.set_backdrop_strength(BackgroundStyle.board_shade(_level.background))
+	_ambience.setup(_level.background)
 	AudioManager.play_music("gameplay")
 	AudioManager.reset_melody()
 	AudioManager.set_ambience(AudioCatalog.AMBIENCE_FOR_BACKGROUND.get(_level.background, AudioCatalog.MENU_AMBIENCE))

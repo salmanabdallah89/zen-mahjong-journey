@@ -170,6 +170,11 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
 - **Background balance:** `BackgroundStyle` holds per-background scenery dim and board-shade
   strength (measured, gentle). A new background needs an entry there (unit-tested). Hearts live in
   the top bar (`%Hearts` inside `HeartsPill`); there is no separate hearts panel.
+- **Living gardens:** `GardenAmbience` (added over the background on the start and game screens)
+  draws light rays, shader mist, petals and motes per garden from `AmbienceStyle` (core, needs an
+  entry per background, unit-tested; at most 48 particles). Reduced animations keep only still
+  light and mist. HD repaints go in `assets/backgrounds/hd/<name>_hd.png` and are picked up by
+  `LevelCatalog.background_path_for()`; prompt pack and sizes: docs/ART_REFRESH.md.
 - **Tutorial:** `FirstPlayTutorial` runs on level 1 for new players (state in user settings via
   `GameSession.tutorial_seen()`; "How to Play" sets `GameSession.tutorial_requested`). Tests and
   tools that open level 1 must point `GameSession.tutorial_settings_path` at their throwaway file

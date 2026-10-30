@@ -277,7 +277,7 @@ static var _textures := {}
 
 static func _garden_texture(garden: String) -> Texture2D:
 	if not _textures.has(garden):
-		_textures[garden] = load(LevelCatalog.BACKGROUND_PATTERN % garden)
+		_textures[garden] = load(LevelCatalog.background_path_for(garden))
 	return _textures[garden]
 
 
