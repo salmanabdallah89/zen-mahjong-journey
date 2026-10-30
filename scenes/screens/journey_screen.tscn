@@ -5,7 +5,7 @@
 [ext_resource type="Script" path="res://scripts/components/safe_area_container.gd" id="3_safe"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/icon_back.png" id="4_back"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/icon_star.png" id="5_star"]
-[ext_resource type="PackedScene" path="res://scenes/components/modal_dialog.tscn" id="6_dialog"]
+[ext_resource type="Script" path="res://scripts/components/level_sheet.gd" id="9_sheet"]
 [ext_resource type="Script" path="res://scripts/components/journey_world.gd" id="7_world"]
 [ext_resource type="Texture2D" path="res://assets/effects/petal_02.png" id="8_petal"]
 
@@ -58,6 +58,16 @@ mouse_filter = 2
 texture = SubResource("GradientTexture_shade")
 expand_mode = 1
 
+[node name="World" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("7_world")
+
 [node name="SafeArea" type="MarginContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
@@ -75,8 +85,9 @@ mouse_filter = 2
 theme_override_constants/separation = 16
 
 [node name="Header" type="PanelContainer" parent="SafeArea/Layout"]
+unique_name_in_owner = true
 layout_mode = 2
-theme_type_variation = &"HudPanel"
+theme_type_variation = &"MapLabelPlate"
 
 [node name="Row" type="HBoxContainer" parent="SafeArea/Layout/Header"]
 layout_mode = 2
@@ -100,16 +111,29 @@ size_flags_vertical = 4
 theme_override_constants/separation = -6
 
 [node name="Title" type="Label" parent="SafeArea/Layout/Header/Row/TitleBox"]
+unique_name_in_owner = true
 layout_mode = 2
-theme_type_variation = &"HudValueLabel"
+theme_type_variation = &"ToolLabel"
+theme_override_font_sizes/font_size = 44
 text = "Journey"
 horizontal_alignment = 1
 
 [node name="Caption" type="Label" parent="SafeArea/Layout/Header/Row/TitleBox"]
+unique_name_in_owner = true
 layout_mode = 2
-theme_type_variation = &"HudCaptionLabel"
-text = "CHOOSE A LEVEL"
+theme_type_variation = &"ToolLabel"
+theme_override_font_sizes/font_size = 30
+text = "CHAPTER 1"
 horizontal_alignment = 1
+
+[node name="ChapterBar" type="ProgressBar" parent="SafeArea/Layout/Header/Row/TitleBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 14)
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"MapProgressBar"
+max_value = 20.0
+show_percentage = false
 
 [node name="StarsBox" type="HBoxContainer" parent="SafeArea/Layout/Header/Row"]
 custom_minimum_size = Vector2(200, 0)
@@ -128,15 +152,21 @@ stretch_mode = 5
 [node name="StarsValue" type="Label" parent="SafeArea/Layout/Header/Row/StarsBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_type_variation = &"HudValueLabel"
-theme_override_font_sizes/font_size = 44
+theme_type_variation = &"ToolLabel"
+theme_override_font_sizes/font_size = 40
 text = "0 / 30"
 
-[node name="World" type="Control" parent="SafeArea/Layout"]
-unique_name_in_owner = true
+[node name="MapSpace" type="Control" parent="SafeArea/Layout"]
 layout_mode = 2
 size_flags_vertical = 3
-script = ExtResource("7_world")
+mouse_filter = 2
+
+[node name="PlayButton" type="Button" parent="SafeArea/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(640, 140)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Play Level 1"
 
 [node name="BannerGap" type="Control" parent="SafeArea/Layout"]
 unique_name_in_owner = true
@@ -173,8 +203,8 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_top = -240.0
-offset_bottom = -160.0
+offset_top = -420.0
+offset_bottom = -340.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_filter = 2
@@ -189,7 +219,13 @@ text = "Message"
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="Dialog" parent="." instance=ExtResource("6_dialog")]
+[node name="Sheet" type="Control" parent="."]
 unique_name_in_owner = true
 visible = false
 layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("9_sheet")

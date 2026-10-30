@@ -238,11 +238,13 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
    match feedback; combo praise tiers in the feedback lane with tier cues and escalating bursts.
 2f. ✅ Journey map (`journey_screen`; `JourneyWorld` is a top-down map that scrolls vertically over a
    fixed, dimmed garden painting per chapter of 20 levels (blending into the next garden over a
-   chapter's last levels), a winding stepping-stone path lit gold up to the current level, a lotus
-   badge, padlocks on locked stops, chapter signs. Only stops on screen exist (pooled LevelNodes
+   chapter's last levels), full screen under a floating header (chapter, progress, stars). Stops are
+   mahjong tiles on a gold thread: porcelain with a Zen Garden symbol (`LevelNode.symbol_for`, faint
+   until cleared), jade backs with padlocks when locked; a lotus badge, chapter signs, a one-tap
+   Play button, and `LevelSheet`, the level card that slides up from the bottom. Only stops on screen exist (pooled LevelNodes
    filled by `node_setup`), so `level_node(n)` is null off screen: tests must `focus_level()` first.
    Swipe down = forward): Play opens it; markers per level with stars, difficulty
-   and lock state; level card (difficulty, tiles, time, hearts, best, star rules); progress saved
+   and lock state; level sheet (difficulty, tiles, time, hearts, best, star rules); progress saved
    by `ProgressStore` (user://progress.cfg) via `GameSession.progress`; stars from
    `LevelRating` (1 clear, 2 at most 1 mistake, 3 no mistakes and half the time left). Tests and
    tools must swap `GameSession.progress` for a throwaway file, never the player's.

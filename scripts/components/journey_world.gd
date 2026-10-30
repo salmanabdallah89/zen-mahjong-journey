@@ -1,7 +1,7 @@
 class_name JourneyWorld
 extends Control
-## The journey map: a winding stepping-stone path climbing up the screen,
-## level 1 at the bottom, over a calm garden backdrop. Built for long
+## The journey map: a winding trail of mahjong tiles on a gold thread, climbing
+## up the screen, level 1 at the bottom, over a calm garden backdrop. Built for long
 ## journeys (1000 levels): only the stretch on screen exists.
 ##
 ## Backdrop: the painting of the chapter in view stays still behind the map
@@ -12,7 +12,7 @@ extends Control
 ##
 ## Markers are pooled LevelNodes, positioned on screen around the camera and
 ## filled in by `node_setup` (the journey screen) when they come into view;
-## the path and stones are drawn for the visible stretch only. A lotus badge
+## the thread and beads are drawn for the visible stretch only. A lotus badge
 ## marks the current level. Swiping (with momentum) moves the camera.
 ##
 ## Positions along the path are in "level units": level N sits at N - 1.
@@ -27,10 +27,10 @@ const SPACING := 330.0
 ## Sideways swing of the path, as a share of the width.
 const SWING := 0.25
 ## Room below level 1 and above the last level.
-const BOTTOM_PAD := 430.0
-const TOP_PAD := 560.0
+const BOTTOM_PAD := 640.0
+const TOP_PAD := 620.0
 ## The camera's level sits this far down the screen (share of height).
-const FOCUS_Y := 0.62
+const FOCUS_Y := 0.56
 ## Extra margin (canvas px) built around the screen.
 const VISIBLE_MARGIN := 200.0
 const FRICTION := 4.0
@@ -41,16 +41,14 @@ const BACKDROP_LIGHT := 0.74
 const BLEND_LEVELS := 4.0
 const DRIFT := 90.0
 ## Lotus badge: offset above its level's marker.
-const BADGE_LIFT := 132.0
+const BADGE_LIFT := 186.0
 
-## Path: a soft sandy trail with stepping stones; stones walked glow gold.
-const TRAIL := Color(0.96, 0.9, 0.76, 0.32)
-const TRAIL_EDGE := Color(0.2, 0.18, 0.12, 0.18)
-const STONE_RIM := Color(0.2, 0.21, 0.18, 0.85)
-const STONE_TOP := Color(0.66, 0.65, 0.6)
-const STONE_LIGHT := Color(0.88, 0.87, 0.82, 0.55)
-const STONE_LIT := Color(0.98, 0.84, 0.52)
-const STONES_PER_LEVEL := 4
+## Path: a gold thread up to the current level, pale beads beyond it.
+const THREAD := Color(0.98, 0.8, 0.42)
+const THREAD_CORE := Color(1.0, 0.95, 0.78)
+const THREAD_SHADE := Color(0.05, 0.07, 0.08, 0.3)
+const BEAD := Color(0.96, 0.93, 0.87, 0.8)
+const BEADS_PER_LEVEL := 6
 
 var camera := 0.0
 var current_index := 0
@@ -59,6 +57,8 @@ var level_count := 0
 var node_setup := Callable()
 ## Returns true while something covers the map (a dialog); swipes are ignored then.
 var input_blocker := Callable()
+## Returns true for a screen point covered by floating UI: func(point: Vector2).
+var ui_hit := Callable()
 
 var _active := {}
 var _pool: Array[LevelNode] = []
@@ -213,6 +213,9 @@ func _process(delta: float) -> void:
 	if absf(_velocity) > 0.001 and not _pressing:
 		_set_camera(camera + _velocity * delta)
 		_velocity = move_toward(_velocity, 0.0, absf(_velocity) * FRICTION * delta + 0.002)
+	if not Motion.reduced:
+		_path.flow += delta
+		_path.queue_redraw()
 
 
 func _set_camera(value: float) -> void:
@@ -464,13 +467,18 @@ func _nudge(amount: float) -> void:
 
 
 func _hit(point: Vector2) -> bool:
+	if ui_hit.is_valid() and ui_hit.call(point):
+		return false
 	return get_global_rect().has_point(point)
 
 
-## The path for the stretch on screen: a soft sandy trail with stepping
-## stones between the markers; stones up to the current level glow gold.
+## The path for the stretch on screen: a gold thread through the tiles walked
+## so far, with points of light travelling along it to the current level, and a
+## string of pale beads ahead.
 class _PathLayer extends Control:
 	var world: JourneyWorld
+	## Seconds of travel for the points of light.
+	var flow := 0.0
 
 	func _draw() -> void:
 		if world == null or world.level_count == 0:
@@ -478,37 +486,37 @@ class _PathLayer extends Control:
 		var reach := (world.size.y + JourneyWorld.VISIBLE_MARGIN) / JourneyWorld.SPACING
 		var start := maxf(world.camera - reach, -0.8)
 		var finish := minf(world.camera + reach, world.level_count - 1 + 0.8)
-		var trail := PackedVector2Array()
-		var t := start
-		while t <= finish:
-			trail.append(world.screen_point(t))
-			t += 0.04
-		if trail.size() >= 2:
-			draw_polyline(trail, JourneyWorld.TRAIL_EDGE, 168.0, true)
-			draw_polyline(trail, JourneyWorld.TRAIL, 150.0, true)
-		var step := 1.0 / JourneyWorld.STONES_PER_LEVEL
-		var s := ceilf(start / step) * step
+		var lit_end := minf(finish, world.current_index)
+		var lit := _stretch(start, lit_end)
+		if lit.size() >= 2:
+			draw_polyline(lit, JourneyWorld.THREAD_SHADE, 40.0, true)
+			draw_polyline(lit, Color(JourneyWorld.THREAD, 0.2), 34.0, true)
+			draw_polyline(lit, Color(JourneyWorld.THREAD, 0.5), 16.0, true)
+			draw_polyline(lit, JourneyWorld.THREAD_CORE, 6.0, true)
+			var t := floorf(start * 2.0) / 2.0 + fposmod(flow * 0.45, 0.5)
+			while t <= lit_end:
+				var point := world.screen_point(t)
+				draw_circle(point, 15.0, Color(JourneyWorld.THREAD, 0.3))
+				draw_circle(point, 7.0, JourneyWorld.THREAD_CORE)
+				t += 0.5
+		var step := 1.0 / JourneyWorld.BEADS_PER_LEVEL
+		var s := maxf(ceilf(start / step), ceilf(world.current_index / step)) * step
 		while s <= finish:
-			if absf(s - roundf(s)) > 0.2 and s > -0.8 and s < world.level_count - 0.2:
-				_stone(world.screen_point(s), s, s <= world.current_index)
+			if s > world.current_index and s < world.level_count - 0.2:
+				var bead := world.screen_point(s)
+				draw_circle(bead, 12.0, JourneyWorld.THREAD_SHADE)
+				draw_circle(bead, 8.0, JourneyWorld.BEAD)
 			s += step
 
-	func _stone(center: Vector2, t: float, lit: bool) -> void:
-		var wobble := sin(t * 12.9) * 0.15
-		var radius := Vector2(46.0 * (1.0 + wobble), 34.0 * (1.0 - wobble))
-		_ellipse(center + Vector2(0, 5), radius * 1.06, JourneyWorld.STONE_RIM)
-		var top := JourneyWorld.STONE_TOP.lerp(JourneyWorld.STONE_LIT, 0.55) if lit else JourneyWorld.STONE_TOP
-		_ellipse(center, radius, top)
-		_ellipse(center - radius * Vector2(0.25, 0.3), radius * Vector2(0.5, 0.42), JourneyWorld.STONE_LIGHT)
-		if lit:
-			_ellipse(center, radius * 1.5, Color(JourneyWorld.STONE_LIT, 0.16))
-
-	func _ellipse(center: Vector2, radius: Vector2, color: Color) -> void:
+	func _stretch(from: float, to: float) -> PackedVector2Array:
 		var points := PackedVector2Array()
-		for k in 20:
-			var angle := TAU * k / 20.0
-			points.append(center + Vector2(cos(angle) * radius.x, sin(angle) * radius.y))
-		draw_colored_polygon(points, color)
+		var t := from
+		while t < to:
+			points.append(world.screen_point(t))
+			t += 0.04
+		if to >= from:
+			points.append(world.screen_point(to))
+		return points
 
 
 ## "You are here": a lotus of five sakura petals on an ivory disc with a gold

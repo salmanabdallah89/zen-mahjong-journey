@@ -1,18 +1,6 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://scripts/components/level_node.gd" id="1_node"]
-
-[sub_resource type="Gradient" id="Gradient_gloss"]
-offsets = PackedFloat32Array(0, 0.55, 1)
-colors = PackedColorArray(1, 1, 1, 0.55, 1, 1, 1, 0.12, 1, 1, 1, 0)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture_gloss"]
-gradient = SubResource("Gradient_gloss")
-width = 96
-height = 96
-fill = 1
-fill_from = Vector2(0.38, 0.3)
-fill_to = Vector2(0.95, 0.75)
 
 [node name="LevelNode" type="Control"]
 custom_minimum_size = Vector2(340, 300)
@@ -25,38 +13,44 @@ script = ExtResource("1_node")
 
 [node name="Marker" type="TextureButton" parent="."]
 unique_name_in_owner = true
+texture_filter = 4
 layout_mode = 0
-offset_left = 95.0
-offset_right = 245.0
-offset_bottom = 150.0
+offset_left = 86.0
+offset_right = 254.0
+offset_bottom = 191.0
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="Gloss" type="TextureRect" parent="Marker"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 18.0
-offset_top = 14.0
-offset_right = -18.0
-offset_bottom = -22.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-texture = SubResource("GradientTexture_gloss")
-expand_mode = 1
-
-[node name="Number" type="Label" parent="Marker"]
+[node name="Symbol" type="TextureRect" parent="Marker"]
 unique_name_in_owner = true
+texture_filter = 4
+layout_mode = 0
+offset_left = 20.0
+offset_top = 29.0
+offset_right = 142.0
+offset_bottom = 151.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NumberPill" type="PanelContainer" parent="Marker"]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -44.0
+offset_top = -26.0
+offset_right = 44.0
+offset_bottom = 34.0
 grow_horizontal = 2
-grow_vertical = 2
+mouse_filter = 2
+theme_type_variation = &"MapLabelPlate"
+
+[node name="Number" type="Label" parent="Marker/NumberPill"]
+unique_name_in_owner = true
+layout_mode = 2
 theme_type_variation = &"ToolLabel"
-theme_override_font_sizes/font_size = 64
+theme_override_font_sizes/font_size = 38
 text = "1"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -64,11 +58,11 @@ vertical_alignment = 1
 [node name="Stars" type="HBoxContainer" parent="."]
 unique_name_in_owner = true
 layout_mode = 0
-offset_top = 138.0
+offset_top = 156.0
 offset_right = 340.0
-offset_bottom = 222.0
+offset_bottom = 220.0
 mouse_filter = 2
-theme_override_constants/separation = -22
+theme_override_constants/separation = -8
 alignment = 1
 
 [node name="Plate" type="PanelContainer" parent="."]

@@ -1,17 +1,21 @@
 class_name LevelNode
 extends Control
-## One stop on the journey map: a marker disc with the level number, the
-## stars earned so far, and a name plate (level name and difficulty) that
-## stays readable over the scenery. States never rely on colour alone:
-## locked levels say LOCKED, unplayed levels show only their difficulty, and
-## cleared levels show their stars.
+## One stop on the journey map: a porcelain mahjong tile with the level number,
+## the stars earned so far, and a name plate (level name and difficulty) that
+## stays readable over the scenery. Each level's tile carries a Zen Garden
+## symbol: faint until the level is cleared, then in full colour, so the path
+## fills with the garden the player has collected. Locked levels are jade tile
+## backs. States never rely on colour alone: locked levels show a padlock,
+## unplayed levels only their difficulty, and cleared levels their stars.
 
 signal pressed(level_number: int)
 
-const MARKER_OPEN := preload("res://assets/progression/node_available.png")
-const MARKER_DONE := preload("res://assets/progression/node_complete.png")
-const MARKER_LOCKED := preload("res://assets/progression/node_locked.png")
+const MARKER_OPEN := preload("res://assets/tiles/bodies/tile_body_zen_ivory.png")
+const MARKER_LOCKED := preload("res://assets/tiles/backs/tile_back_jade_lotus.png")
 const STAR := preload("res://assets/ui/icons/icon_star.png")
+const SYMBOL_COLLECTION := "zen_garden"
+## A symbol waiting to be earned (level not cleared yet).
+const UNEARNED_SYMBOL_ALPHA := 0.3
 
 var level_number := 0
 var unlocked := false
@@ -27,12 +31,30 @@ var _marker_home_x := NAN
 @onready var _title: Label = %Title
 @onready var _difficulty: Label = %Difficulty
 @onready var _plate: Control = %Plate
+@onready var _symbol: TextureRect = %Symbol
 
 
 var _padlock: Control
+## Soft shadow under the tile, and the gold halo of the level to play next.
+var _shadow: TextureRect
+var _halo: TextureRect
+
+static var _shadow_texture: GradientTexture2D
+static var _halo_texture: GradientTexture2D
+
+
+## The Zen Garden symbol of level `number`, or null without that collection.
+static func symbol_for(number: int) -> Texture2D:
+	var collection := TileCollectionManager.get_collection(SYMBOL_COLLECTION)
+	if collection == null or collection.symbol_paths.is_empty():
+		return null
+	return load(collection.symbol_paths[(number - 1) % collection.symbol_paths.size()])
 
 
 func _ready() -> void:
+	_shadow = _soft_glow("Shadow", _soft_texture(Color(0.03, 0.05, 0.05, 0.6)), Vector2(250, 262), Vector2(6, 14))
+	_halo = _soft_glow("Halo", _soft_texture(Color(1.0, 0.82, 0.42, 0.85)), Vector2(380, 400), Vector2.ZERO)
+	_halo.hide()
 	_marker.pressed.connect(func() -> void: pressed.emit(level_number))
 	# The journey screen plays the right sound (click, or "locked").
 	_marker.set_meta("custom_sound", true)
@@ -52,10 +74,12 @@ func setup(level: LevelCatalog.LevelDefinition, earned_stars: int, is_unlocked: 
 	_difficulty.text = LevelRating.difficulty_label(level.difficulty).to_upper() if is_unlocked else "LOCKED"
 	if not is_unlocked:
 		_marker.texture_normal = MARKER_LOCKED
-	elif earned_stars > 0:
-		_marker.texture_normal = MARKER_DONE
 	else:
 		_marker.texture_normal = MARKER_OPEN
+	_symbol.visible = is_unlocked
+	if is_unlocked:
+		_symbol.texture = symbol_for(level.number)
+		_symbol.modulate.a = 1.0 if earned_stars > 0 else UNEARNED_SYMBOL_ALPHA
 	# Locked numbers stay readable; the padlock marks the lock.
 	_number.modulate.a = 1.0 if is_unlocked else 0.8
 	# Locked names stay readable (contrast above 4.5:1 on the plate).
@@ -65,7 +89,7 @@ func setup(level: LevelCatalog.LevelDefinition, earned_stars: int, is_unlocked: 
 	for i in LevelRating.MAX_STARS:
 		var star := TextureRect.new()
 		star.texture = STAR
-		star.custom_minimum_size = Vector2(84, 84)
+		star.custom_minimum_size = Vector2(62, 62)
 		star.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		star.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		star.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
@@ -79,16 +103,23 @@ func setup(level: LevelCatalog.LevelDefinition, earned_stars: int, is_unlocked: 
 		_pulse.kill()
 		_pulse = null
 	_marker.scale = Vector2.ONE
+	_halo.visible = is_current
+	_halo.modulate.a = 1.0
 	if is_current:
 		_start_breathing()
 
 
-## The level to play next gently breathes.
+## The level to play next gently breathes in its halo (reduced animations:
+## the halo stays still).
 func _start_breathing() -> void:
+	if Motion.reduced:
+		return
 	_marker.pivot_offset = _marker.size / 2.0
 	_pulse = create_tween().set_loops()
-	_pulse.tween_property(_marker, "scale", Vector2(1.08, 1.08), 0.8).set_trans(Tween.TRANS_SINE)
+	_pulse.tween_property(_marker, "scale", Vector2(1.06, 1.06), 0.8).set_trans(Tween.TRANS_SINE)
+	_pulse.parallel().tween_property(_halo, "modulate:a", 0.55, 0.8).set_trans(Tween.TRANS_SINE)
 	_pulse.tween_property(_marker, "scale", Vector2.ONE, 0.8).set_trans(Tween.TRANS_SINE)
+	_pulse.parallel().tween_property(_halo, "modulate:a", 1.0, 0.8).set_trans(Tween.TRANS_SINE)
 
 
 ## Name plates show for levels the player can open; locked stops show the
@@ -154,6 +185,41 @@ func play_unlock() -> void:
 	tween.tween_property(_marker, "scale", Vector2.ONE, 0.6).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	if was_breathing:
 		tween.tween_callback(_start_breathing)
+
+
+## A soft round glow behind the marker, centred on it plus `offset`.
+func _soft_glow(node_name: String, texture: Texture2D, side: Vector2, offset: Vector2) -> TextureRect:
+	var glow := TextureRect.new()
+	glow.name = node_name
+	glow.texture = texture
+	glow.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	glow.size = side
+	glow.position = _marker.position + _marker.size / 2.0 - side / 2.0 + offset
+	add_child(glow)
+	move_child(glow, 0)
+	return glow
+
+
+static func _soft_texture(color: Color) -> GradientTexture2D:
+	var cached := _shadow_texture if color.r < 0.5 else _halo_texture
+	if cached != null:
+		return cached
+	var gradient := Gradient.new()
+	gradient.offsets = PackedFloat32Array([0.0, 0.55, 1.0])
+	gradient.colors = PackedColorArray([color, Color(color, color.a * 0.7), Color(color, 0.0)])
+	var texture := GradientTexture2D.new()
+	texture.gradient = gradient
+	texture.fill = GradientTexture2D.FILL_RADIAL
+	texture.fill_from = Vector2(0.5, 0.5)
+	texture.fill_to = Vector2(0.5, 0.0)
+	texture.width = 96
+	texture.height = 96
+	if color.r < 0.5:
+		_shadow_texture = texture
+	else:
+		_halo_texture = texture
+	return texture
 
 
 ## A small padlock drawn on locked markers: gold shackle, ivory body, keyhole.

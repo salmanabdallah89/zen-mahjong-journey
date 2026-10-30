@@ -598,21 +598,23 @@ func _test_journey_and_stars() -> void:
 	var journey: Control = JOURNEY_SCENE.instantiate()
 	_frame.add_child(journey)
 	await _frames(4)
-	var dialog: ModalDialog = journey.get_node("%Dialog")
+	var dialog: LevelSheet = journey.get_node("%Sheet")
 	var total := LevelCatalog.count() * LevelRating.MAX_STARS
 	_check((journey.get_node("%StarsValue") as Label).text == "0 / %d" % total, "fresh journey shows 0 / %d stars" % total)
+	_check((journey.get_node("%PlayButton") as Button).text == "Play Level 1", "the Play button offers the next level")
+	_check((journey.get_node("%Title") as Label).text == "Sakura Garden", "the header names the chapter in view")
 	var level_one: LevelNode = journey.call("level_node", 1)
 	var level_three: LevelNode = journey.call("level_node", 3)
 	_check(level_one.unlocked and not (journey.call("level_node", 2) as LevelNode).unlocked, "only level 1 is open")
 	await _click_at(level_three.get_global_transform() * level_three.marker_center())
 	_check(not dialog.visible and (journey.get_node("%Toast") as Control).visible, "a locked level explains instead of opening")
 	await _click_at(level_one.get_global_transform() * level_one.marker_center())
-	_check(dialog.visible and (dialog.get_node("%Title") as Label).text == "Level 1 · Lotus Pond", "tapping level 1 opens its card")
-	var card_text := (dialog.get_node("%Message") as Label).text
+	_check(dialog.visible and dialog.title_text() == "Level 1 · Lotus Pond", "tapping level 1 opens its card")
+	var card_text := dialog.summary_text()
 	_check(card_text.contains("Easy") and card_text.contains("24 tiles") and card_text.contains("3:00") and card_text.contains("5 hearts"),
 		"card shows difficulty, size, time and hearts")
 	_check(card_text.contains("Not cleared yet") and dialog.call("stars_shown") == 0, "card shows no stars before a clear")
-	_check(_dialog_button(dialog, "Play") != null, "card offers Play")
+	_check(dialog.play_button().is_visible_in_tree(), "card offers Play")
 	dialog.close()
 	journey.queue_free()
 	await _frames(2)
@@ -664,7 +666,7 @@ func _test_journey_and_stars() -> void:
 	var back_at := world.camera
 	await _drag(world.get_global_rect().get_center(), Vector2(0, -300))
 	_check(world.camera > back_at + 0.3, "swiping down travels forward (%.2f -> %.2f)" % [back_at, world.camera])
-	_check(not (journey.get_node("%Dialog") as ModalDialog).visible, "a swipe that starts on the map opens no card")
+	_check(not (journey.get_node("%Sheet") as LevelSheet).visible, "a swipe that starts on the map opens no card")
 	world.focus_level(2, false)
 	await _frames(2)
 	_check(world.is_level_visible(1), "level 2 comes into view")
@@ -673,8 +675,8 @@ func _test_journey_and_stars() -> void:
 	_check(level_two != null and level_two.level_number == 2 and level_two.scale.is_equal_approx(Vector2.ONE),
 		"level 2 has its own stop, at one size")
 	await _click_at(level_two.get_global_transform() * level_two.marker_center())
-	dialog = journey.get_node("%Dialog")
-	_check(dialog.call("stars_shown") == 2 and (dialog.get_node("%Message") as Label).text.contains("Best: 2 of 3 stars"),
+	dialog = journey.get_node("%Sheet")
+	_check(dialog.call("stars_shown") == 2 and dialog.summary_text().contains("Best: 2 of 3 stars"),
 		"card shows the best result")
 	journey.queue_free()
 	await _frames(2)
@@ -783,7 +785,7 @@ func _test_audit_fixes(level_number: int) -> void:
 	var world: JourneyWorld = journey.get_node("%World")
 	var level_one: LevelNode = journey.call("level_node", 1)
 	await _click_at(level_one.get_global_transform() * level_one.marker_center())
-	var card: ModalDialog = journey.get_node("%Dialog")
+	var card: LevelSheet = journey.get_node("%Sheet")
 	_check(card.visible, "level card is open")
 	var camera_before := world.camera
 	await _drag(world.get_global_rect().get_center(), Vector2(0, -300))
@@ -1263,7 +1265,7 @@ func _test_long_journey() -> void:
 	var far: LevelNode = journey.call("level_node", 640)
 	_check(far.is_padlocked(), "level 640 starts locked")
 	await _click_at(far.get_global_transform() * far.marker_center())
-	_check(not (journey.get_node("%Dialog") as Control).visible, "a far locked level does not open")
+	_check(not (journey.get_node("%Sheet") as Control).visible, "a far locked level does not open")
 	journey.queue_free()
 	await _frames(2)
 
