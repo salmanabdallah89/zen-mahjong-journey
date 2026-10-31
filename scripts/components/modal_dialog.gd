@@ -22,6 +22,7 @@ const STAR_SIZE := Vector2(110, 110)
 var _score: Label
 var _score_detail: Label
 var _score_tween: Tween
+var _rank: Label
 
 
 func open(title: String, message: String) -> void:
@@ -36,6 +37,7 @@ func open(title: String, message: String) -> void:
 			_score_tween.kill()
 		_score.hide()
 		_score_detail.hide()
+	set_rank("")
 	show()
 	modulate.a = 0.0
 	create_tween().tween_property(self, "modulate:a", 1.0, Motion.duration(0.2)).set_trans(Tween.TRANS_SINE)
@@ -128,6 +130,24 @@ func _pop_score() -> void:
 	var tween := _score.create_tween()
 	tween.tween_property(_score, "scale", Vector2(1.12, 1.12), 0.12).set_trans(Tween.TRANS_SINE)
 	tween.tween_property(_score, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_SINE)
+
+
+## Shows the world rank under the score; "" hides it.
+func set_rank(text: String) -> void:
+	if _rank == null:
+		_rank = Label.new()
+		_rank.name = "Rank"
+		_rank.theme_type_variation = &"DialogRankLabel"
+		_rank.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		var content := _stars.get_parent()
+		content.add_child(_rank)
+		content.move_child(_rank, _message.get_index())
+	_rank.text = text
+	_rank.visible = not text.is_empty()
+
+
+func rank_text() -> String:
+	return _rank.text if _rank != null and _rank.visible else ""
 
 
 ## The score text as shown right now ("" when the dialog has no score).

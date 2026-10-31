@@ -11,8 +11,12 @@ const TILE_SCENE := preload("res://scenes/components/tile_view.tscn")
 ## Faces used for previews; all have verified Classic art.
 const PREVIEW_FACES: PackedStringArray = ["bamboo_5", "dots_7", "flowers_plum", "seasons_spring", "dots_2"]
 const CARD_SAMPLE_FACES: PackedStringArray = ["dots_5", "bamboo_3", "flowers_orchid"]
-const PREVIEW_SCALE := 0.62
-const CARD_TILE_SCALE := 0.34
+const PREVIEW_TILE_WIDTH := 178.0
+const CARD_TILE_WIDTH := 112.0
+## Fan of three tiles on a card: offset from the middle tile and tilt in degrees.
+const FAN_STEP := 84.0
+const FAN_TILT := 9.0
+const FAN_SIZE := Vector2(300, 170)
 
 var _highlighted := ""
 var _cards := {}
@@ -88,7 +92,7 @@ func _make_card(collection: TileCollection) -> Button:
 	card.toggle_mode = true
 	card.button_group = _group
 	card.theme_type_variation = &"CollectionCard"
-	card.custom_minimum_size = Vector2(360, 250)
+	card.custom_minimum_size = Vector2(492, 300)
 	card.focus_mode = Control.FOCUS_NONE
 	card.pressed.connect(highlight.bind(collection.id))
 
@@ -108,39 +112,41 @@ func _make_card(collection: TileCollection) -> Button:
 	var tiles := HBoxContainer.new()
 	tiles.alignment = BoxContainer.ALIGNMENT_CENTER
 	tiles.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tiles.custom_minimum_size = Vector2(0, TileArtSet.active().image_size.y * CARD_TILE_SCALE)
 	box.add_child(tiles)
+	var fan := Control.new()
+	fan.custom_minimum_size = FAN_SIZE
+	fan.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tiles.add_child(fan)
 	if TileCollectionManager.is_available(collection.id):
-		if ResourceLoader.exists(collection.thumbnail_path):
-			var thumbnail := TextureRect.new()
-			thumbnail.texture = load(collection.thumbnail_path)
-			thumbnail.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-			thumbnail.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			thumbnail.custom_minimum_size = Vector2(110, 110)
-			thumbnail.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-			thumbnail.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			tiles.add_child(thumbnail)
-			tiles.custom_minimum_size.y = 110
-		else:
-			var skin := _sample_skin(collection, CARD_SAMPLE_FACES)
-			if skin:
-				for face in CARD_SAMPLE_FACES:
-					tiles.add_child(_tile_holder(skin, face, CARD_TILE_SCALE))
+		_fill_fan(fan, _sample_skin(collection, CARD_SAMPLE_FACES))
 
 	var title := Label.new()
 	title.text = collection.display_name
-	title.theme_type_variation = &"DialogBodyLabel"
+	title.theme_type_variation = &"CardTitleLabel"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(title)
 
 	var status := Label.new()
 	status.name = "Status"
-	status.theme_type_variation = &"HudCaptionLabel"
+	status.theme_type_variation = &"CardStatusLabel"
 	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(status)
 	for child in box.get_children():
 		(child as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return card
+
+
+## Three real tiles of the collection, fanned out; the middle one on top.
+func _fill_fan(fan: Control, skin: TileSkin) -> void:
+	if skin == null:
+		return
+	for index in [0, 2, 1]:
+		var holder := _tile_holder(skin, CARD_SAMPLE_FACES[index], CARD_TILE_WIDTH)
+		var side: int = index - 1
+		holder.pivot_offset = holder.custom_minimum_size / 2.0
+		holder.position = (FAN_SIZE - holder.custom_minimum_size) / 2.0 + Vector2(side * FAN_STEP, absi(side) * 10.0)
+		holder.rotation_degrees = side * FAN_TILT
+		fan.add_child(holder)
 
 
 func _show_preview(collection_id: String) -> void:
@@ -165,7 +171,7 @@ func _show_preview(collection_id: String) -> void:
 	var skin := _sample_skin(collection, PREVIEW_FACES)
 	if skin:
 		for face in PREVIEW_FACES:
-			_preview_row.add_child(_tile_holder(skin, face, PREVIEW_SCALE))
+			_preview_row.add_child(_tile_holder(skin, face, PREVIEW_TILE_WIDTH))
 
 
 func _missing_extras(collection: TileCollection) -> int:
@@ -178,16 +184,15 @@ func _sample_skin(collection: TileCollection, faces: PackedStringArray) -> TileS
 	return built.skin
 
 
-func _tile_holder(skin: TileSkin, face: String, tile_scale: float) -> Control:
+func _tile_holder(skin: TileSkin, face: String, width: float) -> Control:
 	# Tile styles differ in pixel size; scale so every preview tile is equally wide.
-	var fitted := tile_scale * TileArtSet.active().image_size.x / skin.style.image_size.x
+	var fitted := width / skin.style.image_size.x
 	var holder := Control.new()
 	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	holder.custom_minimum_size = skin.style.image_size * fitted
 	var view: TileView = TILE_SCENE.instantiate()
 	view.style = skin.style
-	tile_scale = fitted
-	view.scale = Vector2(tile_scale, tile_scale)
+	view.scale = Vector2(fitted, fitted)
 	view.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	# Cards are built before they enter the tree; configure once the tile is ready.
 	view.ready.connect(func() -> void:

@@ -17,10 +17,10 @@ const TILE_SCENE := preload("res://scenes/components/tile_view.tscn")
 const BURST_SCENE := preload("res://scenes/components/match_burst.tscn")
 ## Largest on-screen width of a tile's top face, in canvas pixels. Keeps small
 ## boards from filling the screen.
-const MAX_FACE_WIDTH := 190.0
+const MAX_FACE_WIDTH := 230.0
 ## On tall board areas (height at least TALL_RATIO × width, as on 9:19.5 and
 ## longer phones) tiles may grow a little more.
-const MAX_FACE_WIDTH_TALL := 210.0
+const MAX_FACE_WIDTH_TALL := 250.0
 const TALL_RATIO := 1.3
 ## Gap between the board's bottom edge and the footer (the message lane).
 const FOOTER_GAP := 24.0
@@ -31,8 +31,8 @@ const FIT_HEIGHT := 0.98
 ## size on all levels: boards stay within REFERENCE_GRID whole tiles and big
 ## levels stack upward instead of spreading. Only the lowest REFERENCE_LAYERS
 ## layers may span the full grid; higher ones must sit inset, or they widen the board.
-const REFERENCE_GRID := Vector2(6, 6)
-const REFERENCE_LAYERS := 3
+const REFERENCE_GRID := Vector2(5, 6)
+const REFERENCE_LAYERS := 4
 ## Glide time of a matched pair: short hops are quick, long ones a bit slower.
 const MATCH_TRAVEL_MIN := 0.16
 const MATCH_TRAVEL_MAX := 0.3

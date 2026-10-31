@@ -169,6 +169,11 @@ func _test_score_and_milestones(level_number: int) -> void:
 	_check(GameSession.progress.best_score(level_number) == expected, "the best score is saved for the leaderboard")
 	await get_tree().create_timer(3.0).timeout
 	_check(dialog.score_text() == "Score %s" % ScoreMeter.format_points(expected), "Level Complete counts up to the score (%s)" % dialog.score_text())
+	_check(dialog.rank_text().is_empty(), "no world rank without a leaderboard key")
+	screen.call("_on_rank_reported", {"rank": 42, "players": 900, "week_rank": 7, "previous_rank": 50})
+	_check(dialog.rank_text() == "World rank #42 of 900\nThis week #7\nUp 8 places!", "the world rank shows on Level Complete")
+	screen.call("_on_rank_reported", {})
+	_check(dialog.rank_text().is_empty(), "an offline clear shows no rank")
 	_check(meter.score_shown() == expected, "the pill ends on the final score, not the last match")
 	screen.queue_free()
 	await _frames(2)

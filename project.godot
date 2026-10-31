@@ -28,6 +28,7 @@ TileCollectionManager="*res://scripts/autoload/tile_collection_manager.gd"
 AudioManager="*res://scripts/autoload/audio_manager.gd"
 AdsManager="*res://scripts/autoload/ads_manager.gd"
 PlayGames="*res://scripts/autoload/play_games.gd"
+GlobalRank="*res://scripts/autoload/global_rank.gd"
 GodotPlayGameServices="*uid://b78gkjmg80wfi"
 
 [display]

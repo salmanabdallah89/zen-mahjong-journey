@@ -46,6 +46,18 @@ func total_score(level_count: int) -> int:
 	return total
 
 
+## Adds a clear's points to the weekly competition; a new `week` starts from
+## zero. Returns the points so far this week.
+func add_week_points(points: int, week: int) -> int:
+	var total := points
+	if int(_config.get_value("week", "number", -1)) == week:
+		total += int(_config.get_value("week", "points", 0))
+	_config.set_value("week", "number", week)
+	_config.set_value("week", "points", total)
+	SafeConfig.save(_config, path)
+	return total
+
+
 func total_stars(level_count: int) -> int:
 	var total := 0
 	for level in range(1, level_count + 1):

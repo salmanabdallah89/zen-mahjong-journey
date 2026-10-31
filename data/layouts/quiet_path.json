@@ -1,8 +1,40 @@
 {
 	"id": "quiet_path",
 	"layers": [
-		{"offset": [0, 0], "rows": ["XXXXXX", "XXXXXX", "XXXXXX", "XXXXXX", "XXXXXX"]},
-		{"offset": [2, 2], "rows": ["XXXX", "XXXX", "XXXX"]},
-		{"offset": [4, 4], "rows": ["XX"]}
+		{
+			"offset": [
+				0,
+				0
+			],
+			"rows": [
+				"XXXXX",
+				"XXXXX",
+				"XXXXX",
+				"XXXXX",
+				"XXXXX",
+				"XXXXX"
+			]
+		},
+		{
+			"offset": [
+				2,
+				2
+			],
+			"rows": [
+				"XXX",
+				"XXX",
+				"XXX",
+				"XXX"
+			]
+		},
+		{
+			"offset": [
+				3,
+				4
+			],
+			"rows": [
+				"XX"
+			]
+		}
 	]
 }

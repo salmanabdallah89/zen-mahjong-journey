@@ -806,8 +806,24 @@ func _show_level_complete() -> void:
 	_dialog.set_score(_final_score, _score_breakdown(), earned)
 	_dialog.add_action("Replay", func() -> void: AdsManager.after_level_complete(_restart), not GameSession.has_next_level())
 	_dialog.add_action("Levels", func() -> void: AdsManager.after_level_complete(GameSession.go_levels))
+	_report_rank()
 	_play_celebration()
 	AudioManager.vibrate(60)
+
+
+## Counts the clear for the week and shows the world rank when it arrives.
+func _report_rank() -> void:
+	var week := GlobalRankService.week_number(int(Time.get_unix_time_from_system()))
+	var week_points := GameSession.progress.add_week_points(_final_score, week)
+	if not GlobalRank.is_available():
+		return
+	_dialog.set_rank("Finding your world rank...")
+	GlobalRank.report(GameSession.progress.total_score(LevelCatalog.count()), week_points, _on_rank_reported)
+
+
+func _on_rank_reported(answer: Dictionary) -> void:
+	if _dialog.visible:
+		_dialog.set_rank(GlobalRankService.rank_text(answer))
 
 
 func _on_star_popped(index: int) -> void:

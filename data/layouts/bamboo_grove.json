@@ -7,30 +7,31 @@
 				0
 			],
 			"rows": [
-				"XXXXXX",
-				"XXXXXX",
-				"XXXXXX",
-				"XXXXXX"
+				"XXXXX",
+				"XXXXX",
+				"XXXXX",
+				"XXXXX",
+				"XXXXX",
+				"XXXXX"
 			]
 		},
 		{
 			"offset": [
-				2,
-				2
+				3,
+				4
 			],
 			"rows": [
-				"XXXX",
-				"XXXX"
+				"XX",
+				"XX"
 			]
 		},
 		{
 			"offset": [
-				2,
-				2
+				3,
+				5
 			],
 			"rows": [
-				"X..X",
-				"X..X"
+				"XX"
 			]
 		}
 	]

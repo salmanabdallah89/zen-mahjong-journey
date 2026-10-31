@@ -70,8 +70,8 @@ Palette (from `docs/reference/asset_manifest.json`):
 | forest | `#354F44` | primary buttons, dark text on ivory, boot color |
 | night  | `#273B50` | dark overlays, night theme |
 
-Typography: serif (currently a `SystemFont` placeholder — Georgia / Noto Serif / serif). A bundled,
-licensed font should replace it in `res://assets/fonts/` and be set in the theme only.
+Typography: Fraunces (`res://assets/fonts/`, variable, SIL OFL: keep `Fraunces_OFL.txt` with it), set
+in the theme only.
 
 ## Theme
 All styling lives in `res://themes/zen_theme.tres` (project-wide `gui/theme/custom`). Do not set
@@ -165,6 +165,9 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
   glide from the pair into it. Milestones "Halfway there!" / "Last 10 tiles!" (sweep, chord, music
   lift) use `ComboFeedback.show_message`. Best score per level in `ProgressStore`; the total goes to
   the Google Play Games leaderboard via autoload `PlayGames` (Android only; setup and ids: docs/PLAY_GAMES.md).
+- **World rank:** autoload `GlobalRank` (Talo REST API, docs/LEADERBOARD.md) sends the total score and
+  this week's points after each clear; the rank shows on Level Complete. No key in
+  `data/leaderboard.json` (ignored by git) or no connection = no rank, play is never held up.
 - **Special tiles:** `TileSpecials` (core) picks per level, from its own RNG seeded from the deal
   seed (deals unchanged): one golden lotus pair from level 3 (×2 points, gold rim + "×2" badge,
   "Golden Lotus" praise) and, from level 4, face-down mystery tiles (a share of the tiles that start
@@ -205,8 +208,8 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
 - **Views:** `BoardView` builds `TileView`s (draw order: z, then y, then x; each layer shifted
   up-left), adds a soft backdrop and an effects layer, and scales the board to fit
   (`MAX_FACE_WIDTH` caps tiles, `FIT_WIDTH`/`FIT_HEIGHT` keep the garden visible). Tiles are one size
-  on every level: the scale comes from a standard board (`REFERENCE_GRID` 6 × 6, lowest `REFERENCE_LAYERS`
-  3 at full width), so layouts must stay within 6 × 6 whole tiles and big levels stack upward.
+  on every level: the scale comes from a standard board (`REFERENCE_GRID` 5 × 6, lowest `REFERENCE_LAYERS`
+  4 at full width), so layouts must stay within 5 × 6 whole tiles and big levels stack upward.
   `TileView` layers: drop shadow, then the face, an ivory veil (blocked) and a glow (gold =
   selected with lift, sakura pulse = hint). It hit-tests only `face_rect` and stops taking input
   as soon as its removal starts. `MatchBurst` plays the gold flash and petals on a match.

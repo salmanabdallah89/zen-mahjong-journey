@@ -16,6 +16,7 @@
 *.zip
 
 # Signing keys and secrets - never commit
+data/leaderboard.json
 *.keystore
 *.jks
 *.p12

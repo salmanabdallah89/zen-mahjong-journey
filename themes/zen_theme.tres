@@ -5,23 +5,22 @@
 [ext_resource type="Texture2D" path="res://assets/ui/buttons/btn_circle_empty.png" id="3_circle"]
 [ext_resource type="Texture2D" path="res://assets/ui/panels/panel_header_empty.png" id="4_header"]
 [ext_resource type="Texture2D" path="res://assets/ui/panels/panel_modal_empty.png" id="5_modal"]
+[ext_resource type="FontFile" path="res://assets/fonts/Fraunces.ttf" id="6_fraunces"]
 
-[sub_resource type="SystemFont" id="SystemFont_body"]
-font_names = PackedStringArray("Georgia", "Noto Serif", "Droid Serif", "serif")
-font_weight = 600
-subpixel_positioning = 0
+[sub_resource type="FontVariation" id="Font_body"]
+base_font = ExtResource("6_fraunces")
+variation_opentype = {2003265652: 560, 1869640570: 24, 1397704276: 50}
 
-[sub_resource type="SystemFont" id="SystemFont_title"]
-font_names = PackedStringArray("Georgia", "Noto Serif", "Droid Serif", "serif")
-font_weight = 700
-subpixel_positioning = 0
+[sub_resource type="FontVariation" id="Font_title"]
+base_font = ExtResource("6_fraunces")
+variation_opentype = {2003265652: 680, 1869640570: 72, 1397704276: 50}
 
 [sub_resource type="FontVariation" id="FontVariation_spaced"]
-base_font = SubResource("SystemFont_title")
+base_font = SubResource("Font_title")
 spacing_glyph = 18
 
 [sub_resource type="FontVariation" id="FontVariation_caption"]
-base_font = SubResource("SystemFont_title")
+base_font = SubResource("Font_title")
 spacing_glyph = 3
 
 [sub_resource type="StyleBoxTexture" id="Primary_normal"]
@@ -158,12 +157,12 @@ content_margin_right = 40.0
 content_margin_bottom = 22.0
 
 [sub_resource type="StyleBoxFlat" id="Card_normal"]
-bg_color = Color(0.9647059, 0.93333334, 0.8745098, 0.96)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.78039217, 0.64705884, 0.41568628, 0.8)
+bg_color = Color(0.13, 0.22, 0.19, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.78039217, 0.64705884, 0.41568628, 0.45)
 corner_radius_top_left = 28
 corner_radius_top_right = 28
 corner_radius_bottom_right = 28
@@ -173,11 +172,11 @@ shadow_size = 8
 shadow_offset = Vector2(0, 4)
 
 [sub_resource type="StyleBoxFlat" id="Card_pressed"]
-bg_color = Color(1, 0.97, 0.9, 1)
-border_width_left = 8
-border_width_top = 8
-border_width_right = 8
-border_width_bottom = 8
+bg_color = Color(0.2078, 0.3098, 0.2667, 1)
+border_width_left = 6
+border_width_top = 6
+border_width_right = 6
+border_width_bottom = 6
 border_color = Color(0.93, 0.76, 0.42, 1)
 corner_radius_top_left = 28
 corner_radius_top_right = 28
@@ -285,7 +284,7 @@ corner_radius_bottom_right = 7
 corner_radius_bottom_left = 7
 
 [resource]
-default_font = SubResource("SystemFont_body")
+default_font = SubResource("Font_body")
 default_font_size = 44
 Button/colors/font_color = Color(0.9647059, 0.93333334, 0.8745098, 1)
 Button/colors/font_hover_color = Color(1, 0.98, 0.94, 1)
@@ -293,7 +292,7 @@ Button/colors/font_pressed_color = Color(0.78039217, 0.64705884, 0.41568628, 1)
 Button/colors/font_focus_color = Color(0.9647059, 0.93333334, 0.8745098, 1)
 Button/colors/font_disabled_color = Color(0.9647059, 0.93333334, 0.8745098, 0.5)
 Button/font_sizes/font_size = 56
-Button/fonts/font = SubResource("SystemFont_title")
+Button/fonts/font = SubResource("Font_title")
 Button/styles/disabled = SubResource("Primary_disabled")
 Button/styles/focus = SubResource("Focus_empty")
 Button/styles/hover = SubResource("Primary_hover")
@@ -327,7 +326,7 @@ TitleLabel/constants/outline_size = 10
 TitleLabel/constants/shadow_offset_x = 0
 TitleLabel/constants/shadow_offset_y = 6
 TitleLabel/font_sizes/font_size = 150
-TitleLabel/fonts/font = SubResource("SystemFont_title")
+TitleLabel/fonts/font = SubResource("Font_title")
 TitleAccentLabel/base_type = &"Label"
 TitleAccentLabel/colors/font_color = Color(0.20784314, 0.30980393, 0.26666668, 1)
 TitleAccentLabel/colors/font_outline_color = Color(0.9647059, 0.93333334, 0.8745098, 0.9)
@@ -335,7 +334,7 @@ TitleAccentLabel/colors/font_shadow_color = Color(0, 0, 0, 0.3)
 TitleAccentLabel/constants/outline_size = 10
 TitleAccentLabel/constants/shadow_offset_y = 4
 TitleAccentLabel/font_sizes/font_size = 180
-TitleAccentLabel/fonts/font = SubResource("SystemFont_title")
+TitleAccentLabel/fonts/font = SubResource("Font_title")
 ComboLabel/base_type = &"Label"
 ComboLabel/colors/font_color = Color(0.78039217, 0.64705884, 0.41568628, 1)
 ComboLabel/colors/font_outline_color = Color(0.20784314, 0.30980393, 0.26666668, 0.95)
@@ -343,7 +342,7 @@ ComboLabel/colors/font_shadow_color = Color(0, 0, 0, 0.35)
 ComboLabel/constants/outline_size = 12
 ComboLabel/constants/shadow_offset_y = 4
 ComboLabel/font_sizes/font_size = 72
-ComboLabel/fonts/font = SubResource("SystemFont_title")
+ComboLabel/fonts/font = SubResource("Font_title")
 PraiseLabel/base_type = &"Label"
 PraiseLabel/colors/font_color = Color(0.9647059, 0.93333334, 0.8745098, 1)
 PraiseLabel/colors/font_outline_color = Color(0.20784314, 0.30980393, 0.26666668, 1)
@@ -352,13 +351,13 @@ PraiseLabel/constants/outline_size = 16
 PraiseLabel/constants/shadow_offset_x = 0
 PraiseLabel/constants/shadow_offset_y = 5
 PraiseLabel/font_sizes/font_size = 78
-PraiseLabel/fonts/font = SubResource("SystemFont_title")
+PraiseLabel/fonts/font = SubResource("Font_title")
 PraiseCountLabel/base_type = &"Label"
 PraiseCountLabel/colors/font_color = Color(0.98, 0.88, 0.62, 1)
 PraiseCountLabel/colors/font_outline_color = Color(0.20784314, 0.30980393, 0.26666668, 1)
 PraiseCountLabel/constants/outline_size = 12
 PraiseCountLabel/font_sizes/font_size = 54
-PraiseCountLabel/fonts/font = SubResource("SystemFont_title")
+PraiseCountLabel/fonts/font = SubResource("Font_title")
 CircleButton/base_type = &"Button"
 CircleButton/constants/icon_max_width = 72
 CircleButton/styles/disabled = SubResource("Circle_disabled")
@@ -373,7 +372,7 @@ DialogTitleLabel/base_type = &"Label"
 DialogTitleLabel/colors/font_color = Color(0.20784314, 0.30980393, 0.26666668, 1)
 DialogTitleLabel/colors/font_shadow_color = Color(0, 0, 0, 0)
 DialogTitleLabel/font_sizes/font_size = 76
-DialogTitleLabel/fonts/font = SubResource("SystemFont_title")
+DialogTitleLabel/fonts/font = SubResource("Font_title")
 HudCaptionLabel/base_type = &"Label"
 HudCaptionLabel/colors/font_color = Color(0.20784314, 0.30980393, 0.26666668, 0.8)
 HudCaptionLabel/colors/font_shadow_color = Color(0, 0, 0, 0)
@@ -385,7 +384,7 @@ HudValueLabel/base_type = &"Label"
 HudValueLabel/colors/font_color = Color(0.20784314, 0.30980393, 0.26666668, 1)
 HudValueLabel/colors/font_shadow_color = Color(0, 0, 0, 0)
 HudValueLabel/font_sizes/font_size = 56
-HudValueLabel/fonts/font = SubResource("SystemFont_title")
+HudValueLabel/fonts/font = SubResource("Font_title")
 ModalPanel/base_type = &"PanelContainer"
 ModalPanel/styles/panel = SubResource("Modal_panel")
 ToastLabel/base_type = &"Label"
@@ -402,7 +401,31 @@ ToolLabel/base_type = &"Label"
 ToolLabel/colors/font_outline_color = Color(0.20784314, 0.30980393, 0.26666668, 1)
 ToolLabel/constants/outline_size = 10
 ToolLabel/font_sizes/font_size = 38
-ToolLabel/fonts/font = SubResource("SystemFont_title")
+ToolLabel/fonts/font = SubResource("Font_title")
+PageTitleLabel/base_type = &"Label"
+PageTitleLabel/colors/font_color = Color(0.9647059, 0.93333334, 0.8745098, 1)
+PageTitleLabel/colors/font_shadow_color = Color(0, 0, 0, 0.35)
+PageTitleLabel/font_sizes/font_size = 76
+PageTitleLabel/fonts/font = SubResource("Font_title")
+PageBodyLabel/base_type = &"Label"
+PageBodyLabel/colors/font_color = Color(0.9647059, 0.93333334, 0.8745098, 0.92)
+PageBodyLabel/colors/font_shadow_color = Color(0, 0, 0, 0)
+PageBodyLabel/font_sizes/font_size = 34
+CardTitleLabel/base_type = &"Label"
+CardTitleLabel/colors/font_color = Color(0.9647059, 0.93333334, 0.8745098, 1)
+CardTitleLabel/colors/font_shadow_color = Color(0, 0, 0, 0)
+CardTitleLabel/font_sizes/font_size = 40
+CardTitleLabel/fonts/font = SubResource("Font_title")
+CardStatusLabel/base_type = &"Label"
+CardStatusLabel/colors/font_color = Color(0.93, 0.8, 0.55, 1)
+CardStatusLabel/colors/font_shadow_color = Color(0, 0, 0, 0)
+CardStatusLabel/font_sizes/font_size = 30
+CardStatusLabel/fonts/font = SubResource("FontVariation_caption")
+DialogRankLabel/base_type = &"Label"
+DialogRankLabel/colors/font_color = Color(0.2078, 0.3098, 0.2667, 1)
+DialogRankLabel/colors/font_shadow_color = Color(0, 0, 0, 0)
+DialogRankLabel/font_sizes/font_size = 42
+DialogRankLabel/fonts/font = SubResource("Font_title")
 CollectionCard/base_type = &"Button"
 CollectionCard/styles/focus = SubResource("Focus_empty")
 CollectionCard/styles/hover = SubResource("Card_normal")
@@ -436,12 +459,12 @@ ScoreValueLabel/base_type = &"Label"
 ScoreValueLabel/colors/font_color = Color(0.9647059, 0.93333334, 0.8745098, 1)
 ScoreValueLabel/colors/font_shadow_color = Color(0, 0, 0, 0)
 ScoreValueLabel/font_sizes/font_size = 52
-ScoreValueLabel/fonts/font = SubResource("SystemFont_title")
+ScoreValueLabel/fonts/font = SubResource("Font_title")
 ScoreMultiplierLabel/base_type = &"Label"
 ScoreMultiplierLabel/colors/font_color = Color(0.98, 0.88, 0.62, 1)
 ScoreMultiplierLabel/colors/font_shadow_color = Color(0, 0, 0, 0)
 ScoreMultiplierLabel/font_sizes/font_size = 44
-ScoreMultiplierLabel/fonts/font = SubResource("SystemFont_title")
+ScoreMultiplierLabel/fonts/font = SubResource("Font_title")
 FloatingPointsLabel/base_type = &"Label"
 FloatingPointsLabel/colors/font_color = Color(0.98, 0.88, 0.62, 1)
 FloatingPointsLabel/colors/font_outline_color = Color(0.20784314, 0.30980393, 0.26666668, 1)
@@ -449,12 +472,12 @@ FloatingPointsLabel/colors/font_shadow_color = Color(0, 0, 0, 0.4)
 FloatingPointsLabel/constants/outline_size = 14
 FloatingPointsLabel/constants/shadow_offset_y = 4
 FloatingPointsLabel/font_sizes/font_size = 64
-FloatingPointsLabel/fonts/font = SubResource("SystemFont_title")
+FloatingPointsLabel/fonts/font = SubResource("Font_title")
 DialogScoreLabel/base_type = &"Label"
 DialogScoreLabel/colors/font_color = Color(0.20784314, 0.30980393, 0.26666668, 1)
 DialogScoreLabel/colors/font_shadow_color = Color(0, 0, 0, 0)
 DialogScoreLabel/font_sizes/font_size = 64
-DialogScoreLabel/fonts/font = SubResource("SystemFont_title")
+DialogScoreLabel/fonts/font = SubResource("Font_title")
 SheetPanel/base_type = &"PanelContainer"
 SheetPanel/styles/panel = SubResource("Sheet_panel")
 MapProgressBar/base_type = &"ProgressBar"
@@ -467,4 +490,4 @@ GoldenBadgeLabel/colors/font_shadow_color = Color(0, 0, 0, 0.35)
 GoldenBadgeLabel/constants/outline_size = 18
 GoldenBadgeLabel/constants/shadow_offset_y = 3
 GoldenBadgeLabel/font_sizes/font_size = 72
-GoldenBadgeLabel/fonts/font = SubResource("SystemFont_title")
+GoldenBadgeLabel/fonts/font = SubResource("Font_title")

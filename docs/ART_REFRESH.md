@@ -105,3 +105,7 @@ Put the four files in a new folder next to the project, for example
 - After adding a garden, re-measure it and update its `BackgroundStyle` entry (dim and board
   shade) so the tiles stay readable. Then check the screenshots.
 - Motion per garden: `AmbienceStyle` (core) and `GardenAmbience` (component).
+
+## Current hd/ files
+The files in `assets/backgrounds/hd/` are stopgaps: the 941 × 1672 originals enlarged to 1440 × 2558 with
+richer colour (ffmpeg). They add no real detail. Replace them with new paintings of the same names.
