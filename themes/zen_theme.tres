@@ -6,6 +6,16 @@
 [ext_resource type="Texture2D" path="res://assets/ui/panels/panel_header_empty.png" id="4_header"]
 [ext_resource type="Texture2D" path="res://assets/ui/panels/panel_modal_empty.png" id="5_modal"]
 [ext_resource type="FontFile" path="res://assets/fonts/Fraunces.ttf" id="6_fraunces"]
+[ext_resource type="FontFile" path="res://assets/fonts/NotoNaskhArabic.ttf" id="7_naskh"]
+
+[sub_resource type="FontVariation" id="Font_arabic"]
+base_font = ExtResource("7_naskh")
+variation_opentype = {2003265652: 700}
+
+[sub_resource type="FontVariation" id="Font_word"]
+fallbacks = Array[Font]([SubResource("Font_arabic")])
+base_font = ExtResource("6_fraunces")
+variation_opentype = {2003265652: 680, 1869640570: 72, 1397704276: 50}
 
 [sub_resource type="FontVariation" id="Font_body"]
 base_font = ExtResource("6_fraunces")
@@ -430,7 +440,18 @@ TileWordLabel/base_type = &"Label"
 TileWordLabel/colors/font_color = Color(0.20784314, 0.30980393, 0.26666668, 1)
 TileWordLabel/colors/font_shadow_color = Color(0, 0, 0, 0)
 TileWordLabel/font_sizes/font_size = 72
-TileWordLabel/fonts/font = SubResource("Font_title")
+TileWordLabel/constants/line_spacing = -22
+TileWordLabel/fonts/font = SubResource("Font_word")
+ToastWordLabel/base_type = &"ToastLabel"
+ToastWordLabel/fonts/font = SubResource("Font_word")
+PraiseWordLabel/base_type = &"PraiseLabel"
+PraiseWordLabel/fonts/font = SubResource("Font_word")
+DialogWordsLabel/base_type = &"DialogBodyLabel"
+DialogWordsLabel/font_sizes/font_size = 38
+DialogWordsLabel/fonts/font = SubResource("Font_word")
+LanguageButton/base_type = &"CollectionCard"
+LanguageButton/font_sizes/font_size = 40
+LanguageButton/fonts/font = SubResource("Font_word")
 CollectionCard/base_type = &"Button"
 CollectionCard/styles/focus = SubResource("Focus_empty")
 CollectionCard/styles/hover = SubResource("Card_normal")

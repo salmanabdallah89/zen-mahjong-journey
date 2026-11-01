@@ -127,6 +127,11 @@ func show_combo(combo: int) -> int:
 
 ## A level milestone ("Halfway there!") in the praise style, without a count.
 ## A combo arriving later simply replaces it.
+## Word Garden's messages can be in any language.
+func use_word_font() -> void:
+	_word.theme_type_variation = &"PraiseWordLabel"
+
+
 func show_message(text: String) -> void:
 	if _tween:
 		_tween.kill()

@@ -11,6 +11,8 @@ var current_level: int = 1
 ## Word Garden: the language being learned ("" = the normal journey) and its stage.
 var word_language := ""
 var word_stage: int = 1
+## The player's own language: words without a picture are matched to it.
+var word_native := "ar"
 var progress := ProgressStore.new()
 ## Level opened by the last clear, so the journey map can celebrate it once.
 var just_unlocked := 0

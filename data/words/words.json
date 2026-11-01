@@ -12,6 +12,10 @@
 		{
 			"id": "fr",
 			"name": "Français"
+		},
+		{
+			"id": "ar",
+			"name": "العربية"
 		}
 	],
 	"words": [
@@ -1048,12 +1052,26 @@
 			"image": "res://assets/words/baby.png"
 		},
 		{
+			"id": "i",
+			"en": "I",
+			"es": "Yo",
+			"fr": "Je",
+			"ar": "أنا"
+		},
+		{
 			"id": "hand",
 			"en": "Hand",
 			"es": "Mano",
 			"fr": "Main",
 			"ar": "يد",
 			"image": "res://assets/words/hand.png"
+		},
+		{
+			"id": "you",
+			"en": "You",
+			"es": "Tú",
+			"fr": "Tu",
+			"ar": "أنت"
 		},
 		{
 			"id": "walk",
@@ -1064,12 +1082,26 @@
 			"image": "res://assets/words/walk.png"
 		},
 		{
+			"id": "he",
+			"en": "He",
+			"es": "Él",
+			"fr": "Il",
+			"ar": "هو"
+		},
+		{
 			"id": "happy",
 			"en": "Happy",
 			"es": "Feliz",
 			"fr": "Heureux",
 			"ar": "سعيد",
 			"image": "res://assets/words/happy.png"
+		},
+		{
+			"id": "she",
+			"en": "She",
+			"es": "Ella",
+			"fr": "Elle",
+			"ar": "هي"
 		},
 		{
 			"id": "gorilla",
@@ -1088,12 +1120,26 @@
 			"image": "res://assets/words/orangutan.png"
 		},
 		{
+			"id": "we",
+			"en": "We",
+			"es": "Nosotros",
+			"fr": "Nous",
+			"ar": "نحن"
+		},
+		{
 			"id": "bouquet",
 			"en": "Bouquet",
 			"es": "Ramo",
 			"fr": "Bouquet",
 			"ar": "باقة",
 			"image": "res://assets/words/bouquet.png"
+		},
+		{
+			"id": "they",
+			"en": "They",
+			"es": "Ellos",
+			"fr": "Ils",
+			"ar": "هم"
 		},
 		{
 			"id": "tangerine",
@@ -1104,6 +1150,13 @@
 			"image": "res://assets/words/tangerine.png"
 		},
 		{
+			"id": "yes",
+			"en": "Yes",
+			"es": "Sí",
+			"fr": "Oui",
+			"ar": "نعم"
+		},
+		{
 			"id": "lime",
 			"en": "Lime",
 			"es": "Lima",
@@ -1112,12 +1165,26 @@
 			"image": "res://assets/words/lime.png"
 		},
 		{
+			"id": "no",
+			"en": "No",
+			"es": "No",
+			"fr": "Non",
+			"ar": "لا"
+		},
+		{
 			"id": "earth",
 			"en": "Earth",
 			"es": "Tierra",
 			"fr": "Terre",
 			"ar": "الأرض",
 			"image": "res://assets/words/earth.png"
+		},
+		{
+			"id": "please",
+			"en": "Please",
+			"es": "Por favor",
+			"fr": "S'il te plaît",
+			"ar": "من فضلك"
 		},
 		{
 			"id": "map",
@@ -1136,12 +1203,26 @@
 			"image": "res://assets/words/locomotive.png"
 		},
 		{
+			"id": "thank_you",
+			"en": "Thank you",
+			"es": "Gracias",
+			"fr": "Merci",
+			"ar": "شكرا"
+		},
+		{
 			"id": "hourglass",
 			"en": "Hourglass",
 			"es": "Reloj de arena",
 			"fr": "Sablier",
 			"ar": "ساعة رملية",
 			"image": "res://assets/words/hourglass.png"
+		},
+		{
+			"id": "sorry",
+			"en": "Sorry",
+			"es": "Perdón",
+			"fr": "Pardon",
+			"ar": "آسف"
 		},
 		{
 			"id": "halloween",
@@ -1152,6 +1233,13 @@
 			"image": "res://assets/words/halloween.png"
 		},
 		{
+			"id": "hello",
+			"en": "Hello",
+			"es": "Hola",
+			"fr": "Bonjour",
+			"ar": "مرحبا"
+		},
+		{
 			"id": "glasses",
 			"en": "Glasses",
 			"es": "Gafas",
@@ -1160,12 +1248,26 @@
 			"image": "res://assets/words/glasses.png"
 		},
 		{
+			"id": "goodbye",
+			"en": "Goodbye",
+			"es": "Adiós",
+			"fr": "Au revoir",
+			"ar": "وداعا"
+		},
+		{
 			"id": "sunglasses",
 			"en": "Sunglasses",
 			"es": "Gafas de sol",
 			"fr": "Lunettes de soleil",
 			"ar": "نظارة شمسية",
 			"image": "res://assets/words/sunglasses.png"
+		},
+		{
+			"id": "good",
+			"en": "Good",
+			"es": "Bueno",
+			"fr": "Bon",
+			"ar": "جيد"
 		},
 		{
 			"id": "child",
@@ -1184,12 +1286,26 @@
 			"image": "res://assets/words/leg.png"
 		},
 		{
+			"id": "bad",
+			"en": "Bad",
+			"es": "Malo",
+			"fr": "Mauvais",
+			"ar": "سيئ"
+		},
+		{
 			"id": "run",
 			"en": "Run",
 			"es": "Correr",
 			"fr": "Courir",
 			"ar": "يركض",
 			"image": "res://assets/words/run.png"
+		},
+		{
+			"id": "big",
+			"en": "Big",
+			"es": "Grande",
+			"fr": "Grand",
+			"ar": "كبير"
 		},
 		{
 			"id": "sad",
@@ -1200,6 +1316,13 @@
 			"image": "res://assets/words/sad.png"
 		},
 		{
+			"id": "small",
+			"en": "Small",
+			"es": "Pequeño",
+			"fr": "Petit",
+			"ar": "صغير"
+		},
+		{
 			"id": "poodle",
 			"en": "Poodle",
 			"es": "Caniche",
@@ -1208,12 +1331,26 @@
 			"image": "res://assets/words/poodle.png"
 		},
 		{
+			"id": "long",
+			"en": "Long",
+			"es": "Largo",
+			"fr": "Long",
+			"ar": "طويل"
+		},
+		{
 			"id": "wolf",
 			"en": "Wolf",
 			"es": "Lobo",
 			"fr": "Loup",
 			"ar": "ذئب",
 			"image": "res://assets/words/wolf.png"
+		},
+		{
+			"id": "short",
+			"en": "Short",
+			"es": "Corto",
+			"fr": "Court",
+			"ar": "قصير"
 		},
 		{
 			"id": "rose",
@@ -1232,12 +1369,26 @@
 			"image": "res://assets/words/green_apple.png"
 		},
 		{
+			"id": "new",
+			"en": "New",
+			"es": "Nuevo",
+			"fr": "Nouveau",
+			"ar": "جديد"
+		},
+		{
 			"id": "olive",
 			"en": "Olive",
 			"es": "Aceituna",
 			"fr": "Olive",
 			"ar": "زيتون",
 			"image": "res://assets/words/olive.png"
+		},
+		{
+			"id": "old",
+			"en": "Old",
+			"es": "Viejo",
+			"fr": "Vieux",
+			"ar": "قديم"
 		},
 		{
 			"id": "compass",
@@ -1248,12 +1399,26 @@
 			"image": "res://assets/words/compass.png"
 		},
 		{
+			"id": "young",
+			"en": "Young",
+			"es": "Joven",
+			"fr": "Jeune",
+			"ar": "شاب"
+		},
+		{
 			"id": "train",
 			"en": "Train",
 			"es": "Tren",
 			"fr": "Train",
 			"ar": "قطار",
 			"image": "res://assets/words/train.png"
+		},
+		{
+			"id": "fast",
+			"en": "Fast",
+			"es": "Rápido",
+			"fr": "Rapide",
+			"ar": "سريع"
 		},
 		{
 			"id": "watch",
@@ -1272,12 +1437,26 @@
 			"image": "res://assets/words/christmas.png"
 		},
 		{
+			"id": "slow",
+			"en": "Slow",
+			"es": "Lento",
+			"fr": "Lent",
+			"ar": "بطيء"
+		},
+		{
 			"id": "tie",
 			"en": "Tie",
 			"es": "Corbata",
 			"fr": "Cravate",
 			"ar": "ربطة عنق",
 			"image": "res://assets/words/tie.png"
+		},
+		{
+			"id": "easy",
+			"en": "Easy",
+			"es": "Fácil",
+			"fr": "Facile",
+			"ar": "سهل"
 		},
 		{
 			"id": "t_shirt",
@@ -1288,6 +1467,13 @@
 			"image": "res://assets/words/t_shirt.png"
 		},
 		{
+			"id": "difficult",
+			"en": "Difficult",
+			"es": "Difícil",
+			"fr": "Difficile",
+			"ar": "صعب"
+		},
+		{
 			"id": "boy",
 			"en": "Boy",
 			"es": "Chico",
@@ -1296,12 +1482,26 @@
 			"image": "res://assets/words/boy.png"
 		},
 		{
+			"id": "strong",
+			"en": "Strong",
+			"es": "Fuerte",
+			"fr": "Fort",
+			"ar": "قوي"
+		},
+		{
 			"id": "foot",
 			"en": "Foot",
 			"es": "Pie",
 			"fr": "Pied",
 			"ar": "قدم",
 			"image": "res://assets/words/foot.png"
+		},
+		{
+			"id": "weak",
+			"en": "Weak",
+			"es": "Débil",
+			"fr": "Faible",
+			"ar": "ضعيف"
 		},
 		{
 			"id": "swim",
@@ -1320,12 +1520,26 @@
 			"image": "res://assets/words/angry.png"
 		},
 		{
+			"id": "rich",
+			"en": "Rich",
+			"es": "Rico",
+			"fr": "Riche",
+			"ar": "غني"
+		},
+		{
 			"id": "raccoon",
 			"en": "Raccoon",
 			"es": "Mapache",
 			"fr": "Raton laveur",
 			"ar": "راكون",
 			"image": "res://assets/words/raccoon.png"
+		},
+		{
+			"id": "poor",
+			"en": "Poor",
+			"es": "Pobre",
+			"fr": "Pauvre",
+			"ar": "فقير"
 		},
 		{
 			"id": "leopard",
@@ -1336,6 +1550,13 @@
 			"image": "res://assets/words/leopard.png"
 		},
 		{
+			"id": "clean",
+			"en": "Clean",
+			"es": "Limpio",
+			"fr": "Propre",
+			"ar": "نظيف"
+		},
+		{
 			"id": "sunflower",
 			"en": "Sunflower",
 			"es": "Girasol",
@@ -1344,12 +1565,26 @@
 			"image": "res://assets/words/sunflower.png"
 		},
 		{
+			"id": "dirty",
+			"en": "Dirty",
+			"es": "Sucio",
+			"fr": "Sale",
+			"ar": "وسخ"
+		},
+		{
 			"id": "coconut",
 			"en": "Coconut",
 			"es": "Coco",
 			"fr": "Noix de coco",
 			"ar": "جوز الهند",
 			"image": "res://assets/words/coconut.png"
+		},
+		{
+			"id": "full",
+			"en": "Full",
+			"es": "Lleno",
+			"fr": "Plein",
+			"ar": "ممتلئ"
 		},
 		{
 			"id": "potato",
@@ -1368,12 +1603,26 @@
 			"image": "res://assets/words/volcano.png"
 		},
 		{
+			"id": "empty",
+			"en": "Empty",
+			"es": "Vacío",
+			"fr": "Vide",
+			"ar": "فارغ"
+		},
+		{
 			"id": "subway",
 			"en": "Subway",
 			"es": "Metro",
 			"fr": "Métro",
 			"ar": "مترو",
 			"image": "res://assets/words/subway.png"
+		},
+		{
+			"id": "open",
+			"en": "Open",
+			"es": "Abierto",
+			"fr": "Ouvert",
+			"ar": "مفتوح"
 		},
 		{
 			"id": "alarm_clock",
@@ -1384,6 +1633,13 @@
 			"image": "res://assets/words/alarm_clock.png"
 		},
 		{
+			"id": "closed",
+			"en": "Closed",
+			"es": "Cerrado",
+			"fr": "Fermé",
+			"ar": "مغلق"
+		},
+		{
 			"id": "balloon",
 			"en": "Balloon",
 			"es": "Globo",
@@ -1392,12 +1648,26 @@
 			"image": "res://assets/words/balloon.png"
 		},
 		{
+			"id": "true",
+			"en": "True",
+			"es": "Verdadero",
+			"fr": "Vrai",
+			"ar": "صحيح"
+		},
+		{
 			"id": "jeans",
 			"en": "Jeans",
 			"es": "Vaqueros",
 			"fr": "Jean",
 			"ar": "بنطال جينز",
 			"image": "res://assets/words/jeans.png"
+		},
+		{
+			"id": "false",
+			"en": "False",
+			"es": "Falso",
+			"fr": "Faux",
+			"ar": "خاطئ"
 		},
 		{
 			"id": "scarf",
@@ -1416,12 +1686,26 @@
 			"image": "res://assets/words/girl.png"
 		},
 		{
+			"id": "right",
+			"en": "Right",
+			"es": "Derecha",
+			"fr": "Droite",
+			"ar": "يمين"
+		},
+		{
 			"id": "ear",
 			"en": "Ear",
 			"es": "Oreja",
 			"fr": "Oreille",
 			"ar": "أذن",
 			"image": "res://assets/words/ear.png"
+		},
+		{
+			"id": "left",
+			"en": "Left",
+			"es": "Izquierda",
+			"fr": "Gauche",
+			"ar": "يسار"
 		},
 		{
 			"id": "climb",
@@ -1432,12 +1716,26 @@
 			"image": "res://assets/words/climb.png"
 		},
 		{
+			"id": "up",
+			"en": "Up",
+			"es": "Arriba",
+			"fr": "En haut",
+			"ar": "فوق"
+		},
+		{
 			"id": "tired",
 			"en": "Tired",
 			"es": "Cansado",
 			"fr": "Fatigué",
 			"ar": "متعب",
 			"image": "res://assets/words/tired.png"
+		},
+		{
+			"id": "down",
+			"en": "Down",
+			"es": "Abajo",
+			"fr": "En bas",
+			"ar": "تحت"
 		},
 		{
 			"id": "horse",
@@ -1456,12 +1754,26 @@
 			"image": "res://assets/words/moose.png"
 		},
 		{
+			"id": "near",
+			"en": "Near",
+			"es": "Cerca",
+			"fr": "Près",
+			"ar": "قريب"
+		},
+		{
 			"id": "tulip",
 			"en": "Tulip",
 			"es": "Tulipán",
 			"fr": "Tulipe",
 			"ar": "توليب",
 			"image": "res://assets/words/tulip.png"
+		},
+		{
+			"id": "far",
+			"en": "Far",
+			"es": "Lejos",
+			"fr": "Loin",
+			"ar": "بعيد"
 		},
 		{
 			"id": "chili",
@@ -1472,6 +1784,13 @@
 			"image": "res://assets/words/chili.png"
 		},
 		{
+			"id": "here",
+			"en": "Here",
+			"es": "Aquí",
+			"fr": "Ici",
+			"ar": "هنا"
+		},
+		{
 			"id": "bell_pepper",
 			"en": "Bell pepper",
 			"es": "Pimiento",
@@ -1480,12 +1799,26 @@
 			"image": "res://assets/words/bell_pepper.png"
 		},
 		{
+			"id": "there",
+			"en": "There",
+			"es": "Allí",
+			"fr": "Là-bas",
+			"ar": "هناك"
+		},
+		{
 			"id": "camping",
 			"en": "Camping",
 			"es": "Acampada",
 			"fr": "Camping",
 			"ar": "تخييم",
 			"image": "res://assets/words/camping.png"
+		},
+		{
+			"id": "now",
+			"en": "Now",
+			"es": "Ahora",
+			"fr": "Maintenant",
+			"ar": "الآن"
 		},
 		{
 			"id": "station",
@@ -1504,12 +1837,26 @@
 			"image": "res://assets/words/stopwatch.png"
 		},
 		{
+			"id": "later",
+			"en": "Later",
+			"es": "Luego",
+			"fr": "Plus tard",
+			"ar": "لاحقا"
+		},
+		{
 			"id": "party",
 			"en": "Party",
 			"es": "Fiesta",
 			"fr": "Fête",
 			"ar": "حفلة",
 			"image": "res://assets/words/party.png"
+		},
+		{
+			"id": "today",
+			"en": "Today",
+			"es": "Hoy",
+			"fr": "Aujourd'hui",
+			"ar": "اليوم"
 		},
 		{
 			"id": "gloves",
@@ -1520,6 +1867,13 @@
 			"image": "res://assets/words/gloves.png"
 		},
 		{
+			"id": "tomorrow",
+			"en": "Tomorrow",
+			"es": "Mañana",
+			"fr": "Demain",
+			"ar": "غدا"
+		},
+		{
 			"id": "coat",
 			"en": "Coat",
 			"es": "Abrigo",
@@ -1528,12 +1882,26 @@
 			"image": "res://assets/words/coat.png"
 		},
 		{
+			"id": "yesterday",
+			"en": "Yesterday",
+			"es": "Ayer",
+			"fr": "Hier",
+			"ar": "أمس"
+		},
+		{
 			"id": "man",
 			"en": "Man",
 			"es": "Hombre",
 			"fr": "Homme",
 			"ar": "رجل",
 			"image": "res://assets/words/man.png"
+		},
+		{
+			"id": "always",
+			"en": "Always",
+			"es": "Siempre",
+			"fr": "Toujours",
+			"ar": "دائما"
 		},
 		{
 			"id": "nose",
@@ -1552,12 +1920,26 @@
 			"image": "res://assets/words/stand.png"
 		},
 		{
+			"id": "never",
+			"en": "Never",
+			"es": "Nunca",
+			"fr": "Jamais",
+			"ar": "أبدا"
+		},
+		{
 			"id": "afraid",
 			"en": "Afraid",
 			"es": "Asustado",
 			"fr": "Effrayé",
 			"ar": "خائف",
 			"image": "res://assets/words/afraid.png"
+		},
+		{
+			"id": "sometimes",
+			"en": "Sometimes",
+			"es": "A veces",
+			"fr": "Parfois",
+			"ar": "أحيانا"
 		},
 		{
 			"id": "donkey",
@@ -1568,6 +1950,13 @@
 			"image": "res://assets/words/donkey.png"
 		},
 		{
+			"id": "often",
+			"en": "Often",
+			"es": "A menudo",
+			"fr": "Souvent",
+			"ar": "غالبا"
+		},
+		{
 			"id": "unicorn",
 			"en": "Unicorn",
 			"es": "Unicornio",
@@ -1576,12 +1965,26 @@
 			"image": "res://assets/words/unicorn.png"
 		},
 		{
+			"id": "again",
+			"en": "Again",
+			"es": "Otra vez",
+			"fr": "Encore",
+			"ar": "مرة أخرى"
+		},
+		{
 			"id": "hibiscus",
 			"en": "Hibiscus",
 			"es": "Hibisco",
 			"fr": "Hibiscus",
 			"ar": "كركديه",
 			"image": "res://assets/words/hibiscus.png"
+		},
+		{
+			"id": "very",
+			"en": "Very",
+			"es": "Muy",
+			"fr": "Très",
+			"ar": "جدا"
 		},
 		{
 			"id": "pickle",
@@ -1600,12 +2003,26 @@
 			"image": "res://assets/words/peanuts.png"
 		},
 		{
+			"id": "much",
+			"en": "Much",
+			"es": "Mucho",
+			"fr": "Beaucoup",
+			"ar": "كثير"
+		},
+		{
 			"id": "beach",
 			"en": "Beach",
 			"es": "Playa",
 			"fr": "Plage",
 			"ar": "شاطئ",
 			"image": "res://assets/words/beach.png"
+		},
+		{
+			"id": "little",
+			"en": "Little",
+			"es": "Poco",
+			"fr": "Peu",
+			"ar": "قليل"
 		},
 		{
 			"id": "tram",
@@ -1616,6 +2033,13 @@
 			"image": "res://assets/words/tram.png"
 		},
 		{
+			"id": "more",
+			"en": "More",
+			"es": "Más",
+			"fr": "Plus",
+			"ar": "أكثر"
+		},
+		{
 			"id": "thermometer",
 			"en": "Thermometer",
 			"es": "Termómetro",
@@ -1624,12 +2048,26 @@
 			"image": "res://assets/words/thermometer.png"
 		},
 		{
+			"id": "less",
+			"en": "Less",
+			"es": "Menos",
+			"fr": "Moins",
+			"ar": "أقل"
+		},
+		{
 			"id": "ribbon",
 			"en": "Ribbon",
 			"es": "Lazo",
 			"fr": "Ruban",
 			"ar": "شريط",
 			"image": "res://assets/words/ribbon.png"
+		},
+		{
+			"id": "all",
+			"en": "All",
+			"es": "Todo",
+			"fr": "Tout",
+			"ar": "كل"
 		},
 		{
 			"id": "socks",
@@ -1648,12 +2086,26 @@
 			"image": "res://assets/words/dress.png"
 		},
 		{
+			"id": "nothing",
+			"en": "Nothing",
+			"es": "Nada",
+			"fr": "Rien",
+			"ar": "لا شيء"
+		},
+		{
 			"id": "woman",
 			"en": "Woman",
 			"es": "Mujer",
 			"fr": "Femme",
 			"ar": "امرأة",
 			"image": "res://assets/words/woman.png"
+		},
+		{
+			"id": "something",
+			"en": "Something",
+			"es": "Algo",
+			"fr": "Quelque chose",
+			"ar": "شيء ما"
 		},
 		{
 			"id": "brain",
@@ -1664,12 +2116,26 @@
 			"image": "res://assets/words/brain.png"
 		},
 		{
+			"id": "someone",
+			"en": "Someone",
+			"es": "Alguien",
+			"fr": "Quelqu'un",
+			"ar": "شخص ما"
+		},
+		{
 			"id": "cycle",
 			"en": "Cycle",
 			"es": "Pedalear",
 			"fr": "Pédaler",
 			"ar": "يقود دراجة",
 			"image": "res://assets/words/cycle.png"
+		},
+		{
+			"id": "nobody",
+			"en": "Nobody",
+			"es": "Nadie",
+			"fr": "Personne",
+			"ar": "لا أحد"
 		},
 		{
 			"id": "surprised",
@@ -1688,12 +2154,26 @@
 			"image": "res://assets/words/zebra.png"
 		},
 		{
+			"id": "everyone",
+			"en": "Everyone",
+			"es": "Todos",
+			"fr": "Tout le monde",
+			"ar": "الجميع"
+		},
+		{
 			"id": "bison",
 			"en": "Bison",
 			"es": "Bisonte",
 			"fr": "Bison",
 			"ar": "بيسون",
 			"image": "res://assets/words/bison.png"
+		},
+		{
+			"id": "and",
+			"en": "And",
+			"es": "Y",
+			"fr": "Et",
+			"ar": "و"
 		},
 		{
 			"id": "seedling",
@@ -1704,6 +2184,13 @@
 			"image": "res://assets/words/seedling.png"
 		},
 		{
+			"id": "or",
+			"en": "Or",
+			"es": "O",
+			"fr": "Ou",
+			"ar": "أو"
+		},
+		{
 			"id": "beans",
 			"en": "Beans",
 			"es": "Frijoles",
@@ -1712,12 +2199,26 @@
 			"image": "res://assets/words/beans.png"
 		},
 		{
+			"id": "but",
+			"en": "But",
+			"es": "Pero",
+			"fr": "Mais",
+			"ar": "لكن"
+		},
+		{
 			"id": "chestnut",
 			"en": "Chestnut",
 			"es": "Castaña",
 			"fr": "Châtaigne",
 			"ar": "كستناء",
 			"image": "res://assets/words/chestnut.png"
+		},
+		{
+			"id": "because",
+			"en": "Because",
+			"es": "Porque",
+			"fr": "Parce que",
+			"ar": "لأن"
 		},
 		{
 			"id": "desert",
@@ -1736,12 +2237,26 @@
 			"image": "res://assets/words/bus.png"
 		},
 		{
+			"id": "if",
+			"en": "If",
+			"es": "Si",
+			"fr": "Si",
+			"ar": "إذا"
+		},
+		{
 			"id": "sun",
 			"en": "Sun",
 			"es": "Sol",
 			"fr": "Soleil",
 			"ar": "شمس",
 			"image": "res://assets/words/sun.png"
+		},
+		{
+			"id": "with",
+			"en": "With",
+			"es": "Con",
+			"fr": "Avec",
+			"ar": "مع"
 		},
 		{
 			"id": "gift",
@@ -1752,6 +2267,13 @@
 			"image": "res://assets/words/gift.png"
 		},
 		{
+			"id": "without",
+			"en": "Without",
+			"es": "Sin",
+			"fr": "Sans",
+			"ar": "بدون"
+		},
+		{
 			"id": "kimono",
 			"en": "Kimono",
 			"es": "Kimono",
@@ -1760,12 +2282,26 @@
 			"image": "res://assets/words/kimono.png"
 		},
 		{
+			"id": "for",
+			"en": "For",
+			"es": "Para",
+			"fr": "Pour",
+			"ar": "من أجل"
+		},
+		{
 			"id": "shorts",
 			"en": "Shorts",
 			"es": "Pantalones cortos",
 			"fr": "Short",
 			"ar": "سروال قصير",
 			"image": "res://assets/words/shorts.png"
+		},
+		{
+			"id": "from",
+			"en": "From",
+			"es": "De",
+			"fr": "Depuis",
+			"ar": "من"
 		},
 		{
 			"id": "old_man",
@@ -1784,12 +2320,26 @@
 			"image": "res://assets/words/heart.png"
 		},
 		{
+			"id": "to",
+			"en": "To",
+			"es": "Hacia",
+			"fr": "Vers",
+			"ar": "إلى"
+		},
+		{
 			"id": "surf",
 			"en": "Surf",
 			"es": "Surfear",
 			"fr": "Surfer",
 			"ar": "يركب الأمواج",
 			"image": "res://assets/words/surf.png"
+		},
+		{
+			"id": "in",
+			"en": "In",
+			"es": "Dentro",
+			"fr": "Dans",
+			"ar": "في"
 		},
 		{
 			"id": "confused",
@@ -1800,6 +2350,13 @@
 			"image": "res://assets/words/confused.png"
 		},
 		{
+			"id": "on",
+			"en": "On",
+			"es": "Sobre",
+			"fr": "Sur",
+			"ar": "على"
+		},
+		{
 			"id": "ox",
 			"en": "Ox",
 			"es": "Buey",
@@ -1808,12 +2365,26 @@
 			"image": "res://assets/words/ox.png"
 		},
 		{
+			"id": "under",
+			"en": "Under",
+			"es": "Debajo",
+			"fr": "Sous",
+			"ar": "أسفل"
+		},
+		{
 			"id": "buffalo",
 			"en": "Buffalo",
 			"es": "Búfalo",
 			"fr": "Buffle",
 			"ar": "جاموس",
 			"image": "res://assets/words/buffalo.png"
+		},
+		{
+			"id": "between",
+			"en": "Between",
+			"es": "Entre",
+			"fr": "Entre",
+			"ar": "بين"
 		},
 		{
 			"id": "plant",
@@ -1832,12 +2403,26 @@
 			"image": "res://assets/words/peas.png"
 		},
 		{
+			"id": "before",
+			"en": "Before",
+			"es": "Antes",
+			"fr": "Avant",
+			"ar": "قبل"
+		},
+		{
 			"id": "bread",
 			"en": "Bread",
 			"es": "Pan",
 			"fr": "Pain",
 			"ar": "خبز",
 			"image": "res://assets/words/bread.png"
+		},
+		{
+			"id": "after",
+			"en": "After",
+			"es": "Después",
+			"fr": "Après",
+			"ar": "بعد"
 		},
 		{
 			"id": "island",
@@ -1848,12 +2433,26 @@
 			"image": "res://assets/words/island.png"
 		},
 		{
+			"id": "what",
+			"en": "What",
+			"es": "Qué",
+			"fr": "Quoi",
+			"ar": "ماذا"
+		},
+		{
 			"id": "ambulance",
 			"en": "Ambulance",
 			"es": "Ambulancia",
 			"fr": "Ambulance",
 			"ar": "سيارة إسعاف",
 			"image": "res://assets/words/ambulance.png"
+		},
+		{
+			"id": "who",
+			"en": "Who",
+			"es": "Quién",
+			"fr": "Qui",
+			"ar": "من هو"
 		},
 		{
 			"id": "planet",
@@ -1872,12 +2471,26 @@
 			"image": "res://assets/words/ticket.png"
 		},
 		{
+			"id": "where",
+			"en": "Where",
+			"es": "Dónde",
+			"fr": "Où",
+			"ar": "أين"
+		},
+		{
 			"id": "purse",
 			"en": "Purse",
 			"es": "Monedero",
 			"fr": "Porte-monnaie",
 			"ar": "محفظة",
 			"image": "res://assets/words/purse.png"
+		},
+		{
+			"id": "when",
+			"en": "When",
+			"es": "Cuándo",
+			"fr": "Quand",
+			"ar": "متى"
 		},
 		{
 			"id": "handbag",
@@ -1888,6 +2501,13 @@
 			"image": "res://assets/words/handbag.png"
 		},
 		{
+			"id": "why",
+			"en": "Why",
+			"es": "Por qué",
+			"fr": "Pourquoi",
+			"ar": "لماذا"
+		},
+		{
 			"id": "old_woman",
 			"en": "Old woman",
 			"es": "Anciana",
@@ -1896,12 +2516,26 @@
 			"image": "res://assets/words/old_woman.png"
 		},
 		{
+			"id": "how",
+			"en": "How",
+			"es": "Cómo",
+			"fr": "Comment",
+			"ar": "كيف"
+		},
+		{
 			"id": "lungs",
 			"en": "Lungs",
 			"es": "Pulmones",
 			"fr": "Poumons",
 			"ar": "رئتان",
 			"image": "res://assets/words/lungs.png"
+		},
+		{
+			"id": "how_much",
+			"en": "How much",
+			"es": "Cuánto",
+			"fr": "Combien",
+			"ar": "كم"
 		},
 		{
 			"id": "lift",
@@ -1920,12 +2554,26 @@
 			"image": "res://assets/words/sleepy.png"
 		},
 		{
+			"id": "which",
+			"en": "Which",
+			"es": "Cuál",
+			"fr": "Lequel",
+			"ar": "أي"
+		},
+		{
 			"id": "boar",
 			"en": "Boar",
 			"es": "Jabalí",
 			"fr": "Sanglier",
 			"ar": "خنزير بري",
 			"image": "res://assets/words/boar.png"
+		},
+		{
+			"id": "this",
+			"en": "This",
+			"es": "Este",
+			"fr": "Ce",
+			"ar": "هذا"
 		},
 		{
 			"id": "ram",
@@ -1936,6 +2584,13 @@
 			"image": "res://assets/words/ram.png"
 		},
 		{
+			"id": "that",
+			"en": "That",
+			"es": "Ese",
+			"fr": "Cela",
+			"ar": "ذلك"
+		},
+		{
 			"id": "pine",
 			"en": "Pine",
 			"es": "Pino",
@@ -1944,12 +2599,26 @@
 			"image": "res://assets/words/pine.png"
 		},
 		{
+			"id": "one",
+			"en": "One",
+			"es": "Uno",
+			"fr": "Un",
+			"ar": "واحد"
+		},
+		{
 			"id": "croissant",
 			"en": "Croissant",
 			"es": "Cruasán",
 			"fr": "Croissant",
 			"ar": "كرواسان",
 			"image": "res://assets/words/croissant.png"
+		},
+		{
+			"id": "two",
+			"en": "Two",
+			"es": "Dos",
+			"fr": "Deux",
+			"ar": "اثنان"
 		},
 		{
 			"id": "baguette",
@@ -1968,12 +2637,26 @@
 			"image": "res://assets/words/park.png"
 		},
 		{
+			"id": "three",
+			"en": "Three",
+			"es": "Tres",
+			"fr": "Trois",
+			"ar": "ثلاثة"
+		},
+		{
 			"id": "fire_truck",
 			"en": "Fire truck",
 			"es": "Camión de bomberos",
 			"fr": "Camion de pompiers",
 			"ar": "سيارة إطفاء",
 			"image": "res://assets/words/fire_truck.png"
+		},
+		{
+			"id": "four",
+			"en": "Four",
+			"es": "Cuatro",
+			"fr": "Quatre",
+			"ar": "أربعة"
 		},
 		{
 			"id": "star",
@@ -1984,6 +2667,13 @@
 			"image": "res://assets/words/star.png"
 		},
 		{
+			"id": "five",
+			"en": "Five",
+			"es": "Cinco",
+			"fr": "Cinq",
+			"ar": "خمسة"
+		},
+		{
 			"id": "trophy",
 			"en": "Trophy",
 			"es": "Trofeo",
@@ -1992,12 +2682,26 @@
 			"image": "res://assets/words/trophy.png"
 		},
 		{
+			"id": "six",
+			"en": "Six",
+			"es": "Seis",
+			"fr": "Six",
+			"ar": "ستة"
+		},
+		{
 			"id": "shopping_bags",
 			"en": "Shopping bags",
 			"es": "Bolsas",
 			"fr": "Sacs",
 			"ar": "أكياس تسوق",
 			"image": "res://assets/words/shopping_bags.png"
+		},
+		{
+			"id": "seven",
+			"en": "Seven",
+			"es": "Siete",
+			"fr": "Sept",
+			"ar": "سبعة"
 		},
 		{
 			"id": "backpack",
@@ -2016,12 +2720,26 @@
 			"image": "res://assets/words/doctor.png"
 		},
 		{
+			"id": "eight",
+			"en": "Eight",
+			"es": "Ocho",
+			"fr": "Huit",
+			"ar": "ثمانية"
+		},
+		{
 			"id": "tooth",
 			"en": "Tooth",
 			"es": "Diente",
 			"fr": "Dent",
 			"ar": "سن",
 			"image": "res://assets/words/tooth.png"
+		},
+		{
+			"id": "nine",
+			"en": "Nine",
+			"es": "Nueve",
+			"fr": "Neuf",
+			"ar": "تسعة"
 		},
 		{
 			"id": "sleep",
@@ -2032,6 +2750,13 @@
 			"image": "res://assets/words/sleep.png"
 		},
 		{
+			"id": "ten",
+			"en": "Ten",
+			"es": "Diez",
+			"fr": "Dix",
+			"ar": "عشرة"
+		},
+		{
 			"id": "hot",
 			"en": "Hot",
 			"es": "Caliente",
@@ -2040,12 +2765,26 @@
 			"image": "res://assets/words/hot.png"
 		},
 		{
+			"id": "eleven",
+			"en": "Eleven",
+			"es": "Once",
+			"fr": "Onze",
+			"ar": "أحد عشر"
+		},
+		{
 			"id": "sheep",
 			"en": "Sheep",
 			"es": "Oveja",
 			"fr": "Mouton",
 			"ar": "خروف",
 			"image": "res://assets/words/sheep.png"
+		},
+		{
+			"id": "twelve",
+			"en": "Twelve",
+			"es": "Doce",
+			"fr": "Douze",
+			"ar": "اثنا عشر"
 		},
 		{
 			"id": "goat",
@@ -2064,12 +2803,26 @@
 			"image": "res://assets/words/palm_tree.png"
 		},
 		{
+			"id": "twenty",
+			"en": "Twenty",
+			"es": "Veinte",
+			"fr": "Vingt",
+			"ar": "عشرون"
+		},
+		{
 			"id": "pretzel",
 			"en": "Pretzel",
 			"es": "Pretzel",
 			"fr": "Bretzel",
 			"ar": "بريتزل",
 			"image": "res://assets/words/pretzel.png"
+		},
+		{
+			"id": "thirty",
+			"en": "Thirty",
+			"es": "Treinta",
+			"fr": "Trente",
+			"ar": "ثلاثون"
 		},
 		{
 			"id": "bagel",
@@ -2080,12 +2833,26 @@
 			"image": "res://assets/words/bagel.png"
 		},
 		{
+			"id": "fifty",
+			"en": "Fifty",
+			"es": "Cincuenta",
+			"fr": "Cinquante",
+			"ar": "خمسون"
+		},
+		{
 			"id": "stadium",
 			"en": "Stadium",
 			"es": "Estadio",
 			"fr": "Stade",
 			"ar": "ملعب",
 			"image": "res://assets/words/stadium.png"
+		},
+		{
+			"id": "hundred",
+			"en": "Hundred",
+			"es": "Cien",
+			"fr": "Cent",
+			"ar": "مئة"
 		},
 		{
 			"id": "police_car",
@@ -2104,12 +2871,26 @@
 			"image": "res://assets/words/shooting_star.png"
 		},
 		{
+			"id": "thousand",
+			"en": "Thousand",
+			"es": "Mil",
+			"fr": "Mille",
+			"ar": "ألف"
+		},
+		{
 			"id": "medal",
 			"en": "Medal",
 			"es": "Medalla",
 			"fr": "Médaille",
 			"ar": "ميدالية",
 			"image": "res://assets/words/medal.png"
+		},
+		{
+			"id": "first",
+			"en": "First",
+			"es": "Primero",
+			"fr": "Premier",
+			"ar": "الأول"
 		},
 		{
 			"id": "shoe",
@@ -2120,6 +2901,13 @@
 			"image": "res://assets/words/shoe.png"
 		},
 		{
+			"id": "second",
+			"en": "Second",
+			"es": "Segundo",
+			"fr": "Deuxième",
+			"ar": "الثاني"
+		},
+		{
 			"id": "boot",
 			"en": "Boot",
 			"es": "Bota",
@@ -2128,12 +2916,26 @@
 			"image": "res://assets/words/boot.png"
 		},
 		{
+			"id": "last",
+			"en": "Last",
+			"es": "Último",
+			"fr": "Dernier",
+			"ar": "الأخير"
+		},
+		{
 			"id": "student",
 			"en": "Student",
 			"es": "Estudiante",
 			"fr": "Étudiant",
 			"ar": "طالب",
 			"image": "res://assets/words/student.png"
+		},
+		{
+			"id": "half",
+			"en": "Half",
+			"es": "Mitad",
+			"fr": "Moitié",
+			"ar": "نصف"
 		},
 		{
 			"id": "bone",
@@ -2152,12 +2954,26 @@
 			"image": "res://assets/words/bathe.png"
 		},
 		{
+			"id": "zero",
+			"en": "Zero",
+			"es": "Cero",
+			"fr": "Zéro",
+			"ar": "صفر"
+		},
+		{
 			"id": "cold",
 			"en": "Cold",
 			"es": "Frío",
 			"fr": "Froid",
 			"ar": "بارد",
 			"image": "res://assets/words/cold.png"
+		},
+		{
+			"id": "red",
+			"en": "Red",
+			"es": "Rojo",
+			"fr": "Rouge",
+			"ar": "أحمر"
 		},
 		{
 			"id": "camel",
@@ -2168,6 +2984,13 @@
 			"image": "res://assets/words/camel.png"
 		},
 		{
+			"id": "blue",
+			"en": "Blue",
+			"es": "Azul",
+			"fr": "Bleu",
+			"ar": "أزرق"
+		},
+		{
 			"id": "llama",
 			"en": "Llama",
 			"es": "Llama",
@@ -2176,12 +2999,26 @@
 			"image": "res://assets/words/llama.png"
 		},
 		{
+			"id": "green",
+			"en": "Green",
+			"es": "Verde",
+			"fr": "Vert",
+			"ar": "أخضر"
+		},
+		{
 			"id": "cactus",
 			"en": "Cactus",
 			"es": "Cactus",
 			"fr": "Cactus",
 			"ar": "صبار",
 			"image": "res://assets/words/cactus.png"
+		},
+		{
+			"id": "yellow",
+			"en": "Yellow",
+			"es": "Amarillo",
+			"fr": "Jaune",
+			"ar": "أصفر"
 		},
 		{
 			"id": "pancakes",
@@ -2200,12 +3037,26 @@
 			"image": "res://assets/words/waffle.png"
 		},
 		{
+			"id": "black",
+			"en": "Black",
+			"es": "Negro",
+			"fr": "Noir",
+			"ar": "أسود"
+		},
+		{
 			"id": "museum",
 			"en": "Museum",
 			"es": "Museo",
 			"fr": "Musée",
 			"ar": "متحف",
 			"image": "res://assets/words/museum.png"
+		},
+		{
+			"id": "white",
+			"en": "White",
+			"es": "Blanco",
+			"fr": "Blanc",
+			"ar": "أبيض"
 		},
 		{
 			"id": "taxi",
@@ -2216,6 +3067,13 @@
 			"image": "res://assets/words/taxi.png"
 		},
 		{
+			"id": "brown",
+			"en": "Brown",
+			"es": "Marrón",
+			"fr": "Marron",
+			"ar": "بني"
+		},
+		{
 			"id": "galaxy",
 			"en": "Galaxy",
 			"es": "Galaxia",
@@ -2224,12 +3082,26 @@
 			"image": "res://assets/words/galaxy.png"
 		},
 		{
+			"id": "pink",
+			"en": "Pink",
+			"es": "Rosa",
+			"fr": "Rose",
+			"ar": "وردي"
+		},
+		{
 			"id": "football",
 			"en": "Football",
 			"es": "Fútbol",
 			"fr": "Football",
 			"ar": "كرة قدم",
 			"image": "res://assets/words/football.png"
+		},
+		{
+			"id": "purple",
+			"en": "Purple",
+			"es": "Morado",
+			"fr": "Violet",
+			"ar": "بنفسجي"
 		},
 		{
 			"id": "high_heel",
@@ -2248,12 +3120,26 @@
 			"image": "res://assets/words/crown.png"
 		},
 		{
+			"id": "grey",
+			"en": "Grey",
+			"es": "Gris",
+			"fr": "Gris",
+			"ar": "رمادي"
+		},
+		{
 			"id": "teacher",
 			"en": "Teacher",
 			"es": "Maestro",
 			"fr": "Professeur",
 			"ar": "معلم",
 			"image": "res://assets/words/teacher.png"
+		},
+		{
+			"id": "monday",
+			"en": "Monday",
+			"es": "Lunes",
+			"fr": "Lundi",
+			"ar": "الاثنين"
 		},
 		{
 			"id": "eye",
@@ -2264,12 +3150,26 @@
 			"image": "res://assets/words/eye.png"
 		},
 		{
+			"id": "tuesday",
+			"en": "Tuesday",
+			"es": "Martes",
+			"fr": "Mardi",
+			"ar": "الثلاثاء"
+		},
+		{
 			"id": "juggle",
 			"en": "Juggle",
 			"es": "Hacer malabares",
 			"fr": "Jongler",
 			"ar": "يشعوذ",
 			"image": "res://assets/words/juggle.png"
+		},
+		{
+			"id": "wednesday",
+			"en": "Wednesday",
+			"es": "Miércoles",
+			"fr": "Mercredi",
+			"ar": "الأربعاء"
 		},
 		{
 			"id": "sick",
@@ -2288,12 +3188,26 @@
 			"image": "res://assets/words/giraffe.png"
 		},
 		{
+			"id": "thursday",
+			"en": "Thursday",
+			"es": "Jueves",
+			"fr": "Jeudi",
+			"ar": "الخميس"
+		},
+		{
 			"id": "mammoth",
 			"en": "Mammoth",
 			"es": "Mamut",
 			"fr": "Mammouth",
 			"ar": "ماموث",
 			"image": "res://assets/words/mammoth.png"
+		},
+		{
+			"id": "friday",
+			"en": "Friday",
+			"es": "Viernes",
+			"fr": "Vendredi",
+			"ar": "الجمعة"
 		},
 		{
 			"id": "rice_plant",
@@ -2304,6 +3218,13 @@
 			"image": "res://assets/words/rice_plant.png"
 		},
 		{
+			"id": "saturday",
+			"en": "Saturday",
+			"es": "Sábado",
+			"fr": "Samedi",
+			"ar": "السبت"
+		},
+		{
 			"id": "cheese",
 			"en": "Cheese",
 			"es": "Queso",
@@ -2312,12 +3233,26 @@
 			"image": "res://assets/words/cheese.png"
 		},
 		{
+			"id": "sunday",
+			"en": "Sunday",
+			"es": "Domingo",
+			"fr": "Dimanche",
+			"ar": "الأحد"
+		},
+		{
 			"id": "meat",
 			"en": "Meat",
 			"es": "Carne",
 			"fr": "Viande",
 			"ar": "لحم",
 			"image": "res://assets/words/meat.png"
+		},
+		{
+			"id": "january",
+			"en": "January",
+			"es": "Enero",
+			"fr": "Janvier",
+			"ar": "يناير"
 		},
 		{
 			"id": "crane",
@@ -2336,12 +3271,26 @@
 			"image": "res://assets/words/car.png"
 		},
 		{
+			"id": "february",
+			"en": "February",
+			"es": "Febrero",
+			"fr": "Février",
+			"ar": "فبراير"
+		},
+		{
 			"id": "cloud",
 			"en": "Cloud",
 			"es": "Nube",
 			"fr": "Nuage",
 			"ar": "سحابة",
 			"image": "res://assets/words/cloud.png"
+		},
+		{
+			"id": "march",
+			"en": "March",
+			"es": "Marzo",
+			"fr": "Mars",
+			"ar": "مارس"
 		},
 		{
 			"id": "baseball",
@@ -2352,6 +3301,13 @@
 			"image": "res://assets/words/baseball.png"
 		},
 		{
+			"id": "april",
+			"en": "April",
+			"es": "Abril",
+			"fr": "Avril",
+			"ar": "أبريل"
+		},
+		{
 			"id": "hat",
 			"en": "Hat",
 			"es": "Sombrero",
@@ -2360,12 +3316,26 @@
 			"image": "res://assets/words/hat.png"
 		},
 		{
+			"id": "may",
+			"en": "May",
+			"es": "Mayo",
+			"fr": "Mai",
+			"ar": "مايو"
+		},
+		{
 			"id": "graduation",
 			"en": "Graduation",
 			"es": "Graduación",
 			"fr": "Diplôme",
 			"ar": "تخرج",
 			"image": "res://assets/words/graduation.png"
+		},
+		{
+			"id": "june",
+			"en": "June",
+			"es": "Junio",
+			"fr": "Juin",
+			"ar": "يونيو"
 		},
 		{
 			"id": "judge",
@@ -2384,12 +3354,26 @@
 			"image": "res://assets/words/tongue.png"
 		},
 		{
+			"id": "july",
+			"en": "July",
+			"es": "Julio",
+			"fr": "Juillet",
+			"ar": "يوليو"
+		},
+		{
 			"id": "hug",
 			"en": "Hug",
 			"es": "Abrazar",
 			"fr": "Enlacer",
 			"ar": "يعانق",
 			"image": "res://assets/words/hug.png"
+		},
+		{
+			"id": "august",
+			"en": "August",
+			"es": "Agosto",
+			"fr": "Août",
+			"ar": "أغسطس"
 		},
 		{
 			"id": "worried",
@@ -2400,6 +3384,13 @@
 			"image": "res://assets/words/worried.png"
 		},
 		{
+			"id": "september",
+			"en": "September",
+			"es": "Septiembre",
+			"fr": "Septembre",
+			"ar": "سبتمبر"
+		},
+		{
 			"id": "rhinoceros",
 			"en": "Rhinoceros",
 			"es": "Rinoceronte",
@@ -2408,12 +3399,26 @@
 			"image": "res://assets/words/rhinoceros.png"
 		},
 		{
+			"id": "october",
+			"en": "October",
+			"es": "Octubre",
+			"fr": "Octobre",
+			"ar": "أكتوبر"
+		},
+		{
 			"id": "hippo",
 			"en": "Hippo",
 			"es": "Hipopótamo",
 			"fr": "Hippopotame",
 			"ar": "فرس النهر",
 			"image": "res://assets/words/hippo.png"
+		},
+		{
+			"id": "november",
+			"en": "November",
+			"es": "Noviembre",
+			"fr": "Novembre",
+			"ar": "نوفمبر"
 		},
 		{
 			"id": "herb",
@@ -2432,12 +3437,26 @@
 			"image": "res://assets/words/drumstick.png"
 		},
 		{
+			"id": "december",
+			"en": "December",
+			"es": "Diciembre",
+			"fr": "Décembre",
+			"ar": "ديسمبر"
+		},
+		{
 			"id": "bacon",
 			"en": "Bacon",
 			"es": "Tocino",
 			"fr": "Bacon",
 			"ar": "لحم مقدد",
 			"image": "res://assets/words/bacon.png"
+		},
+		{
+			"id": "spring",
+			"en": "Spring",
+			"es": "Primavera",
+			"fr": "Printemps",
+			"ar": "ربيع"
 		},
 		{
 			"id": "brick",
@@ -2448,6 +3467,13 @@
 			"image": "res://assets/words/brick.png"
 		},
 		{
+			"id": "summer",
+			"en": "Summer",
+			"es": "Verano",
+			"fr": "Été",
+			"ar": "صيف"
+		},
+		{
 			"id": "truck",
 			"en": "Truck",
 			"es": "Camión",
@@ -2456,12 +3482,26 @@
 			"image": "res://assets/words/truck.png"
 		},
 		{
+			"id": "autumn",
+			"en": "Autumn",
+			"es": "Otoño",
+			"fr": "Automne",
+			"ar": "خريف"
+		},
+		{
 			"id": "rain",
 			"en": "Rain",
 			"es": "Lluvia",
 			"fr": "Pluie",
 			"ar": "مطر",
 			"image": "res://assets/words/rain.png"
+		},
+		{
+			"id": "winter",
+			"en": "Winter",
+			"es": "Invierno",
+			"fr": "Hiver",
+			"ar": "شتاء"
 		},
 		{
 			"id": "basketball",
@@ -2480,12 +3520,26 @@
 			"image": "res://assets/words/cap.png"
 		},
 		{
+			"id": "day",
+			"en": "Day",
+			"es": "Día",
+			"fr": "Jour",
+			"ar": "يوم"
+		},
+		{
 			"id": "lipstick",
 			"en": "Lipstick",
 			"es": "Pintalabios",
 			"fr": "Rouge à lèvres",
 			"ar": "أحمر شفاه",
 			"image": "res://assets/words/lipstick.png"
+		},
+		{
+			"id": "week",
+			"en": "Week",
+			"es": "Semana",
+			"fr": "Semaine",
+			"ar": "أسبوع"
 		},
 		{
 			"id": "farmer",
@@ -2496,12 +3550,26 @@
 			"image": "res://assets/words/farmer.png"
 		},
 		{
+			"id": "month",
+			"en": "Month",
+			"es": "Mes",
+			"fr": "Mois",
+			"ar": "شهر"
+		},
+		{
 			"id": "mouth",
 			"en": "Mouth",
 			"es": "Boca",
 			"fr": "Bouche",
 			"ar": "فم",
 			"image": "res://assets/words/mouth.png"
+		},
+		{
+			"id": "year",
+			"en": "Year",
+			"es": "Año",
+			"fr": "An",
+			"ar": "سنة"
 		},
 		{
 			"id": "clap",
@@ -2520,12 +3588,26 @@
 			"image": "res://assets/words/yawn.png"
 		},
 		{
+			"id": "hour",
+			"en": "Hour",
+			"es": "Hora",
+			"fr": "Heure",
+			"ar": "ساعة"
+		},
+		{
 			"id": "rat",
 			"en": "Rat",
 			"es": "Rata",
 			"fr": "Rat",
 			"ar": "جرذ",
 			"image": "res://assets/words/rat.png"
+		},
+		{
+			"id": "minute",
+			"en": "Minute",
+			"es": "Minuto",
+			"fr": "Minute",
+			"ar": "دقيقة"
 		},
 		{
 			"id": "hamster",
@@ -2536,6 +3618,13 @@
 			"image": "res://assets/words/hamster.png"
 		},
 		{
+			"id": "morning",
+			"en": "Morning",
+			"es": "Mañana",
+			"fr": "Matin",
+			"ar": "صباح"
+		},
+		{
 			"id": "clover",
 			"en": "Clover",
 			"es": "Trébol",
@@ -2544,12 +3633,26 @@
 			"image": "res://assets/words/clover.png"
 		},
 		{
+			"id": "evening",
+			"en": "Evening",
+			"es": "Tarde",
+			"fr": "Soir",
+			"ar": "مساء"
+		},
+		{
 			"id": "hamburger",
 			"en": "Hamburger",
 			"es": "Hamburguesa",
 			"fr": "Hamburger",
 			"ar": "برغر",
 			"image": "res://assets/words/hamburger.png"
+		},
+		{
+			"id": "time",
+			"en": "Time",
+			"es": "Tiempo",
+			"fr": "Temps",
+			"ar": "وقت"
 		},
 		{
 			"id": "fries",
@@ -2568,12 +3671,26 @@
 			"image": "res://assets/words/rock.png"
 		},
 		{
+			"id": "life",
+			"en": "Life",
+			"es": "Vida",
+			"fr": "Vie",
+			"ar": "حياة"
+		},
+		{
 			"id": "tractor",
 			"en": "Tractor",
 			"es": "Tractor",
 			"fr": "Tracteur",
 			"ar": "جرار",
 			"image": "res://assets/words/tractor.png"
+		},
+		{
+			"id": "death",
+			"en": "Death",
+			"es": "Muerte",
+			"fr": "Mort",
+			"ar": "موت"
 		},
 		{
 			"id": "snow",
@@ -2584,6 +3701,13 @@
 			"image": "res://assets/words/snow.png"
 		},
 		{
+			"id": "name",
+			"en": "Name",
+			"es": "Nombre",
+			"fr": "Nom",
+			"ar": "اسم"
+		},
+		{
 			"id": "volleyball",
 			"en": "Volleyball",
 			"es": "Voleibol",
@@ -2592,12 +3716,26 @@
 			"image": "res://assets/words/volleyball.png"
 		},
 		{
+			"id": "word",
+			"en": "Word",
+			"es": "Palabra",
+			"fr": "Mot",
+			"ar": "كلمة"
+		},
+		{
 			"id": "ring",
 			"en": "Ring",
 			"es": "Anillo",
 			"fr": "Bague",
 			"ar": "خاتم",
 			"image": "res://assets/words/ring.png"
+		},
+		{
+			"id": "language",
+			"en": "Language",
+			"es": "Idioma",
+			"fr": "Langue",
+			"ar": "لغة"
 		},
 		{
 			"id": "diamond",
@@ -2616,12 +3754,26 @@
 			"image": "res://assets/words/cook.png"
 		},
 		{
+			"id": "question",
+			"en": "Question",
+			"es": "Pregunta",
+			"fr": "Question",
+			"ar": "سؤال"
+		},
+		{
 			"id": "arm",
 			"en": "Arm",
 			"es": "Brazo",
 			"fr": "Bras",
 			"ar": "ذراع",
 			"image": "res://assets/words/arm.png"
+		},
+		{
+			"id": "answer",
+			"en": "Answer",
+			"es": "Respuesta",
+			"fr": "Réponse",
+			"ar": "جواب"
 		},
 		{
 			"id": "wave_hello",
@@ -2632,6 +3784,13 @@
 			"image": "res://assets/words/wave_hello.png"
 		},
 		{
+			"id": "idea",
+			"en": "Idea",
+			"es": "Idea",
+			"fr": "Idée",
+			"ar": "فكرة"
+		},
+		{
 			"id": "love",
 			"en": "Love",
 			"es": "Amor",
@@ -2640,12 +3799,26 @@
 			"image": "res://assets/words/love.png"
 		},
 		{
+			"id": "problem",
+			"en": "Problem",
+			"es": "Problema",
+			"fr": "Problème",
+			"ar": "مشكلة"
+		},
+		{
 			"id": "beaver",
 			"en": "Beaver",
 			"es": "Castor",
 			"fr": "Castor",
 			"ar": "قندس",
 			"image": "res://assets/words/beaver.png"
+		},
+		{
+			"id": "reason",
+			"en": "Reason",
+			"es": "Razón",
+			"fr": "Raison",
+			"ar": "سبب"
 		},
 		{
 			"id": "bat",
@@ -2664,12 +3837,26 @@
 			"image": "res://assets/words/nest.png"
 		},
 		{
+			"id": "example",
+			"en": "Example",
+			"es": "Ejemplo",
+			"fr": "Exemple",
+			"ar": "مثال"
+		},
+		{
 			"id": "pizza",
 			"en": "Pizza",
 			"es": "Pizza",
 			"fr": "Pizza",
 			"ar": "بيتزا",
 			"image": "res://assets/words/pizza.png"
+		},
+		{
+			"id": "number",
+			"en": "Number",
+			"es": "Número",
+			"fr": "Numéro",
+			"ar": "رقم"
 		},
 		{
 			"id": "hot_dog",
@@ -2680,12 +3867,26 @@
 			"image": "res://assets/words/hot_dog.png"
 		},
 		{
+			"id": "letter",
+			"en": "Letter",
+			"es": "Letra",
+			"fr": "Lettre",
+			"ar": "حرف"
+		},
+		{
 			"id": "wood",
 			"en": "Wood",
 			"es": "Madera",
 			"fr": "Bois",
 			"ar": "خشب",
 			"image": "res://assets/words/wood.png"
+		},
+		{
+			"id": "thing",
+			"en": "Thing",
+			"es": "Cosa",
+			"fr": "Chose",
+			"ar": "شيء"
 		},
 		{
 			"id": "racing_car",
@@ -2704,12 +3905,26 @@
 			"image": "res://assets/words/lightning.png"
 		},
 		{
+			"id": "place",
+			"en": "Place",
+			"es": "Lugar",
+			"fr": "Lieu",
+			"ar": "مكان"
+		},
+		{
 			"id": "rugby",
 			"en": "Rugby",
 			"es": "Rugby",
 			"fr": "Rugby",
 			"ar": "رغبي",
 			"image": "res://assets/words/rugby.png"
+		},
+		{
+			"id": "way",
+			"en": "Way",
+			"es": "Camino",
+			"fr": "Chemin",
+			"ar": "طريق"
 		},
 		{
 			"id": "loudspeaker",
@@ -2720,6 +3935,13 @@
 			"image": "res://assets/words/loudspeaker.png"
 		},
 		{
+			"id": "work",
+			"en": "Work",
+			"es": "Trabajo",
+			"fr": "Travail",
+			"ar": "عمل"
+		},
+		{
 			"id": "megaphone",
 			"en": "Megaphone",
 			"es": "Megáfono",
@@ -2728,12 +3950,26 @@
 			"image": "res://assets/words/megaphone.png"
 		},
 		{
+			"id": "friend",
+			"en": "Friend",
+			"es": "Amigo",
+			"fr": "Ami",
+			"ar": "صديق"
+		},
+		{
 			"id": "mechanic",
 			"en": "Mechanic",
 			"es": "Mecánico",
 			"fr": "Mécanicien",
 			"ar": "ميكانيكي",
 			"image": "res://assets/words/mechanic.png"
+		},
+		{
+			"id": "family",
+			"en": "Family",
+			"es": "Familia",
+			"fr": "Famille",
+			"ar": "عائلة"
 		},
 		{
 			"id": "fingerprint",
@@ -2752,12 +3988,26 @@
 			"image": "res://assets/words/write.png"
 		},
 		{
+			"id": "mother",
+			"en": "Mother",
+			"es": "Madre",
+			"fr": "Mère",
+			"ar": "أم"
+		},
+		{
 			"id": "broken_heart",
 			"en": "Broken heart",
 			"es": "Desamor",
 			"fr": "Cœur brisé",
 			"ar": "قلب محطم",
 			"image": "res://assets/words/broken_heart.png"
+		},
+		{
+			"id": "father",
+			"en": "Father",
+			"es": "Padre",
+			"fr": "Père",
+			"ar": "أب"
 		},
 		{
 			"id": "bear",
@@ -2768,6 +4018,13 @@
 			"image": "res://assets/words/bear.png"
 		},
 		{
+			"id": "brother",
+			"en": "Brother",
+			"es": "Hermano",
+			"fr": "Frère",
+			"ar": "أخ"
+		},
+		{
 			"id": "polar_bear",
 			"en": "Polar bear",
 			"es": "Oso polar",
@@ -2776,12 +4033,26 @@
 			"image": "res://assets/words/polar_bear.png"
 		},
 		{
+			"id": "sister",
+			"en": "Sister",
+			"es": "Hermana",
+			"fr": "Sœur",
+			"ar": "أخت"
+		},
+		{
 			"id": "sandwich",
 			"en": "Sandwich",
 			"es": "Bocadillo",
 			"fr": "Sandwich",
 			"ar": "شطيرة",
 			"image": "res://assets/words/sandwich.png"
+		},
+		{
+			"id": "son",
+			"en": "Son",
+			"es": "Hijo",
+			"fr": "Fils",
+			"ar": "ابن"
 		},
 		{
 			"id": "taco",
@@ -2800,12 +4071,26 @@
 			"image": "res://assets/words/hut.png"
 		},
 		{
+			"id": "daughter",
+			"en": "Daughter",
+			"es": "Hija",
+			"fr": "Fille",
+			"ar": "ابنة"
+		},
+		{
 			"id": "motorcycle",
 			"en": "Motorcycle",
 			"es": "Moto",
 			"fr": "Moto",
 			"ar": "دراجة نارية",
 			"image": "res://assets/words/motorcycle.png"
+		},
+		{
+			"id": "husband",
+			"en": "Husband",
+			"es": "Marido",
+			"fr": "Mari",
+			"ar": "زوج"
 		},
 		{
 			"id": "tornado",
@@ -2816,6 +4101,13 @@
 			"image": "res://assets/words/tornado.png"
 		},
 		{
+			"id": "wife",
+			"en": "Wife",
+			"es": "Esposa",
+			"fr": "Épouse",
+			"ar": "زوجة"
+		},
+		{
 			"id": "tennis",
 			"en": "Tennis",
 			"es": "Tenis",
@@ -2824,12 +4116,26 @@
 			"image": "res://assets/words/tennis.png"
 		},
 		{
+			"id": "grandfather",
+			"en": "Grandfather",
+			"es": "Abuelo",
+			"fr": "Grand-père",
+			"ar": "جد"
+		},
+		{
 			"id": "music",
 			"en": "Music",
 			"es": "Música",
 			"fr": "Musique",
 			"ar": "موسيقى",
 			"image": "res://assets/words/music.png"
+		},
+		{
+			"id": "grandmother",
+			"en": "Grandmother",
+			"es": "Abuela",
+			"fr": "Grand-mère",
+			"ar": "جدة"
 		},
 		{
 			"id": "microphone",
@@ -2848,12 +4154,26 @@
 			"image": "res://assets/words/employee.png"
 		},
 		{
+			"id": "uncle",
+			"en": "Uncle",
+			"es": "Tío",
+			"fr": "Oncle",
+			"ar": "عم"
+		},
+		{
 			"id": "footprints",
 			"en": "Footprints",
 			"es": "Pisadas",
 			"fr": "Traces",
 			"ar": "آثار أقدام",
 			"image": "res://assets/words/footprints.png"
+		},
+		{
+			"id": "aunt",
+			"en": "Aunt",
+			"es": "Tía",
+			"fr": "Tante",
+			"ar": "عمة"
 		},
 		{
 			"id": "think",
@@ -2864,6 +4184,13 @@
 			"image": "res://assets/words/think.png"
 		},
 		{
+			"id": "cousin",
+			"en": "Cousin",
+			"es": "Primo",
+			"fr": "Cousin",
+			"ar": "ابن عم"
+		},
+		{
 			"id": "koala",
 			"en": "Koala",
 			"es": "Koala",
@@ -2872,12 +4199,26 @@
 			"image": "res://assets/words/koala.png"
 		},
 		{
+			"id": "neighbor",
+			"en": "Neighbor",
+			"es": "Vecino",
+			"fr": "Voisin",
+			"ar": "جار"
+		},
+		{
 			"id": "sloth",
 			"en": "Sloth",
 			"es": "Perezoso",
 			"fr": "Paresseux",
 			"ar": "كسلان",
 			"image": "res://assets/words/sloth.png"
+		},
+		{
+			"id": "guest",
+			"en": "Guest",
+			"es": "Invitado",
+			"fr": "Invité",
+			"ar": "ضيف"
 		},
 		{
 			"id": "burrito",
@@ -2896,12 +4237,26 @@
 			"image": "res://assets/words/falafel.png"
 		},
 		{
+			"id": "people",
+			"en": "People",
+			"es": "Gente",
+			"fr": "Gens",
+			"ar": "ناس"
+		},
+		{
 			"id": "house",
 			"en": "House",
 			"es": "Casa",
 			"fr": "Maison",
 			"ar": "منزل",
 			"image": "res://assets/words/house.png"
+		},
+		{
+			"id": "country",
+			"en": "Country",
+			"es": "País",
+			"fr": "Pays",
+			"ar": "بلد"
 		},
 		{
 			"id": "scooter",
@@ -2912,12 +4267,26 @@
 			"image": "res://assets/words/scooter.png"
 		},
 		{
+			"id": "world",
+			"en": "World",
+			"es": "Mundo",
+			"fr": "Monde",
+			"ar": "عالم"
+		},
+		{
 			"id": "fog",
 			"en": "Fog",
 			"es": "Niebla",
 			"fr": "Brouillard",
 			"ar": "ضباب",
 			"image": "res://assets/words/fog.png"
+		},
+		{
+			"id": "government",
+			"en": "Government",
+			"es": "Gobierno",
+			"fr": "État",
+			"ar": "حكومة"
 		},
 		{
 			"id": "bowling",
@@ -2936,12 +4305,26 @@
 			"image": "res://assets/words/headphones.png"
 		},
 		{
+			"id": "law",
+			"en": "Law",
+			"es": "Ley",
+			"fr": "Loi",
+			"ar": "قانون"
+		},
+		{
 			"id": "radio",
 			"en": "Radio",
 			"es": "Radio",
 			"fr": "Radio",
 			"ar": "مذياع",
 			"image": "res://assets/words/radio.png"
+		},
+		{
+			"id": "war",
+			"en": "War",
+			"es": "Guerra",
+			"fr": "Guerre",
+			"ar": "حرب"
 		},
 		{
 			"id": "singer",
@@ -2952,6 +4335,13 @@
 			"image": "res://assets/words/singer.png"
 		},
 		{
+			"id": "peace",
+			"en": "Peace",
+			"es": "Paz",
+			"fr": "Paix",
+			"ar": "سلام"
+		},
+		{
 			"id": "dance",
 			"en": "Dance",
 			"es": "Bailar",
@@ -2960,12 +4350,26 @@
 			"image": "res://assets/words/dance.png"
 		},
 		{
+			"id": "history",
+			"en": "History",
+			"es": "Historia",
+			"fr": "Histoire",
+			"ar": "تاريخ"
+		},
+		{
 			"id": "otter",
 			"en": "Otter",
 			"es": "Nutria",
 			"fr": "Loutre",
 			"ar": "قضاعة",
 			"image": "res://assets/words/otter.png"
+		},
+		{
+			"id": "future",
+			"en": "Future",
+			"es": "Futuro",
+			"fr": "Futur",
+			"ar": "مستقبل"
 		},
 		{
 			"id": "skunk",
@@ -2984,12 +4388,26 @@
 			"image": "res://assets/words/egg.png"
 		},
 		{
+			"id": "past",
+			"en": "Past",
+			"es": "Pasado",
+			"fr": "Passé",
+			"ar": "ماض"
+		},
+		{
 			"id": "office",
 			"en": "Office",
 			"es": "Oficina",
 			"fr": "Bureau",
 			"ar": "مكتب",
 			"image": "res://assets/words/office.png"
+		},
+		{
+			"id": "truth",
+			"en": "Truth",
+			"es": "Verdad",
+			"fr": "Vérité",
+			"ar": "حقيقة"
 		},
 		{
 			"id": "bicycle",
@@ -3000,6 +4418,13 @@
 			"image": "res://assets/words/bicycle.png"
 		},
 		{
+			"id": "freedom",
+			"en": "Freedom",
+			"es": "Libertad",
+			"fr": "Liberté",
+			"ar": "حرية"
+		},
+		{
 			"id": "wind",
 			"en": "Wind",
 			"es": "Viento",
@@ -3008,12 +4433,26 @@
 			"image": "res://assets/words/wind.png"
 		},
 		{
+			"id": "hope",
+			"en": "Hope",
+			"es": "Esperanza",
+			"fr": "Espoir",
+			"ar": "أمل"
+		},
+		{
 			"id": "table_tennis",
 			"en": "Table tennis",
 			"es": "Ping-pong",
 			"fr": "Ping-pong",
 			"ar": "كرة طاولة",
 			"image": "res://assets/words/table_tennis.png"
+		},
+		{
+			"id": "dream",
+			"en": "Dream",
+			"es": "Sueño",
+			"fr": "Rêve",
+			"ar": "حلم"
 		},
 		{
 			"id": "saxophone",
@@ -3032,12 +4471,26 @@
 			"image": "res://assets/words/trumpet.png"
 		},
 		{
+			"id": "fear",
+			"en": "Fear",
+			"es": "Miedo",
+			"fr": "Peur",
+			"ar": "خوف"
+		},
+		{
 			"id": "artist",
 			"en": "Artist",
 			"es": "Artista",
 			"fr": "Artiste",
 			"ar": "فنان",
 			"image": "res://assets/words/artist.png"
+		},
+		{
+			"id": "joy",
+			"en": "Joy",
+			"es": "Alegría",
+			"fr": "Joie",
+			"ar": "فرح"
 		},
 		{
 			"id": "speak",
@@ -3048,6 +4501,13 @@
 			"image": "res://assets/words/speak.png"
 		},
 		{
+			"id": "pain",
+			"en": "Pain",
+			"es": "Dolor",
+			"fr": "Douleur",
+			"ar": "ألم"
+		},
+		{
 			"id": "kangaroo",
 			"en": "Kangaroo",
 			"es": "Canguro",
@@ -3056,12 +4516,26 @@
 			"image": "res://assets/words/kangaroo.png"
 		},
 		{
+			"id": "health",
+			"en": "Health",
+			"es": "Salud",
+			"fr": "Santé",
+			"ar": "صحة"
+		},
+		{
 			"id": "fried_egg",
 			"en": "Fried egg",
 			"es": "Huevo frito",
 			"fr": "Œuf au plat",
 			"ar": "بيض مقلي",
 			"image": "res://assets/words/fried_egg.png"
+		},
+		{
+			"id": "strength",
+			"en": "Strength",
+			"es": "Fuerza",
+			"fr": "Force",
+			"ar": "قوة"
 		},
 		{
 			"id": "post_office",
@@ -3080,12 +4554,26 @@
 			"image": "res://assets/words/skateboard.png"
 		},
 		{
+			"id": "beauty",
+			"en": "Beauty",
+			"es": "Belleza",
+			"fr": "Beauté",
+			"ar": "جمال"
+		},
+		{
 			"id": "rainbow",
 			"en": "Rainbow",
 			"es": "Arcoíris",
 			"fr": "Arc-en-ciel",
 			"ar": "قوس قزح",
 			"image": "res://assets/words/rainbow.png"
+		},
+		{
+			"id": "luck",
+			"en": "Luck",
+			"es": "Suerte",
+			"fr": "Chance",
+			"ar": "حظ"
 		},
 		{
 			"id": "badminton",
@@ -3096,12 +4584,26 @@
 			"image": "res://assets/words/badminton.png"
 		},
 		{
+			"id": "success",
+			"en": "Success",
+			"es": "Éxito",
+			"fr": "Succès",
+			"ar": "نجاح"
+		},
+		{
 			"id": "accordion",
 			"en": "Accordion",
 			"es": "Acordeón",
 			"fr": "Accordéon",
 			"ar": "أكورديون",
 			"image": "res://assets/words/accordion.png"
+		},
+		{
+			"id": "mistake",
+			"en": "Mistake",
+			"es": "Error",
+			"fr": "Erreur",
+			"ar": "خطأ"
 		},
 		{
 			"id": "guitar",
@@ -3120,12 +4622,26 @@
 			"image": "res://assets/words/pilot.png"
 		},
 		{
+			"id": "rule",
+			"en": "Rule",
+			"es": "Regla",
+			"fr": "Règle",
+			"ar": "قاعدة"
+		},
+		{
 			"id": "badger",
 			"en": "Badger",
 			"es": "Tejón",
 			"fr": "Blaireau",
 			"ar": "غرير",
 			"image": "res://assets/words/badger.png"
+		},
+		{
+			"id": "price",
+			"en": "Price",
+			"es": "Precio",
+			"fr": "Prix",
+			"ar": "سعر"
 		},
 		{
 			"id": "stew",
@@ -3136,6 +4652,13 @@
 			"image": "res://assets/words/stew.png"
 		},
 		{
+			"id": "lesson",
+			"en": "Lesson",
+			"es": "Lección",
+			"fr": "Leçon",
+			"ar": "درس"
+		},
+		{
 			"id": "hospital",
 			"en": "Hospital",
 			"es": "Hospital",
@@ -3144,12 +4667,26 @@
 			"image": "res://assets/words/hospital.png"
 		},
 		{
+			"id": "class",
+			"en": "Class",
+			"es": "Clase",
+			"fr": "Classe",
+			"ar": "صف"
+		},
+		{
 			"id": "bus_stop",
 			"en": "Bus stop",
 			"es": "Parada",
 			"fr": "Arrêt de bus",
 			"ar": "موقف حافلات",
 			"image": "res://assets/words/bus_stop.png"
+		},
+		{
+			"id": "story",
+			"en": "Story",
+			"es": "Cuento",
+			"fr": "Conte",
+			"ar": "قصة"
 		},
 		{
 			"id": "snowman",
@@ -3168,12 +4705,26 @@
 			"image": "res://assets/words/boxing.png"
 		},
 		{
+			"id": "song",
+			"en": "Song",
+			"es": "Canción",
+			"fr": "Chanson",
+			"ar": "أغنية"
+		},
+		{
 			"id": "piano",
 			"en": "Piano",
 			"es": "Piano",
 			"fr": "Piano",
 			"ar": "بيانو",
 			"image": "res://assets/words/piano.png"
+		},
+		{
+			"id": "game",
+			"en": "Game",
+			"es": "Juego",
+			"fr": "Jeu",
+			"ar": "لعبة"
 		},
 		{
 			"id": "violin",
@@ -3184,6 +4735,13 @@
 			"image": "res://assets/words/violin.png"
 		},
 		{
+			"id": "sport",
+			"en": "Sport",
+			"es": "Deporte",
+			"fr": "Sport",
+			"ar": "رياضة"
+		},
+		{
 			"id": "astronaut",
 			"en": "Astronaut",
 			"es": "Astronauta",
@@ -3192,12 +4750,26 @@
 			"image": "res://assets/words/astronaut.png"
 		},
 		{
+			"id": "trip",
+			"en": "Trip",
+			"es": "Viaje",
+			"fr": "Voyage",
+			"ar": "رحلة"
+		},
+		{
 			"id": "turkey",
 			"en": "Turkey",
 			"es": "Pavo",
 			"fr": "Dinde",
 			"ar": "ديك رومي",
 			"image": "res://assets/words/turkey.png"
+		},
+		{
+			"id": "street",
+			"en": "Street",
+			"es": "Calle",
+			"fr": "Rue",
+			"ar": "شارع"
 		},
 		{
 			"id": "salad",
@@ -3216,12 +4788,26 @@
 			"image": "res://assets/words/bank.png"
 		},
 		{
+			"id": "room",
+			"en": "Room",
+			"es": "Habitación",
+			"fr": "Chambre",
+			"ar": "غرفة"
+		},
+		{
 			"id": "highway",
 			"en": "Highway",
 			"es": "Autopista",
 			"fr": "Autoroute",
 			"ar": "طريق سريع",
 			"image": "res://assets/words/highway.png"
+		},
+		{
+			"id": "kitchen",
+			"en": "Kitchen",
+			"es": "Cocina",
+			"fr": "Cuisine",
+			"ar": "مطبخ"
 		},
 		{
 			"id": "snowflake",
@@ -3232,6 +4818,13 @@
 			"image": "res://assets/words/snowflake.png"
 		},
 		{
+			"id": "bathroom",
+			"en": "Bathroom",
+			"es": "Baño",
+			"fr": "Salle de bain",
+			"ar": "حمام"
+		},
+		{
 			"id": "goal",
 			"en": "Goal",
 			"es": "Portería",
@@ -3240,12 +4833,26 @@
 			"image": "res://assets/words/goal.png"
 		},
 		{
+			"id": "garden",
+			"en": "Garden",
+			"es": "Jardín",
+			"fr": "Jardin",
+			"ar": "حديقة"
+		},
+		{
 			"id": "drum",
 			"en": "Drum",
 			"es": "Tambor",
 			"fr": "Tambour",
 			"ar": "طبل",
 			"image": "res://assets/words/drum.png"
+		},
+		{
+			"id": "floor",
+			"en": "Floor",
+			"es": "Suelo",
+			"fr": "Sol",
+			"ar": "أرضية"
 		},
 		{
 			"id": "flute",
@@ -3264,12 +4871,26 @@
 			"image": "res://assets/words/firefighter.png"
 		},
 		{
+			"id": "wall",
+			"en": "Wall",
+			"es": "Pared",
+			"fr": "Mur",
+			"ar": "جدار"
+		},
+		{
 			"id": "chicken",
 			"en": "Chicken",
 			"es": "Gallina",
 			"fr": "Poule",
 			"ar": "دجاجة",
 			"image": "res://assets/words/chicken.png"
+		},
+		{
+			"id": "sea",
+			"en": "Sea",
+			"es": "Mar",
+			"fr": "Mer",
+			"ar": "بحر"
 		},
 		{
 			"id": "popcorn",
@@ -3280,12 +4901,26 @@
 			"image": "res://assets/words/popcorn.png"
 		},
 		{
+			"id": "river",
+			"en": "River",
+			"es": "Río",
+			"fr": "Rivière",
+			"ar": "نهر"
+		},
+		{
 			"id": "hotel",
 			"en": "Hotel",
 			"es": "Hotel",
 			"fr": "Hôtel",
 			"ar": "فندق",
 			"image": "res://assets/words/hotel.png"
+		},
+		{
+			"id": "lake",
+			"en": "Lake",
+			"es": "Lago",
+			"fr": "Lac",
+			"ar": "بحيرة"
 		},
 		{
 			"id": "gas_pump",
@@ -3304,12 +4939,26 @@
 			"image": "res://assets/words/comet.png"
 		},
 		{
+			"id": "forest",
+			"en": "Forest",
+			"es": "Bosque",
+			"fr": "Forêt",
+			"ar": "غابة"
+		},
+		{
 			"id": "ice_skate",
 			"en": "Ice skate",
 			"es": "Patín",
 			"fr": "Patin",
 			"ar": "زلاجة جليد",
 			"image": "res://assets/words/ice_skate.png"
+		},
+		{
+			"id": "sky",
+			"en": "Sky",
+			"es": "Cielo",
+			"fr": "Ciel",
+			"ar": "سماء"
 		},
 		{
 			"id": "phone",
@@ -3320,6 +4969,13 @@
 			"image": "res://assets/words/phone.png"
 		},
 		{
+			"id": "air",
+			"en": "Air",
+			"es": "Aire",
+			"fr": "Air",
+			"ar": "هواء"
+		},
+		{
 			"id": "telephone",
 			"en": "Telephone",
 			"es": "Teléfono",
@@ -3328,12 +4984,26 @@
 			"image": "res://assets/words/telephone.png"
 		},
 		{
+			"id": "water",
+			"en": "Water",
+			"es": "Agua",
+			"fr": "Eau",
+			"ar": "ماء"
+		},
+		{
 			"id": "police",
 			"en": "Police",
 			"es": "Policía",
 			"fr": "Policier",
 			"ar": "شرطي",
 			"image": "res://assets/words/police.png"
+		},
+		{
+			"id": "food",
+			"en": "Food",
+			"es": "Comida",
+			"fr": "Nourriture",
+			"ar": "طعام"
 		},
 		{
 			"id": "rooster",
@@ -3352,12 +5022,26 @@
 			"image": "res://assets/words/butter.png"
 		},
 		{
+			"id": "breakfast",
+			"en": "Breakfast",
+			"es": "Desayuno",
+			"fr": "Petit déjeuner",
+			"ar": "فطور"
+		},
+		{
 			"id": "shop",
 			"en": "Shop",
 			"es": "Tienda",
 			"fr": "Magasin",
 			"ar": "متجر",
 			"image": "res://assets/words/shop.png"
+		},
+		{
+			"id": "lunch",
+			"en": "Lunch",
+			"es": "Almuerzo",
+			"fr": "Déjeuner",
+			"ar": "غداء"
 		},
 		{
 			"id": "wheel",
@@ -3368,6 +5052,13 @@
 			"image": "res://assets/words/wheel.png"
 		},
 		{
+			"id": "dinner",
+			"en": "Dinner",
+			"es": "Cena",
+			"fr": "Dîner",
+			"ar": "عشاء"
+		},
+		{
 			"id": "fire",
 			"en": "Fire",
 			"es": "Fuego",
@@ -3376,12 +5067,26 @@
 			"image": "res://assets/words/fire.png"
 		},
 		{
+			"id": "sugar",
+			"en": "Sugar",
+			"es": "Azúcar",
+			"fr": "Sucre",
+			"ar": "سكر"
+		},
+		{
 			"id": "fishing_rod",
 			"en": "Fishing rod",
 			"es": "Caña",
 			"fr": "Canne à pêche",
 			"ar": "صنارة",
 			"image": "res://assets/words/fishing_rod.png"
+		},
+		{
+			"id": "oil",
+			"en": "Oil",
+			"es": "Aceite",
+			"fr": "Huile",
+			"ar": "زيت"
 		},
 		{
 			"id": "battery",
@@ -3400,12 +5105,26 @@
 			"image": "res://assets/words/plug.png"
 		},
 		{
+			"id": "go",
+			"en": "Go",
+			"es": "Ir",
+			"fr": "Aller",
+			"ar": "يذهب"
+		},
+		{
 			"id": "detective",
 			"en": "Detective",
 			"es": "Detective",
 			"fr": "Détective",
 			"ar": "محقق",
 			"image": "res://assets/words/detective.png"
+		},
+		{
+			"id": "come",
+			"en": "Come",
+			"es": "Venir",
+			"fr": "Venir",
+			"ar": "يأتي"
 		},
 		{
 			"id": "chick",
@@ -3416,6 +5135,13 @@
 			"image": "res://assets/words/chick.png"
 		},
 		{
+			"id": "be",
+			"en": "Be",
+			"es": "Ser",
+			"fr": "Être",
+			"ar": "يكون"
+		},
+		{
 			"id": "salt",
 			"en": "Salt",
 			"es": "Sal",
@@ -3424,12 +5150,26 @@
 			"image": "res://assets/words/salt.png"
 		},
 		{
+			"id": "have",
+			"en": "Have",
+			"es": "Tener",
+			"fr": "Avoir",
+			"ar": "يملك"
+		},
+		{
 			"id": "school",
 			"en": "School",
 			"es": "Escuela",
 			"fr": "École",
 			"ar": "مدرسة",
 			"image": "res://assets/words/school.png"
+		},
+		{
+			"id": "do",
+			"en": "Do",
+			"es": "Hacer",
+			"fr": "Faire",
+			"ar": "يفعل"
 		},
 		{
 			"id": "traffic_light",
@@ -3448,12 +5188,26 @@
 			"image": "res://assets/words/water_drop.png"
 		},
 		{
+			"id": "say",
+			"en": "Say",
+			"es": "Decir",
+			"fr": "Dire",
+			"ar": "يقول"
+		},
+		{
 			"id": "diving_mask",
 			"en": "Diving mask",
 			"es": "Gafas de buceo",
 			"fr": "Masque",
 			"ar": "قناع غوص",
 			"image": "res://assets/words/diving_mask.png"
+		},
+		{
+			"id": "see",
+			"en": "See",
+			"es": "Ver",
+			"fr": "Voir",
+			"ar": "يرى"
 		},
 		{
 			"id": "laptop",
@@ -3464,6 +5218,13 @@
 			"image": "res://assets/words/laptop.png"
 		},
 		{
+			"id": "know",
+			"en": "Know",
+			"es": "Saber",
+			"fr": "Savoir",
+			"ar": "يعرف"
+		},
+		{
 			"id": "computer",
 			"en": "Computer",
 			"es": "Ordenador",
@@ -3472,12 +5233,26 @@
 			"image": "res://assets/words/computer.png"
 		},
 		{
+			"id": "want",
+			"en": "Want",
+			"es": "Querer",
+			"fr": "Vouloir",
+			"ar": "يريد"
+		},
+		{
 			"id": "guard",
 			"en": "Guard",
 			"es": "Guardia",
 			"fr": "Garde",
 			"ar": "حارس",
 			"image": "res://assets/words/guard.png"
+		},
+		{
+			"id": "must",
+			"en": "Must",
+			"es": "Deber",
+			"fr": "Devoir",
+			"ar": "يجب"
 		},
 		{
 			"id": "dove",
@@ -3496,12 +5271,26 @@
 			"image": "res://assets/words/can.png"
 		},
 		{
+			"id": "need",
+			"en": "Need",
+			"es": "Necesitar",
+			"fr": "Avoir besoin",
+			"ar": "يحتاج"
+		},
+		{
 			"id": "mall",
 			"en": "Mall",
 			"es": "Centro comercial",
 			"fr": "Grand magasin",
 			"ar": "مركز تجاري",
 			"image": "res://assets/words/mall.png"
+		},
+		{
+			"id": "like",
+			"en": "Like",
+			"es": "Gustar",
+			"fr": "Aimer",
+			"ar": "يحب"
 		},
 		{
 			"id": "stop_sign",
@@ -3512,12 +5301,26 @@
 			"image": "res://assets/words/stop_sign.png"
 		},
 		{
+			"id": "eat",
+			"en": "Eat",
+			"es": "Comer",
+			"fr": "Manger",
+			"ar": "يأكل"
+		},
+		{
 			"id": "skis",
 			"en": "Skis",
 			"es": "Esquís",
 			"fr": "Skis",
 			"ar": "زلاجات",
 			"image": "res://assets/words/skis.png"
+		},
+		{
+			"id": "drink",
+			"en": "Drink",
+			"es": "Beber",
+			"fr": "Boire",
+			"ar": "يشرب"
 		},
 		{
 			"id": "printer",
@@ -3536,12 +5339,26 @@
 			"image": "res://assets/words/keyboard.png"
 		},
 		{
+			"id": "give",
+			"en": "Give",
+			"es": "Dar",
+			"fr": "Donner",
+			"ar": "يعطي"
+		},
+		{
 			"id": "builder",
 			"en": "Builder",
 			"es": "Albañil",
 			"fr": "Maçon",
 			"ar": "بناء",
 			"image": "res://assets/words/builder.png"
+		},
+		{
+			"id": "take",
+			"en": "Take",
+			"es": "Tomar",
+			"fr": "Prendre",
+			"ar": "يأخذ"
 		},
 		{
 			"id": "eagle",
@@ -3552,6 +5369,13 @@
 			"image": "res://assets/words/eagle.png"
 		},
 		{
+			"id": "make",
+			"en": "Make",
+			"es": "Fabricar",
+			"fr": "Fabriquer",
+			"ar": "يصنع"
+		},
+		{
 			"id": "rice",
 			"en": "Rice",
 			"es": "Arroz cocido",
@@ -3560,12 +5384,26 @@
 			"image": "res://assets/words/rice.png"
 		},
 		{
+			"id": "buy",
+			"en": "Buy",
+			"es": "Comprar",
+			"fr": "Acheter",
+			"ar": "يشتري"
+		},
+		{
 			"id": "factory",
 			"en": "Factory",
 			"es": "Fábrica",
 			"fr": "Usine",
 			"ar": "مصنع",
 			"image": "res://assets/words/factory.png"
+		},
+		{
+			"id": "sell",
+			"en": "Sell",
+			"es": "Vender",
+			"fr": "Vendre",
+			"ar": "يبيع"
 		},
 		{
 			"id": "lighthouse",
@@ -3584,12 +5422,26 @@
 			"image": "res://assets/words/sled.png"
 		},
 		{
+			"id": "pay",
+			"en": "Pay",
+			"es": "Pagar",
+			"fr": "Payer",
+			"ar": "يدفع"
+		},
+		{
 			"id": "abacus",
 			"en": "Abacus",
 			"es": "Ábaco",
 			"fr": "Boulier",
 			"ar": "عداد",
 			"image": "res://assets/words/abacus.png"
+		},
+		{
+			"id": "read",
+			"en": "Read",
+			"es": "Leer",
+			"fr": "Lire",
+			"ar": "يقرأ"
 		},
 		{
 			"id": "film_camera",
@@ -3600,6 +5452,13 @@
 			"image": "res://assets/words/film_camera.png"
 		},
 		{
+			"id": "listen",
+			"en": "Listen",
+			"es": "Escuchar",
+			"fr": "Écouter",
+			"ar": "يستمع"
+		},
+		{
 			"id": "prince",
 			"en": "Prince",
 			"es": "Príncipe",
@@ -3608,12 +5467,26 @@
 			"image": "res://assets/words/prince.png"
 		},
 		{
+			"id": "look",
+			"en": "Look",
+			"es": "Mirar",
+			"fr": "Regarder",
+			"ar": "ينظر"
+		},
+		{
 			"id": "duck",
 			"en": "Duck",
 			"es": "Pato",
 			"fr": "Canard",
 			"ar": "بطة",
 			"image": "res://assets/words/duck.png"
+		},
+		{
+			"id": "learn",
+			"en": "Learn",
+			"es": "Aprender",
+			"fr": "Apprendre",
+			"ar": "يتعلم"
 		},
 		{
 			"id": "noodles",
@@ -3632,12 +5505,26 @@
 			"image": "res://assets/words/castle.png"
 		},
 		{
+			"id": "teach",
+			"en": "Teach",
+			"es": "Enseñar",
+			"fr": "Enseigner",
+			"ar": "يعلم"
+		},
+		{
 			"id": "anchor",
 			"en": "Anchor",
 			"es": "Ancla",
 			"fr": "Ancre",
 			"ar": "مرساة",
 			"image": "res://assets/words/anchor.png"
+		},
+		{
+			"id": "study",
+			"en": "Study",
+			"es": "Estudiar",
+			"fr": "Étudier",
+			"ar": "يدرس"
 		},
 		{
 			"id": "yo_yo",
@@ -3648,6 +5535,13 @@
 			"image": "res://assets/words/yo_yo.png"
 		},
 		{
+			"id": "understand",
+			"en": "Understand",
+			"es": "Entender",
+			"fr": "Comprendre",
+			"ar": "يفهم"
+		},
+		{
 			"id": "cinema",
 			"en": "Cinema",
 			"es": "Cine",
@@ -3656,12 +5550,26 @@
 			"image": "res://assets/words/cinema.png"
 		},
 		{
+			"id": "remember",
+			"en": "Remember",
+			"es": "Recordar",
+			"fr": "Se souvenir",
+			"ar": "يتذكر"
+		},
+		{
 			"id": "television",
 			"en": "Television",
 			"es": "Televisión",
 			"fr": "Télévision",
 			"ar": "تلفاز",
 			"image": "res://assets/words/television.png"
+		},
+		{
+			"id": "forget",
+			"en": "Forget",
+			"es": "Olvidar",
+			"fr": "Oublier",
+			"ar": "ينسى"
 		},
 		{
 			"id": "princess",
@@ -3680,12 +5588,26 @@
 			"image": "res://assets/words/swan.png"
 		},
 		{
+			"id": "believe",
+			"en": "Believe",
+			"es": "Creer",
+			"fr": "Croire",
+			"ar": "يصدق"
+		},
+		{
 			"id": "pasta",
 			"en": "Pasta",
 			"es": "Pasta",
 			"fr": "Pâtes",
 			"ar": "معكرونة",
 			"image": "res://assets/words/pasta.png"
+		},
+		{
+			"id": "feel",
+			"en": "Feel",
+			"es": "Sentir",
+			"fr": "Ressentir",
+			"ar": "يشعر"
 		},
 		{
 			"id": "wedding",
@@ -3696,12 +5618,26 @@
 			"image": "res://assets/words/wedding.png"
 		},
 		{
+			"id": "ask",
+			"en": "Ask",
+			"es": "Preguntar",
+			"fr": "Demander",
+			"ar": "يسأل"
+		},
+		{
 			"id": "sailboat",
 			"en": "Sailboat",
 			"es": "Velero",
 			"fr": "Voilier",
 			"ar": "مركب شراعي",
 			"image": "res://assets/words/sailboat.png"
+		},
+		{
+			"id": "help",
+			"en": "Help",
+			"es": "Ayudar",
+			"fr": "Aider",
+			"ar": "يساعد"
 		},
 		{
 			"id": "kite",
@@ -3720,12 +5656,26 @@
 			"image": "res://assets/words/camera.png"
 		},
 		{
+			"id": "to_work",
+			"en": "To work",
+			"es": "Trabajar",
+			"fr": "Travailler",
+			"ar": "يعمل"
+		},
+		{
 			"id": "magnifier",
 			"en": "Magnifier",
 			"es": "Lupa",
 			"fr": "Loupe",
 			"ar": "عدسة مكبرة",
 			"image": "res://assets/words/magnifier.png"
+		},
+		{
+			"id": "play",
+			"en": "Play",
+			"es": "Jugar",
+			"fr": "Jouer",
+			"ar": "يلعب"
 		},
 		{
 			"id": "superhero",
@@ -3736,6 +5686,13 @@
 			"image": "res://assets/words/superhero.png"
 		},
 		{
+			"id": "sing",
+			"en": "Sing",
+			"es": "Cantar",
+			"fr": "Chanter",
+			"ar": "يغني"
+		},
+		{
 			"id": "feather",
 			"en": "Feather",
 			"es": "Pluma",
@@ -3744,12 +5701,26 @@
 			"image": "res://assets/words/feather.png"
 		},
 		{
+			"id": "laugh",
+			"en": "Laugh",
+			"es": "Reír",
+			"fr": "Rire",
+			"ar": "يضحك"
+		},
+		{
 			"id": "curry",
 			"en": "Curry",
 			"es": "Curri",
 			"fr": "Curry",
 			"ar": "كاري",
 			"image": "res://assets/words/curry.png"
+		},
+		{
+			"id": "cry",
+			"en": "Cry",
+			"es": "Llorar",
+			"fr": "Pleurer",
+			"ar": "يبكي"
 		},
 		{
 			"id": "church",
@@ -3768,12 +5739,26 @@
 			"image": "res://assets/words/canoe.png"
 		},
 		{
+			"id": "smile",
+			"en": "Smile",
+			"es": "Sonreír",
+			"fr": "Sourire",
+			"ar": "يبتسم"
+		},
+		{
 			"id": "crystal_ball",
 			"en": "Crystal ball",
 			"es": "Bola de cristal",
 			"fr": "Boule de cristal",
 			"ar": "كرة بلورية",
 			"image": "res://assets/words/crystal_ball.png"
+		},
+		{
+			"id": "to_open",
+			"en": "To open",
+			"es": "Abrir",
+			"fr": "Ouvrir",
+			"ar": "يفتح"
 		},
 		{
 			"id": "candle",
@@ -3784,6 +5769,13 @@
 			"image": "res://assets/words/candle.png"
 		},
 		{
+			"id": "to_close",
+			"en": "To close",
+			"es": "Cerrar",
+			"fr": "Fermer",
+			"ar": "يغلق"
+		},
+		{
 			"id": "light_bulb",
 			"en": "Light bulb",
 			"es": "Bombilla",
@@ -3792,12 +5784,26 @@
 			"image": "res://assets/words/light_bulb.png"
 		},
 		{
+			"id": "start",
+			"en": "Start",
+			"es": "Empezar",
+			"fr": "Commencer",
+			"ar": "يبدأ"
+		},
+		{
 			"id": "fairy",
 			"en": "Fairy",
 			"es": "Hada",
 			"fr": "Fée",
 			"ar": "جنية",
 			"image": "res://assets/words/fairy.png"
+		},
+		{
+			"id": "finish",
+			"en": "Finish",
+			"es": "Terminar",
+			"fr": "Finir",
+			"ar": "ينهي"
 		},
 		{
 			"id": "peacock",
@@ -3816,12 +5822,26 @@
 			"image": "res://assets/words/sushi.png"
 		},
 		{
+			"id": "stop",
+			"en": "Stop",
+			"es": "Parar",
+			"fr": "Arrêter",
+			"ar": "يتوقف"
+		},
+		{
 			"id": "mosque",
 			"en": "Mosque",
 			"es": "Mezquita",
 			"fr": "Mosquée",
 			"ar": "مسجد",
 			"image": "res://assets/words/mosque.png"
+		},
+		{
+			"id": "wait",
+			"en": "Wait",
+			"es": "Esperar",
+			"fr": "Attendre",
+			"ar": "ينتظر"
 		},
 		{
 			"id": "cruise_ship",
@@ -3832,6 +5852,13 @@
 			"image": "res://assets/words/cruise_ship.png"
 		},
 		{
+			"id": "stay",
+			"en": "Stay",
+			"es": "Quedarse",
+			"fr": "Rester",
+			"ar": "يبقى"
+		},
+		{
 			"id": "magic_wand",
 			"en": "Magic wand",
 			"es": "Varita",
@@ -3840,12 +5867,26 @@
 			"image": "res://assets/words/magic_wand.png"
 		},
 		{
+			"id": "leave",
+			"en": "Leave",
+			"es": "Salir",
+			"fr": "Partir",
+			"ar": "يغادر"
+		},
+		{
 			"id": "flashlight",
 			"en": "Flashlight",
 			"es": "Linterna",
 			"fr": "Lampe torche",
 			"ar": "مصباح يدوي",
 			"image": "res://assets/words/flashlight.png"
+		},
+		{
+			"id": "arrive",
+			"en": "Arrive",
+			"es": "Llegar",
+			"fr": "Arriver",
+			"ar": "يصل"
 		},
 		{
 			"id": "book",
@@ -3864,12 +5905,26 @@
 			"image": "res://assets/words/vampire.png"
 		},
 		{
+			"id": "enter",
+			"en": "Enter",
+			"es": "Entrar",
+			"fr": "Entrer",
+			"ar": "يدخل"
+		},
+		{
 			"id": "parrot",
 			"en": "Parrot",
 			"es": "Loro",
 			"fr": "Perroquet",
 			"ar": "ببغاء",
 			"image": "res://assets/words/parrot.png"
+		},
+		{
+			"id": "return",
+			"en": "Return",
+			"es": "Volver",
+			"fr": "Revenir",
+			"ar": "يعود"
 		},
 		{
 			"id": "dumpling",
@@ -3880,6 +5935,13 @@
 			"image": "res://assets/words/dumpling.png"
 		},
 		{
+			"id": "travel",
+			"en": "Travel",
+			"es": "Viajar",
+			"fr": "Voyager",
+			"ar": "يسافر"
+		},
+		{
 			"id": "synagogue",
 			"en": "Synagogue",
 			"es": "Sinagoga",
@@ -3888,12 +5950,26 @@
 			"image": "res://assets/words/synagogue.png"
 		},
 		{
+			"id": "drive",
+			"en": "Drive",
+			"es": "Conducir",
+			"fr": "Conduire",
+			"ar": "يقود"
+		},
+		{
 			"id": "ship",
 			"en": "Ship",
 			"es": "Barco",
 			"fr": "Navire",
 			"ar": "سفينة",
 			"image": "res://assets/words/ship.png"
+		},
+		{
+			"id": "to_fly",
+			"en": "To fly",
+			"es": "Volar",
+			"fr": "Voler",
+			"ar": "يطير"
 		},
 		{
 			"id": "video_game",
@@ -3912,12 +5988,26 @@
 			"image": "res://assets/words/notebook.png"
 		},
 		{
+			"id": "fall",
+			"en": "Fall",
+			"es": "Caer",
+			"fr": "Tomber",
+			"ar": "يسقط"
+		},
+		{
 			"id": "scroll",
 			"en": "Scroll",
 			"es": "Pergamino",
 			"fr": "Parchemin",
 			"ar": "لفافة",
 			"image": "res://assets/words/scroll.png"
+		},
+		{
+			"id": "sit",
+			"en": "Sit",
+			"es": "Sentarse",
+			"fr": "S'asseoir",
+			"ar": "يجلس"
 		},
 		{
 			"id": "mermaid",
@@ -3928,12 +6018,26 @@
 			"image": "res://assets/words/mermaid.png"
 		},
 		{
+			"id": "wake_up",
+			"en": "Wake up",
+			"es": "Despertar",
+			"fr": "Se réveiller",
+			"ar": "يستيقظ"
+		},
+		{
 			"id": "wing",
 			"en": "Wing",
 			"es": "Ala",
 			"fr": "Aile",
 			"ar": "جناح",
 			"image": "res://assets/words/wing.png"
+		},
+		{
+			"id": "wash",
+			"en": "Wash",
+			"es": "Lavar",
+			"fr": "Laver",
+			"ar": "يغسل"
 		},
 		{
 			"id": "ice_cream",
@@ -3952,12 +6056,26 @@
 			"image": "res://assets/words/fountain.png"
 		},
 		{
+			"id": "to_cook",
+			"en": "To cook",
+			"es": "Cocinar",
+			"fr": "Cuisiner",
+			"ar": "يطبخ"
+		},
+		{
 			"id": "airplane",
 			"en": "Airplane",
 			"es": "Avión",
 			"fr": "Avion",
 			"ar": "طائرة",
 			"image": "res://assets/words/airplane.png"
+		},
+		{
+			"id": "cut",
+			"en": "Cut",
+			"es": "Cortar",
+			"fr": "Couper",
+			"ar": "يقطع"
 		},
 		{
 			"id": "dice",
@@ -3968,6 +6086,13 @@
 			"image": "res://assets/words/dice.png"
 		},
 		{
+			"id": "break",
+			"en": "Break",
+			"es": "Romper",
+			"fr": "Casser",
+			"ar": "يكسر"
+		},
+		{
 			"id": "paper",
 			"en": "Paper",
 			"es": "Papel",
@@ -3976,12 +6101,26 @@
 			"image": "res://assets/words/paper.png"
 		},
 		{
+			"id": "fix",
+			"en": "Fix",
+			"es": "Reparar",
+			"fr": "Réparer",
+			"ar": "يصلح"
+		},
+		{
 			"id": "newspaper",
 			"en": "Newspaper",
 			"es": "Periódico",
 			"fr": "Journal",
 			"ar": "جريدة",
 			"image": "res://assets/words/newspaper.png"
+		},
+		{
+			"id": "build",
+			"en": "Build",
+			"es": "Construir",
+			"fr": "Construire",
+			"ar": "يبني"
 		},
 		{
 			"id": "robot",
@@ -4000,12 +6139,26 @@
 			"image": "res://assets/words/goose.png"
 		},
 		{
+			"id": "carry",
+			"en": "Carry",
+			"es": "Llevar",
+			"fr": "Porter",
+			"ar": "يحمل"
+		},
+		{
 			"id": "doughnut",
 			"en": "Doughnut",
 			"es": "Donut",
 			"fr": "Beignet",
 			"ar": "دونات",
 			"image": "res://assets/words/doughnut.png"
+		},
+		{
+			"id": "bring",
+			"en": "Bring",
+			"es": "Traer",
+			"fr": "Apporter",
+			"ar": "يحضر"
 		},
 		{
 			"id": "tent",
@@ -4016,6 +6169,13 @@
 			"image": "res://assets/words/tent.png"
 		},
 		{
+			"id": "send",
+			"en": "Send",
+			"es": "Enviar",
+			"fr": "Envoyer",
+			"ar": "يرسل"
+		},
+		{
 			"id": "parachute",
 			"en": "Parachute",
 			"es": "Paracaídas",
@@ -4024,12 +6184,26 @@
 			"image": "res://assets/words/parachute.png"
 		},
 		{
+			"id": "receive",
+			"en": "Receive",
+			"es": "Recibir",
+			"fr": "Recevoir",
+			"ar": "يستلم"
+		},
+		{
 			"id": "puzzle",
 			"en": "Puzzle",
 			"es": "Puzle",
 			"fr": "Puzzle",
 			"ar": "أحجية",
 			"image": "res://assets/words/puzzle.png"
+		},
+		{
+			"id": "find",
+			"en": "Find",
+			"es": "Encontrar",
+			"fr": "Trouver",
+			"ar": "يجد"
 		},
 		{
 			"id": "label",
@@ -4048,12 +6222,26 @@
 			"image": "res://assets/words/coin.png"
 		},
 		{
+			"id": "lose",
+			"en": "Lose",
+			"es": "Perder",
+			"fr": "Perdre",
+			"ar": "يخسر"
+		},
+		{
 			"id": "ghost",
 			"en": "Ghost",
 			"es": "Fantasma",
 			"fr": "Fantôme",
 			"ar": "شبح",
 			"image": "res://assets/words/ghost.png"
+		},
+		{
+			"id": "win",
+			"en": "Win",
+			"es": "Ganar",
+			"fr": "Gagner",
+			"ar": "يفوز"
 		},
 		{
 			"id": "crocodile",
@@ -4064,6 +6252,13 @@
 			"image": "res://assets/words/crocodile.png"
 		},
 		{
+			"id": "try",
+			"en": "Try",
+			"es": "Intentar",
+			"fr": "Essayer",
+			"ar": "يحاول"
+		},
+		{
 			"id": "cookie",
 			"en": "Cookie",
 			"es": "Galleta",
@@ -4072,12 +6267,26 @@
 			"image": "res://assets/words/cookie.png"
 		},
 		{
+			"id": "use",
+			"en": "Use",
+			"es": "Usar",
+			"fr": "Utiliser",
+			"ar": "يستخدم"
+		},
+		{
 			"id": "night",
 			"en": "Night",
 			"es": "Noche",
 			"fr": "Nuit",
 			"ar": "ليل",
 			"image": "res://assets/words/night.png"
+		},
+		{
+			"id": "change",
+			"en": "Change",
+			"es": "Cambiar",
+			"fr": "Changer",
+			"ar": "يغير"
 		},
 		{
 			"id": "helicopter",
@@ -4096,12 +6305,26 @@
 			"image": "res://assets/words/teddy_bear.png"
 		},
 		{
+			"id": "choose",
+			"en": "Choose",
+			"es": "Elegir",
+			"fr": "Choisir",
+			"ar": "يختار"
+		},
+		{
 			"id": "money",
 			"en": "Money",
 			"es": "Dinero",
 			"fr": "Argent",
 			"ar": "مال",
 			"image": "res://assets/words/money.png"
+		},
+		{
+			"id": "show",
+			"en": "Show",
+			"es": "Mostrar",
+			"fr": "Montrer",
+			"ar": "يعرض"
 		},
 		{
 			"id": "treasure",
@@ -4112,12 +6335,26 @@
 			"image": "res://assets/words/treasure.png"
 		},
 		{
+			"id": "tell",
+			"en": "Tell",
+			"es": "Contar",
+			"fr": "Raconter",
+			"ar": "يخبر"
+		},
+		{
 			"id": "skull",
 			"en": "Skull",
 			"es": "Calavera",
 			"fr": "Crâne",
 			"ar": "جمجمة",
 			"image": "res://assets/words/skull.png"
+		},
+		{
+			"id": "call",
+			"en": "Call",
+			"es": "Llamar",
+			"fr": "Appeler",
+			"ar": "يتصل"
 		},
 		{
 			"id": "lizard",
@@ -4136,12 +6373,26 @@
 			"image": "res://assets/words/birthday_cake.png"
 		},
 		{
+			"id": "meet",
+			"en": "Meet",
+			"es": "Conocer",
+			"fr": "Rencontrer",
+			"ar": "يقابل"
+		},
+		{
 			"id": "city",
 			"en": "City",
 			"es": "Ciudad",
 			"fr": "Ville",
 			"ar": "مدينة",
 			"image": "res://assets/words/city.png"
+		},
+		{
+			"id": "live",
+			"en": "Live",
+			"es": "Vivir",
+			"fr": "Vivre",
+			"ar": "يعيش"
 		},
 		{
 			"id": "satellite",
@@ -4152,6 +6403,13 @@
 			"image": "res://assets/words/satellite.png"
 		},
 		{
+			"id": "die",
+			"en": "Die",
+			"es": "Morir",
+			"fr": "Mourir",
+			"ar": "يموت"
+		},
+		{
 			"id": "chess",
 			"en": "Chess",
 			"es": "Ajedrez",
@@ -4160,12 +6418,26 @@
 			"image": "res://assets/words/chess.png"
 		},
 		{
+			"id": "grow",
+			"en": "Grow",
+			"es": "Crecer",
+			"fr": "Grandir",
+			"ar": "ينمو"
+		},
+		{
 			"id": "credit_card",
 			"en": "Credit card",
 			"es": "Tarjeta",
 			"fr": "Carte bancaire",
 			"ar": "بطاقة ائتمان",
 			"image": "res://assets/words/credit_card.png"
+		},
+		{
+			"id": "to_love",
+			"en": "To love",
+			"es": "Amar",
+			"fr": "Aimer",
+			"ar": "يحب كثيرا"
 		},
 		{
 			"id": "receipt",
@@ -4184,12 +6456,26 @@
 			"image": "res://assets/words/snake.png"
 		},
 		{
+			"id": "hate",
+			"en": "Hate",
+			"es": "Odiar",
+			"fr": "Détester",
+			"ar": "يكره"
+		},
+		{
 			"id": "cake_slice",
 			"en": "Cake slice",
 			"es": "Pastel",
 			"fr": "Part de gâteau",
 			"ar": "قطعة كعك",
 			"image": "res://assets/words/cake_slice.png"
+		},
+		{
+			"id": "plan",
+			"en": "Plan",
+			"es": "Planear",
+			"fr": "Planifier",
+			"ar": "يخطط"
 		},
 		{
 			"id": "sunrise",
@@ -4200,6 +6486,13 @@
 			"image": "res://assets/words/sunrise.png"
 		},
 		{
+			"id": "beautiful",
+			"en": "Beautiful",
+			"es": "Hermoso",
+			"fr": "Beau",
+			"ar": "جميل"
+		},
+		{
 			"id": "rocket",
 			"en": "Rocket",
 			"es": "Cohete",
@@ -4208,12 +6501,26 @@
 			"image": "res://assets/words/rocket.png"
 		},
 		{
+			"id": "ugly",
+			"en": "Ugly",
+			"es": "Feo",
+			"fr": "Laid",
+			"ar": "قبيح"
+		},
+		{
 			"id": "painting",
 			"en": "Painting",
 			"es": "Cuadro",
 			"fr": "Tableau",
 			"ar": "لوحة",
 			"image": "res://assets/words/painting.png"
+		},
+		{
+			"id": "nice",
+			"en": "Nice",
+			"es": "Amable",
+			"fr": "Gentil",
+			"ar": "لطيف"
 		},
 		{
 			"id": "envelope",
@@ -4232,12 +6539,26 @@
 			"image": "res://assets/words/package.png"
 		},
 		{
+			"id": "funny",
+			"en": "Funny",
+			"es": "Gracioso",
+			"fr": "Drôle",
+			"ar": "مضحك"
+		},
+		{
 			"id": "dragon",
 			"en": "Dragon",
 			"es": "Dragón",
 			"fr": "Dragon",
 			"ar": "تنين",
 			"image": "res://assets/words/dragon.png"
+		},
+		{
+			"id": "smart",
+			"en": "Smart",
+			"es": "Listo",
+			"fr": "Malin",
+			"ar": "ذكي"
 		},
 		{
 			"id": "cupcake",
@@ -4248,6 +6569,13 @@
 			"image": "res://assets/words/cupcake.png"
 		},
 		{
+			"id": "lazy",
+			"en": "Lazy",
+			"es": "Perezoso",
+			"fr": "Paresseux",
+			"ar": "كسول"
+		},
+		{
 			"id": "sunset",
 			"en": "Sunset",
 			"es": "Atardecer",
@@ -4256,12 +6584,26 @@
 			"image": "res://assets/words/sunset.png"
 		},
 		{
+			"id": "brave",
+			"en": "Brave",
+			"es": "Valiente",
+			"fr": "Courageux",
+			"ar": "شجاع"
+		},
+		{
 			"id": "ufo",
 			"en": "UFO",
 			"es": "Ovni",
 			"fr": "Ovni",
 			"ar": "طبق طائر",
 			"image": "res://assets/words/ufo.png"
+		},
+		{
+			"id": "quiet",
+			"en": "Quiet",
+			"es": "Silencioso",
+			"fr": "Silencieux",
+			"ar": "هادئ"
 		},
 		{
 			"id": "palette",
@@ -4280,12 +6622,26 @@
 			"image": "res://assets/words/mailbox.png"
 		},
 		{
+			"id": "loud",
+			"en": "Loud",
+			"es": "Ruidoso",
+			"fr": "Bruyant",
+			"ar": "صاخب"
+		},
+		{
 			"id": "pencil",
 			"en": "Pencil",
 			"es": "Lápiz",
 			"fr": "Crayon",
 			"ar": "قلم رصاص",
 			"image": "res://assets/words/pencil.png"
+		},
+		{
+			"id": "sweet",
+			"en": "Sweet",
+			"es": "Dulce",
+			"fr": "Sucré",
+			"ar": "حلو"
 		},
 		{
 			"id": "dinosaur",
@@ -4296,6 +6652,13 @@
 			"image": "res://assets/words/dinosaur.png"
 		},
 		{
+			"id": "bitter",
+			"en": "Bitter",
+			"es": "Amargo",
+			"fr": "Amer",
+			"ar": "مر"
+		},
+		{
 			"id": "pie",
 			"en": "Pie",
 			"es": "Empanada",
@@ -4304,12 +6667,26 @@
 			"image": "res://assets/words/pie.png"
 		},
 		{
+			"id": "salty",
+			"en": "Salty",
+			"es": "Salado",
+			"fr": "Salé",
+			"ar": "مالح"
+		},
+		{
 			"id": "carousel",
 			"en": "Carousel",
 			"es": "Carrusel",
 			"fr": "Manège",
 			"ar": "دوامة خيل",
 			"image": "res://assets/words/carousel.png"
+		},
+		{
+			"id": "sour",
+			"en": "Sour",
+			"es": "Ácido",
+			"fr": "Acide",
+			"ar": "حامض"
 		},
 		{
 			"id": "suitcase",
@@ -4328,12 +6705,26 @@
 			"image": "res://assets/words/thread.png"
 		},
 		{
+			"id": "heavy",
+			"en": "Heavy",
+			"es": "Pesado",
+			"fr": "Lourd",
+			"ar": "ثقيل"
+		},
+		{
 			"id": "pen",
 			"en": "Pen",
 			"es": "Bolígrafo",
 			"fr": "Stylo",
 			"ar": "قلم حبر",
 			"image": "res://assets/words/pen.png"
+		},
+		{
+			"id": "light_weight",
+			"en": "Light weight",
+			"es": "Ligero",
+			"fr": "Léger",
+			"ar": "خفيف"
 		},
 		{
 			"id": "paintbrush",
@@ -4344,12 +6735,26 @@
 			"image": "res://assets/words/paintbrush.png"
 		},
 		{
+			"id": "dark",
+			"en": "Dark",
+			"es": "Oscuro",
+			"fr": "Sombre",
+			"ar": "مظلم"
+		},
+		{
 			"id": "fish",
 			"en": "Fish",
 			"es": "Pez",
 			"fr": "Poisson",
 			"ar": "سمكة",
 			"image": "res://assets/words/fish.png"
+		},
+		{
+			"id": "bright",
+			"en": "Bright",
+			"es": "Brillante",
+			"fr": "Brillant",
+			"ar": "ساطع"
 		},
 		{
 			"id": "chocolate",
@@ -4368,12 +6773,26 @@
 			"image": "res://assets/words/slide.png"
 		},
 		{
+			"id": "high",
+			"en": "High",
+			"es": "Alto",
+			"fr": "Haut",
+			"ar": "عال"
+		},
+		{
 			"id": "needle",
 			"en": "Needle",
 			"es": "Aguja",
 			"fr": "Aiguille",
 			"ar": "إبرة",
 			"image": "res://assets/words/needle.png"
+		},
+		{
+			"id": "low",
+			"en": "Low",
+			"es": "Bajo",
+			"fr": "Bas",
+			"ar": "منخفض"
 		},
 		{
 			"id": "crayon",
@@ -4384,6 +6803,13 @@
 			"image": "res://assets/words/crayon.png"
 		},
 		{
+			"id": "wide",
+			"en": "Wide",
+			"es": "Ancho",
+			"fr": "Large",
+			"ar": "عريض"
+		},
+		{
 			"id": "briefcase",
 			"en": "Briefcase",
 			"es": "Maletín",
@@ -4392,12 +6818,26 @@
 			"image": "res://assets/words/briefcase.png"
 		},
 		{
+			"id": "narrow",
+			"en": "Narrow",
+			"es": "Estrecho",
+			"fr": "Étroit",
+			"ar": "ضيق"
+		},
+		{
 			"id": "shell",
 			"en": "Shell",
 			"es": "Concha",
 			"fr": "Coquillage",
 			"ar": "صدفة",
 			"image": "res://assets/words/shell.png"
+		},
+		{
+			"id": "thick",
+			"en": "Thick",
+			"es": "Grueso",
+			"fr": "Épais",
+			"ar": "سميك"
 		},
 		{
 			"id": "candy",
@@ -4416,12 +6856,26 @@
 			"image": "res://assets/words/ferris_wheel.png"
 		},
 		{
+			"id": "thin",
+			"en": "Thin",
+			"es": "Delgado",
+			"fr": "Mince",
+			"ar": "نحيف"
+		},
+		{
 			"id": "yarn",
 			"en": "Yarn",
 			"es": "Lana",
 			"fr": "Laine",
 			"ar": "صوف",
 			"image": "res://assets/words/yarn.png"
+		},
+		{
+			"id": "wet",
+			"en": "Wet",
+			"es": "Mojado",
+			"fr": "Mouillé",
+			"ar": "مبلل"
 		},
 		{
 			"id": "folder",
@@ -4432,6 +6886,13 @@
 			"image": "res://assets/words/folder.png"
 		},
 		{
+			"id": "dry",
+			"en": "Dry",
+			"es": "Seco",
+			"fr": "Sec",
+			"ar": "جاف"
+		},
+		{
 			"id": "calendar",
 			"en": "Calendar",
 			"es": "Calendario",
@@ -4440,12 +6901,26 @@
 			"image": "res://assets/words/calendar.png"
 		},
 		{
+			"id": "soft",
+			"en": "Soft",
+			"es": "Suave",
+			"fr": "Doux",
+			"ar": "ناعم"
+		},
+		{
 			"id": "coral",
 			"en": "Coral",
 			"es": "Coral",
 			"fr": "Corail",
 			"ar": "مرجان",
 			"image": "res://assets/words/coral.png"
+		},
+		{
+			"id": "hard",
+			"en": "Hard",
+			"es": "Duro",
+			"fr": "Dur",
+			"ar": "قاس"
 		},
 		{
 			"id": "lollipop",
@@ -4464,12 +6939,26 @@
 			"image": "res://assets/words/roller_coaster.png"
 		},
 		{
+			"id": "cheap",
+			"en": "Cheap",
+			"es": "Barato",
+			"fr": "Bon marché",
+			"ar": "رخيص"
+		},
+		{
 			"id": "knot",
 			"en": "Knot",
 			"es": "Nudo",
 			"fr": "Nœud",
 			"ar": "عقدة",
 			"image": "res://assets/words/knot.png"
+		},
+		{
+			"id": "expensive",
+			"en": "Expensive",
+			"es": "Caro",
+			"fr": "Cher",
+			"ar": "غال"
 		},
 		{
 			"id": "chart",
@@ -4480,6 +6969,13 @@
 			"image": "res://assets/words/chart.png"
 		},
 		{
+			"id": "free",
+			"en": "Free",
+			"es": "Gratis",
+			"fr": "Gratuit",
+			"ar": "مجاني"
+		},
+		{
 			"id": "pushpin",
 			"en": "Pushpin",
 			"es": "Chincheta",
@@ -4488,12 +6984,26 @@
 			"image": "res://assets/words/pushpin.png"
 		},
 		{
+			"id": "busy",
+			"en": "Busy",
+			"es": "Ocupado",
+			"fr": "Occupé",
+			"ar": "مشغول"
+		},
+		{
 			"id": "jellyfish",
 			"en": "Jellyfish",
 			"es": "Medusa",
 			"fr": "Méduse",
 			"ar": "قنديل البحر",
 			"image": "res://assets/words/jellyfish.png"
+		},
+		{
+			"id": "ready",
+			"en": "Ready",
+			"es": "Listo",
+			"fr": "Prêt",
+			"ar": "جاهز"
 		},
 		{
 			"id": "honey",
@@ -4512,12 +7022,26 @@
 			"image": "res://assets/words/circus.png"
 		},
 		{
+			"id": "important",
+			"en": "Important",
+			"es": "Importante",
+			"fr": "Important",
+			"ar": "مهم"
+		},
+		{
 			"id": "paperclip",
 			"en": "Paperclip",
 			"es": "Clip",
 			"fr": "Trombone",
 			"ar": "مشبك ورق",
 			"image": "res://assets/words/paperclip.png"
+		},
+		{
+			"id": "possible",
+			"en": "Possible",
+			"es": "Posible",
+			"fr": "Possible",
+			"ar": "ممكن"
 		},
 		{
 			"id": "ruler",
@@ -4528,12 +7052,26 @@
 			"image": "res://assets/words/ruler.png"
 		},
 		{
+			"id": "impossible",
+			"en": "Impossible",
+			"es": "Imposible",
+			"fr": "Impossible",
+			"ar": "مستحيل"
+		},
+		{
 			"id": "lobster",
 			"en": "Lobster",
 			"es": "Langosta",
 			"fr": "Homard",
 			"ar": "كركند",
 			"image": "res://assets/words/lobster.png"
+		},
+		{
+			"id": "necessary",
+			"en": "Necessary",
+			"es": "Necesario",
+			"fr": "Nécessaire",
+			"ar": "ضروري"
 		},
 		{
 			"id": "baby_bottle",
@@ -4552,12 +7090,26 @@
 			"image": "res://assets/words/scissors.png"
 		},
 		{
+			"id": "different",
+			"en": "Different",
+			"es": "Diferente",
+			"fr": "Différent",
+			"ar": "مختلف"
+		},
+		{
 			"id": "trash_can",
 			"en": "Trash can",
 			"es": "Papelera",
 			"fr": "Poubelle",
 			"ar": "سلة مهملات",
 			"image": "res://assets/words/trash_can.png"
+		},
+		{
+			"id": "same",
+			"en": "Same",
+			"es": "Igual",
+			"fr": "Pareil",
+			"ar": "نفس"
 		},
 		{
 			"id": "shrimp",
@@ -4568,6 +7120,13 @@
 			"image": "res://assets/words/shrimp.png"
 		},
 		{
+			"id": "better",
+			"en": "Better",
+			"es": "Mejor",
+			"fr": "Meilleur",
+			"ar": "أفضل"
+		},
+		{
 			"id": "milk",
 			"en": "Milk",
 			"es": "Leche",
@@ -4576,12 +7135,26 @@
 			"image": "res://assets/words/milk.png"
 		},
 		{
+			"id": "worse",
+			"en": "Worse",
+			"es": "Peor",
+			"fr": "Pire",
+			"ar": "أسوأ"
+		},
+		{
 			"id": "lock",
 			"en": "Lock",
 			"es": "Candado",
 			"fr": "Cadenas",
 			"ar": "قفل",
 			"image": "res://assets/words/lock.png"
+		},
+		{
+			"id": "best",
+			"en": "Best",
+			"es": "El mejor",
+			"fr": "Le meilleur",
+			"ar": "الأفضل"
 		},
 		{
 			"id": "key",
@@ -4600,12 +7173,26 @@
 			"image": "res://assets/words/squid.png"
 		},
 		{
+			"id": "dangerous",
+			"en": "Dangerous",
+			"es": "Peligroso",
+			"fr": "Dangereux",
+			"ar": "خطير"
+		},
+		{
 			"id": "coffee",
 			"en": "Coffee",
 			"es": "Café",
 			"fr": "Café",
 			"ar": "قهوة",
 			"image": "res://assets/words/coffee.png"
+		},
+		{
+			"id": "safe",
+			"en": "Safe",
+			"es": "Seguro",
+			"fr": "Sûr",
+			"ar": "آمن"
 		},
 		{
 			"id": "hammer",
@@ -4616,6 +7203,13 @@
 			"image": "res://assets/words/hammer.png"
 		},
 		{
+			"id": "sure",
+			"en": "Sure",
+			"es": "Cierto",
+			"fr": "Certain",
+			"ar": "متأكد"
+		},
+		{
 			"id": "axe",
 			"en": "Axe",
 			"es": "Hacha",
@@ -4624,12 +7218,26 @@
 			"image": "res://assets/words/axe.png"
 		},
 		{
+			"id": "hungry",
+			"en": "Hungry",
+			"es": "Hambriento",
+			"fr": "Affamé",
+			"ar": "جائع"
+		},
+		{
 			"id": "oyster",
 			"en": "Oyster",
 			"es": "Ostra",
 			"fr": "Huître",
 			"ar": "محار",
 			"image": "res://assets/words/oyster.png"
+		},
+		{
+			"id": "thirsty",
+			"en": "Thirsty",
+			"es": "Sediento",
+			"fr": "Assoiffé",
+			"ar": "عطشان"
 		},
 		{
 			"id": "tea",
@@ -4648,12 +7256,26 @@
 			"image": "res://assets/words/dagger.png"
 		},
 		{
+			"id": "alone",
+			"en": "Alone",
+			"es": "Solo",
+			"fr": "Seul",
+			"ar": "وحيد"
+		},
+		{
 			"id": "swords",
 			"en": "Swords",
 			"es": "Espadas",
 			"fr": "Épées",
 			"ar": "سيوف",
 			"image": "res://assets/words/swords.png"
+		},
+		{
+			"id": "together",
+			"en": "Together",
+			"es": "Juntos",
+			"fr": "Ensemble",
+			"ar": "معا"
 		},
 		{
 			"id": "caterpillar",
@@ -4664,6 +7286,13 @@
 			"image": "res://assets/words/caterpillar.png"
 		},
 		{
+			"id": "only",
+			"en": "Only",
+			"es": "Solamente",
+			"fr": "Seulement",
+			"ar": "فقط"
+		},
+		{
 			"id": "wine",
 			"en": "Wine",
 			"es": "Vino",
@@ -4672,12 +7301,26 @@
 			"image": "res://assets/words/wine.png"
 		},
 		{
+			"id": "also",
+			"en": "Also",
+			"es": "También",
+			"fr": "Aussi",
+			"ar": "أيضا"
+		},
+		{
 			"id": "bomb",
 			"en": "Bomb",
 			"es": "Bomba",
 			"fr": "Bombe",
 			"ar": "قنبلة",
 			"image": "res://assets/words/bomb.png"
+		},
+		{
+			"id": "maybe",
+			"en": "Maybe",
+			"es": "Quizás",
+			"fr": "Peut-être",
+			"ar": "ربما"
 		},
 		{
 			"id": "ant",
@@ -4696,12 +7339,26 @@
 			"image": "res://assets/words/beer.png"
 		},
 		{
+			"id": "almost",
+			"en": "Almost",
+			"es": "Casi",
+			"fr": "Presque",
+			"ar": "تقريبا"
+		},
+		{
 			"id": "bow",
 			"en": "Bow",
 			"es": "Arco",
 			"fr": "Arc",
 			"ar": "قوس",
 			"image": "res://assets/words/bow.png"
+		},
+		{
+			"id": "enough",
+			"en": "Enough",
+			"es": "Bastante",
+			"fr": "Assez",
+			"ar": "كاف"
 		},
 		{
 			"id": "beetle",
@@ -4712,6 +7369,13 @@
 			"image": "res://assets/words/beetle.png"
 		},
 		{
+			"id": "too_much",
+			"en": "Too much",
+			"es": "Demasiado",
+			"fr": "Trop",
+			"ar": "أكثر من اللازم"
+		},
+		{
 			"id": "juice",
 			"en": "Juice",
 			"es": "Zumo",
@@ -4720,12 +7384,26 @@
 			"image": "res://assets/words/juice.png"
 		},
 		{
+			"id": "still",
+			"en": "Still",
+			"es": "Todavía",
+			"fr": "Encore",
+			"ar": "ما زال"
+		},
+		{
 			"id": "shield",
 			"en": "Shield",
 			"es": "Escudo",
 			"fr": "Bouclier",
 			"ar": "درع",
 			"image": "res://assets/words/shield.png"
+		},
+		{
+			"id": "already",
+			"en": "Already",
+			"es": "Ya",
+			"fr": "Déjà",
+			"ar": "بالفعل"
 		},
 		{
 			"id": "cricket",
@@ -4744,12 +7422,26 @@
 			"image": "res://assets/words/ice.png"
 		},
 		{
+			"id": "soon",
+			"en": "Soon",
+			"es": "Pronto",
+			"fr": "Bientôt",
+			"ar": "قريبا"
+		},
+		{
 			"id": "saw",
 			"en": "Saw",
 			"es": "Sierra",
 			"fr": "Scie",
 			"ar": "منشار",
 			"image": "res://assets/words/saw.png"
+		},
+		{
+			"id": "then",
+			"en": "Then",
+			"es": "Entonces",
+			"fr": "Ensuite",
+			"ar": "ثم"
 		},
 		{
 			"id": "cockroach",
@@ -4760,12 +7452,26 @@
 			"image": "res://assets/words/cockroach.png"
 		},
 		{
+			"id": "early",
+			"en": "Early",
+			"es": "Temprano",
+			"fr": "Tôt",
+			"ar": "مبكرا"
+		},
+		{
 			"id": "chopsticks",
 			"en": "Chopsticks",
 			"es": "Palillos",
 			"fr": "Baguettes",
 			"ar": "عيدان الطعام",
 			"image": "res://assets/words/chopsticks.png"
+		},
+		{
+			"id": "late",
+			"en": "Late",
+			"es": "Tarde",
+			"fr": "Tard",
+			"ar": "متأخرا"
 		},
 		{
 			"id": "wrench",
@@ -4784,12 +7490,26 @@
 			"image": "res://assets/words/spider.png"
 		},
 		{
+			"id": "quickly",
+			"en": "Quickly",
+			"es": "Rápidamente",
+			"fr": "Vite",
+			"ar": "بسرعة"
+		},
+		{
 			"id": "cutlery",
 			"en": "Cutlery",
 			"es": "Cubiertos",
 			"fr": "Couverts",
 			"ar": "أدوات المائدة",
 			"image": "res://assets/words/cutlery.png"
+		},
+		{
+			"id": "slowly",
+			"en": "Slowly",
+			"es": "Lentamente",
+			"fr": "Lentement",
+			"ar": "ببطء"
 		},
 		{
 			"id": "bolt",
@@ -4800,6 +7520,13 @@
 			"image": "res://assets/words/bolt.png"
 		},
 		{
+			"id": "well",
+			"en": "Well",
+			"es": "Bien",
+			"fr": "Bien",
+			"ar": "حسنا"
+		},
+		{
 			"id": "spider_web",
 			"en": "Spider web",
 			"es": "Telaraña",
@@ -4808,12 +7535,26 @@
 			"image": "res://assets/words/spider_web.png"
 		},
 		{
+			"id": "everywhere",
+			"en": "Everywhere",
+			"es": "Por todas partes",
+			"fr": "Partout",
+			"ar": "في كل مكان"
+		},
+		{
 			"id": "spoon",
 			"en": "Spoon",
 			"es": "Cuchara",
 			"fr": "Cuillère",
 			"ar": "ملعقة",
 			"image": "res://assets/words/spoon.png"
+		},
+		{
+			"id": "inside",
+			"en": "Inside",
+			"es": "Adentro",
+			"fr": "Dedans",
+			"ar": "داخل"
 		},
 		{
 			"id": "gear",
@@ -4832,12 +7573,26 @@
 			"image": "res://assets/words/scorpion.png"
 		},
 		{
+			"id": "outside",
+			"en": "Outside",
+			"es": "Afuera",
+			"fr": "Dehors",
+			"ar": "خارج"
+		},
+		{
 			"id": "knife",
 			"en": "Knife",
 			"es": "Cuchillo",
 			"fr": "Couteau",
 			"ar": "سكين",
 			"image": "res://assets/words/knife.png"
+		},
+		{
+			"id": "behind",
+			"en": "Behind",
+			"es": "Detrás",
+			"fr": "Derrière",
+			"ar": "خلف"
 		},
 		{
 			"id": "scale",
@@ -4848,6 +7603,13 @@
 			"image": "res://assets/words/scale.png"
 		},
 		{
+			"id": "in_front",
+			"en": "In front",
+			"es": "Delante",
+			"fr": "Devant",
+			"ar": "أمام"
+		},
+		{
 			"id": "mosquito",
 			"en": "Mosquito",
 			"es": "Mosquito",
@@ -4856,12 +7618,26 @@
 			"image": "res://assets/words/mosquito.png"
 		},
 		{
+			"id": "above",
+			"en": "Above",
+			"es": "Encima",
+			"fr": "Au-dessus",
+			"ar": "أعلى"
+		},
+		{
 			"id": "jar",
 			"en": "Jar",
 			"es": "Tarro",
 			"fr": "Bocal",
 			"ar": "برطمان",
 			"image": "res://assets/words/jar.png"
+		},
+		{
+			"id": "around",
+			"en": "Around",
+			"es": "Alrededor",
+			"fr": "Autour",
+			"ar": "حول"
 		},
 		{
 			"id": "chain",
@@ -4880,12 +7656,26 @@
 			"image": "res://assets/words/fly.png"
 		},
 		{
+			"id": "against",
+			"en": "Against",
+			"es": "Contra",
+			"fr": "Contre",
+			"ar": "ضد"
+		},
+		{
 			"id": "bowl",
 			"en": "Bowl",
 			"es": "Tazón",
 			"fr": "Bol",
 			"ar": "وعاء",
 			"image": "res://assets/words/bowl.png"
+		},
+		{
+			"id": "during",
+			"en": "During",
+			"es": "Durante",
+			"fr": "Pendant",
+			"ar": "أثناء"
 		},
 		{
 			"id": "hook",
@@ -4896,6 +7686,13 @@
 			"image": "res://assets/words/hook.png"
 		},
 		{
+			"id": "until",
+			"en": "Until",
+			"es": "Hasta",
+			"fr": "Jusqu'à",
+			"ar": "حتى"
+		},
+		{
 			"id": "worm",
 			"en": "Worm",
 			"es": "Gusano",
@@ -4904,12 +7701,26 @@
 			"image": "res://assets/words/worm.png"
 		},
 		{
+			"id": "since",
+			"en": "Since",
+			"es": "Desde",
+			"fr": "Dès",
+			"ar": "منذ"
+		},
+		{
 			"id": "magnet",
 			"en": "Magnet",
 			"es": "Imán",
 			"fr": "Aimant",
 			"ar": "مغناطيس",
 			"image": "res://assets/words/magnet.png"
+		},
+		{
+			"id": "north",
+			"en": "North",
+			"es": "Norte",
+			"fr": "Nord",
+			"ar": "شمال"
 		},
 		{
 			"id": "germ",
@@ -4928,12 +7739,26 @@
 			"image": "res://assets/words/ladder.png"
 		},
 		{
+			"id": "south",
+			"en": "South",
+			"es": "Sur",
+			"fr": "Sud",
+			"ar": "جنوب"
+		},
+		{
 			"id": "shovel",
 			"en": "Shovel",
 			"es": "Pala",
 			"fr": "Pelle",
 			"ar": "مجرفة",
 			"image": "res://assets/words/shovel.png"
+		},
+		{
+			"id": "east",
+			"en": "East",
+			"es": "Este",
+			"fr": "Est",
+			"ar": "شرق"
 		},
 		{
 			"id": "test_tube",
@@ -4944,12 +7769,26 @@
 			"image": "res://assets/words/test_tube.png"
 		},
 		{
+			"id": "west",
+			"en": "West",
+			"es": "Oeste",
+			"fr": "Ouest",
+			"ar": "غرب"
+		},
+		{
 			"id": "microscope",
 			"en": "Microscope",
 			"es": "Microscopio",
 			"fr": "Microscope",
 			"ar": "مجهر",
 			"image": "res://assets/words/microscope.png"
+		},
+		{
+			"id": "middle",
+			"en": "Middle",
+			"es": "Medio",
+			"fr": "Milieu",
+			"ar": "وسط"
 		},
 		{
 			"id": "telescope",
@@ -4968,12 +7807,26 @@
 			"image": "res://assets/words/syringe.png"
 		},
 		{
+			"id": "side",
+			"en": "Side",
+			"es": "Lado",
+			"fr": "Côté",
+			"ar": "جانب"
+		},
+		{
 			"id": "medicine",
 			"en": "Medicine",
 			"es": "Medicina",
 			"fr": "Médicament",
 			"ar": "دواء",
 			"image": "res://assets/words/medicine.png"
+		},
+		{
+			"id": "part",
+			"en": "Part",
+			"es": "Parte",
+			"fr": "Partie",
+			"ar": "جزء"
 		},
 		{
 			"id": "bandage",
@@ -4984,6 +7837,13 @@
 			"image": "res://assets/words/bandage.png"
 		},
 		{
+			"id": "group",
+			"en": "Group",
+			"es": "Grupo",
+			"fr": "Groupe",
+			"ar": "مجموعة"
+		},
+		{
 			"id": "door",
 			"en": "Door",
 			"es": "Puerta",
@@ -4992,12 +7852,26 @@
 			"image": "res://assets/words/door.png"
 		},
 		{
+			"id": "team",
+			"en": "Team",
+			"es": "Equipo",
+			"fr": "Équipe",
+			"ar": "فريق"
+		},
+		{
 			"id": "elevator",
 			"en": "Elevator",
 			"es": "Ascensor",
 			"fr": "Ascenseur",
 			"ar": "مصعد",
 			"image": "res://assets/words/elevator.png"
+		},
+		{
+			"id": "company",
+			"en": "Company",
+			"es": "Empresa",
+			"fr": "Entreprise",
+			"ar": "شركة"
 		},
 		{
 			"id": "mirror",
@@ -5016,12 +7890,26 @@
 			"image": "res://assets/words/window.png"
 		},
 		{
+			"id": "job",
+			"en": "Job",
+			"es": "Empleo",
+			"fr": "Emploi",
+			"ar": "وظيفة"
+		},
+		{
 			"id": "bed",
 			"en": "Bed",
 			"es": "Cama",
 			"fr": "Lit",
 			"ar": "سرير",
 			"image": "res://assets/words/bed.png"
+		},
+		{
+			"id": "meeting",
+			"en": "Meeting",
+			"es": "Reunión",
+			"fr": "Réunion",
+			"ar": "اجتماع"
 		},
 		{
 			"id": "sofa",
@@ -5032,6 +7920,13 @@
 			"image": "res://assets/words/sofa.png"
 		},
 		{
+			"id": "information",
+			"en": "Information",
+			"es": "Información",
+			"fr": "Information",
+			"ar": "معلومة"
+		},
+		{
 			"id": "chair",
 			"en": "Chair",
 			"es": "Silla",
@@ -5040,12 +7935,26 @@
 			"image": "res://assets/words/chair.png"
 		},
 		{
+			"id": "news",
+			"en": "News",
+			"es": "Noticias",
+			"fr": "Nouvelles",
+			"ar": "أخبار"
+		},
+		{
 			"id": "toilet",
 			"en": "Toilet",
 			"es": "Inodoro",
 			"fr": "Toilettes",
 			"ar": "مرحاض",
 			"image": "res://assets/words/toilet.png"
+		},
+		{
+			"id": "internet",
+			"en": "Internet",
+			"es": "Internet",
+			"fr": "Internet",
+			"ar": "إنترنت"
 		},
 		{
 			"id": "shower",
@@ -5064,12 +7973,26 @@
 			"image": "res://assets/words/bathtub.png"
 		},
 		{
+			"id": "message",
+			"en": "Message",
+			"es": "Mensaje",
+			"fr": "Message",
+			"ar": "رسالة"
+		},
+		{
 			"id": "razor",
 			"en": "Razor",
 			"es": "Maquinilla",
 			"fr": "Rasoir",
 			"ar": "موسى",
 			"image": "res://assets/words/razor.png"
+		},
+		{
+			"id": "picture",
+			"en": "Picture",
+			"es": "Imagen",
+			"fr": "Image",
+			"ar": "صورة"
 		},
 		{
 			"id": "lotion",
@@ -5080,6 +8003,13 @@
 			"image": "res://assets/words/lotion.png"
 		},
 		{
+			"id": "color",
+			"en": "Color",
+			"es": "Color",
+			"fr": "Couleur",
+			"ar": "لون"
+		},
+		{
 			"id": "broom",
 			"en": "Broom",
 			"es": "Escoba",
@@ -5088,12 +8018,26 @@
 			"image": "res://assets/words/broom.png"
 		},
 		{
+			"id": "sound",
+			"en": "Sound",
+			"es": "Sonido",
+			"fr": "Son",
+			"ar": "صوت"
+		},
+		{
 			"id": "basket",
 			"en": "Basket",
 			"es": "Cesta",
 			"fr": "Panier",
 			"ar": "سلة",
 			"image": "res://assets/words/basket.png"
+		},
+		{
+			"id": "smell",
+			"en": "Smell",
+			"es": "Olor",
+			"fr": "Odeur",
+			"ar": "رائحة"
 		},
 		{
 			"id": "toilet_paper",
@@ -5112,12 +8056,26 @@
 			"image": "res://assets/words/bucket.png"
 		},
 		{
+			"id": "taste",
+			"en": "Taste",
+			"es": "Sabor",
+			"fr": "Goût",
+			"ar": "طعم"
+		},
+		{
 			"id": "soap",
 			"en": "Soap",
 			"es": "Jabón",
 			"fr": "Savon",
 			"ar": "صابون",
 			"image": "res://assets/words/soap.png"
+		},
+		{
+			"id": "shape",
+			"en": "Shape",
+			"es": "Forma",
+			"fr": "Forme",
+			"ar": "شكل"
 		},
 		{
 			"id": "toothbrush",
@@ -5128,6 +8086,13 @@
 			"image": "res://assets/words/toothbrush.png"
 		},
 		{
+			"id": "size",
+			"en": "Size",
+			"es": "Tamaño",
+			"fr": "Taille",
+			"ar": "حجم"
+		},
+		{
 			"id": "sponge",
 			"en": "Sponge",
 			"es": "Esponja",
@@ -5136,12 +8101,26 @@
 			"image": "res://assets/words/sponge.png"
 		},
 		{
+			"id": "weight",
+			"en": "Weight",
+			"es": "Peso",
+			"fr": "Poids",
+			"ar": "وزن"
+		},
+		{
 			"id": "shopping_cart",
 			"en": "Shopping cart",
 			"es": "Carrito",
 			"fr": "Chariot",
 			"ar": "عربة تسوق",
 			"image": "res://assets/words/shopping_cart.png"
+		},
+		{
+			"id": "speed",
+			"en": "Speed",
+			"es": "Velocidad",
+			"fr": "Vitesse",
+			"ar": "سرعة"
 		},
 		{
 			"id": "id_card",

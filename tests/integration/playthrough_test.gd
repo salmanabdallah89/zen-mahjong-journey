@@ -1639,6 +1639,7 @@ func _test_word_garden() -> void:
 	await _frames(2)
 	_check((page.call("stage_button", 2) as Button).disabled, "words: each language has its own stages")
 	_check(_frame.get_global_rect().encloses(page.get_node("SafeArea/Content/BackButton").get_global_rect()), "words: the page fits the screen")
+	_check(_frame.get_global_rect().encloses((page.call("stage_button", 2) as Control).get_global_rect()), "words: stages fit the screen width")
 	page.queue_free()
 	SafeConfig.remove_all("user://test_words_settings.cfg")
 	GameSession.word_language = ""

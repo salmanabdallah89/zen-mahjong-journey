@@ -1,15 +1,17 @@
 class_name WordSkin
 extends TileSkin
-## The look of a Word Garden board: Zen Garden porcelain tiles, picture tiles
-## showing the word's image and word tiles showing its text in the language
-## being learned. Keyed by face, so shuffles and undo keep the look.
+## The look of a Word Garden board: Zen Garden porcelain tiles. Word tiles show
+## the word in the language being learned; their partner shows its picture, or
+## for words without one, the translation in the player's own language.
+## Keyed by face, so shuffles and undo keep the look.
 
 const BODY_COLLECTION := "zen_garden"
 
 var _language := ""
+var _native := ""
 
 
-static func for_words(words: PackedStringArray, language: String) -> WordSkin:
+static func for_words(words: PackedStringArray, language: String, native: String) -> WordSkin:
 	var zen := TileCollectionManager.get_collection(BODY_COLLECTION)
 	var skin := WordSkin.new()
 	skin.collection_id = BODY_COLLECTION
@@ -17,10 +19,16 @@ static func for_words(words: PackedStringArray, language: String) -> WordSkin:
 	skin.style = zen.style(TileArtSet.active())
 	skin.body = load(zen.body_path)
 	skin.symbol_padding = zen.symbol_padding
-	skin._language = language
+	skin.set_languages(language, native)
 	for word_id in words:
-		skin._textures[word_id] = WordCatalog.picture(word_id, load)
+		if WordCatalog.has_picture(word_id):
+			skin._textures[word_id] = WordCatalog.picture(word_id, load)
 	return skin
+
+
+func set_languages(language: String, native: String) -> void:
+	_language = language
+	_native = native
 
 
 func symbol_texture(face_id: String) -> Texture2D:
@@ -28,4 +36,7 @@ func symbol_texture(face_id: String) -> Texture2D:
 
 
 func word_text(face_id: String) -> String:
-	return "" if WordCatalog.is_picture(face_id) else WordCatalog.text(WordCatalog.id_of(face_id), _language)
+	var word_id := WordCatalog.id_of(face_id)
+	if not WordCatalog.is_picture(face_id):
+		return WordCatalog.text(word_id, _language)
+	return "" if WordCatalog.has_picture(word_id) else WordCatalog.text(word_id, _native)

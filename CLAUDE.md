@@ -70,7 +70,7 @@ Palette (from `docs/reference/asset_manifest.json`):
 | forest | `#354F44` | primary buttons, dark text on ivory, boot color |
 | night  | `#273B50` | dark overlays, night theme |
 
-Typography: Fraunces (`res://assets/fonts/`, variable, SIL OFL: keep `Fraunces_OFL.txt` with it), set
+Typography: Fraunces with Noto Naskh Arabic as fallback (`res://assets/fonts/`, SIL OFL: keep the `*_OFL.txt` files), set
 in the theme only.
 
 ## Theme
@@ -169,7 +169,7 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
   this week's points after each clear; the rank shows on Level Complete. No key in
   `data/leaderboard.json` (ignored by git) or no connection = no rank, play is never held up.
 - **Word Garden:** language mode (`word_garden_screen`, `GameSession.play_word_stage`). `WordCatalog` (core)
-  reads data/words/words.json (teaching order; `ar` waits for the Arabic mode; pictures from collections, never held-back symbols, and `assets/words`, Noto Emoji 3D)
+  reads data/words/words.json (teaching order; words without `image` pair with their translation in `GameSession.word_native`; pictures from collections, never held-back symbols, and `assets/words`, Noto Emoji 3D)
   and plans stages per language (`stage_count()`, from the word list): new words plus review (`ProgressStore.word_review`). Faces
   `word_<id>_p` / `word_<id>_w` are one match group with one picture and one word, so model, hints,
   shuffle and undo work unchanged. `WordSkin` draws them on Zen Garden tiles; `TileView.set_word`

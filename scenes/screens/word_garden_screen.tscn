@@ -47,7 +47,7 @@ base_margin = 32
 
 [node name="Content" type="VBoxContainer" parent="SafeArea"]
 layout_mode = 2
-theme_override_constants/separation = 28
+theme_override_constants/separation = 16
 alignment = 1
 
 [node name="Title" type="Label" parent="SafeArea/Content"]
@@ -60,14 +60,32 @@ horizontal_alignment = 1
 custom_minimum_size = Vector2(760, 0)
 layout_mode = 2
 theme_type_variation = &"PageBodyLabel"
-text = "Learn new words: match each picture with its word. No clock, no hearts."
+text = "Match each word with its picture or meaning. No clock, no hearts."
 horizontal_alignment = 1
 autowrap_mode = 3
+
+[node name="LearnLabel" type="Label" parent="SafeArea/Content"]
+layout_mode = 2
+theme_type_variation = &"PageBodyLabel"
+text = "I want to learn"
+horizontal_alignment = 1
 
 [node name="Languages" type="HBoxContainer" parent="SafeArea/Content"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="SpeakLabel" type="Label" parent="SafeArea/Content"]
+layout_mode = 2
+theme_type_variation = &"PageBodyLabel"
+text = "I speak"
+horizontal_alignment = 1
+
+[node name="Natives" type="HBoxContainer" parent="SafeArea/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 12
 alignment = 1
 
 [node name="StageScroll" type="ScrollContainer" parent="SafeArea/Content"]
@@ -88,7 +106,8 @@ columns = 2
 layout_mode = 2
 theme_type_variation = &"PageBodyLabel"
 theme_override_font_sizes/font_size = 30
-text = "Pictures: Noto Emoji by Google, SIL OFL 1.1"
+text = "Noto Emoji, Noto Naskh Arabic, Fraunces: SIL OFL 1.1"
+autowrap_mode = 3
 horizontal_alignment = 1
 
 [node name="BackButton" type="Button" parent="SafeArea/Content"]

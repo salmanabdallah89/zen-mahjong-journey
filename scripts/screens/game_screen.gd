@@ -261,7 +261,7 @@ func _learning() -> bool:
 
 func _board_skin() -> TileSkin:
 	if _learning():
-		return WordSkin.for_words(_word_ids, GameSession.word_language)
+		return WordSkin.for_words(_word_ids, GameSession.word_language, GameSession.word_native)
 	return TileCollectionManager.skin_for_board(_model.faces, _level.deal_seed)
 
 
@@ -270,6 +270,9 @@ func _show_learning_hud() -> void:
 	%TimeBox.visible = not _learning()
 	%HeartsPill.visible = not _learning()
 	_score_meter.visible = not _learning()
+	if _learning():
+		_toast_label.theme_type_variation = &"ToastWordLabel"
+		_praise.use_word_font()
 
 
 func tutorial_active() -> bool:
@@ -874,6 +877,7 @@ func _show_stage_complete() -> void:
 	for word_id in _word_ids:
 		shown.append(WordCatalog.text(word_id, language))
 	_dialog.open("Stage Complete!", "%d words today\n%s" % [_word_ids.size(), " · ".join(shown)])
+	_dialog.use_word_font()
 	if GameSession.word_stage < WordCatalog.stage_count():
 		_dialog.add_action("Next Stage", func() -> void:
 			AdsManager.after_level_complete(GameSession.play_word_stage.bind(language, GameSession.word_stage + 1)), true)
@@ -1030,11 +1034,12 @@ func _word_mistake(a: int, b: int) -> void:
 			_words_missed.append(word_id)
 	var shown := a if WordCatalog.is_picture(_model.face_of(a)) else b
 	if WordCatalog.is_picture(_model.face_of(shown)):
-		var text := WordCatalog.text(WordCatalog.id_of(_model.face_of(shown)), GameSession.word_language)
-		_show_toast("That picture is: %s" % text)
+		var word_id := WordCatalog.id_of(_model.face_of(shown))
+		var text := WordCatalog.text(word_id, GameSession.word_language)
+		_show_toast("%s: %s" % ["That picture is" if WordCatalog.has_picture(word_id) else "In this language", text])
 		WordVoice.speak(text, GameSession.word_language)
 	else:
-		_show_toast("Match each word with its picture.")
+		_show_toast("Match each word with its picture or meaning.")
 
 
 func _lose(reason: LossReason) -> void:

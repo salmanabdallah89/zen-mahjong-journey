@@ -28,6 +28,7 @@ var _rank: Label
 func open(title: String, message: String) -> void:
 	_title.text = title
 	_message.text = message
+	_message.theme_type_variation = &"DialogBodyLabel"
 	_message.visible = not message.is_empty()
 	for child in _buttons.get_children():
 		child.queue_free()
@@ -130,6 +131,11 @@ func _pop_score() -> void:
 	var tween := _score.create_tween()
 	tween.tween_property(_score, "scale", Vector2(1.12, 1.12), 0.12).set_trans(Tween.TRANS_SINE)
 	tween.tween_property(_score, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_SINE)
+
+
+## Word Garden's message lists words, which can be in any language.
+func use_word_font() -> void:
+	_message.theme_type_variation = &"DialogWordsLabel"
 
 
 ## Shows the world rank under the score; "" hides it.

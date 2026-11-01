@@ -55,6 +55,8 @@ const FLIP_HALF := 0.13
 ## Word Garden word: largest font size on the tile art and its side margin.
 const WORD_FONT_SIZE := 72
 const WORD_MARGIN := 14.0
+## Arabic letters look smaller than Latin ones at the same font size.
+const ARABIC_WORD_SCALE := 1.35
 
 var index: int = -1
 ## Tile geometry to build from; set before the tile enters the tree.
@@ -153,7 +155,10 @@ func set_word(text: String) -> void:
 	var wide := 0.0
 	for line in _word.text.split("\n"):
 		wide = maxf(wide, _word.get_theme_font("font").get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, WORD_FONT_SIZE).x)
-	_word.add_theme_font_size_override("font_size", mini(WORD_FONT_SIZE, floori(WORD_FONT_SIZE * room / maxf(wide, 1.0))))
+	var largest := WORD_FONT_SIZE
+	if not text.is_empty() and text.unicode_at(0) >= 0x0600:
+		largest = roundi(WORD_FONT_SIZE * ARABIC_WORD_SCALE)
+	_word.add_theme_font_size_override("font_size", mini(largest, floori(WORD_FONT_SIZE * room / maxf(wide, 1.0))))
 
 
 func word_text() -> String:

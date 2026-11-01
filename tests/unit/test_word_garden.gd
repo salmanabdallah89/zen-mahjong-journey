@@ -2,25 +2,46 @@ extends TestCase
 ## Word Garden content and rules: words, stages, picture-word matching.
 
 const FONT := preload("res://assets/fonts/Fraunces.ttf")
+const ARABIC := preload("res://assets/fonts/NotoNaskhArabic.ttf")
 
 
-func test_words_fit_tiles_and_are_unique() -> void:
+func test_words_fit_tiles_and_the_fonts_have_them() -> void:
 	for language: Dictionary in WordCatalog.languages():
-		var seen := {}
+		var font: Font = ARABIC if str(language.id) == "ar" else FONT
 		for word_id in WordCatalog.word_ids():
 			var text := WordCatalog.text(word_id, str(language.id))
+			assert_true(not text.is_empty(), "%s has text" % word_id)
 			for line in WordCatalog.tile_text(text).split("\n"):
 				assert_true(line.length() <= WordCatalog.MAX_LETTERS, "%s fits a tile" % text)
 			for i in text.length():
-				assert_true(FONT.has_char(text.unicode_at(i)), "the font can draw %s" % text)
-			assert_true(not seen.has(text), "%s is on one word only" % text)
-			seen[text] = true
+				assert_true(font.has_char(text.unicode_at(i)) or text[i] == " ", "the font can draw %s" % text)
+
+
+func test_at_least_a_thousand_words_and_no_lookalikes_on_a_board() -> void:
+	assert_true(WordCatalog.word_ids().size() >= 1000, "1000 words (%d)" % WordCatalog.word_ids().size())
+	for stage in range(1, WordCatalog.stage_count() + 1):
+		var words := WordCatalog.stage_words(stage)
+		for language: Dictionary in WordCatalog.languages():
+			var seen := {}
+			for word_id in words:
+				seen[WordCatalog.text(word_id, str(language.id))] = true
+			assert_eq(seen.size(), words.size(), "stage %d: no two %s words are spelled alike" % [stage, language.id])
+
+
+func test_words_without_pictures_pair_with_their_translation() -> void:
+	var skin := WordSkin.new()
+	skin.set_languages("es", "ar")
+	assert_eq(skin.word_text("word_because_w"), "Porque", "the word to learn")
+	assert_eq(skin.word_text("word_because_p"), "لأن", "its meaning")
+	assert_eq(skin.word_text("word_cat_p"), "", "a picture word keeps its picture")
+	assert_eq(WordCatalog.tile_text("Pomme de terre"), "Pomme de\nterre", "two lines")
 
 
 func test_pictures_exist_and_are_not_held_back() -> void:
 	for word_id in WordCatalog.word_ids():
-		assert_true(WordCatalog.picture(word_id, func(path: String) -> Texture2D: return load(path) if ResourceLoader.exists(path) else null) != null,
-			"%s has a picture" % word_id)
+		if WordCatalog.has_picture(word_id):
+			assert_true(WordCatalog.picture(word_id, func(path: String) -> Texture2D: return load(path) if ResourceLoader.exists(path) else null) != null,
+				"%s has a picture" % word_id)
 	var words := FileAccess.get_file_as_string(WordCatalog.WORDS_PATH)
 	for collection in ["fruits", "vegetables"]:
 		var manifest: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/collections/%s.json" % collection))

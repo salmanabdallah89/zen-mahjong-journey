@@ -59,6 +59,11 @@ static func text(word_id: String, language: String) -> String:
 	return str(_words[word_id][language])
 
 
+static func has_picture(word_id: String) -> bool:
+	_load()
+	return _words[word_id].has("image")
+
+
 ## The picture of a word, framed without the caption some collection PNGs carry.
 static func picture(word_id: String, loader: Callable) -> Texture2D:
 	_load()
@@ -85,15 +90,27 @@ static func stage_words(stage: int, review := PackedStringArray()) -> PackedStri
 	var result := _order.slice(first_new, mini(first_new + new_count, _order.size()))
 	var wanted := word_count(stage)
 	for word_id in review:
-		if result.size() < wanted and not result.has(word_id) and _words.has(word_id):
+		if result.size() < wanted and _words.has(word_id) and _fits(word_id, result):
 			result.append(word_id)
 	# Older words, most recent first, so yesterday's words come back soonest.
 	var index := first_new - 1
 	while result.size() < wanted and index >= 0:
-		if not result.has(_order[index]):
+		if _fits(_order[index], result):
 			result.append(_order[index])
 		index -= 1
 	return result
+
+
+## A board never holds a word twice, nor two words spelled alike in a language
+## ("Mañana" is both morning and tomorrow).
+static func _fits(word_id: String, chosen: PackedStringArray) -> bool:
+	if chosen.has(word_id):
+		return false
+	for other in chosen:
+		for language: Dictionary in _languages:
+			if text(word_id, str(language.id)) == text(other, str(language.id)):
+				return false
+	return true
 
 
 static func level_for(stage: int) -> LevelCatalog.LevelDefinition:

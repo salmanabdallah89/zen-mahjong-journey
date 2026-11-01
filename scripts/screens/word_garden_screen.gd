@@ -4,16 +4,20 @@ extends Control
 
 const GARDEN := "bg_bamboo_forest"
 const STAR := preload("res://assets/ui/icons/icon_star.png")
-const STAGE_SIZE := Vector2(464, 136)
+const STAGE_SIZE := Vector2(470, 136)
 const STAR_SIZE := 44.0
 const SETTINGS_SECTION := "words"
+const DEFAULT_NATIVE := "ar"
 const SETTINGS_KEY := "language"
+const SETTINGS_KEY_NATIVE := "native"
 
 var settings_path := UserSettings.DEFAULT_PATH
 var _language := ""
 var _group := ButtonGroup.new()
+var _native_group := ButtonGroup.new()
 
 @onready var _languages: HBoxContainer = %Languages
+@onready var _natives: HBoxContainer = %Natives
 @onready var _stages: GridContainer = %Stages
 @onready var _back: Button = %BackButton
 
@@ -25,12 +29,19 @@ func _ready() -> void:
 	AudioManager.play_music("main_menu")
 	AudioManager.set_ambience(AudioCatalog.MENU_AMBIENCE)
 	var languages := WordCatalog.languages()
-	var saved := str(UserSettings.new(settings_path).get_value(SETTINGS_SECTION, SETTINGS_KEY, ""))
+	var settings := UserSettings.new(settings_path)
+	var saved := str(settings.get_value(SETTINGS_SECTION, SETTINGS_KEY, ""))
+	var saved_native := str(settings.get_value(SETTINGS_SECTION, SETTINGS_KEY_NATIVE, DEFAULT_NATIVE))
 	_language = str(languages[0].id)
 	for language: Dictionary in languages:
 		if str(language.id) == saved:
 			_language = saved
-		_languages.add_child(_language_button(language))
+		if str(language.id) == saved_native:
+			GameSession.word_native = saved_native
+	for language: Dictionary in languages:
+		_languages.add_child(_language_button(language, _group, _language, choose_language))
+		_natives.add_child(_language_button(language, _native_group, GameSession.word_native, choose_native))
+	_guard_languages()
 	_show_stages()
 
 
@@ -50,20 +61,37 @@ func stage_button(stage: int) -> Button:
 func choose_language(language_id: String) -> void:
 	_language = language_id
 	UserSettings.new(settings_path).set_value(SETTINGS_SECTION, SETTINGS_KEY, language_id)
+	_guard_languages()
 	_show_stages()
 
 
-func _language_button(language: Dictionary) -> Button:
+func choose_native(language_id: String) -> void:
+	GameSession.word_native = language_id
+	UserSettings.new(settings_path).set_value(SETTINGS_SECTION, SETTINGS_KEY_NATIVE, language_id)
+	_guard_languages()
+
+
+## Learning a language needs another one to translate into.
+func _guard_languages() -> void:
+	if GameSession.word_native == _language:
+		var other := "en" if _language != "en" else DEFAULT_NATIVE
+		GameSession.word_native = other
+		(_natives.get_node(other) as Button).button_pressed = true
+	for button: Button in _natives.get_children():
+		button.disabled = button.name == _language
+
+
+func _language_button(language: Dictionary, group: ButtonGroup, current: String, on_choose: Callable) -> Button:
 	var button := Button.new()
 	button.text = str(language.name)
 	button.name = str(language.id)
 	button.toggle_mode = true
-	button.button_group = _group
-	button.button_pressed = str(language.id) == _language
-	button.theme_type_variation = &"CollectionCard"
-	button.custom_minimum_size = Vector2(320, 136)
+	button.button_group = group
+	button.button_pressed = str(language.id) == current
+	button.theme_type_variation = &"LanguageButton"
+	button.custom_minimum_size = Vector2(240, 120)
 	button.focus_mode = Control.FOCUS_NONE
-	button.pressed.connect(choose_language.bind(str(language.id)))
+	button.pressed.connect(on_choose.bind(str(language.id)))
 	return button
 
 
@@ -90,7 +118,7 @@ func _stage_button(stage: int) -> Button:
 	var progress := GameSession.progress
 	var open := stage == 1 or progress.word_stars(_language, stage - 1) > 0
 	var button := Button.new()
-	button.text = "Stage %d" % stage if open else "Stage %d · Locked" % stage
+	button.text = "Stage %d" % stage if open else "%d · Locked" % stage
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	button.disabled = not open
 	button.theme_type_variation = &"SecondaryButton"

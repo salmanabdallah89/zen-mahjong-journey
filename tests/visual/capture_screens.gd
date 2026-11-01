@@ -56,7 +56,7 @@ func _capture_words() -> void:
 	await _frames(6)
 	await _save("phone_9x16_words_page")
 	page.queue_free()
-	GameSession.word_language = "fr"
+	GameSession.word_language = "es"
 	for stage in [8, 40]:
 		GameSession.word_stage = stage
 		var screen: Control = GAME_SCENE.instantiate()
@@ -69,6 +69,16 @@ func _capture_words() -> void:
 			await _save("phone_9x16_words_complete")
 		screen.queue_free()
 		await _frames(2)
+	GameSession.word_language = "ar"
+	GameSession.word_native = "en"
+	GameSession.word_stage = 12
+	var arabic: Control = GAME_SCENE.instantiate()
+	add_child(arabic)
+	await _frames(30)
+	await _save("phone_9x16_words_arabic")
+	arabic.queue_free()
+	await _frames(2)
+	GameSession.word_native = "ar"
 	GameSession.word_language = ""
 	SafeConfig.remove_all("user://capture_words.cfg")
 
