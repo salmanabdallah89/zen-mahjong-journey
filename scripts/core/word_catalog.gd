@@ -1,0 +1,128 @@
+class_name WordCatalog
+extends RefCounted
+## Word Garden's content: languages, words (data/words/words.json, in teaching
+## order) and which words each stage uses. Every stage brings new words and
+## brings back ones to practise. A stage's new words depend only on its
+## number; its review words also on what the player mixed up.
+
+const WORDS_PATH := "res://data/words/words.json"
+const STAGE_COUNT := 10
+## Longest word a tile can show large enough to read.
+const MAX_LETTERS := 11
+const FIRST_STAGE_WORDS := 12
+const NEW_WORDS_PER_STAGE := 8
+## Stages from here on use the larger board.
+const LARGE_STAGE := 8
+const SMALL_LAYOUT := "lotus_pond"
+const LARGE_LAYOUT := "stepping_stones"
+const SEED_BASE := 7300
+const GARDENS: PackedStringArray = ["bg_golden_sakura", "bg_bamboo_forest", "bg_misty_temple", "bg_moonlight_sanctuary"]
+## Mistakes allowed for 3 and for 2 stars.
+const THREE_STAR_MISTAKES := 0
+const TWO_STAR_MISTAKES := 2
+
+static var _languages: Array = []
+static var _words := {}
+static var _order := PackedStringArray()
+
+
+static func languages() -> Array:
+	_load()
+	return _languages
+
+
+static func word_ids() -> PackedStringArray:
+	_load()
+	return _order
+
+
+static func text(word_id: String, language: String) -> String:
+	_load()
+	return str(_words[word_id][language])
+
+
+## The picture of a word, framed without the caption some collection PNGs carry.
+static func picture(word_id: String, loader: Callable) -> Texture2D:
+	_load()
+	var word: Dictionary = _words[word_id]
+	var texture: Texture2D = loader.call(str(word.image))
+	if texture == null or not word.has("region"):
+		return texture
+	var framed := AtlasTexture.new()
+	framed.atlas = texture
+	framed.region = Rect2(word.region[0], word.region[1], word.region[2], word.region[3])
+	return framed
+
+
+static func word_count(stage: int) -> int:
+	return BoardLayout.load_json(_layout_path(stage)).tile_count() / 2
+
+
+## The stage's new words, then review: `review` words first, then earlier ones.
+static func stage_words(stage: int, review := PackedStringArray()) -> PackedStringArray:
+	_load()
+	var seen := FIRST_STAGE_WORDS + (stage - 2) * NEW_WORDS_PER_STAGE
+	var first_new := 0 if stage == 1 else mini(seen, _order.size())
+	var new_count := FIRST_STAGE_WORDS if stage == 1 else NEW_WORDS_PER_STAGE
+	var result := _order.slice(first_new, mini(first_new + new_count, _order.size()))
+	var wanted := word_count(stage)
+	for word_id in review:
+		if result.size() < wanted and not result.has(word_id) and _words.has(word_id):
+			result.append(word_id)
+	# Older words, most recent first, so yesterday's words come back soonest.
+	var index := first_new - 1
+	while result.size() < wanted and index >= 0:
+		if not result.has(_order[index]):
+			result.append(_order[index])
+		index -= 1
+	return result
+
+
+static func level_for(stage: int) -> LevelCatalog.LevelDefinition:
+	var level := LevelCatalog.LevelDefinition.new()
+	level.title = "Word Garden"
+	level.layout_path = _layout_path(stage)
+	level.deal_seed = SEED_BASE + stage
+	level.time_limit = 0
+	level.mistake_limit = 0
+	level.background = GARDENS[(stage - 1) % GARDENS.size()]
+	return level
+
+
+static func faces_for(words: PackedStringArray) -> PackedStringArray:
+	var faces := PackedStringArray()
+	for word_id in words:
+		faces.append("%s_%s_p" % [TileCatalog.WORD_SUIT, word_id])
+		faces.append("%s_%s_w" % [TileCatalog.WORD_SUIT, word_id])
+	return faces
+
+
+static func id_of(face_id: String) -> String:
+	return face_id.trim_prefix(TileCatalog.WORD_SUIT + "_").left(-2)
+
+
+static func is_picture(face_id: String) -> bool:
+	return face_id.ends_with("_p")
+
+
+static func stars(mistakes: int) -> int:
+	if mistakes <= THREE_STAR_MISTAKES:
+		return 3
+	return 2 if mistakes <= TWO_STAR_MISTAKES else 1
+
+
+static func _layout_path(stage: int) -> String:
+	return "res://data/layouts/%s.json" % (LARGE_LAYOUT if stage >= LARGE_STAGE else SMALL_LAYOUT)
+
+
+static func _load() -> void:
+	if not _order.is_empty():
+		return
+	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(WORDS_PATH))
+	if not data is Dictionary:
+		push_error("WordCatalog: cannot parse %s" % WORDS_PATH)
+		return
+	_languages = data.languages
+	for word: Dictionary in data.words:
+		_words[str(word.id)] = word
+		_order.append(str(word.id))

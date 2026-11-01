@@ -6,6 +6,9 @@ extends RefCounted
 
 ## Suits whose tiles match any other tile of the same suit (not just copies).
 const GROUP_MATCH_SUITS: PackedStringArray = ["flowers", "seasons"]
+## Word Garden: "word_<id>_p" (picture) matches "word_<id>_w" (word). Each word
+## is on a board once, so a picture only ever pairs with its word.
+const WORD_SUIT := "word"
 
 const SUIT_FACES := {
 	"bamboo": ["bamboo_1", "bamboo_2", "bamboo_3", "bamboo_4", "bamboo_5",
@@ -40,6 +43,8 @@ static func suit_of(face_id: String) -> String:
 ## Two faces match when their match groups are equal.
 static func match_group(face_id: String) -> String:
 	var suit := suit_of(face_id)
+	if suit == WORD_SUIT:
+		return face_id.left(-2)
 	return suit if GROUP_MATCH_SUITS.has(suit) else face_id
 
 

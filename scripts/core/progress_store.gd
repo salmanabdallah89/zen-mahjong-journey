@@ -58,6 +58,30 @@ func add_week_points(points: int, week: int) -> int:
 	return total
 
 
+## Word Garden stars for a stage of a language, 0 if never cleared.
+func word_stars(language: String, stage: int) -> int:
+	return int(_config.get_value("words_" + language, "stage_%d" % stage, 0))
+
+
+## Words the player mixed up and should meet again.
+func word_review(language: String) -> PackedStringArray:
+	return PackedStringArray(_config.get_value("words_" + language, "review", PackedStringArray()))
+
+
+## Saves a cleared stage: the best stars, and which words still need practice
+## (`missed` join the list, words matched first try leave it).
+func record_word_stage(language: String, stage: int, earned_stars: int, words: PackedStringArray, missed: PackedStringArray) -> void:
+	var section := "words_" + language
+	_config.set_value(section, "stage_%d" % stage, maxi(word_stars(language, stage), earned_stars))
+	var review := PackedStringArray()
+	for word in word_review(language):
+		if not words.has(word):
+			review.append(word)
+	review.append_array(missed)
+	_config.set_value(section, "review", review)
+	SafeConfig.save(_config, path)
+
+
 func total_stars(level_count: int) -> int:
 	var total := 0
 	for level in range(1, level_count + 1):

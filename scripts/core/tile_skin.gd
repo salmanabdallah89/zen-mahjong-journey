@@ -83,6 +83,11 @@ func symbol_texture(face_id: String) -> Texture2D:
 	return null if kind == "tile_set" else _textures.get(TileCatalog.match_group(face_id))
 
 
+## Text drawn on the tile instead of a symbol (Word Garden), else "".
+func word_text(_face_id: String) -> String:
+	return ""
+
+
 ## Image identity per match group, for checking that no two groups look alike.
 func visual_key(face_id: String) -> String:
 	var texture := symbol_texture(face_id) if kind == "symbols" else tile_texture(face_id)

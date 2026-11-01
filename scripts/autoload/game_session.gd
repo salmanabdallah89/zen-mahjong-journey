@@ -5,8 +5,12 @@ extends Node
 const STARTUP_SCENE := "res://scenes/screens/startup_screen.tscn"
 const GAME_SCENE := "res://scenes/screens/game_screen.tscn"
 const JOURNEY_SCENE := "res://scenes/screens/journey_screen.tscn"
+const WORDS_SCENE := "res://scenes/screens/word_garden_screen.tscn"
 
 var current_level: int = 1
+## Word Garden: the language being learned ("" = the normal journey) and its stage.
+var word_language := ""
+var word_stage: int = 1
 var progress := ProgressStore.new()
 ## Level opened by the last clear, so the journey map can celebrate it once.
 var just_unlocked := 0
@@ -86,6 +90,7 @@ func start_tutorial() -> void:
 
 
 func play_level(number: int) -> void:
+	word_language = ""
 	current_level = clampi(number, 1, LevelCatalog.count())
 	_change(GAME_SCENE)
 
@@ -96,6 +101,16 @@ func has_next_level() -> bool:
 
 func play_next_level() -> void:
 	play_level(current_level + 1)
+
+
+func play_word_stage(language: String, stage: int) -> void:
+	word_language = language
+	word_stage = clampi(stage, 1, WordCatalog.STAGE_COUNT)
+	_change(GAME_SCENE)
+
+
+func go_words() -> void:
+	_change(WORDS_SCENE)
 
 
 func go_home() -> void:

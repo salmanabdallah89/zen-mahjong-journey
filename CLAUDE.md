@@ -168,6 +168,14 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
 - **World rank:** autoload `GlobalRank` (Talo REST API, docs/LEADERBOARD.md) sends the total score and
   this week's points after each clear; the rank shows on Level Complete. No key in
   `data/leaderboard.json` (ignored by git) or no connection = no rank, play is never held up.
+- **Word Garden:** language mode (`word_garden_screen`, `GameSession.play_word_stage`). `WordCatalog` (core)
+  reads data/words/words.json (teaching order; pictures from collections, never held-back symbols)
+  and plans 10 stages per language: new words plus review (`ProgressStore.word_review`). Faces
+  `word_<id>_p` / `word_<id>_w` are one match group with one picture and one word, so model, hints,
+  shuffle and undo work unchanged. `WordSkin` draws them on Zen Garden tiles; `TileView.set_word`
+  fits the text (words at most `MAX_LETTERS`). The game screen's `_learning()` turns off clock,
+  hearts, score and rank. `WordVoice` uses the device's text-to-speech. A native speaker must
+  check every language before release.
 - **Special tiles:** `TileSpecials` (core) picks per level, from its own RNG seeded from the deal
   seed (deals unchanged): one golden lotus pair from level 3 (×2 points, gold rim + "×2" badge,
   "Golden Lotus" praise) and, from level 4, face-down mystery tiles (a share of the tiles that start

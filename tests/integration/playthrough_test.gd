@@ -65,6 +65,7 @@ func _ready() -> void:
 	await _test_special_tiles(5)
 	await _test_starting_collection()
 	await _test_same_tile_size()
+	await _test_word_garden()
 	await _test_zen_garden_tiles(10)
 	await _test_tutorial()
 	await _test_journey_readability()
@@ -1580,6 +1581,68 @@ func _test_zen_garden_tiles(level_number: int) -> void:
 	screen.queue_free()
 	await _frames(2)
 	manager.select("classic")
+
+
+## Word Garden: picture and word tiles, no clock or hearts, a mistake only
+## teaches, the stage saves stars and the next stage opens.
+func _test_word_garden() -> void:
+	GameSession.word_language = "es"
+	GameSession.word_stage = 1
+	var screen := await _open_level(1)
+	var board: BoardView = screen.get_node("%Board")
+	var model: BoardModel = screen.get("_model")
+	var pictures := 0
+	var words := 0
+	for i in model.tile_count():
+		if board.tile(i).word_text().is_empty():
+			pictures += 1
+		else:
+			words += 1
+	_check(pictures == words and words == 12, "words: 12 pictures and 12 words (%d, %d)" % [pictures, words])
+	_check(not (screen.get_node("%TimeBox") as Control).visible and not (screen.get_node("%HeartsPill") as Control).visible,
+		"words: no clock or hearts")
+	var seconds := float(screen.get("_time_left"))
+	await get_tree().create_timer(0.2).timeout
+	_check(is_equal_approx(float(screen.get("_time_left")), seconds) and not bool(screen.get("_failed")), "words: no clock runs")
+	var pair: Vector2i = model.available_matches()[0]
+	var other := -1
+	for i in model.tile_count():
+		if model.is_free(i) and i != pair.x and not TileCatalog.faces_match(model.face_of(i), model.face_of(pair.x)):
+			other = i
+			break
+	screen.call("_on_tile_pressed", pair.x)
+	screen.call("_on_tile_pressed", other)
+	_check(not bool(screen.get("_failed")) and int(screen.get("_mistakes")) == 1, "words: a mistake costs no hearts")
+	_check((screen.get("_words_missed") as PackedStringArray).size() == 2, "words: mixed-up words are kept for review")
+	while not model.is_cleared():
+		var next: Vector2i = BoardSolver.solve(model, 20000).moves[0]
+		await _settle(screen)
+		screen.call("_on_tile_pressed", next.x)
+		screen.call("_on_tile_pressed", next.y)
+		await _frames(2)
+	await _wait_dialog(screen)
+	var dialog: ModalDialog = screen.get_node("%Dialog")
+	_check(dialog.visible and dialog.get_node("%Title").text == "Stage Complete!", "words: stage complete")
+	_check(GameSession.progress.word_stars("es", 1) == 2, "words: stars saved")
+	_check(GameSession.progress.word_review("es").size() == 2, "words: review saved")
+	screen.queue_free()
+	await _frames(2)
+	var page: Control = load(GameSession.WORDS_SCENE).instantiate()
+	page.settings_path = "user://test_words_settings.cfg"
+	_frame.add_child(page)
+	await _frames(2)
+	page.call("choose_language", "es")
+	await _frames(2)
+	_check(not (page.call("stage_button", 2) as Button).disabled, "words: the next stage opens")
+	_check((page.call("stage_button", 3) as Button).disabled, "words: later stages stay locked")
+	page.call("choose_language", "fr")
+	await _frames(2)
+	_check((page.call("stage_button", 2) as Button).disabled, "words: each language has its own stages")
+	_check(_frame.get_global_rect().encloses(page.get_node("SafeArea/Content/BackButton").get_global_rect()), "words: the page fits the screen")
+	page.queue_free()
+	SafeConfig.remove_all("user://test_words_settings.cfg")
+	GameSession.word_language = ""
+	await _frames(2)
 
 
 func _open_level(level_number: int) -> Control:

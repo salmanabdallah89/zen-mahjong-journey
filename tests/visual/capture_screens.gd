@@ -40,12 +40,37 @@ func _ready() -> void:
 				await _capture_level(shape, level, false)
 	get_window().size = SHAPES["phone_9x16"]
 	await _capture_losing()
+	await _capture_words()
 	await _capture_collections()
 	await _capture_zen_small()
 	await _measure_frame_times(10)
 	await _capture_journey()
 	await _capture_ads()
 	_finish()
+
+
+func _capture_words() -> void:
+	var page: Control = load(GameSession.WORDS_SCENE).instantiate()
+	page.settings_path = "user://capture_words.cfg"
+	add_child(page)
+	await _frames(6)
+	await _save("phone_9x16_words_page")
+	page.queue_free()
+	GameSession.word_language = "fr"
+	for stage in [1, 8]:
+		GameSession.word_stage = stage
+		var screen: Control = GAME_SCENE.instantiate()
+		add_child(screen)
+		await _frames(30)
+		await _save("phone_9x16_words_stage%d" % stage)
+		if stage == 8:
+			screen.call("_show_stage_complete")
+			await _frames(30)
+			await _save("phone_9x16_words_complete")
+		screen.queue_free()
+		await _frames(2)
+	GameSession.word_language = ""
+	SafeConfig.remove_all("user://capture_words.cfg")
 
 
 func _finish() -> void:

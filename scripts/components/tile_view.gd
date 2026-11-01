@@ -52,6 +52,9 @@ const GOLDEN_SHIMMER := 1.6
 const GOLDEN_BASE_WIDTH := 232.0
 ## Flip of a mystery tile: seconds for each half (edge-on at the middle).
 const FLIP_HALF := 0.13
+## Word Garden word: largest font size on the tile art and its side margin.
+const WORD_FONT_SIZE := 72
+const WORD_MARGIN := 14.0
 
 var index: int = -1
 ## Tile geometry to build from; set before the tile enters the tree.
@@ -76,6 +79,7 @@ var _golden_tween: Tween
 var _cover: TextureRect
 var _gilding: Panel
 var _badge: Label
+var _word: Label
 
 @onready var _shadow: Panel = %Shadow
 @onready var _lift: Control = %Lift
@@ -127,6 +131,31 @@ func set_art(tile: Texture2D, symbol: Texture2D = null, padding := 0.0) -> void:
 	if symbol:
 		var inset := _art.face_rect.size * padding
 		_place(_symbol, Rect2(_art.face_rect.position + inset, _art.face_rect.size - inset * 2.0))
+
+
+## Word Garden: `text` written on the tile's face, shrunk to fit; "" hides it.
+func set_word(text: String) -> void:
+	if text.is_empty() and _word == null:
+		return
+	if _word == null:
+		_word = Label.new()
+		_word.name = "Word"
+		_word.theme_type_variation = &"TileWordLabel"
+		_word.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_word.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		_word.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_lift.add_child(_word)
+		_lift.move_child(_word, _symbol.get_index() + 1)
+		_place(_word, _art.face_rect)
+	_word.text = text
+	_word.visible = not text.is_empty()
+	var room := _art.face_rect.size.x - WORD_MARGIN * 2.0
+	var wide := _word.get_theme_font("font").get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, WORD_FONT_SIZE).x
+	_word.add_theme_font_size_override("font_size", mini(WORD_FONT_SIZE, floori(WORD_FONT_SIZE * room / maxf(wide, 1.0))))
+
+
+func word_text() -> String:
+	return _word.text if _word != null and _word.visible else ""
 
 
 ## `back` shows face-down (a tile back over the face); null shows the face.

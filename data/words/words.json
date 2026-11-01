@@ -1,0 +1,963 @@
+{
+	"_comment": "Word Garden: words in teaching order. Pictures come from the tile collections (never held-back symbols). Have a native speaker check every language before release.",
+	"languages": [
+		{
+			"id": "en",
+			"name": "English"
+		},
+		{
+			"id": "es",
+			"name": "Español"
+		},
+		{
+			"id": "fr",
+			"name": "Français"
+		}
+	],
+	"words": [
+		{
+			"id": "cat",
+			"image": "res://assets/collections/animals/animal_01_cat.png",
+			"en": "Cat",
+			"es": "Gato",
+			"fr": "Chat",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "dog",
+			"image": "res://assets/collections/animals/animal_02_dog.png",
+			"en": "Dog",
+			"es": "Perro",
+			"fr": "Chien",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "rabbit",
+			"image": "res://assets/collections/animals/animal_05_rabbit.png",
+			"en": "Rabbit",
+			"es": "Conejo",
+			"fr": "Lapin",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "bird",
+			"image": "res://assets/collections/animals/animal_17_bird.png",
+			"en": "Bird",
+			"es": "Pájaro",
+			"fr": "Oiseau",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "apple",
+			"image": "res://assets/collections/fruits/fruit_01_apple.png",
+			"en": "Apple",
+			"es": "Manzana",
+			"fr": "Pomme",
+			"region": [
+				52,
+				28,
+				154,
+				152
+			]
+		},
+		{
+			"id": "banana",
+			"image": "res://assets/collections/fruits/fruit_02_banana.png",
+			"en": "Banana",
+			"es": "Plátano",
+			"fr": "Banane",
+			"region": [
+				52,
+				28,
+				154,
+				152
+			]
+		},
+		{
+			"id": "teapot",
+			"image": "res://assets/collections/zen_garden/zen_19_teapot.png",
+			"en": "Teapot",
+			"es": "Tetera",
+			"fr": "Théière"
+		},
+		{
+			"id": "moon",
+			"image": "res://assets/collections/zen_garden/zen_25_crescent_moon.png",
+			"en": "Moon",
+			"es": "Luna",
+			"fr": "Lune"
+		},
+		{
+			"id": "frog",
+			"image": "res://assets/collections/animals/animal_19_frog.png",
+			"en": "Frog",
+			"es": "Rana",
+			"fr": "Grenouille",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "butterfly",
+			"image": "res://assets/collections/animals/animal_27_butterfly.png",
+			"en": "Butterfly",
+			"es": "Mariposa",
+			"fr": "Papillon",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "tree",
+			"image": "res://assets/collections/zen_garden/zen_09_bonsai_pine_tree.png",
+			"en": "Tree",
+			"es": "Árbol",
+			"fr": "Arbre"
+		},
+		{
+			"id": "flower",
+			"image": "res://assets/collections/zen_garden/zen_18_yellow_chrysanthemum.png",
+			"en": "Flower",
+			"es": "Flor",
+			"fr": "Fleur"
+		},
+		{
+			"id": "pig",
+			"image": "res://assets/collections/animals/animal_11_pig.png",
+			"en": "Pig",
+			"es": "Cerdo",
+			"fr": "Cochon",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "cow",
+			"image": "res://assets/collections/animals/animal_12_cow.png",
+			"en": "Cow",
+			"es": "Vaca",
+			"fr": "Vache",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "carrot",
+			"image": "res://assets/collections/vegetables/vegetable_01_carrot.png",
+			"en": "Carrot",
+			"es": "Zanahoria",
+			"fr": "Carotte",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "tomato",
+			"image": "res://assets/collections/vegetables/vegetable_03_tomato.png",
+			"en": "Tomato",
+			"es": "Tomate",
+			"fr": "Tomate",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "orange",
+			"image": "res://assets/collections/fruits/fruit_03_orange.png",
+			"en": "Orange",
+			"es": "Naranja",
+			"fr": "Orange",
+			"region": [
+				52,
+				28,
+				154,
+				152
+			]
+		},
+		{
+			"id": "strawberry",
+			"image": "res://assets/collections/fruits/fruit_04_strawberry.png",
+			"en": "Strawberry",
+			"es": "Fresa",
+			"fr": "Fraise",
+			"region": [
+				52,
+				28,
+				154,
+				152
+			]
+		},
+		{
+			"id": "leaf",
+			"image": "res://assets/collections/zen_garden/zen_04_red_maple_leaf.png",
+			"en": "Leaf",
+			"es": "Hoja",
+			"fr": "Feuille"
+		},
+		{
+			"id": "mountain",
+			"image": "res://assets/collections/zen_garden/zen_13_mount_fuji_red_sun.png",
+			"en": "Mountain",
+			"es": "Montaña",
+			"fr": "Montagne"
+		},
+		{
+			"id": "tiger",
+			"image": "res://assets/collections/animals/animal_07_tiger.png",
+			"en": "Tiger",
+			"es": "Tigre",
+			"fr": "Tigre",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "lion",
+			"image": "res://assets/collections/animals/animal_08_lion.png",
+			"en": "Lion",
+			"es": "León",
+			"fr": "Lion",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "elephant",
+			"image": "res://assets/collections/animals/animal_09_elephant.png",
+			"en": "Elephant",
+			"es": "Elefante",
+			"fr": "Éléphant",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "monkey",
+			"image": "res://assets/collections/animals/animal_10_monkey.png",
+			"en": "Monkey",
+			"es": "Mono",
+			"fr": "Singe",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "grapes",
+			"image": "res://assets/collections/fruits/fruit_05_grapes.png",
+			"en": "Grapes",
+			"es": "Uvas",
+			"fr": "Raisins",
+			"region": [
+				52,
+				28,
+				154,
+				152
+			]
+		},
+		{
+			"id": "lemon",
+			"image": "res://assets/collections/fruits/fruit_08_lemon.png",
+			"en": "Lemon",
+			"es": "Limón",
+			"fr": "Citron",
+			"region": [
+				52,
+				28,
+				154,
+				152
+			]
+		},
+		{
+			"id": "umbrella",
+			"image": "res://assets/collections/zen_garden/zen_26_red_paper_umbrella.png",
+			"en": "Umbrella",
+			"es": "Paraguas",
+			"fr": "Parapluie"
+		},
+		{
+			"id": "bridge",
+			"image": "res://assets/collections/zen_garden/zen_28_red_arched_bridge.png",
+			"en": "Bridge",
+			"es": "Puente",
+			"fr": "Pont"
+		},
+		{
+			"id": "panda",
+			"image": "res://assets/collections/animals/animal_03_panda.png",
+			"en": "Panda",
+			"es": "Panda",
+			"fr": "Panda",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "fox",
+			"image": "res://assets/collections/animals/animal_04_fox.png",
+			"en": "Fox",
+			"es": "Zorro",
+			"fr": "Renard",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "mouse",
+			"image": "res://assets/collections/animals/animal_06_mouse.png",
+			"en": "Mouse",
+			"es": "Ratón",
+			"fr": "Souris",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "owl",
+			"image": "res://assets/collections/animals/animal_15_owl.png",
+			"en": "Owl",
+			"es": "Búho",
+			"fr": "Hibou",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "corn",
+			"image": "res://assets/collections/vegetables/vegetable_06_corn.png",
+			"en": "Corn",
+			"es": "Maíz",
+			"fr": "Maïs",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "onion",
+			"image": "res://assets/collections/vegetables/vegetable_11_onion.png",
+			"en": "Onion",
+			"es": "Cebolla",
+			"fr": "Oignon",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "bell",
+			"image": "res://assets/collections/zen_garden/zen_31_bronze_temple_bell.png",
+			"en": "Bell",
+			"es": "Campana",
+			"fr": "Cloche"
+		},
+		{
+			"id": "wave",
+			"image": "res://assets/collections/zen_garden/zen_33_ocean_wave.png",
+			"en": "Wave",
+			"es": "Ola",
+			"fr": "Vague"
+		},
+		{
+			"id": "penguin",
+			"image": "res://assets/collections/animals/animal_16_penguin.png",
+			"en": "Penguin",
+			"es": "Pingüino",
+			"fr": "Pingouin",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "turtle",
+			"image": "res://assets/collections/animals/animal_20_turtle.png",
+			"en": "Turtle",
+			"es": "Tortuga",
+			"fr": "Tortue",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "dolphin",
+			"image": "res://assets/collections/animals/animal_21_dolphin.png",
+			"en": "Dolphin",
+			"es": "Delfín",
+			"fr": "Dauphin",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "whale",
+			"image": "res://assets/collections/animals/animal_22_whale.png",
+			"en": "Whale",
+			"es": "Ballena",
+			"fr": "Baleine",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "cherries",
+			"image": "res://assets/collections/fruits/fruit_07_cherries.png",
+			"en": "Cherries",
+			"es": "Cerezas",
+			"fr": "Cerises",
+			"region": [
+				52,
+				28,
+				154,
+				152
+			]
+		},
+		{
+			"id": "peach",
+			"image": "res://assets/collections/fruits/fruit_11_peach.png",
+			"en": "Peach",
+			"es": "Melocotón",
+			"fr": "Pêche",
+			"region": [
+				52,
+				28,
+				154,
+				152
+			]
+		},
+		{
+			"id": "pear",
+			"image": "res://assets/collections/fruits/fruit_12_pear.png",
+			"en": "Pear",
+			"es": "Pera",
+			"fr": "Poire",
+			"region": [
+				52,
+				28,
+				154,
+				152
+			]
+		},
+		{
+			"id": "pineapple",
+			"image": "res://assets/collections/fruits/fruit_13_pineapple.png",
+			"en": "Pineapple",
+			"es": "Piña",
+			"fr": "Ananas",
+			"region": [
+				52,
+				28,
+				154,
+				152
+			]
+		},
+		{
+			"id": "shark",
+			"image": "res://assets/collections/animals/animal_23_shark.png",
+			"en": "Shark",
+			"es": "Tiburón",
+			"fr": "Requin",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "bee",
+			"image": "res://assets/collections/animals/animal_28_bee.png",
+			"en": "Bee",
+			"es": "Abeja",
+			"fr": "Abeille",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "snail",
+			"image": "res://assets/collections/animals/animal_30_snail.png",
+			"en": "Snail",
+			"es": "Caracol",
+			"fr": "Escargot",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "crab",
+			"image": "res://assets/collections/animals/animal_31_crab.png",
+			"en": "Crab",
+			"es": "Cangrejo",
+			"fr": "Crabe",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "garlic",
+			"image": "res://assets/collections/vegetables/vegetable_12_garlic.png",
+			"en": "Garlic",
+			"es": "Ajo",
+			"fr": "Ail",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "mushroom",
+			"image": "res://assets/collections/vegetables/vegetable_13_mushroom.png",
+			"en": "Mushroom",
+			"es": "Champiñón",
+			"fr": "Champignon",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "pumpkin",
+			"image": "res://assets/collections/vegetables/vegetable_26_pumpkin.png",
+			"en": "Pumpkin",
+			"es": "Calabaza",
+			"fr": "Citrouille",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "eggplant",
+			"image": "res://assets/collections/vegetables/vegetable_05_eggplant.png",
+			"en": "Eggplant",
+			"es": "Berenjena",
+			"fr": "Aubergine",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "watermelon",
+			"image": "res://assets/collections/fruits/fruit_14_watermelon.png",
+			"en": "Watermelon",
+			"es": "Sandía",
+			"fr": "Pastèque",
+			"region": [
+				52,
+				28,
+				154,
+				152
+			]
+		},
+		{
+			"id": "mango",
+			"image": "res://assets/collections/fruits/fruit_10_mango.png",
+			"en": "Mango",
+			"es": "Mango",
+			"fr": "Mangue",
+			"region": [
+				52,
+				28,
+				154,
+				152
+			]
+		},
+		{
+			"id": "melon",
+			"image": "res://assets/collections/fruits/fruit_19_melon.png",
+			"en": "Melon",
+			"es": "Melón",
+			"fr": "Melon",
+			"region": [
+				52,
+				28,
+				154,
+				152
+			]
+		},
+		{
+			"id": "fig",
+			"image": "res://assets/collections/fruits/fruit_20_fig.png",
+			"en": "Fig",
+			"es": "Higo",
+			"fr": "Figue",
+			"region": [
+				52,
+				28,
+				154,
+				152
+			]
+		},
+		{
+			"id": "bamboo",
+			"image": "res://assets/collections/zen_garden/zen_03_bamboo.png",
+			"en": "Bamboo",
+			"es": "Bambú",
+			"fr": "Bambou"
+		},
+		{
+			"id": "lotus",
+			"image": "res://assets/collections/zen_garden/zen_06_pink_lotus.png",
+			"en": "Lotus",
+			"es": "Loto",
+			"fr": "Lotus"
+		},
+		{
+			"id": "pagoda",
+			"image": "res://assets/collections/zen_garden/zen_14_pagoda.png",
+			"en": "Pagoda",
+			"es": "Pagoda",
+			"fr": "Pagode"
+		},
+		{
+			"id": "fan",
+			"image": "res://assets/collections/zen_garden/zen_23_folding_fan.png",
+			"en": "Fan",
+			"es": "Abanico",
+			"fr": "Éventail"
+		},
+		{
+			"id": "deer",
+			"image": "res://assets/collections/animals/animal_13_deer.png",
+			"en": "Deer",
+			"es": "Ciervo",
+			"fr": "Cerf",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "squirrel",
+			"image": "res://assets/collections/animals/animal_14_squirrel.png",
+			"en": "Squirrel",
+			"es": "Ardilla",
+			"fr": "Écureuil",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "seal",
+			"image": "res://assets/collections/animals/animal_24_seal.png",
+			"en": "Seal",
+			"es": "Foca",
+			"fr": "Phoque",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "hedgehog",
+			"image": "res://assets/collections/animals/animal_26_hedgehog.png",
+			"en": "Hedgehog",
+			"es": "Erizo",
+			"fr": "Hérisson",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "broccoli",
+			"image": "res://assets/collections/vegetables/vegetable_02_broccoli.png",
+			"en": "Broccoli",
+			"es": "Brócoli",
+			"fr": "Brocoli",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "cucumber",
+			"image": "res://assets/collections/vegetables/vegetable_04_cucumber.png",
+			"en": "Cucumber",
+			"es": "Pepino",
+			"fr": "Concombre",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "lettuce",
+			"image": "res://assets/collections/vegetables/vegetable_15_lettuce.png",
+			"en": "Lettuce",
+			"es": "Lechuga",
+			"fr": "Laitue",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "ginger",
+			"image": "res://assets/collections/vegetables/vegetable_30_ginger.png",
+			"en": "Ginger",
+			"es": "Jengibre",
+			"fr": "Gingembre",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "ladybug",
+			"image": "res://assets/collections/animals/animal_29_ladybug.png",
+			"en": "Ladybug",
+			"es": "Mariquita",
+			"fr": "Coccinelle",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "octopus",
+			"image": "res://assets/collections/animals/animal_32_octopus.png",
+			"en": "Octopus",
+			"es": "Pulpo",
+			"fr": "Pieuvre",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "flamingo",
+			"image": "res://assets/collections/animals/animal_36_flamingo.png",
+			"en": "Flamingo",
+			"es": "Flamenco",
+			"fr": "Flamant",
+			"region": [
+				56,
+				34,
+				144,
+				140
+			]
+		},
+		{
+			"id": "lantern",
+			"image": "res://assets/collections/zen_garden/zen_11_red_paper_lantern.png",
+			"en": "Lantern",
+			"es": "Farol",
+			"fr": "Lanterne"
+		},
+		{
+			"id": "blueberries",
+			"image": "res://assets/collections/fruits/fruit_06_blueberries.png",
+			"en": "Blueberries",
+			"es": "Arándanos",
+			"fr": "Myrtilles",
+			"region": [
+				52,
+				28,
+				154,
+				152
+			]
+		},
+		{
+			"id": "kiwi",
+			"image": "res://assets/collections/fruits/fruit_15_kiwi.png",
+			"en": "Kiwi",
+			"es": "Kiwi",
+			"fr": "Kiwi",
+			"region": [
+				52,
+				28,
+				154,
+				152
+			]
+		},
+		{
+			"id": "pomegranate",
+			"image": "res://assets/collections/fruits/fruit_16_pomegranate.png",
+			"en": "Pomegranate",
+			"es": "Granada",
+			"fr": "Grenade",
+			"region": [
+				52,
+				28,
+				154,
+				152
+			]
+		},
+		{
+			"id": "avocado",
+			"image": "res://assets/collections/fruits/fruit_18_avocado.png",
+			"en": "Avocado",
+			"es": "Aguacate",
+			"fr": "Avocat",
+			"region": [
+				52,
+				28,
+				154,
+				152
+			]
+		},
+		{
+			"id": "papaya",
+			"image": "res://assets/collections/fruits/fruit_21_papaya.png",
+			"en": "Papaya",
+			"es": "Papaya",
+			"fr": "Papaye",
+			"region": [
+				52,
+				28,
+				154,
+				152
+			]
+		},
+		{
+			"id": "raspberry",
+			"image": "res://assets/collections/fruits/fruit_25_raspberry.png",
+			"en": "Raspberry",
+			"es": "Frambuesa",
+			"fr": "Framboise",
+			"region": [
+				52,
+				28,
+				154,
+				152
+			]
+		},
+		{
+			"id": "blackberry",
+			"image": "res://assets/collections/fruits/fruit_26_blackberry.png",
+			"en": "Blackberry",
+			"es": "Mora",
+			"fr": "Mûre",
+			"region": [
+				52,
+				28,
+				154,
+				152
+			]
+		},
+		{
+			"id": "stones",
+			"image": "res://assets/collections/zen_garden/zen_24_stacked_zen_stones.png",
+			"en": "Stones",
+			"es": "Piedras",
+			"fr": "Pierres"
+		}
+	]
+}

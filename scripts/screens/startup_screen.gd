@@ -8,6 +8,7 @@ const MENU_GARDEN := "bg_golden_sakura"
 
 @onready var _title_block: Control = %TitleBlock
 @onready var _play_button: Button = %PlayButton
+@onready var _words_button: Button = %WordsButton
 @onready var _collection_button: Button = %CollectionButton
 @onready var _picker: CollectionPicker = %CollectionPicker
 @onready var _settings_button: Button = %SettingsButton
@@ -18,6 +19,7 @@ const MENU_GARDEN := "bg_golden_sakura"
 
 func _ready() -> void:
 	_play_button.pressed.connect(_on_play_pressed)
+	_words_button.pressed.connect(GameSession.go_words)
 	_collection_button.pressed.connect(_picker.open)
 	_picker.hide()
 	_settings_button.pressed.connect(_settings.open)
@@ -49,12 +51,14 @@ func _notification(what: int) -> void:
 func _play_intro() -> void:
 	_title_block.modulate.a = 0.0
 	_play_button.modulate.a = 0.0
+	_words_button.modulate.a = 0.0
 	_collection_button.modulate.a = 0.0
 	_settings_button.modulate.a = 0.0
 	_leaderboard_button.modulate.a = 0.0
 	var tween := create_tween()
 	tween.tween_property(_title_block, "modulate:a", 1.0, 0.8).set_trans(Tween.TRANS_SINE)
 	tween.tween_property(_play_button, "modulate:a", 1.0, 0.5).set_trans(Tween.TRANS_SINE)
+	tween.parallel().tween_property(_words_button, "modulate:a", 1.0, 0.5).set_trans(Tween.TRANS_SINE)
 	tween.parallel().tween_property(_collection_button, "modulate:a", 1.0, 0.5).set_trans(Tween.TRANS_SINE)
 	tween.parallel().tween_property(_settings_button, "modulate:a", 1.0, 0.5).set_trans(Tween.TRANS_SINE)
 	tween.parallel().tween_property(_leaderboard_button, "modulate:a", 1.0, 0.5).set_trans(Tween.TRANS_SINE)

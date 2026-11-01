@@ -375,6 +375,7 @@ func _apply_art(index: int) -> void:
 	var face := _model.face_of(index)
 	var view := _tiles[index]
 	view.set_art(_skin.tile_texture(face), _skin.symbol_texture(face), _skin.symbol_padding)
+	view.set_word(_skin.word_text(face))
 	var face_down := specials != null and specials.is_mystery(index)
 	view.set_mystery(_mystery_cover() if face_down else null, not _art.mystery_back.is_empty())
 	view.set_golden(specials != null and specials.is_golden(index))

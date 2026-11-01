@@ -78,6 +78,9 @@ var _last_bell_at := -1.0
 var _ambience: GardenAmbience
 ## Mystery (face-down) and golden lotus (double points) tiles of this board.
 var _specials := TileSpecials.new()
+## Word Garden: words on this board and those mixed up this attempt.
+var _word_ids := PackedStringArray()
+var _words_missed := PackedStringArray()
 
 @onready var _background: TextureRect = %Background
 @onready var _board: BoardView = %Board
@@ -181,7 +184,7 @@ func _pause_if_playing() -> void:
 
 
 func _start_level() -> void:
-	_level = LevelCatalog.get_level(GameSession.current_level)
+	_level = WordCatalog.level_for(GameSession.word_stage) if _learning() else LevelCatalog.get_level(GameSession.current_level)
 	if _level == null:
 		push_error("GameScreen: level %d does not exist" % GameSession.current_level)
 		GameSession.go_home()
@@ -195,7 +198,11 @@ func _start_level() -> void:
 	AudioManager.reset_melody()
 	AudioManager.set_ambience(AudioCatalog.AMBIENCE_FOR_BACKGROUND.get(_level.background, AudioCatalog.MENU_AMBIENCE))
 	var geometry := _level.load_layout().build_geometry()
-	var deal := BoardGenerator.generate(geometry, _level.face_pool(), _level.deal_seed)
+	if _learning():
+		_word_ids = WordCatalog.stage_words(GameSession.word_stage, GameSession.progress.word_review(GameSession.word_language))
+		_words_missed.clear()
+	var pool := WordCatalog.faces_for(_word_ids) if _learning() else _level.face_pool()
+	var deal := BoardGenerator.generate(geometry, pool, _level.deal_seed)
 	if not deal.ok:
 		push_error("GameScreen: could not deal a solvable board for level %d" % _level.number)
 		GameSession.go_home()
@@ -228,7 +235,8 @@ func _start_level() -> void:
 	_pause_open = false
 	_last_bell_at = -1.0
 	_build_hearts()
-	_board.show_board(_model, TileCollectionManager.skin_for_board(_model.faces, _level.deal_seed))
+	_show_learning_hud()
+	_board.show_board(_model, _board_skin())
 	_update_hud()
 	_show_collection_notice()
 	_introduce_specials()
@@ -245,6 +253,23 @@ func _introduce_specials() -> void:
 		_show_toast("Golden lotus tiles score double points. Find their pair!")
 	elif _level.number == TileSpecials.FIRST_MYSTERY_LEVEL:
 		_show_toast("Face-down tiles turn over when you uncover them.")
+
+
+func _learning() -> bool:
+	return not GameSession.word_language.is_empty()
+
+
+func _board_skin() -> TileSkin:
+	if _learning():
+		return WordSkin.for_words(_word_ids, GameSession.word_language)
+	return TileCollectionManager.skin_for_board(_model.faces, _level.deal_seed)
+
+
+## Word Garden has no clock, hearts or score to watch.
+func _show_learning_hud() -> void:
+	%TimeBox.visible = not _learning()
+	%HeartsPill.visible = not _learning()
+	_score_meter.visible = not _learning()
 
 
 func tutorial_active() -> bool:
@@ -346,7 +371,8 @@ func _remove_pair(a: int, b: int) -> void:
 	var contact := _board.play_removal(a, b, burst, revealed)
 	if not revealed.is_empty():
 		_after(contact, AudioManager.play_sfx.bind("star"))
-	_after(contact, _land_points.bind(points, _board.meeting_point_global(a, b)))
+	if not _learning():
+		_after(contact, _land_points.bind(points, _board.meeting_point_global(a, b)))
 	if cleared:
 		_after(contact, _play_edge_glow)
 	_update_hud()
@@ -354,7 +380,9 @@ func _remove_pair(a: int, b: int) -> void:
 	var ring_in := maxf(contact, _last_bell_at + BELL_SPACING - now)
 	_last_bell_at = now + ring_in
 	_after(ring_in, _on_pair_met.bind(step, combo, cleared, factor > 1))
-	if not cleared:
+	if _learning():
+		_after(ring_in, _say_word.bind(WordCatalog.id_of(_model.face_of(a))))
+	elif not cleared:
 		_check_milestones(ring_in)
 	if cleared:
 		# Let the last pair meet and bloom (and a short bell queue finish) first.
@@ -375,7 +403,18 @@ func _on_pair_met(step: int, combo: int, cleared: bool, golden := false) -> void
 		AudioManager.play_sfx("reward")
 		AudioManager.vibrate(30)
 		return
-	_show_combo(combo)
+	if not _learning():
+		_show_combo(combo)
+
+
+## A matched word appears under the board and is read aloud.
+func _say_word(word_id: String) -> void:
+	if _dialog.visible:
+		return
+	var text := WordCatalog.text(word_id, GameSession.word_language)
+	_toast.hide()
+	_praise.show_message(text)
+	WordVoice.speak(text, GameSession.word_language)
 
 
 ## Points rise from where the pair met and glide into the score, which counts
@@ -704,7 +743,7 @@ func _update_hud() -> void:
 		_shuffle_label.text = "Shuffle"
 	_undo_label.text = "Undo (%d)" % _undos_left
 	_update_timer_label()
-	_level_value.text = "Level %d" % _level.number
+	_level_value.text = _level_name()
 	_level_caption.text = _level.title.to_upper()
 	_undo_button.disabled = not can_undo()
 	_hint_button.disabled = _model.is_cleared()
@@ -716,12 +755,24 @@ func _open_pause_menu() -> void:
 	if _model and _model.is_cleared():
 		return
 	_pause_open = true
-	_dialog.open("Paused", "Level %d · %s" % [_level.number, _level.title])
+	_dialog.open("Paused", "%s · %s" % [_level_name(), _level.title])
 	_dialog.add_action("Resume", _resume, true)
 	_dialog.add_action("Settings", _open_settings)
-	_dialog.add_action("Tile Collection", _open_collection_picker)
+	if not _learning():
+		_dialog.add_action("Tile Collection", _open_collection_picker)
 	_dialog.add_action("Restart", _restart)
-	_dialog.add_action("Levels", GameSession.go_levels)
+	_dialog.add_action("Stages" if _learning() else "Levels", _go_to_list)
+
+
+func _level_name() -> String:
+	return "Stage %d" % GameSession.word_stage if _learning() else "Level %d" % _level.number
+
+
+func _go_to_list() -> void:
+	if _learning():
+		GameSession.go_words()
+	else:
+		GameSession.go_levels()
 
 
 ## Seconds played this attempt.
@@ -743,7 +794,7 @@ func _on_picker_closed() -> void:
 
 ## Re-skins the board in place: same tiles, same state, new artwork.
 func _on_collection_changed(_collection_id: String) -> void:
-	if _model:
+	if _model and not _learning():
 		_set_selected(-1)
 		_clear_hint()
 		_board.apply_skin(TileCollectionManager.skin_for_board(_model.faces, _level.deal_seed))
@@ -777,6 +828,9 @@ func _show_level_complete() -> void:
 	_praise.dismiss()
 	AudioManager.play_sfx("level_complete")
 	AudioManager.duck_music_for(3.0)
+	if _learning():
+		_show_stage_complete()
+		return
 	var seconds := int(_elapsed)
 	var summary := "%s cleared in %d:%02d with %s left\n%s · %s · %s" % [
 		_level.title, floori(seconds / 60.0), seconds % 60, _clock(_time_left),
@@ -807,6 +861,25 @@ func _show_level_complete() -> void:
 	_dialog.add_action("Replay", func() -> void: AdsManager.after_level_complete(_restart), not GameSession.has_next_level())
 	_dialog.add_action("Levels", func() -> void: AdsManager.after_level_complete(GameSession.go_levels))
 	_report_rank()
+	_play_celebration()
+	AudioManager.vibrate(60)
+
+
+## Word Garden's end of stage: the words of the board, then on to the next.
+func _show_stage_complete() -> void:
+	var language := GameSession.word_language
+	var earned := WordCatalog.stars(_mistakes)
+	GameSession.progress.record_word_stage(language, GameSession.word_stage, earned, _word_ids, _words_missed)
+	var shown := PackedStringArray()
+	for word_id in _word_ids:
+		shown.append(WordCatalog.text(word_id, language))
+	_dialog.open("Stage Complete!", "%d words today\n%s" % [_word_ids.size(), " · ".join(shown)])
+	if GameSession.word_stage < WordCatalog.STAGE_COUNT:
+		_dialog.add_action("Next Stage", func() -> void:
+			AdsManager.after_level_complete(GameSession.play_word_stage.bind(language, GameSession.word_stage + 1)), true)
+	_dialog.add_action("Replay", func() -> void: AdsManager.after_level_complete(_restart), GameSession.word_stage == WordCatalog.STAGE_COUNT)
+	_dialog.add_action("Stages", func() -> void: AdsManager.after_level_complete(GameSession.go_words))
+	_dialog.set_stars(earned, LevelRating.MAX_STARS, true)
 	_play_celebration()
 	AudioManager.vibrate(60)
 
@@ -907,7 +980,7 @@ func _process(delta: float) -> void:
 
 ## The clock only runs while the player is actually playing.
 func _clock_running() -> bool:
-	return _model != null and not _failed and not _model.is_cleared() and not tutorial_active() \
+	return _model != null and _level.time_limit > 0 and not _failed and not _model.is_cleared() and not tutorial_active() \
 		and not _dialog.visible and not _picker.visible and not _settings.visible and not AdsManager.is_showing()
 
 
@@ -921,6 +994,9 @@ func _register_mistake(a: int, b: int) -> void:
 		_board.tile(b).play_mistake()
 		AudioManager.play_sfx("mistake")
 		_tutorial.remark("Those two don't match. Look for two identical tiles.")
+		return
+	if _learning():
+		_word_mistake(a, b)
 		return
 	_mistakes += 1
 	_set_selected(-1)
@@ -937,6 +1013,28 @@ func _register_mistake(a: int, b: int) -> void:
 		_show_toast("Those tiles don't match. One mistake left!")
 	else:
 		_show_toast("Those tiles don't match. %d mistakes left." % left)
+
+
+## No hearts to lose: the tiles shake softly, the picked word is shown again
+## and both words come back in a later stage.
+func _word_mistake(a: int, b: int) -> void:
+	_mistakes += 1
+	_set_selected(-1)
+	_clear_hint()
+	_board.tile(a).play_mistake()
+	_board.tile(b).play_mistake()
+	AudioManager.play_sfx("mistake")
+	for index in [a, b]:
+		var word_id := WordCatalog.id_of(_model.face_of(index))
+		if not _words_missed.has(word_id):
+			_words_missed.append(word_id)
+	var shown := a if WordCatalog.is_picture(_model.face_of(a)) else b
+	if WordCatalog.is_picture(_model.face_of(shown)):
+		var text := WordCatalog.text(WordCatalog.id_of(_model.face_of(shown)), GameSession.word_language)
+		_show_toast("That picture is: %s" % text)
+		WordVoice.speak(text, GameSession.word_language)
+	else:
+		_show_toast("Match each word with its picture.")
 
 
 func _lose(reason: LossReason) -> void:
