@@ -15,7 +15,6 @@ const LARGE_STAGE := 8
 const SMALL_LAYOUT := "lotus_pond"
 const LARGE_LAYOUT := "stepping_stones"
 const SEED_BASE := 7300
-const GARDENS: PackedStringArray = ["bg_golden_sakura", "bg_bamboo_forest", "bg_misty_temple", "bg_moonlight_sanctuary"]
 ## Mistakes allowed for 3 and for 2 stars.
 const THREE_STAR_MISTAKES := 0
 const TWO_STAR_MISTAKES := 2
@@ -120,7 +119,7 @@ static func level_for(stage: int) -> LevelCatalog.LevelDefinition:
 	level.deal_seed = SEED_BASE + stage
 	level.time_limit = 0
 	level.mistake_limit = 0
-	level.background = GARDENS[(stage - 1) % GARDENS.size()]
+	level.background = LevelRecipe.garden_of_chapter((stage - 1) / LevelRecipe.CHAPTER_SIZE)
 	return level
 
 

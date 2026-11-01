@@ -1,7 +1,15 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/screens/word_garden_screen.gd" id="1_script"]
 [ext_resource type="Script" path="res://scripts/components/safe_area_container.gd" id="2_safe"]
+[ext_resource type="Script" path="res://scripts/components/journey_world.gd" id="3_world"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/icon_back.png" id="4_back"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/icon_star.png" id="5_star"]
+[ext_resource type="Texture2D" path="res://assets/effects/petal_02.png" id="6_petal"]
+
+[sub_resource type="Gradient" id="Gradient_petal_fade"]
+offsets = PackedFloat32Array(0, 0.1, 0.85, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0.9, 1, 1, 1, 0.8, 1, 1, 1, 0)
 
 [node name="WordGardenScreen" type="Control"]
 layout_mode = 3
@@ -12,7 +20,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
 
-[node name="Background" type="TextureRect" parent="."]
+[node name="World" type="Control" parent="."]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -20,19 +28,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
-expand_mode = 1
-stretch_mode = 6
-
-[node name="Shade" type="ColorRect" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(0.07, 0.13, 0.12, 0.72)
+script = ExtResource("3_world")
 
 [node name="SafeArea" type="MarginContainer" parent="."]
 layout_mode = 1
@@ -43,77 +39,247 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("2_safe")
-base_margin = 32
+base_margin = 24
 
-[node name="Content" type="VBoxContainer" parent="SafeArea"]
+[node name="Layout" type="VBoxContainer" parent="SafeArea"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 16
+
+[node name="Header" type="PanelContainer" parent="SafeArea/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"MapLabelPlate"
+
+[node name="Row" type="HBoxContainer" parent="SafeArea/Layout/Header"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BackButton" type="Button" parent="SafeArea/Layout/Header/Row"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 120)
+layout_mode = 2
+size_flags_vertical = 4
+tooltip_text = "Back"
+theme_type_variation = &"CircleButton"
+icon = ExtResource("4_back")
+icon_alignment = 1
+expand_icon = true
+
+[node name="TitleBox" type="VBoxContainer" parent="SafeArea/Layout/Header/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = -6
+
+[node name="Title" type="Label" parent="SafeArea/Layout/Header/Row/TitleBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ToolLabel"
+theme_override_font_sizes/font_size = 44
+text = "Word Garden"
+horizontal_alignment = 1
+
+[node name="Caption" type="Label" parent="SafeArea/Layout/Header/Row/TitleBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ToolLabel"
+theme_override_font_sizes/font_size = 30
+text = "CHAPTER 1"
+horizontal_alignment = 1
+
+[node name="ChapterBar" type="ProgressBar" parent="SafeArea/Layout/Header/Row/TitleBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 14)
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"MapProgressBar"
+max_value = 20.0
+show_percentage = false
+
+[node name="StarsBox" type="HBoxContainer" parent="SafeArea/Layout/Header/Row"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 2
+
+[node name="StarIcon" type="TextureRect" parent="SafeArea/Layout/Header/Row/StarsBox"]
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("5_star")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="StarsValue" type="Label" parent="SafeArea/Layout/Header/Row/StarsBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ToolLabel"
+theme_override_font_sizes/font_size = 40
+text = "0 / 30"
+
+[node name="MapSpace" type="Control" parent="SafeArea/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="BottomButtons" type="HBoxContainer" parent="SafeArea/Layout"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 16
 alignment = 1
 
-[node name="Title" type="Label" parent="SafeArea/Content"]
+[node name="LanguageButton" type="Button" parent="SafeArea/Layout/BottomButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 140)
 layout_mode = 2
-theme_type_variation = &"PageTitleLabel"
+theme_type_variation = &"LanguageButton"
+text = "English"
+
+[node name="PlayButton" type="Button" parent="SafeArea/Layout/BottomButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(620, 140)
+layout_mode = 2
+text = "Play Stage 1"
+
+[node name="Petals" type="CPUParticles2D" parent="."]
+position = Vector2(540, -60)
+amount = 14
+lifetime = 9.0
+preprocess = 9.0
+texture = ExtResource("6_petal")
+emission_shape = 3
+emission_rect_extents = Vector2(620, 10)
+direction = Vector2(0.3, 1)
+spread = 25.0
+gravity = Vector2(10, 28)
+initial_velocity_min = 40.0
+initial_velocity_max = 90.0
+angular_velocity_min = -40.0
+angular_velocity_max = 40.0
+angle_min = -180.0
+angle_max = 180.0
+scale_amount_min = 0.28
+scale_amount_max = 0.5
+color_ramp = SubResource("Gradient_petal_fade")
+
+[node name="Toast" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_top = -420.0
+offset_bottom = -340.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_type_variation = &"ToastPanel"
+
+[node name="ToastLabel" type="Label" parent="Toast"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(840, 0)
+layout_mode = 2
+theme_type_variation = &"ToastLabel"
+text = "Message"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="LanguagePanel" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dim" type="ColorRect" parent="LanguagePanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.15294118, 0.23137255, 0.3137255, 0.7)
+
+[node name="Center" type="CenterContainer" parent="LanguagePanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Box" type="PanelContainer" parent="LanguagePanel/Center"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(960, 0)
+layout_mode = 2
+theme_type_variation = &"ModalPanel"
+
+[node name="Column" type="VBoxContainer" parent="LanguagePanel/Center/Box"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Heading" type="Label" parent="LanguagePanel/Center/Box/Column"]
+layout_mode = 2
+theme_type_variation = &"DialogTitleLabel"
 text = "Word Garden"
 horizontal_alignment = 1
 
-[node name="Intro" type="Label" parent="SafeArea/Content"]
-custom_minimum_size = Vector2(760, 0)
+[node name="Intro" type="Label" parent="LanguagePanel/Center/Box/Column"]
+custom_minimum_size = Vector2(720, 0)
 layout_mode = 2
-theme_type_variation = &"PageBodyLabel"
+theme_type_variation = &"DialogBodyLabel"
+theme_override_font_sizes/font_size = 36
 text = "Match each word with its picture or meaning. No clock, no hearts."
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="LearnLabel" type="Label" parent="SafeArea/Content"]
+[node name="LearnLabel" type="Label" parent="LanguagePanel/Center/Box/Column"]
 layout_mode = 2
-theme_type_variation = &"PageBodyLabel"
+theme_type_variation = &"DialogBodyLabel"
 text = "I want to learn"
 horizontal_alignment = 1
 
-[node name="Languages" type="HBoxContainer" parent="SafeArea/Content"]
+[node name="Languages" type="GridContainer" parent="LanguagePanel/Center/Box/Column"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 12
-alignment = 1
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 16
+columns = 2
 
-[node name="SpeakLabel" type="Label" parent="SafeArea/Content"]
+[node name="SpeakLabel" type="Label" parent="LanguagePanel/Center/Box/Column"]
 layout_mode = 2
-theme_type_variation = &"PageBodyLabel"
+theme_type_variation = &"DialogBodyLabel"
 text = "I speak"
 horizontal_alignment = 1
 
-[node name="Natives" type="HBoxContainer" parent="SafeArea/Content"]
+[node name="Natives" type="GridContainer" parent="LanguagePanel/Center/Box/Column"]
 unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/separation = 12
-alignment = 1
-
-[node name="StageScroll" type="ScrollContainer" parent="SafeArea/Content"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 3
-horizontal_scroll_mode = 0
-
-[node name="Stages" type="GridContainer" parent="SafeArea/Content/StageScroll"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 6
-theme_override_constants/h_separation = 20
-theme_override_constants/v_separation = 20
-columns = 2
-
-[node name="Credit" type="Label" parent="SafeArea/Content"]
-layout_mode = 2
-theme_type_variation = &"PageBodyLabel"
-theme_override_font_sizes/font_size = 30
-text = "Noto Emoji, Noto Naskh Arabic, Fraunces: SIL OFL 1.1"
-autowrap_mode = 3
-horizontal_alignment = 1
-
-[node name="BackButton" type="Button" parent="SafeArea/Content"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(440, 136)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_type_variation = &"SecondaryButton"
-text = "Back"
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 16
+columns = 2
+
+[node name="Credit" type="Label" parent="LanguagePanel/Center/Box/Column"]
+custom_minimum_size = Vector2(720, 0)
+layout_mode = 2
+theme_type_variation = &"HudCaptionLabel"
+text = "Noto Emoji, Noto Naskh Arabic, Fraunces: SIL OFL 1.1"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="DoneButton" type="Button" parent="LanguagePanel/Center/Box/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(560, 136)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Done"

@@ -54,6 +54,9 @@ func _capture_words() -> void:
 	page.settings_path = "user://capture_words.cfg"
 	add_child(page)
 	await _frames(6)
+	await _save("phone_9x16_words_languages")
+	page.get_node("%LanguagePanel").hide()
+	await _frames(4)
 	await _save("phone_9x16_words_page")
 	page.queue_free()
 	GameSession.word_language = "es"

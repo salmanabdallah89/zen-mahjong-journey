@@ -168,7 +168,7 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
 - **World rank:** autoload `GlobalRank` (Talo REST API, docs/LEADERBOARD.md) sends the total score and
   this week's points after each clear; the rank shows on Level Complete. No key in
   `data/leaderboard.json` (ignored by git) or no connection = no rank, play is never held up.
-- **Word Garden:** language mode (`word_garden_screen`, `GameSession.play_word_stage`). `WordCatalog` (core)
+- **Word Garden:** language mode (`word_garden_screen`, a `JourneyWorld` map of stages with a language panel; `GameSession.play_word_stage`). `WordCatalog` (core)
   reads data/words/words.json (teaching order; words without `image` pair with their translation in `GameSession.word_native`; pictures from collections, never held-back symbols, and `assets/words`, Noto Emoji 3D)
   and plans stages per language (`stage_count()`, from the word list): new words plus review (`ProgressStore.word_review`). Faces
   `word_<id>_p` / `word_<id>_w` are one match group with one picture and one word, so model, hints,

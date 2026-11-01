@@ -66,12 +66,14 @@ func _ready() -> void:
 	_padlock.hide()
 
 
-func setup(level: LevelCatalog.LevelDefinition, earned_stars: int, is_unlocked: bool, is_current: bool) -> void:
+## `caption` replaces the difficulty on the plate of an open stop.
+func setup(level: LevelCatalog.LevelDefinition, earned_stars: int, is_unlocked: bool, is_current: bool, caption := "") -> void:
 	level_number = level.number
 	unlocked = is_unlocked
 	_number.text = str(level.number)
 	_title.text = level.title
-	_difficulty.text = LevelRating.difficulty_label(level.difficulty).to_upper() if is_unlocked else "LOCKED"
+	var open_text := caption if not caption.is_empty() else LevelRating.difficulty_label(level.difficulty).to_upper()
+	_difficulty.text = open_text if is_unlocked else "LOCKED"
 	if not is_unlocked:
 		_marker.texture_normal = MARKER_LOCKED
 	else:
