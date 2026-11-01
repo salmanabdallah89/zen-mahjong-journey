@@ -70,13 +70,26 @@ layout_mode = 2
 theme_override_constants/separation = 16
 alignment = 1
 
-[node name="Stages" type="GridContainer" parent="SafeArea/Content"]
+[node name="StageScroll" type="ScrollContainer" parent="SafeArea/Content"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 4
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Stages" type="GridContainer" parent="SafeArea/Content/StageScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 6
 theme_override_constants/h_separation = 20
 theme_override_constants/v_separation = 20
 columns = 2
+
+[node name="Credit" type="Label" parent="SafeArea/Content"]
+layout_mode = 2
+theme_type_variation = &"PageBodyLabel"
+theme_override_font_sizes/font_size = 30
+text = "Pictures: Noto Emoji by Google, SIL OFL 1.1"
+horizontal_alignment = 1
 
 [node name="BackButton" type="Button" parent="SafeArea/Content"]
 unique_name_in_owner = true

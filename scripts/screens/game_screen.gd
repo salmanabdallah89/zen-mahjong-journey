@@ -874,10 +874,10 @@ func _show_stage_complete() -> void:
 	for word_id in _word_ids:
 		shown.append(WordCatalog.text(word_id, language))
 	_dialog.open("Stage Complete!", "%d words today\n%s" % [_word_ids.size(), " · ".join(shown)])
-	if GameSession.word_stage < WordCatalog.STAGE_COUNT:
+	if GameSession.word_stage < WordCatalog.stage_count():
 		_dialog.add_action("Next Stage", func() -> void:
 			AdsManager.after_level_complete(GameSession.play_word_stage.bind(language, GameSession.word_stage + 1)), true)
-	_dialog.add_action("Replay", func() -> void: AdsManager.after_level_complete(_restart), GameSession.word_stage == WordCatalog.STAGE_COUNT)
+	_dialog.add_action("Replay", func() -> void: AdsManager.after_level_complete(_restart), GameSession.word_stage == WordCatalog.stage_count())
 	_dialog.add_action("Stages", func() -> void: AdsManager.after_level_complete(GameSession.go_words))
 	_dialog.set_stars(earned, LevelRating.MAX_STARS, true)
 	_play_celebration()

@@ -169,8 +169,8 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
   this week's points after each clear; the rank shows on Level Complete. No key in
   `data/leaderboard.json` (ignored by git) or no connection = no rank, play is never held up.
 - **Word Garden:** language mode (`word_garden_screen`, `GameSession.play_word_stage`). `WordCatalog` (core)
-  reads data/words/words.json (teaching order; pictures from collections, never held-back symbols)
-  and plans 10 stages per language: new words plus review (`ProgressStore.word_review`). Faces
+  reads data/words/words.json (teaching order; `ar` waits for the Arabic mode; pictures from collections, never held-back symbols, and `assets/words`, Noto Emoji 3D)
+  and plans stages per language (`stage_count()`, from the word list): new words plus review (`ProgressStore.word_review`). Faces
   `word_<id>_p` / `word_<id>_w` are one match group with one picture and one word, so model, hints,
   shuffle and undo work unchanged. `WordSkin` draws them on Zen Garden tiles; `TileView.set_word`
   fits the text (words at most `MAX_LETTERS`). The game screen's `_learning()` turns off clock,

@@ -1,13 +1,18 @@
 extends TestCase
 ## Word Garden content and rules: words, stages, picture-word matching.
 
+const FONT := preload("res://assets/fonts/Fraunces.ttf")
+
 
 func test_words_fit_tiles_and_are_unique() -> void:
 	for language: Dictionary in WordCatalog.languages():
 		var seen := {}
 		for word_id in WordCatalog.word_ids():
 			var text := WordCatalog.text(word_id, str(language.id))
-			assert_true(text.length() <= WordCatalog.MAX_LETTERS and not text.contains(" "), "%s fits a tile" % text)
+			for line in WordCatalog.tile_text(text).split("\n"):
+				assert_true(line.length() <= WordCatalog.MAX_LETTERS, "%s fits a tile" % text)
+			for i in text.length():
+				assert_true(FONT.has_char(text.unicode_at(i)), "the font can draw %s" % text)
 			assert_true(not seen.has(text), "%s is on one word only" % text)
 			seen[text] = true
 
@@ -25,7 +30,7 @@ func test_pictures_exist_and_are_not_held_back() -> void:
 
 func test_every_stage_fills_its_board_and_every_word_is_taught() -> void:
 	var taught := {}
-	for stage in range(1, WordCatalog.STAGE_COUNT + 1):
+	for stage in range(1, WordCatalog.stage_count() + 1):
 		var words := WordCatalog.stage_words(stage)
 		assert_eq(words.size(), WordCatalog.word_count(stage), "stage %d fills its board" % stage)
 		var unique := {}
@@ -62,7 +67,7 @@ func test_picture_only_matches_its_word() -> void:
 
 
 func test_deals_are_solvable_and_keep_one_picture_per_word() -> void:
-	for stage in range(1, WordCatalog.STAGE_COUNT + 1):
+	for stage in range(1, WordCatalog.stage_count() + 1):
 		var level := WordCatalog.level_for(stage)
 		var geometry := level.load_layout().build_geometry()
 		var deal := BoardGenerator.generate(geometry, WordCatalog.faces_for(WordCatalog.stage_words(stage)), level.deal_seed)

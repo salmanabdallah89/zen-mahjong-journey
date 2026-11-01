@@ -147,15 +147,17 @@ func set_word(text: String) -> void:
 		_lift.add_child(_word)
 		_lift.move_child(_word, _symbol.get_index() + 1)
 		_place(_word, _art.face_rect)
-	_word.text = text
+	_word.text = WordCatalog.tile_text(text)
 	_word.visible = not text.is_empty()
 	var room := _art.face_rect.size.x - WORD_MARGIN * 2.0
-	var wide := _word.get_theme_font("font").get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, WORD_FONT_SIZE).x
+	var wide := 0.0
+	for line in _word.text.split("\n"):
+		wide = maxf(wide, _word.get_theme_font("font").get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, WORD_FONT_SIZE).x)
 	_word.add_theme_font_size_override("font_size", mini(WORD_FONT_SIZE, floori(WORD_FONT_SIZE * room / maxf(wide, 1.0))))
 
 
 func word_text() -> String:
-	return _word.text if _word != null and _word.visible else ""
+	return _word.text.replace("\n", " ") if _word != null and _word.visible else ""
 
 
 ## `back` shows face-down (a tile back over the face); null shows the face.

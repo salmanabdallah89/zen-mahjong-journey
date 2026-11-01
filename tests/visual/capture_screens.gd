@@ -57,13 +57,13 @@ func _capture_words() -> void:
 	await _save("phone_9x16_words_page")
 	page.queue_free()
 	GameSession.word_language = "fr"
-	for stage in [1, 8]:
+	for stage in [8, 40]:
 		GameSession.word_stage = stage
 		var screen: Control = GAME_SCENE.instantiate()
 		add_child(screen)
 		await _frames(30)
 		await _save("phone_9x16_words_stage%d" % stage)
-		if stage == 8:
+		if stage == 40:
 			screen.call("_show_stage_complete")
 			await _frames(30)
 			await _save("phone_9x16_words_complete")

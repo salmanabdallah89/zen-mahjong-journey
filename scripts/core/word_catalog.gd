@@ -6,8 +6,7 @@ extends RefCounted
 ## number; its review words also on what the player mixed up.
 
 const WORDS_PATH := "res://data/words/words.json"
-const STAGE_COUNT := 10
-## Longest word a tile can show large enough to read.
+## Longest line a tile can show large enough to read.
 const MAX_LETTERS := 11
 const FIRST_STAGE_WORDS := 12
 const NEW_WORDS_PER_STAGE := 8
@@ -34,6 +33,25 @@ static func languages() -> Array:
 static func word_ids() -> PackedStringArray:
 	_load()
 	return _order
+
+
+## Stages follow from the word list: the first stage, then the new words of
+## each later one.
+static func stage_count() -> int:
+	return 1 + ceili(float(word_ids().size() - FIRST_STAGE_WORDS) / NEW_WORDS_PER_STAGE)
+
+
+## `text` as drawn on a tile: on two lines, broken as evenly as possible at a
+## space or hyphen, when it has either.
+static func tile_text(text: String) -> String:
+	var best := -1
+	for i in text.length():
+		if text[i] in [" ", "-"] and (best < 0 or absi(i * 2 - text.length()) < absi(best * 2 - text.length())):
+			best = i
+	if best < 0:
+		return text
+	var first := text.left(best + 1).strip_edges()
+	return first + "\n" + text.substr(best + 1).strip_edges()
 
 
 static func text(word_id: String, language: String) -> String:

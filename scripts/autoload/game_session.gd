@@ -105,7 +105,7 @@ func play_next_level() -> void:
 
 func play_word_stage(language: String, stage: int) -> void:
 	word_language = language
-	word_stage = clampi(stage, 1, WordCatalog.STAGE_COUNT)
+	word_stage = clampi(stage, 1, WordCatalog.stage_count())
 	_change(GAME_SCENE)
 
 

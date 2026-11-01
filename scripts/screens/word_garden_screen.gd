@@ -4,7 +4,7 @@ extends Control
 
 const GARDEN := "bg_bamboo_forest"
 const STAR := preload("res://assets/ui/icons/icon_star.png")
-const STAGE_SIZE := Vector2(490, 136)
+const STAGE_SIZE := Vector2(464, 136)
 const STAR_SIZE := 44.0
 const SETTINGS_SECTION := "words"
 const SETTINGS_KEY := "language"
@@ -71,8 +71,19 @@ func _show_stages() -> void:
 	for child in _stages.get_children():
 		_stages.remove_child(child)
 		child.queue_free()
-	for stage in range(1, WordCatalog.STAGE_COUNT + 1):
+	var latest := 1
+	for stage in range(1, WordCatalog.stage_count() + 1):
 		_stages.add_child(_stage_button(stage))
+		if GameSession.progress.word_stars(_language, stage - 1) > 0:
+			latest = stage
+	_scroll_to.call_deferred(latest)
+
+
+## The list opens on the stage the player has reached.
+func _scroll_to(stage: int) -> void:
+	await get_tree().process_frame
+	if is_inside_tree():
+		%StageScroll.ensure_control_visible(stage_button(stage))
 
 
 func _stage_button(stage: int) -> Button:
