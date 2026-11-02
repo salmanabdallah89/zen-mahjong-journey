@@ -82,6 +82,46 @@ func record_word_stage(language: String, stage: int, earned_stars: int, words: P
 	SafeConfig.save(_config, path)
 
 
+## Daily Challenge stars of a day number, 0 if not cleared.
+func daily_stars(day: int) -> int:
+	return int(_config.get_value("daily", "day_%d" % day, 0))
+
+
+## Saves a cleared day, keeping the best stars. `on_the_day` keeps the streak;
+## catching up later does not.
+func record_daily(day: int, earned_stars: int, on_the_day: bool) -> void:
+	_config.set_value("daily", "day_%d" % day, maxi(daily_stars(day), earned_stars))
+	if on_the_day:
+		_config.set_value("daily", "live_%d" % day, true)
+	SafeConfig.save(_config, path)
+
+
+## Days cleared, ever.
+func daily_total() -> int:
+	if not _config.has_section("daily"):
+		return 0
+	var total := 0
+	for key in _config.get_section_keys("daily"):
+		if key.begins_with("day_"):
+			total += 1
+	return total
+
+
+## Days in a row played on the day, up to `today` (or yesterday while today is
+## still to play).
+func daily_streak(today: int) -> int:
+	var day := today if _played_live(today) else today - 1
+	var streak := 0
+	while _played_live(day):
+		streak += 1
+		day -= 1
+	return streak
+
+
+func _played_live(day: int) -> bool:
+	return bool(_config.get_value("daily", "live_%d" % day, false))
+
+
 ## Rank of a badge family (BadgeBook), 0 if not earned yet.
 func badge_rank(family_id: String) -> int:
 	return int(_config.get_value("badges", "rank_" + family_id, 0))

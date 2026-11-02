@@ -66,6 +66,7 @@ func _ready() -> void:
 	await _test_special_tiles(5)
 	await _test_starting_collection()
 	await _test_same_tile_size()
+	await _test_daily()
 	await _test_badges()
 	await _test_word_garden()
 	await _test_zen_garden_tiles(10)
@@ -1587,6 +1588,55 @@ func _test_zen_garden_tiles(level_number: int) -> void:
 
 ## Word Garden: picture and word tiles, no clock or hearts, a mistake only
 ## teaches, the stage saves stars and the next stage opens.
+func _test_daily() -> void:
+	GameSession.progress.reset()
+	var today := 20759
+	var page: Control = load(GameSession.DAILY_SCENE).instantiate()
+	page.today = today
+	_frame.add_child(page)
+	await _frames(3)
+	GameSession.scene_changes_enabled = false
+	_check(page.day_cell(today) != null and not page.day_cell(today).disabled, "Daily: today can be played")
+	_check(page.day_cell(today + 1).disabled, "Daily: tomorrow is closed")
+	_check(page.day_cell(today).size.x >= 120.0 and page.day_cell(today).size.y >= 120.0, "Daily: days are full touch targets")
+	_check(_frame.get_global_rect().encloses(page.get_node("%PlayButton").get_global_rect()), "Daily: Play fits the screen")
+	await _click_control(page.get_node("%PlayButton"))
+	await _frames(2)
+	_check(GameSession.daily_day == today and GameSession.last_requested_scene == GameSession.GAME_SCENE, "Daily: Play opens today")
+	page.show_month(-1)
+	await _frames(2)
+	_check(page.get_node("%MonthLabel").text == "October 2026", "Daily: the calendar goes back a month")
+	_check(page.day_cell(today - 2) != null and page.day_cell(today - 2).disabled, "Daily: other months are only for looking")
+	GameSession.scene_changes_enabled = true
+	page.queue_free()
+	await _frames(1)
+	# A real board: no clock, no hearts, a mistake only costs stars.
+	GameSession.daily_day = today
+	var screen := await _open_level(1)
+	_check(not screen.get_node("%TimeBox").visible, "Daily: no clock")
+	_check(not screen.get_node("%HeartsPill").visible, "Daily: no hearts")
+	var model: BoardModel = screen.get("_model")
+	var wrong := _non_matching_free_pair(model)
+	await _click_tile(screen, wrong.x)
+	await _click_tile(screen, wrong.y)
+	await get_tree().create_timer(0.25).timeout
+	var level := DailyChallenge.level_for(today)
+	var deal := BoardGenerator.generate(level.load_layout().build_geometry(), level.face_pool(), level.deal_seed)
+	for pair in deal.solution:
+		await _click_tile(screen, pair.x)
+		await _click_tile(screen, pair.y)
+	await _wait_dialog(screen)
+	var dialog: ModalDialog = screen.get_node("%Dialog")
+	_check(GameSession.progress.daily_stars(today) == 2, "Daily: one mistake saves 2 stars")
+	_check(dialog.call("stars_shown") == 2, "Daily: the dialog shows the stars")
+	_check(_dialog_button(dialog, "Calendar") != null, "Daily: the dialog leads back to the calendar")
+	_check(GameSession.progress.total_stars(LevelCatalog.count()) == 0, "Daily: the journey is untouched")
+	screen.queue_free()
+	GameSession.daily_day = -1
+	await _frames(2)
+	GameSession.progress.reset()
+
+
 func _test_badges() -> void:
 	GameSession.progress.reset()
 	# The start screen awards what the save has reached and shows the count.

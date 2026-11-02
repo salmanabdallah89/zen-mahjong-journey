@@ -7,11 +7,14 @@ const GAME_SCENE := "res://scenes/screens/game_screen.tscn"
 const JOURNEY_SCENE := "res://scenes/screens/journey_screen.tscn"
 const WORDS_SCENE := "res://scenes/screens/word_garden_screen.tscn"
 const BADGES_SCENE := "res://scenes/screens/badges_screen.tscn"
+const DAILY_SCENE := "res://scenes/screens/daily_screen.tscn"
 
 var current_level: int = 1
 ## Word Garden: the language being learned ("" = the normal journey) and its stage.
 var word_language := ""
 var word_stage: int = 1
+## Daily Challenge: the day being played (-1 = not a daily).
+var daily_day := -1
 ## The player's own language: words without a picture are matched to it.
 var word_native := "ar"
 var progress := ProgressStore.new()
@@ -96,6 +99,7 @@ func start_tutorial() -> void:
 
 func play_level(number: int) -> void:
 	word_language = ""
+	daily_day = -1
 	current_level = clampi(number, 1, LevelCatalog.count())
 	_change(GAME_SCENE)
 
@@ -110,8 +114,19 @@ func play_next_level() -> void:
 
 func play_word_stage(language: String, stage: int) -> void:
 	word_language = language
+	daily_day = -1
 	word_stage = clampi(stage, 1, WordCatalog.stage_count())
 	_change(GAME_SCENE)
+
+
+func play_daily(day: int) -> void:
+	word_language = ""
+	daily_day = day
+	_change(GAME_SCENE)
+
+
+func go_daily() -> void:
+	_change(DAILY_SCENE)
 
 
 func go_words() -> void:

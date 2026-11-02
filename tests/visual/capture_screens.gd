@@ -40,6 +40,7 @@ func _ready() -> void:
 				await _capture_level(shape, level, false)
 	get_window().size = SHAPES["phone_9x16"]
 	await _capture_losing()
+	await _capture_daily()
 	await _capture_badges()
 	await _capture_words()
 	await _capture_collections()
@@ -48,6 +49,33 @@ func _ready() -> void:
 	await _capture_journey()
 	await _capture_ads()
 	_finish()
+
+
+func _capture_daily() -> void:
+	var store := GameSession.progress
+	var today := 20759 + 12
+	for day in range(today - 13, today):
+		if day % 5 != 0:
+			store.record_daily(day, 1 + day % 3, true)
+	var page: Control = load(GameSession.DAILY_SCENE).instantiate()
+	page.today = today
+	add_child(page)
+	await _frames(8)
+	await _save("phone_9x16_daily_calendar")
+	page.queue_free()
+	await _frames(2)
+	GameSession.daily_day = today
+	var game: Control = GAME_SCENE.instantiate()
+	add_child(game)
+	await _frames(30)
+	await _save("phone_9x16_daily_board")
+	game.call("_show_daily_complete")
+	await _frames(30)
+	await _save("phone_9x16_daily_complete")
+	game.queue_free()
+	await _frames(2)
+	GameSession.daily_day = -1
+	store.reset()
 
 
 func _capture_badges() -> void:

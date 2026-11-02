@@ -192,7 +192,10 @@ func _pause_if_playing() -> void:
 
 
 func _start_level() -> void:
-	_level = WordCatalog.level_for(GameSession.word_stage) if _learning() else LevelCatalog.get_level(GameSession.current_level)
+	if _daily():
+		_level = DailyChallenge.level_for(GameSession.daily_day)
+	else:
+		_level = WordCatalog.level_for(GameSession.word_stage) if _learning() else LevelCatalog.get_level(GameSession.current_level)
 	if _level == null:
 		push_error("GameScreen: level %d does not exist" % GameSession.current_level)
 		GameSession.go_home()
@@ -216,7 +219,8 @@ func _start_level() -> void:
 		GameSession.go_home()
 		return
 	_model = BoardModel.new(geometry, deal.faces)
-	_specials = TileSpecials.plan(_level.number, _level.difficulty, _model, deal.solution, _level.deal_seed)
+	var specials_level := DailyChallenge.SPECIALS_LEVEL if _daily() else _level.number
+	_specials = TileSpecials.plan(specials_level, _level.difficulty, _model, deal.solution, _level.deal_seed)
 	_board.specials = _specials
 	_board.mystery_back = load(TileArtSet.active().back_path(BackgroundStyle.tile_back(_level.background)))
 	_selected = -1
@@ -270,6 +274,15 @@ func _learning() -> bool:
 	return not GameSession.word_language.is_empty()
 
 
+func _daily() -> bool:
+	return GameSession.daily_day >= 0 and not _learning()
+
+
+## Modes without clock, hearts or score.
+func _calm() -> bool:
+	return _learning() or _daily()
+
+
 func _board_skin() -> TileSkin:
 	if _learning():
 		return WordSkin.for_words(_word_ids, GameSession.word_language, GameSession.word_native)
@@ -278,9 +291,9 @@ func _board_skin() -> TileSkin:
 
 ## Word Garden has no clock, hearts or score to watch.
 func _show_learning_hud() -> void:
-	%TimeBox.visible = not _learning()
-	%HeartsPill.visible = not _learning()
-	_score_meter.visible = not _learning()
+	%TimeBox.visible = not _calm()
+	%HeartsPill.visible = not _calm()
+	_score_meter.visible = not _calm()
 	if _learning():
 		_toast_label.theme_type_variation = &"ToastWordLabel"
 		_praise.use_word_font()
@@ -388,7 +401,7 @@ func _remove_pair(a: int, b: int) -> void:
 	var contact := _board.play_removal(a, b, burst, revealed)
 	if not revealed.is_empty():
 		_after(contact, AudioManager.play_sfx.bind("star"))
-	if not _learning():
+	if not _calm():
 		_after(contact, _land_points.bind(points, _board.meeting_point_global(a, b)))
 	if cleared:
 		_after(contact, _play_edge_glow)
@@ -399,7 +412,7 @@ func _remove_pair(a: int, b: int) -> void:
 	_after(ring_in, _on_pair_met.bind(step, combo, cleared, factor > 1))
 	if _learning():
 		_after(ring_in, _say_word.bind(WordCatalog.id_of(_model.face_of(a))))
-	elif not cleared:
+	elif not cleared and not _daily():
 		_check_milestones(ring_in)
 	if cleared:
 		# Let the last pair meet and bloom (and a short bell queue finish) first.
@@ -778,16 +791,20 @@ func _open_pause_menu() -> void:
 	if not _learning():
 		_dialog.add_action("Tile Collection", _open_collection_picker)
 	_dialog.add_action("Restart", _restart)
-	_dialog.add_action("Stages" if _learning() else "Levels", _go_to_list)
+	_dialog.add_action("Stages" if _learning() else ("Calendar" if _daily() else "Levels"), _go_to_list)
 
 
 func _level_name() -> String:
+	if _daily():
+		return "Daily"
 	return "Stage %d" % GameSession.word_stage if _learning() else "Level %d" % _level.number
 
 
 func _go_to_list() -> void:
 	if _learning():
 		GameSession.go_words()
+	elif _daily():
+		GameSession.go_daily()
 	else:
 		GameSession.go_levels()
 
@@ -847,6 +864,9 @@ func _show_level_complete() -> void:
 	AudioManager.duck_music_for(3.0)
 	if _learning():
 		_show_stage_complete()
+		return
+	if _daily():
+		_show_daily_complete()
 		return
 	var seconds := int(_elapsed)
 	var summary := "%s cleared in %d:%02d with %s left\n%s · %s · %s" % [
@@ -938,6 +958,34 @@ func _reveal_badges(delay: float) -> void:
 	tween.tween_callback(func() -> void:
 		if _dialog.visible:
 			_badge_reveal.play(_earned_badges))
+
+
+## The end of a Daily Challenge: the day, the streak and the month's trophy.
+func _show_daily_complete() -> void:
+	var store := GameSession.progress
+	var day := GameSession.daily_day
+	var today := BadgeBook.today()
+	var earned := DailyChallenge.stars(_mistakes)
+	var month_days := DailyChallenge.days_in_month(day)
+	var trophy_before := DailyChallenge.trophy_rank(DailyChallenge.month_count(store, day), month_days)
+	store.record_daily(day, earned, day == today)
+	var cleared := DailyChallenge.month_count(store, day)
+	var trophy := DailyChallenge.trophy_rank(cleared, month_days)
+	var month: String = DailyChallenge.MONTH_NAMES[int(DailyChallenge.date_of(day).month) - 1]
+	var lines := PackedStringArray([_level.title, "%d of %d days in %s" % [cleared, month_days, month]])
+	if day == today:
+		lines.append("%d day streak" % store.daily_streak(today))
+	if trophy > trophy_before:
+		lines.append("%s Trophy: %s!" % [month, BadgeBook.RANK_NAMES[trophy]])
+	_dialog.open("Daily Complete!", "\n".join(lines))
+	_dialog.add_action("Calendar", func() -> void: AdsManager.after_level_complete(GameSession.go_daily), true)
+	_dialog.add_action("Replay", func() -> void: AdsManager.after_level_complete(_restart))
+	_dialog.set_stars(earned, LevelRating.MAX_STARS, true)
+	_play_celebration()
+	AudioManager.vibrate(60)
+	store.record_badge_facts({}, today)
+	_earned_badges = BadgeBook.award(store, LevelCatalog.count())
+	_reveal_badges(0.65 + 0.32 * earned + 0.4)
 
 
 ## Counts the clear for the week and shows the world rank when it arrives.
@@ -1059,6 +1107,9 @@ func _register_mistake(a: int, b: int) -> void:
 	if _learning():
 		_word_mistake(a, b)
 		return
+	if _daily():
+		_soft_mistake(a, b)
+		return
 	_mistakes += 1
 	_set_selected(-1)
 	_clear_hint()
@@ -1074,6 +1125,17 @@ func _register_mistake(a: int, b: int) -> void:
 		_show_toast("Those tiles don't match. One mistake left!")
 	else:
 		_show_toast("Those tiles don't match. %d mistakes left." % left)
+
+
+## No hearts in a Daily Challenge: a mistake only costs stars.
+func _soft_mistake(a: int, b: int) -> void:
+	_mistakes += 1
+	_set_selected(-1)
+	_clear_hint()
+	_board.tile(a).play_mistake()
+	_board.tile(b).play_mistake()
+	AudioManager.play_sfx("mistake")
+	_show_toast("Those tiles don't match.")
 
 
 ## No hearts to lose: the tiles shake softly, the picked word is shown again

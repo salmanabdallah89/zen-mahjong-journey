@@ -130,6 +130,41 @@ custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
 mouse_filter = 2
 
+[node name="DailyButton" type="Button" parent="SafeArea/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(620, 136)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"SecondaryButton"
+text = "Daily Challenge"
+
+[node name="DailyMarker" type="PanelContainer" parent="SafeArea/Layout/DailyButton"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -62.0
+offset_top = -8.0
+offset_right = 2.0
+offset_bottom = 56.0
+grow_horizontal = 0
+mouse_filter = 2
+theme_type_variation = &"NewCountPanel"
+
+[node name="DailyMarkerLabel" type="Label" parent="SafeArea/Layout/DailyButton/DailyMarker"]
+layout_mode = 2
+theme_type_variation = &"NewCountLabel"
+text = "1"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DailyGap" type="Control" parent="SafeArea/Layout"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+mouse_filter = 2
+
 [node name="WordsButton" type="Button" parent="SafeArea/Layout"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(620, 136)

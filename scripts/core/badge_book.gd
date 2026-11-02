@@ -1,6 +1,6 @@
 class_name BadgeBook
 extends RefCounted
-## The badges: sixteen families with three ranks each (Bronze, Silver, Gold).
+## The badges: seventeen families with three ranks each (Bronze, Silver, Gold).
 ## A family's value comes from the save (`counter` families count events the
 ## save has no other record of; the rest are worked out from stars, scores and
 ## stages, so a returning player gets what the journey already earned).
@@ -46,6 +46,8 @@ const FAMILIES: Array[Dictionary] = [
 		"goal": "Earn 3 stars on %s stages", "goals": [10, 50, 150]},
 	{"id": "daily_calm", "name": "Daily Calm", "group": "Daily", "picture": "sunrise",
 		"goal": "Play %s days in a row", "goals": [3, 7, 30]},
+	{"id": "daily_keeper", "name": "Daily Keeper", "group": "Daily", "picture": "calendar",
+		"goal": "Clear %s Daily Challenges", "goals": [5, 30, 150]},
 ]
 
 
@@ -117,6 +119,8 @@ static func value_of(entry: Dictionary, store: ProgressStore, level_count: int) 
 			return _perfect_stages(store)
 		"daily_calm":
 			return store.best_day_streak()
+		"daily_keeper":
+			return store.daily_total()
 	return 0
 
 
