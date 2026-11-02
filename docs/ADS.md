@@ -11,6 +11,7 @@ chance; the game is otherwise identical.
 | Rewarded: second chance | After losing (time or hearts), once per attempt | +60 s on the clock, or +1 heart, and the same board continues |
 | Rewarded: hint | After the 1 free hint per level is used | One hint per watched ad |
 | Rewarded: shuffle | After the 1 free shuffle per level is used | One shuffle per watched ad |
+| Rewarded: undo | After the 3 undos of an attempt are used | One undo per watched ad |
 | Interstitial | After every 2nd finished level, cleared or lost: when the player leaves the Level Complete popup (Next Level / Replay / Levels) or the loss popup (Retry / Levels). Never during play, and never within 30 s of another ad (e.g. a second-chance ad) | Nothing |
 | Banner | Bottom of the journey map only, never during play | Nothing |
 
@@ -31,7 +32,7 @@ and `hide_banner()`. It picks a provider:
 | `admob` | Android (iOS later) through godot-admob v7 + `scripts/ads/admob_bridge.gd` | ✅ Installed with **test ids**; not yet tried on a phone |
 | `none` | Web build, release desktop builds, phones without the plugin | ✅ Game works without ads |
 
-With AdMob, ad offers (Ad Hint, Ad Shuffle, Watch Ad second chance) appear only while a rewarded ad is loaded,
+With AdMob, ad offers (Ad Hint, Ad Shuffle, Ad Undo, Watch Ad second chance) appear only while a rewarded ad is loaded,
 and an interstitial is skipped when none is loaded, so an offline phone plays like the web build.
 
 Tests: `tests/integration/ads_test.tscn` (86 checks; AdMob routing through a stand-in bridge).

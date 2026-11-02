@@ -8,7 +8,7 @@ extends Node
 ## Platform: update the consent info, show the form when it is required),
 ## then initialize the SDK, then preload one rewarded and one interstitial
 ## ad. The SDK starts only when consent is settled (obtained or not required);
-## a failed check asks again when the journey map next opens. Any failure along
+## a failed check asks again after RETRY_SECONDS. Any failure along
 ## the way just means "no ad": rewarded offers disappear
 ## (AdsManager.is_available()) and interstitials are skipped.
 ##
@@ -67,9 +67,9 @@ func start(ids: Dictionary, real := false) -> void:
 	add_child(_admob)
 
 	_admob.consent_info_updated.connect(_on_consent_info_updated)
-	_admob.consent_info_update_failed.connect(func(_error: FormError) -> void: _consent_settled())
+	_admob.consent_info_update_failed.connect(func(_error: FormError) -> void: _consent_failed())
 	_admob.consent_form_loaded.connect(func() -> void: _admob.show_consent_form())
-	_admob.consent_form_failed_to_load.connect(func(_error: FormError) -> void: _consent_settled())
+	_admob.consent_form_failed_to_load.connect(func(_error: FormError) -> void: _consent_failed())
 	_admob.consent_form_dismissed.connect(func(_error: FormError) -> void: _consent_settled())
 	_admob.initialization_completed.connect(_on_initialization_completed)
 
@@ -184,6 +184,15 @@ func _consent_settled() -> void:
 	var consent := _admob.get_consent_status()
 	if consent != null and consent_allows_ads(consent.status):
 		_initialize()
+
+
+## The check itself failed (no internet, or no consent message in AdMob): use
+## any cached answer, otherwise ask again later, so a phone that comes back
+## online gets ads without a restart.
+func _consent_failed() -> void:
+	_consent_settled()
+	if not initialized and not _initializing:
+		get_tree().create_timer(RETRY_SECONDS).timeout.connect(_ask_consent)
 
 
 func _initialize() -> void:

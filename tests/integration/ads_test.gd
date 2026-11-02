@@ -139,6 +139,7 @@ func _ready() -> void:
 	_check(not AdsManager.privacy_options_available(), "no privacy options button without AdMob")
 	await _test_hints()
 	await _test_shuffles()
+	await _test_undos()
 	await _test_second_chance_time()
 	await _test_second_chance_heart()
 	await _test_interstitial_cadence()
@@ -225,6 +226,42 @@ func _test_shuffles() -> void:
 	await _frames(2)
 	_check(model.faces != before, "watching the whole ad shuffles the tiles")
 	_check(AdsManager.history[-1]["placement"] == "shuffle" and AdsManager.history[-1]["rewarded"], "shuffle ad recorded as rewarded")
+	await _close(screen)
+
+
+func _test_undos() -> void:
+	var screen := await _open_level(3)
+	var model: BoardModel = screen.get("_model")
+	var dialog: ModalDialog = screen.get_node("%Dialog")
+	var undo: Button = screen.get_node("%UndoButton")
+	var label: Label = screen.get_node("SafeArea/Layout/Toolbar/UndoTool/UndoLabel")
+	_check(label.text == "Undo (3)", "three undos per attempt (%s)" % label.text)
+	var pair: Vector2i = model.available_matches()[0]
+	screen.set("_undos_left", 0)
+	screen.call("_update_hud")
+	_check(undo.disabled and label.text == "Undo (0)", "nothing to take back: no undo ad")
+	screen.call("_on_tile_pressed", pair.x)
+	screen.call("_on_tile_pressed", pair.y)
+	_check(not undo.disabled and label.text == "Ad Undo", "past the limit the button offers an ad undo")
+	var board: BoardView = screen.get_node("%Board")
+	while board.is_busy():
+		await _frames(1)
+
+	screen.call("_on_undo_pressed")
+	_check(dialog.visible and (dialog.get_node("%Title") as Label).text == "Need an Undo?", "the next undo asks to watch an ad")
+	await _press(dialog, "Watch Ad")
+	AdsManager.press_simulated_close()
+	await _frames(2)
+	_check(model.is_removed(pair.x), "skipping the ad gives no undo")
+
+	screen.call("_on_undo_pressed")
+	await _press(dialog, "Watch Ad")
+	await _wait(AD_SECONDS + 0.3)
+	AdsManager.press_simulated_close()
+	await _frames(2)
+	_check(not model.is_removed(pair.x), "watching the whole ad takes the move back")
+	_check(int(screen.call("undos_left")) == 0, "the ad pays for exactly one undo")
+	_check(AdsManager.history[-1]["placement"] == "undo" and AdsManager.history[-1]["rewarded"], "undo ad recorded as rewarded")
 	await _close(screen)
 
 

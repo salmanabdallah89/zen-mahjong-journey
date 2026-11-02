@@ -721,7 +721,16 @@ func _shuffle_tiles() -> bool:
 
 
 func _on_undo_pressed() -> void:
-	if not can_undo() or _failed or _dialog.visible or _model.is_cleared() or _board.is_busy():
+	if _failed or _dialog.visible or _model.is_cleared() or _board.is_busy():
+		return
+	# With ads: past the undos of this attempt, one more undo per rewarded ad.
+	if undo_ad_offered():
+		_dialog.open("Need an Undo?", "Watch a short ad to take back your last move.")
+		_dialog.add_action("Watch Ad", func() -> void:
+			AdsManager.show_rewarded("undo", _on_undo_ad_done), true)
+		_dialog.add_action("No Thanks", func() -> void: pass)
+		return
+	if not can_undo():
 		return
 	var entry: Dictionary = _undo_stack.pop_back()
 	_undos_left -= 1
@@ -742,6 +751,15 @@ func _on_undo_pressed() -> void:
 		_model.set_faces(entry["faces"])
 		_board.play_shuffle()
 	_update_hud()
+
+
+func _on_undo_ad_done(rewarded: bool) -> void:
+	if not rewarded:
+		_show_toast("Watch the whole ad to undo.")
+	elif not (_model.is_cleared() or _failed):
+		_undos_left += 1
+		_update_hud()
+		_on_undo_pressed()
 
 
 func _set_selected(index: int) -> void:
@@ -771,11 +789,11 @@ func _update_hud() -> void:
 	else:
 		_hint_label.text = "Hint"
 		_shuffle_label.text = "Shuffle"
-	_undo_label.text = "Undo (%d)" % _undos_left
+	_undo_label.text = "Ad Undo" if undo_ad_offered() else "Undo (%d)" % _undos_left
 	_update_timer_label()
 	_level_value.text = _level_name()
 	_level_caption.text = _level.title.to_upper()
-	_undo_button.disabled = not can_undo()
+	_undo_button.disabled = not (can_undo() or undo_ad_offered())
 	_hint_button.disabled = _model.is_cleared()
 	_shuffle_button.disabled = _model.is_cleared()
 
@@ -853,7 +871,7 @@ func _restart() -> void:
 func _show_no_moves() -> void:
 	_dialog.open("No More Moves", "There are no free matching pairs left.")
 	_dialog.add_action("Shuffle", _on_shuffle_pressed, true)
-	if can_undo():
+	if can_undo() or undo_ad_offered():
 		_dialog.add_action("Undo", _on_undo_pressed)
 	_dialog.add_action("Restart", _restart)
 
@@ -1253,6 +1271,11 @@ func undos_left() -> int:
 
 func can_undo() -> bool:
 	return _undos_left > 0 and not _undo_stack.is_empty()
+
+
+## True when the undos of this attempt are used up and an ad can buy one more.
+func undo_ad_offered() -> bool:
+	return _undos_left <= 0 and not _undo_stack.is_empty() and AdsManager.is_available()
 
 
 func _build_hearts() -> void:
