@@ -293,6 +293,20 @@ corner_radius_top_right = 7
 corner_radius_bottom_right = 7
 corner_radius_bottom_left = 7
 
+[sub_resource type="StyleBoxFlat" id="NewCount_panel"]
+content_margin_left = 8.0
+content_margin_right = 8.0
+bg_color = Color(0.9098039, 0.7058824, 0.7411765, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.20784314, 0.30980393, 0.26666668, 1)
+corner_radius_top_left = 32
+corner_radius_top_right = 32
+corner_radius_bottom_right = 32
+corner_radius_bottom_left = 32
+
 [resource]
 default_font = SubResource("Font_body")
 default_font_size = 44
@@ -452,6 +466,21 @@ DialogWordsLabel/fonts/font = SubResource("Font_word")
 LanguageButton/base_type = &"CollectionCard"
 LanguageButton/font_sizes/font_size = 40
 LanguageButton/fonts/font = SubResource("Font_word")
+BadgeCell/base_type = &"Button"
+BadgeCell/styles/focus = SubResource("Focus_empty")
+BadgeCell/styles/hover = SubResource("Focus_empty")
+BadgeCell/styles/hover_pressed = SubResource("Focus_empty")
+BadgeCell/styles/normal = SubResource("Focus_empty")
+BadgeCell/styles/pressed = SubResource("Focus_empty")
+BadgeNameLabel/base_type = &"CardTitleLabel"
+BadgeNameLabel/font_sizes/font_size = 34
+NewCountPanel/base_type = &"PanelContainer"
+NewCountPanel/styles/panel = SubResource("NewCount_panel")
+NewCountLabel/base_type = &"Label"
+NewCountLabel/colors/font_color = Color(0.20784314, 0.30980393, 0.26666668, 1)
+NewCountLabel/colors/font_shadow_color = Color(0, 0, 0, 0)
+NewCountLabel/font_sizes/font_size = 30
+NewCountLabel/fonts/font = SubResource("Font_title")
 CollectionCard/base_type = &"Button"
 CollectionCard/styles/focus = SubResource("Focus_empty")
 CollectionCard/styles/hover = SubResource("Card_normal")

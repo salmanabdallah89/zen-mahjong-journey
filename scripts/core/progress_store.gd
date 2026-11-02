@@ -82,6 +82,58 @@ func record_word_stage(language: String, stage: int, earned_stars: int, words: P
 	SafeConfig.save(_config, path)
 
 
+## Rank of a badge family (BadgeBook), 0 if not earned yet.
+func badge_rank(family_id: String) -> int:
+	return int(_config.get_value("badges", "rank_" + family_id, 0))
+
+
+## How often a counted badge's event has happened.
+func badge_count(family_id: String) -> int:
+	return int(_config.get_value("badges", "count_" + family_id, 0))
+
+
+## Longest run of days in a row with a clear.
+func best_day_streak() -> int:
+	return int(_config.get_value("badges", "best_streak", 0))
+
+
+## Saves what a clear added to the counted badges ({family id: amount}) and
+## the day it happened on.
+func record_badge_facts(counts: Dictionary, day: int) -> void:
+	for family_id: String in counts:
+		_config.set_value("badges", "count_" + family_id, badge_count(family_id) + int(counts[family_id]))
+	var last_day := int(_config.get_value("badges", "last_day", -1))
+	if day != last_day:
+		var streak := 1
+		if day == last_day + 1:
+			streak += int(_config.get_value("badges", "streak", 0))
+		_config.set_value("badges", "last_day", day)
+		_config.set_value("badges", "streak", streak)
+		_config.set_value("badges", "best_streak", maxi(streak, best_day_streak()))
+	SafeConfig.save(_config, path)
+
+
+## Family ids earned or ranked up since the Badges page last showed them.
+func new_badges() -> PackedStringArray:
+	return PackedStringArray(_config.get_value("badges", "new", PackedStringArray()))
+
+
+## Saves earned ranks ({id, rank} entries) and marks them new.
+func earn_badges(earned: Array[Dictionary]) -> void:
+	var fresh := new_badges()
+	for entry in earned:
+		_config.set_value("badges", "rank_" + str(entry.id), int(entry.rank))
+		if not fresh.has(str(entry.id)):
+			fresh.append(str(entry.id))
+	_config.set_value("badges", "new", fresh)
+	SafeConfig.save(_config, path)
+
+
+func clear_new_badges() -> void:
+	_config.set_value("badges", "new", PackedStringArray())
+	SafeConfig.save(_config, path)
+
+
 func total_stars(level_count: int) -> int:
 	var total := 0
 	for level in range(1, level_count + 1):

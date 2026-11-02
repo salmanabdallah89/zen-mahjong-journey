@@ -6,6 +6,7 @@ const STARTUP_SCENE := "res://scenes/screens/startup_screen.tscn"
 const GAME_SCENE := "res://scenes/screens/game_screen.tscn"
 const JOURNEY_SCENE := "res://scenes/screens/journey_screen.tscn"
 const WORDS_SCENE := "res://scenes/screens/word_garden_screen.tscn"
+const BADGES_SCENE := "res://scenes/screens/badges_screen.tscn"
 
 var current_level: int = 1
 ## Word Garden: the language being learned ("" = the normal journey) and its stage.
@@ -18,6 +19,8 @@ var progress := ProgressStore.new()
 var just_unlocked := 0
 ## Tests turn scene changes off and read the scene that would have opened.
 var scene_changes_enabled := true
+## Tests that click through end-of-level dialogs turn the badge reveal off.
+var badge_reveals_enabled := true
 var last_requested_scene := ""
 
 const FADE_OUT := 0.22
@@ -113,6 +116,10 @@ func play_word_stage(language: String, stage: int) -> void:
 
 func go_words() -> void:
 	_change(WORDS_SCENE)
+
+
+func go_badges() -> void:
+	_change(BADGES_SCENE)
 
 
 func go_home() -> void:

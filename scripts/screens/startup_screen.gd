@@ -10,6 +10,9 @@ const MENU_GARDEN := "bg_golden_sakura"
 @onready var _play_button: Button = %PlayButton
 @onready var _words_button: Button = %WordsButton
 @onready var _collection_button: Button = %CollectionButton
+@onready var _badges_button: Button = %BadgesButton
+@onready var _new_badges: Control = %NewBadges
+@onready var _new_badges_label: Label = %NewBadgesLabel
 @onready var _picker: CollectionPicker = %CollectionPicker
 @onready var _settings_button: Button = %SettingsButton
 @onready var _settings: AudioSettingsPanel = %AudioSettings
@@ -22,6 +25,8 @@ func _ready() -> void:
 	_words_button.pressed.connect(GameSession.go_words)
 	_collection_button.pressed.connect(_picker.open)
 	_picker.hide()
+	_badges_button.pressed.connect(GameSession.go_badges)
+	_show_new_badges()
 	_settings_button.pressed.connect(_settings.open)
 	_settings.hide()
 	_leaderboard_button.pressed.connect(PlayGames.show_leaderboard)
@@ -48,12 +53,22 @@ func _notification(what: int) -> void:
 		get_tree().quit()
 
 
+## Ranks the save has reached are awarded here, so a returning player's
+## journey shows as new badges; the marker is a number, not only a colour.
+func _show_new_badges() -> void:
+	BadgeBook.award(GameSession.progress, LevelCatalog.count())
+	var count := GameSession.progress.new_badges().size()
+	_new_badges.visible = count > 0
+	_new_badges_label.text = str(count)
+
+
 func _play_intro() -> void:
 	_title_block.modulate.a = 0.0
 	_play_button.modulate.a = 0.0
 	_words_button.modulate.a = 0.0
 	_collection_button.modulate.a = 0.0
 	_settings_button.modulate.a = 0.0
+	_badges_button.modulate.a = 0.0
 	_leaderboard_button.modulate.a = 0.0
 	var tween := create_tween()
 	tween.tween_property(_title_block, "modulate:a", 1.0, 0.8).set_trans(Tween.TRANS_SINE)
@@ -61,6 +76,7 @@ func _play_intro() -> void:
 	tween.parallel().tween_property(_words_button, "modulate:a", 1.0, 0.5).set_trans(Tween.TRANS_SINE)
 	tween.parallel().tween_property(_collection_button, "modulate:a", 1.0, 0.5).set_trans(Tween.TRANS_SINE)
 	tween.parallel().tween_property(_settings_button, "modulate:a", 1.0, 0.5).set_trans(Tween.TRANS_SINE)
+	tween.parallel().tween_property(_badges_button, "modulate:a", 1.0, 0.5).set_trans(Tween.TRANS_SINE)
 	tween.parallel().tween_property(_leaderboard_button, "modulate:a", 1.0, 0.5).set_trans(Tween.TRANS_SINE)
 
 

@@ -43,6 +43,7 @@ func _ready() -> void:
 	# Never touch the player's real journey either.
 	GameSession.progress = ProgressStore.new(ISOLATED_PROGRESS)
 	GameSession.progress.reset()
+	GameSession.badge_reveals_enabled = false
 	_frame = Control.new()
 	_frame.size = SCREEN_SHAPES[0]
 	add_child(_frame)
@@ -65,6 +66,7 @@ func _ready() -> void:
 	await _test_special_tiles(5)
 	await _test_starting_collection()
 	await _test_same_tile_size()
+	await _test_badges()
 	await _test_word_garden()
 	await _test_zen_garden_tiles(10)
 	await _test_tutorial()
@@ -1585,6 +1587,72 @@ func _test_zen_garden_tiles(level_number: int) -> void:
 
 ## Word Garden: picture and word tiles, no clock or hearts, a mistake only
 ## teaches, the stage saves stars and the next stage opens.
+func _test_badges() -> void:
+	GameSession.progress.reset()
+	# The start screen awards what the save has reached and shows the count.
+	for level in range(1, 11):
+		GameSession.progress.record_clear(level, 3, 100.0, LevelCatalog.count(), 1000)
+	var home: Control = STARTUP_SCENE.instantiate()
+	_frame.add_child(home)
+	await _frames(3)
+	_check(GameSession.progress.badge_rank("pathfinder") == 1, "Badges: 10 clears earn Pathfinder Bronze on the start screen")
+	_check(home.get_node("%NewBadges").visible, "Badges: the start screen shows the new count")
+	_check(home.get_node("%NewBadgesLabel").text == str(GameSession.progress.new_badges().size()), "Badges: the marker shows the number")
+	var button: Button = home.get_node("%BadgesButton")
+	_check(button.size.x >= 120.0 and button.size.y >= 120.0, "Badges: button is a full touch target")
+	GameSession.scene_changes_enabled = false
+	await _click_control(button)
+	await _frames(2)
+	GameSession.scene_changes_enabled = true
+	_check(GameSession.last_requested_scene == GameSession.BADGES_SCENE, "Badges: the button opens the page")
+	home.queue_free()
+	await _frames(1)
+	# The page lists every family, clears the new marks, and opens a card.
+	var page: Control = load(GameSession.BADGES_SCENE).instantiate()
+	_frame.add_child(page)
+	await _frames(3)
+	for entry in BadgeBook.FAMILIES:
+		_check(page.cell(entry.id) != null, "Badges: page shows " + str(entry.id))
+	_check(GameSession.progress.new_badges().is_empty(), "Badges: opening the page marks them seen")
+	await _click_control(page.get_node("%NextCard"))
+	await _frames(3)
+	_check(not page.card_id().is_empty(), "Badges: tapping the closest badge opens its card")
+	_check(page.get_node("%CardRanks").get_child_count() == BadgeBook.MAX_RANK, "Badges: the card lists all three ranks")
+	page.close_card()
+	page.queue_free()
+	await _frames(1)
+	# A clear that reaches a rank reveals it over the dialog, and it can be dismissed.
+	GameSession.progress.reset()
+	GameSession.badge_reveals_enabled = true
+	GameSession.progress.record_badge_facts({"still_mind": 4}, 10)
+	var screen := await _open_level(2)
+	var reveal: BadgeReveal = screen.get_node("%BadgeReveal")
+	for pair in _expected_deal(2).solution:
+		await _click_tile(screen, pair.x)
+		await _click_tile(screen, pair.y)
+	await _wait_dialog(screen)
+	_check(GameSession.progress.badge_count("still_mind") == 5, "Badges: a flawless clear is counted")
+	_check(GameSession.progress.badge_rank("still_mind") == 1, "Badges: reaching the goal earns the rank")
+	var waited := 0.0
+	while not reveal.visible and waited < 5.0:
+		await get_tree().create_timer(0.1).timeout
+		waited += 0.1
+	_check(reveal.visible, "Badges: the reveal plays after the dialog")
+	_check(reveal.shown_name() == "Still Mind", "Badges: the reveal names the badge")
+	# A fast clear can reach more badges (Flowing River), shown one after another.
+	var shown := 0
+	while reveal.visible and shown < BadgeReveal.MAX_SHOWN:
+		shown += 1
+		await _click_control(reveal.get_node("%RevealContinue"))
+		await _frames(2)
+	_check(not reveal.visible, "Badges: continuing closes the reveal")
+	_check(screen.get_node("%Dialog").visible, "Badges: the dialog waits underneath")
+	GameSession.badge_reveals_enabled = false
+	screen.queue_free()
+	await _frames(1)
+	GameSession.progress.reset()
+
+
 func _test_word_garden() -> void:
 	GameSession.word_language = "es"
 	GameSession.word_stage = 1

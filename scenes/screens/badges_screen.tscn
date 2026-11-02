@@ -1,0 +1,225 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/screens/badges_screen.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/components/safe_area_container.gd" id="2_safe"]
+[ext_resource type="Script" path="res://scripts/components/badge_medal.gd" id="3_medal"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/icon_back.png" id="4_back"]
+
+[node name="BadgesScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Page" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.07, 0.13, 0.12, 1)
+
+[node name="SafeArea" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_safe")
+base_margin = 24
+
+[node name="Content" type="VBoxContainer" parent="SafeArea"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Header" type="HBoxContainer" parent="SafeArea/Content"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="BackButton" type="Button" parent="SafeArea/Content/Header"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 120)
+layout_mode = 2
+size_flags_vertical = 4
+tooltip_text = "Back"
+theme_type_variation = &"CircleButton"
+icon = ExtResource("4_back")
+icon_alignment = 1
+expand_icon = true
+
+[node name="TitleBox" type="VBoxContainer" parent="SafeArea/Content/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="SafeArea/Content/Header/TitleBox"]
+layout_mode = 2
+theme_type_variation = &"PageTitleLabel"
+text = "Badges"
+
+[node name="CountLabel" type="Label" parent="SafeArea/Content/Header/TitleBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"CardStatusLabel"
+text = "0 of 48 earned"
+
+[node name="CountBar" type="ProgressBar" parent="SafeArea/Content/Header/TitleBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 14)
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"MapProgressBar"
+show_percentage = false
+
+[node name="NextCard" type="Button" parent="SafeArea/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 216)
+layout_mode = 2
+focus_mode = 0
+theme_type_variation = &"CollectionCard"
+
+[node name="Row" type="HBoxContainer" parent="SafeArea/Content/NextCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_right = -24.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 20
+
+[node name="NextMedal" type="Control" parent="SafeArea/Content/NextCard/Row"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 180)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+script = ExtResource("3_medal")
+
+[node name="Text" type="VBoxContainer" parent="SafeArea/Content/NextCard/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="NextCaption" type="Label" parent="SafeArea/Content/NextCard/Row/Text"]
+layout_mode = 2
+theme_type_variation = &"CardStatusLabel"
+text = "CLOSEST BADGE"
+
+[node name="NextName" type="Label" parent="SafeArea/Content/NextCard/Row/Text"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"CardTitleLabel"
+text = "Badge"
+
+[node name="NextGoal" type="Label" parent="SafeArea/Content/NextCard/Row/Text"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"PageBodyLabel"
+text = "Goal"
+autowrap_mode = 3
+
+[node name="NextBar" type="ProgressBar" parent="SafeArea/Content/NextCard/Row/Text"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 14)
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"MapProgressBar"
+show_percentage = false
+
+[node name="Scroll" type="ScrollContainer" parent="SafeArea/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Sections" type="VBoxContainer" parent="SafeArea/Content/Scroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 20
+
+[node name="BadgeCard" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dim" type="ColorRect" parent="BadgeCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.07, 0.13, 0.12, 0.82)
+
+[node name="Center" type="CenterContainer" parent="BadgeCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="CardPanel" type="PanelContainer" parent="BadgeCard/Center"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(920, 0)
+layout_mode = 2
+theme_type_variation = &"ModalPanel"
+
+[node name="Column" type="VBoxContainer" parent="BadgeCard/Center/CardPanel"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="CardMedal" type="Control" parent="BadgeCard/Center/CardPanel/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 320)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+script = ExtResource("3_medal")
+
+[node name="CardName" type="Label" parent="BadgeCard/Center/CardPanel/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"DialogTitleLabel"
+text = "Badge"
+horizontal_alignment = 1
+
+[node name="CardRank" type="Label" parent="BadgeCard/Center/CardPanel/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"DialogRankLabel"
+text = "Rank"
+horizontal_alignment = 1
+
+[node name="CardRanks" type="VBoxContainer" parent="BadgeCard/Center/CardPanel/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(760, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 12
+
+[node name="CardClose" type="Button" parent="BadgeCard/Center/CardPanel/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(560, 136)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Close"

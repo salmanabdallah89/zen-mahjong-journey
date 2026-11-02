@@ -168,6 +168,12 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
 - **World rank:** autoload `GlobalRank` (Talo REST API, docs/LEADERBOARD.md) sends the total score and
   this week's points after each clear; the rank shows on Level Complete. No key in
   `data/leaderboard.json` (ignored by git) or no connection = no rank, play is never held up.
+- **Badges:** `BadgeBook` (core) holds 16 families of Bronze/Silver/Gold ranks; values come from the save, or
+  from counters kept by `ProgressStore.record_badge_facts` (saved in section `badges`), and ranks are never lost.
+  The start screen and `badges_screen` call `BadgeBook.award` so a returning player's journey counts; the game
+  screen awards after each clear and plays `BadgeReveal` over the dialog (tests that click through dialogs set
+  `GameSession.badge_reveals_enabled = false`). `BadgeMedal` draws medals as vectors and strikes a picture from
+  `assets/words` in the rank's metal (`themes/badge_glyph.gdshader`); rank also shows as pips, never colour alone.
 - **Word Garden:** language mode (`word_garden_screen`, a `JourneyWorld` map of stages with a language panel; `GameSession.play_word_stage`). `WordCatalog` (core)
   reads data/words/words.json (teaching order; words without `image` pair with their translation in `GameSession.word_native`; pictures from collections, never held-back symbols, and `assets/words`, Noto Emoji 3D)
   and plans stages per language (`stage_count()`, from the word list): new words plus review (`ProgressStore.word_review`). Faces

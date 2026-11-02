@@ -64,6 +64,10 @@ var _blocked_explanations := 0
 var _time_left := 0.0
 var _shown_seconds := -1
 var _mistakes := 0
+## Badge facts of this attempt.
+var _best_multiplier := 1
+var _golden_matched := false
+var _revealed_count := 0
 var _failed := false
 ## Ads: free hints and shuffles left this attempt, and second chances used this attempt.
 var _free_hints := 0
@@ -78,6 +82,8 @@ var _last_bell_at := -1.0
 var _ambience: GardenAmbience
 ## Mystery (face-down) and golden lotus (double points) tiles of this board.
 var _specials := TileSpecials.new()
+var _earned_badges: Array[Dictionary] = []
+@onready var _badge_reveal: BadgeReveal = %BadgeReveal
 ## Word Garden: words on this board and those mixed up this attempt.
 var _word_ids := PackedStringArray()
 var _words_missed := PackedStringArray()
@@ -164,7 +170,9 @@ func _notification(what: int) -> void:
 ## Android back: closes whatever is on top; on the board it pauses, and on the
 ## pause menu it resumes. End-of-level dialogs wait for a choice.
 func _on_back_requested() -> void:
-	if _settings.visible:
+	if _badge_reveal.visible:
+		_badge_reveal.next()
+	elif _settings.visible:
 		_settings.close()
 	elif _picker.visible:
 		_picker.close()
@@ -230,6 +238,9 @@ func _start_level() -> void:
 	_time_left = float(_level.time_limit)
 	_shown_seconds = -1
 	_mistakes = 0
+	_best_multiplier = 1
+	_golden_matched = false
+	_revealed_count = 0
 	_failed = false
 	_elapsed = 0.0
 	_pause_open = false
@@ -361,6 +372,8 @@ func _remove_pair(a: int, b: int) -> void:
 	_model.remove_pair(a, b)
 	var revealed := _specials.reveal_free(_model)
 	var factor := _specials.factor(a, b)
+	_revealed_count += revealed.size()
+	_golden_matched = _golden_matched or factor > 1
 	_matches += 1
 	if tutorial_active():
 		_tutorial.on_matched(a, b)
@@ -369,6 +382,7 @@ func _remove_pair(a: int, b: int) -> void:
 	var step := AudioManager.melody_step() if cleared else AudioManager.next_match_step()
 	var combo := step + 1
 	var points := _score.add_match(combo, factor)
+	_best_multiplier = maxi(_best_multiplier, LevelScore.multiplier(combo))
 	_undo_stack.append({"kind": UndoKind.MATCH, "pair": Vector2i(a, b), "points": points})
 	var burst := FINALE_BURST if cleared else (maxi(combo, GOLDEN_BURST) if factor > 1 else combo)
 	var contact := _board.play_removal(a, b, burst, revealed)
@@ -866,6 +880,8 @@ func _show_level_complete() -> void:
 	_report_rank()
 	_play_celebration()
 	AudioManager.vibrate(60)
+	_award_level_badges()
+	_reveal_badges(0.65 + 0.32 * earned + (0.3 if Motion.reduced else 1.5))
 
 
 ## Word Garden's end of stage: the words of the board, then on to the next.
@@ -886,6 +902,42 @@ func _show_stage_complete() -> void:
 	_dialog.set_stars(earned, LevelRating.MAX_STARS, true)
 	_play_celebration()
 	AudioManager.vibrate(60)
+	GameSession.progress.record_badge_facts({}, BadgeBook.today())
+	_earned_badges = BadgeBook.award(GameSession.progress, LevelCatalog.count())
+	_reveal_badges(0.65 + 0.32 * earned + 0.4)
+
+
+## What this clear adds to the counted badges, then any ranks it reached.
+func _award_level_badges() -> void:
+	var facts := {}
+	if _mistakes == 0:
+		facts["still_mind"] = 1
+	if _time_left >= _level.time_limit * 0.75:
+		facts["swift_stream"] = 1
+	if _hints_used == 0 and _shuffles == 0:
+		facts["quiet_hands"] = 1
+	if _level.mistake_limit > 1 and hearts_left() == 1:
+		facts["last_petal"] = 1
+	if _best_multiplier >= LevelScore.MAX_MULTIPLIER:
+		facts["flowing_river"] = 1
+	if _golden_matched:
+		facts["golden_lotus"] = 1
+	if _revealed_count > 0:
+		facts["veil_lifter"] = _revealed_count
+	GameSession.progress.record_badge_facts(facts, BadgeBook.today())
+	_earned_badges = BadgeBook.award(GameSession.progress, LevelCatalog.count())
+
+
+## Plays the reveal once the end-of-level dialog has had its moment. A player
+## who leaves first still finds the badge marked new on the Badges page.
+func _reveal_badges(delay: float) -> void:
+	if _earned_badges.is_empty() or not GameSession.badge_reveals_enabled:
+		return
+	var tween := create_tween()
+	tween.tween_interval(delay)
+	tween.tween_callback(func() -> void:
+		if _dialog.visible:
+			_badge_reveal.play(_earned_badges))
 
 
 ## Counts the clear for the week and shows the world rank when it arrives.
@@ -901,6 +953,11 @@ func _report_rank() -> void:
 func _on_rank_reported(answer: Dictionary) -> void:
 	if _dialog.visible:
 		_dialog.set_rank(GlobalRankService.rank_text(answer))
+
+
+## Ranks the last clear earned, best first ({id, rank}).
+func earned_badges() -> Array[Dictionary]:
+	return _earned_badges
 
 
 func _on_star_popped(index: int) -> void:

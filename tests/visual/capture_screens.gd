@@ -40,6 +40,7 @@ func _ready() -> void:
 				await _capture_level(shape, level, false)
 	get_window().size = SHAPES["phone_9x16"]
 	await _capture_losing()
+	await _capture_badges()
 	await _capture_words()
 	await _capture_collections()
 	await _capture_zen_small()
@@ -47,6 +48,38 @@ func _ready() -> void:
 	await _capture_journey()
 	await _capture_ads()
 	_finish()
+
+
+func _capture_badges() -> void:
+	var store := GameSession.progress
+	for level in range(1, 46):
+		store.record_clear(level, 3 if level % 2 == 0 else 2, 100.0, LevelCatalog.count(), 1800)
+	store.record_badge_facts({"still_mind": 57, "flowing_river": 2, "golden_lotus": 9, "last_petal": 1}, 100)
+	var page: Control = load(GameSession.BADGES_SCENE).instantiate()
+	add_child(page)
+	await _frames(8)
+	await _save("phone_9x16_badges_page")
+	page.get_node("SafeArea/Content/Scroll").scroll_vertical = 1400
+	await _frames(4)
+	await _save("phone_9x16_badges_page_end")
+	page.open_card("still_mind")
+	await _frames(20)
+	await _save("phone_9x16_badges_card")
+	page.queue_free()
+	await _frames(2)
+	var game: Control = GAME_SCENE.instantiate()
+	add_child(game)
+	await _frames(10)
+	var reveal: BadgeReveal = game.get_node("%BadgeReveal")
+	reveal.play([{"id": "still_mind", "rank": 3}, {"id": "pathfinder", "rank": 1}])
+	await get_tree().create_timer(2.5).timeout
+	await _save("phone_9x16_badges_reveal_gold")
+	reveal.next()
+	await get_tree().create_timer(2.5).timeout
+	await _save("phone_9x16_badges_reveal_bronze")
+	game.queue_free()
+	await _frames(2)
+	store.reset()
 
 
 func _capture_words() -> void:
