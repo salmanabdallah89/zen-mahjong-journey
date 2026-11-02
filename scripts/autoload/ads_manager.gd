@@ -13,7 +13,8 @@ extends Node
 ##  - "simulated": stand-in test ads drawn by the game, on desktop debug runs
 ##                 (data/ads.json "simulate_on_desktop"), so every placement
 ##                 can be played and tested.
-##  - "none":      the web build, release desktop builds, or no plugin. The
+##  - "none":      the web build, release desktop builds, no plugin, or a
+##                 release build without valid real ids (never test ads). The
 ##                 game then works without ads: hints stay free and there is
 ##                 no ad-based second chance.
 
@@ -31,6 +32,8 @@ const RELEASE_CONFIG_PATH := "res://data/ads_release.json"
 const ADMOB_PLUGIN_DIR := "res://addons/AdmobPlugin"
 const ADMOB_BRIDGE := "res://scripts/ads/admob_bridge.gd"
 const BANNER_HEIGHT := 130.0
+## Google's public test account; never valid in a release build.
+const TEST_PUBLISHER := "ca-app-pub-3940256099942544"
 
 var provider := "none"
 var config := {}
@@ -60,20 +63,17 @@ func _ready() -> void:
 	_layer.layer = 100
 	add_child(_layer)
 	if provider == "admob":
+		var platform := "ios" if OS.has_feature("ios") else "android"
+		var ids := ids_for_build(platform, OS.is_debug_build())
+		if ids.is_empty():
+			push_error("AdsManager: no valid ad ids for this build, ads are off")
+			provider = "none"
+			return
 		_admob = (load(ADMOB_BRIDGE) as GDScript).new()
 		_admob.name = "AdmobBridge"
 		add_child(_admob)
 		_admob.banner_changed.connect(banner_changed.emit)
-		var platform := "ios" if OS.has_feature("ios") else "android"
-		# Debug builds (and platforms without real ids) always get test ads.
-		var ids: Dictionary = config.get(platform, {})
-		var real := not OS.is_debug_build()
-		if real:
-			ids = release_ids(platform)
-			real = not ids.is_empty()
-			if not real:
-				ids = config.get(platform, {})
-		_admob.start(ids, real)
+		_admob.start(ids, not OS.is_debug_build())
 
 
 func _pick_provider() -> String:
@@ -111,17 +111,24 @@ func setting(key: String, default: Variant) -> Variant:
 
 
 ## Ad unit id for the current platform ("banner", "interstitial", "rewarded").
+## The ids this build may use: test ids in debug builds, real ids in release
+## builds. A release build never falls back to test ids: {} means no ads.
+func ids_for_build(platform: String, debug: bool, release_path := RELEASE_CONFIG_PATH) -> Dictionary:
+	return config.get(platform, {}) if debug else release_ids(platform, release_path)
+
+
 ## The real AdMob ids for release builds (data/ads_release.json), or {} when
-## the platform has none or they are incomplete.
-static func release_ids(platform: String) -> Dictionary:
-	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(RELEASE_CONFIG_PATH))
+## the platform has none, they are incomplete, or they are Google's test ids.
+static func release_ids(platform: String, path := RELEASE_CONFIG_PATH) -> Dictionary:
+	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 	if not data is Dictionary:
 		return {}
 	var ids: Variant = (data as Dictionary).get(platform, {})
 	if not ids is Dictionary:
 		return {}
 	for kind in ["app_id", "banner", "interstitial", "rewarded"]:
-		if not str((ids as Dictionary).get(kind, "")).begins_with("ca-app-pub-"):
+		var id := str((ids as Dictionary).get(kind, ""))
+		if not id.begins_with("ca-app-pub-") or id.begins_with(TEST_PUBLISHER):
 			return {}
 	return ids
 

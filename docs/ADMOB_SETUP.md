@@ -12,6 +12,10 @@ what order. iOS can follow the same path later.
 
 - `AdsManager` creates the bridge on phones when the plugin and bridge exist (`provider = "admob"`).
   Screens still talk only to `AdsManager`.
+- **Consent gate:** the SDK starts only when consent is `OBTAINED` or `NOT_REQUIRED`. If the check fails
+  and nothing is cached, there are no ads, and the check runs again when the journey map next opens.
+- **Release ids:** a release build with missing, damaged or Google test ids in `data/ads_release.json`
+  shows no ads and logs an error. It never falls back to test ids.
 - **Start-up:** consent (UMP) → `initialize()` → preload one rewarded and one interstitial ad. Failed
   loads retry after 60 s.
 - **Offers follow readiness:** Ad Hint / Watch Ad appear only while a rewarded ad is loaded; the

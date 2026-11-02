@@ -237,6 +237,16 @@ func _test_settings_sliders_and_persistence() -> void:
 	(panel.get_node("%MuteToggle") as Button).button_pressed = true
 	_check(AudioServer.is_bus_mute(AudioServer.get_bus_index("Master")), "11: mute silences the Master bus")
 	_check(AudioManager.muted, "11: mute is on")
+	var toggle: Button = panel.get_node("%MotionToggle")
+	for state: Array in [["normal", "font_color"], ["hover", "font_hover_color"], ["pressed", "font_pressed_color"], ["hover_pressed", "font_hover_pressed_color"]]:
+		var fill: Color = (toggle.get_theme_stylebox(state[0]) as StyleBoxFlat).bg_color
+		_check(_contrast(toggle.get_theme_color(state[1]), fill) >= 4.5, "Settings: toggle text is readable when %s" % state[0])
+	var licences: CreditsPanel = panel.get_node("%CreditsPanel")
+	await _click(panel.get_node("%LicencesButton"))
+	_check(licences.visible, "Credits: the button opens the page")
+	_check((licences.get_node("%CreditsText") as Label).text == Credits.text(), "Credits: the page shows the credits")
+	(panel as AudioSettingsPanel).close()
+	_check(not licences.visible and panel.visible, "Credits: Android back closes the page first")
 	await _click(panel.get_node("%BackButton"))
 
 	var relaunched: Node = load("res://scripts/autoload/audio_manager.gd").new()
@@ -419,3 +429,15 @@ func _wait(seconds: float) -> void:
 func _frames(count: int) -> void:
 	for i in count:
 		await get_tree().process_frame
+
+
+## WCAG contrast ratio of two opaque colours.
+func _contrast(a: Color, b: Color) -> float:
+	var one := _luminance(a)
+	var two := _luminance(b)
+	return (maxf(one, two) + 0.05) / (minf(one, two) + 0.05)
+
+
+func _luminance(color: Color) -> float:
+	var linear := color.srgb_to_linear()
+	return 0.2126 * linear.r + 0.7152 * linear.g + 0.0722 * linear.b

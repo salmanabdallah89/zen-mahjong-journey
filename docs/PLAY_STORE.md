@@ -4,6 +4,13 @@ Status (2026-10-28): release build set up with the real AdMob app, signing prese
 and screenshots made, privacy policy written. **Not uploaded yet.** The upload key must be created by
 the developer (step 1). Play Games sign-in and Firebase come later (separate steps).
 
+## Android SDK levels
+
+Confirmed from the merged release manifest (2026-11-02): min SDK 24, target SDK 36, compile SDK 36. The
+presets leave these blank on purpose, so they come from `android/build/config.gradle`. Target 36 meets
+Google Play's rule for new apps and updates (Android 16, from 31 Aug 2026). Check that rule again each
+summer, and after any Godot upgrade.
+
 ## What is ready
 
 | Item | Where |

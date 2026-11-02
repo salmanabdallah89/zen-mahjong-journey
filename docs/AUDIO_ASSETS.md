@@ -86,14 +86,14 @@ bell.
 
 | Track | Used as | Author | Licence | Credit required | Source page |
 |-------|---------|--------|---------|-----------------|-------------|
-| Ripples | Gameplay | Kevin MacLeod | CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) | Yes: `"Ripples" Kevin MacLeod (incompetech.com), Licensed under Creative Commons: By Attribution 4.0` (shown in Settings) | https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100691 |
-| In the place far away | Title screen and journey map | HarumachiMusic | Pixabay Content License (https://pixabay.com/service/license-summary/) | No (credited in Settings anyway) | https://pixabay.com/music/ambient-in-the-place-far-away-japanese-koto-inspirational-calm-music-151182/ |
+| Ripples | Gameplay | Kevin MacLeod | CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) | Yes: `"Ripples" Kevin MacLeod (incompetech.com), Licensed under Creative Commons: By Attribution 4.0` (shown in Settings > Credits & Licences) | https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100691 |
+| In the place far away | Title screen and journey map | HarumachiMusic | Pixabay Content License (https://pixabay.com/service/license-summary/) | No (credited in Settings > Credits & Licences anyway) | https://pixabay.com/music/ambient-in-the-place-far-away-japanese-koto-inspirational-calm-music-151182/ |
 
 **Pixabay note:** the licence allows use in games and apps (it only forbids selling or distributing
 the track on its own). This track is **registered with YouTube Content ID**, so trailers or gameplay
 videos posted to YouTube with this music may get a claim; it does not affect the game itself.
 
-Keep the credit in `AudioCatalog.MUSIC_CREDITS` (Settings shows it) and in the store listing's credits.
+Keep the credit in `AudioCatalog.MUSIC_CREDITS` (Settings > Credits & Licences shows it) and in the store listing's credits.
 A paid licence from incompetech removes the credit requirement.
 
 The earlier generated music is no longer shipped. `tools/audio/generate_music.py` now writes to

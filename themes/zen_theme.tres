@@ -235,6 +235,20 @@ fill = 1
 fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(1, 0.5)
 
+[sub_resource type="StyleBoxFlat" id="Toggle_off"]
+bg_color = Color(0.9647059, 0.93333334, 0.8745098, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.78039217, 0.64705884, 0.41568628, 1)
+corner_radius_top_left = 40
+corner_radius_top_right = 40
+corner_radius_bottom_right = 40
+corner_radius_bottom_left = 40
+content_margin_left = 24.0
+content_margin_right = 24.0
+
 [sub_resource type="StyleBoxFlat" id="Toggle_on"]
 bg_color = Color(0.20784314, 0.30980393, 0.26666668, 1)
 border_width_left = 4
@@ -510,9 +524,9 @@ ToggleButton/colors/font_pressed_color = Color(0.9647059, 0.93333334, 0.8745098,
 ToggleButton/colors/font_hover_pressed_color = Color(0.9647059, 0.93333334, 0.8745098, 1)
 ToggleButton/font_sizes/font_size = 44
 ToggleButton/styles/focus = SubResource("Focus_empty")
-ToggleButton/styles/hover = SubResource("Card_normal")
+ToggleButton/styles/hover = SubResource("Toggle_off")
 ToggleButton/styles/hover_pressed = SubResource("Toggle_on")
-ToggleButton/styles/normal = SubResource("Card_normal")
+ToggleButton/styles/normal = SubResource("Toggle_off")
 ToggleButton/styles/pressed = SubResource("Toggle_on")
 ScorePill/base_type = &"PanelContainer"
 ScorePill/styles/panel = SubResource("Hearts_pill")

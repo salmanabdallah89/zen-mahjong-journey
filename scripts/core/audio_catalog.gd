@@ -9,7 +9,7 @@ const MUSIC := {
 	"gameplay": "res://assets/audio/music/music_gameplay.ogg",
 }
 
-## Credits shown in Settings for licensed music (CC BY requires them; keep
+## Credits shown on the credits page for licensed music (CC BY requires them; keep
 ## the wording the licensor asks for). Licences: docs/AUDIO_ASSETS.md.
 const MUSIC_CREDITS: PackedStringArray = [
 	"\"Ripples\" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0",

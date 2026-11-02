@@ -19,7 +19,8 @@ signal closed
 @onready var _back: Button = %BackButton
 @onready var _how_to_play: Button = %HowToPlayButton
 @onready var _privacy: Button = %PrivacyButton
-@onready var _credits: Label = %Credits
+@onready var _licences_button: Button = %LicencesButton
+@onready var _licences: CreditsPanel = %CreditsPanel
 
 
 func _ready() -> void:
@@ -46,9 +47,6 @@ func _ready() -> void:
 		AudioManager.set_muted(on)
 		_sync_labels())
 	_back.pressed.connect(_close)
-	_credits.text = "Music: " + "
-".join(AudioCatalog.MUSIC_CREDITS)
-	_credits.visible = not AudioCatalog.MUSIC_CREDITS.is_empty()
 	# Replays the first-play tutorial on level 1.
 	_how_to_play.pressed.connect(func() -> void:
 		AudioManager.flush_settings()
@@ -56,6 +54,7 @@ func _ready() -> void:
 		GameSession.start_tutorial())
 	# Ad consent (AdMob, consent regions only): Google's form, shown again.
 	_privacy.pressed.connect(AdsManager.show_privacy_options)
+	_licences_button.pressed.connect(_licences.open)
 
 
 func open(back_label := "Back") -> void:
@@ -87,7 +86,10 @@ func _sync_labels() -> void:
 
 ## Closes the panel as its Back button does (Android back).
 func close() -> void:
-	_close()
+	if _licences.visible:
+		_licences.hide()
+	else:
+		_close()
 
 
 func _close() -> void:

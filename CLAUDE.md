@@ -183,6 +183,8 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
 - **Update notice:** `UpdateNotice` (start screen, Android only, once per launch) reads `site/version.json` from
   GitHub Pages and `UpdateNotes` (core) decides; no connection = nothing shown. Change that file only after a
   release is live on Google Play (docs/UPDATES.md).
+- **Credits:** `Credits` (core) is the page behind Settings > Credits & Licences (`CreditsPanel`); licence
+  texts come from the engine. Add a line there for any new third-party art, sound, font or plugin.
 - **Word Garden:** language mode (`word_garden_screen`, a `JourneyWorld` map of stages with a language panel; `GameSession.play_word_stage`). `WordCatalog` (core)
   reads data/words/words.json (teaching order; words without `image` pair with their translation in `GameSession.word_native`; pictures from collections, never held-back symbols, and `assets/words`, Noto Emoji 3D)
   and plans stages per language (`stage_count()`, from the word list): new words plus review (`ProgressStore.word_review`). Faces

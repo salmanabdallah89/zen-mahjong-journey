@@ -7,8 +7,10 @@ extends Node
 ## Start-up order (AdMob policy): consent first (Google's User Messaging
 ## Platform: update the consent info, show the form when it is required),
 ## then initialize the SDK, then preload one rewarded and one interstitial
-## ad. Any failure along the way just means "no ad": rewarded offers
-## disappear (AdsManager.is_available()) and interstitials are skipped.
+## ad. The SDK starts only when consent is settled (obtained or not required);
+## a failed check asks again when the journey map next opens. Any failure along
+## the way just means "no ad": rewarded offers disappear
+## (AdsManager.is_available()) and interstitials are skipped.
 ##
 ## Rewards are paid only on rewarded_ad_user_earned_reward. Ads that fail to
 ## load are retried after RETRY_SECONDS.
@@ -26,6 +28,7 @@ var banner_visible := false
 
 var _admob: Admob
 var _initializing := false
+var _asking_consent := false
 var _loading := {"rewarded": false, "interstitial": false, "banner": false}
 var _ready_ads := {"rewarded": false, "interstitial": false, "banner": false}
 var _banner_wanted := false
@@ -64,10 +67,10 @@ func start(ids: Dictionary, real := false) -> void:
 	add_child(_admob)
 
 	_admob.consent_info_updated.connect(_on_consent_info_updated)
-	_admob.consent_info_update_failed.connect(func(_error: FormError) -> void: _initialize())
+	_admob.consent_info_update_failed.connect(func(_error: FormError) -> void: _consent_settled())
 	_admob.consent_form_loaded.connect(func() -> void: _admob.show_consent_form())
-	_admob.consent_form_failed_to_load.connect(func(_error: FormError) -> void: _initialize())
-	_admob.consent_form_dismissed.connect(func(_error: FormError) -> void: _initialize())
+	_admob.consent_form_failed_to_load.connect(func(_error: FormError) -> void: _consent_settled())
+	_admob.consent_form_dismissed.connect(func(_error: FormError) -> void: _consent_settled())
 	_admob.initialization_completed.connect(_on_initialization_completed)
 
 	_admob.rewarded_ad_loaded.connect(func(_ad: AdInfo, _response: ResponseInfo) -> void: _loaded("rewarded"))
@@ -88,7 +91,13 @@ func start(ids: Dictionary, real := false) -> void:
 	_admob.banner_ad_loaded.connect(func(_ad: AdInfo, _response: ResponseInfo) -> void: _on_banner_loaded())
 	_admob.banner_ad_failed_to_load.connect(func(_ad: AdInfo, _error: LoadAdError) -> void: _load_failed("banner"))
 
-	_admob.update_consent_info()
+	_ask_consent()
+
+
+## True when the SDK may start: the player chose, or their region needs no
+## choice. Unknown or still required means no ads.
+static func consent_allows_ads(status: int) -> bool:
+	return status in [UserConsent.Status.NOT_REQUIRED, UserConsent.Status.OBTAINED]
 
 
 func rewarded_ready() -> bool:
@@ -114,6 +123,7 @@ func show_interstitial(on_done: Callable) -> void:
 func show_banner() -> void:
 	_banner_wanted = true
 	if not initialized:
+		_ask_consent()
 		return
 	if _ready_ads["banner"]:
 		_admob.show_banner_ad()
@@ -154,11 +164,25 @@ func show_privacy_options() -> void:
 
 # --- Start-up -----------------------------------------------------------------
 
+func _ask_consent() -> void:
+	if initialized or _initializing or _asking_consent:
+		return
+	_asking_consent = true
+	_admob.update_consent_info()
+
+
 func _on_consent_info_updated() -> void:
 	var consent := _admob.get_consent_status()
 	if consent != null and consent.status == UserConsent.Status.REQUIRED and _admob.is_consent_form_available():
-		_admob.load_consent_form()  # consent_form_loaded shows it; closing it initializes.
+		_admob.load_consent_form()  # consent_form_loaded shows it; closing it settles consent.
 	else:
+		_consent_settled()
+
+
+func _consent_settled() -> void:
+	_asking_consent = false
+	var consent := _admob.get_consent_status()
+	if consent != null and consent_allows_ads(consent.status):
 		_initialize()
 
 
