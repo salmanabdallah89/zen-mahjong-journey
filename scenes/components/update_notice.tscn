@@ -1,0 +1,86 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/components/update_notice.gd" id="1_notice"]
+[ext_resource type="Script" path="res://scripts/components/badge_medal.gd" id="2_medal"]
+
+[node name="UpdateNotice" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_notice")
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.07, 0.13, 0.12, 0.8)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="UpdatePanel" type="PanelContainer" parent="Center"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(900, 0)
+layout_mode = 2
+theme_type_variation = &"ModalPanel"
+
+[node name="Column" type="VBoxContainer" parent="Center/UpdatePanel"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="UpdateMedal" type="Control" parent="Center/UpdatePanel/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 240)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+script = ExtResource("2_medal")
+
+[node name="Title" type="Label" parent="Center/UpdatePanel/Column"]
+layout_mode = 2
+theme_type_variation = &"DialogTitleLabel"
+text = "A New Update"
+horizontal_alignment = 1
+
+[node name="UpdateVersion" type="Label" parent="Center/UpdatePanel/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"DialogRankLabel"
+text = "Version"
+horizontal_alignment = 1
+
+[node name="UpdateNotesLabel" type="Label" parent="Center/UpdatePanel/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(740, 0)
+layout_mode = 2
+theme_type_variation = &"DialogWordsLabel"
+text = "Notes"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="UpdateNowButton" type="Button" parent="Center/UpdatePanel/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(560, 136)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Update Now"
+
+[node name="UpdateLaterButton" type="Button" parent="Center/UpdatePanel/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(560, 136)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"SecondaryButton"
+text = "Later"

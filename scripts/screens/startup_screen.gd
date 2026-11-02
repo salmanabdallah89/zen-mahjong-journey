@@ -17,6 +17,7 @@ const MENU_GARDEN := "bg_golden_sakura"
 @onready var _new_badges_label: Label = %NewBadgesLabel
 @onready var _picker: CollectionPicker = %CollectionPicker
 @onready var _settings_button: Button = %SettingsButton
+@onready var _update_notice: UpdateNotice = %UpdateNotice
 @onready var _settings: AudioSettingsPanel = %AudioSettings
 @onready var _leaderboard_button: Button = %LeaderboardButton
 @onready var _leaderboard_gap: Control = %LeaderboardGap
@@ -42,6 +43,7 @@ func _ready() -> void:
 	BackgroundDrift.start(background)
 	GardenAmbience.add_over(background).setup(MENU_GARDEN)
 	_play_intro()
+	_update_notice.check()
 
 
 ## Android back closes an open panel; on the title screen itself it leaves
@@ -49,7 +51,9 @@ func _ready() -> void:
 func _notification(what: int) -> void:
 	if what != NOTIFICATION_WM_GO_BACK_REQUEST or not is_node_ready():
 		return
-	if _settings.visible:
+	if _update_notice.visible:
+		_update_notice.later()
+	elif _settings.visible:
 		_settings.close()
 	elif _picker.visible:
 		_picker.close()

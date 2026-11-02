@@ -5,6 +5,7 @@
 [ext_resource type="Texture2D" path="res://assets/backgrounds/bg_golden_sakura.png" id="2_bg"]
 [ext_resource type="Script" path="res://scripts/components/safe_area_container.gd" id="3_safe"]
 [ext_resource type="PackedScene" path="res://scenes/components/collection_picker.tscn" id="4_picker"]
+[ext_resource type="PackedScene" path="res://scenes/components/update_notice.tscn" id="6_update"]
 
 [sub_resource type="Gradient" id="Gradient_top"]
 offsets = PackedFloat32Array(0, 0.55, 1)
@@ -260,6 +261,11 @@ visible = false
 layout_mode = 1
 
 [node name="AudioSettings" parent="." instance=ExtResource("5_settings")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+
+[node name="UpdateNotice" parent="." instance=ExtResource("6_update")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 1

@@ -40,6 +40,7 @@ func _ready() -> void:
 				await _capture_level(shape, level, false)
 	get_window().size = SHAPES["phone_9x16"]
 	await _capture_losing()
+	await _capture_update_notice()
 	await _capture_daily()
 	await _capture_badges()
 	await _capture_words()
@@ -49,6 +50,18 @@ func _ready() -> void:
 	await _capture_journey()
 	await _capture_ads()
 	_finish()
+
+
+func _capture_update_notice() -> void:
+	var home: Control = load("res://scenes/screens/startup_screen.tscn").instantiate()
+	add_child(home)
+	await _frames(10)
+	home.get_node("%UpdateNotice").present({"latest": "1.0.8", "notes": PackedStringArray([
+		"Daily Challenge with a calendar and monthly trophies", "Badges to earn on your journey"])})
+	await get_tree().create_timer(1.0).timeout
+	await _save("phone_9x16_update_notice")
+	home.queue_free()
+	await _frames(2)
 
 
 func _capture_daily() -> void:

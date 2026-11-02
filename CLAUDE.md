@@ -180,6 +180,9 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
   per day in `ProgressStore` (section `daily`). Earlier days of the current month can be caught up but never
   repair the streak (`daily_streak`, only `live_` days). Monthly trophy: 10, 20, then every day. Never change
   `level_for` for past dates: saved stars are keyed by day.
+- **Update notice:** `UpdateNotice` (start screen, Android only, once per launch) reads `site/version.json` from
+  GitHub Pages and `UpdateNotes` (core) decides; no connection = nothing shown. Change that file only after a
+  release is live on Google Play (docs/UPDATES.md).
 - **Word Garden:** language mode (`word_garden_screen`, a `JourneyWorld` map of stages with a language panel; `GameSession.play_word_stage`). `WordCatalog` (core)
   reads data/words/words.json (teaching order; words without `image` pair with their translation in `GameSession.word_native`; pictures from collections, never held-back symbols, and `assets/words`, Noto Emoji 3D)
   and plans stages per language (`stage_count()`, from the word list): new words plus review (`ProgressStore.word_review`). Faces

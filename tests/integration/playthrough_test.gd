@@ -66,6 +66,7 @@ func _ready() -> void:
 	await _test_special_tiles(5)
 	await _test_starting_collection()
 	await _test_same_tile_size()
+	await _test_update_notice()
 	await _test_daily()
 	await _test_badges()
 	await _test_word_garden()
@@ -1588,6 +1589,43 @@ func _test_zen_garden_tiles(level_number: int) -> void:
 
 ## Word Garden: picture and word tiles, no clock or hearts, a mistake only
 ## teaches, the stage saves stars and the next stage opens.
+func _test_update_notice() -> void:
+	var opened: Array[String] = []
+	var home: Control = STARTUP_SCENE.instantiate()
+	_frame.add_child(home)
+	await _frames(3)
+	var notice: UpdateNotice = home.get_node("%UpdateNotice")
+	_check(not notice.visible, "Update: quiet off Android")
+	notice.settings_path = ISOLATED_SETTINGS
+	notice.opener = func(url: String) -> void: opened.append(url)
+	notice.transport = func() -> Dictionary: return {}
+	await notice.look_for_update("1.0.7", 100)
+	_check(not notice.visible, "Update: no connection shows nothing")
+	notice.transport = func() -> Dictionary: return {"code": 200, "data": {"latest": "1.0.7"}}
+	await notice.look_for_update("1.0.7", 100)
+	_check(not notice.visible, "Update: the current version shows nothing")
+	notice.transport = func() -> Dictionary: return {"code": 200, "data": {"latest": "1.0.8", "notes": ["New things"]}}
+	await notice.look_for_update("1.0.7", 100)
+	await _frames(3)
+	_check(notice.visible, "Update: a newer version shows the notice")
+	_check(notice.get_node("%UpdateVersion").text == "Version 1.0.8 is ready", "Update: the notice names the version")
+	var now: Button = notice.get_node("%UpdateNowButton")
+	_check(now.size.y >= 120.0, "Update: buttons are full touch targets")
+	await _click_control(notice.get_node("%UpdateLaterButton"))
+	await _frames(2)
+	_check(not notice.visible, "Update: Later closes the notice")
+	await notice.look_for_update("1.0.7", BadgeBook.today())
+	_check(not notice.visible, "Update: Later keeps it quiet")
+	notice.present({"latest": "1.0.8", "notes": PackedStringArray()})
+	await _frames(3)
+	await _click_control(now)
+	await _frames(2)
+	_check(opened == [UpdateNotes.STORE_URL], "Update: Update Now opens the store page")
+	_check(not notice.visible, "Update: Update Now closes the notice")
+	home.queue_free()
+	await _frames(1)
+
+
 func _test_daily() -> void:
 	GameSession.progress.reset()
 	var today := 20759
