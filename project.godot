@@ -12,7 +12,7 @@ config_version=5
 
 config/name="Zen Mahjong Journey"
 config/description="A calm, Android-first Mahjong Solitaire journey."
-config/version="1.0.10"
+config/version="1.0.11"
 run/main_scene="res://scenes/screens/startup_screen.tscn"
 config/quit_on_go_back=false
 config/features=PackedStringArray("4.7", "GL Compatibility")
@@ -33,6 +33,7 @@ AudioManager="*res://scripts/autoload/audio_manager.gd"
 AdsManager="*res://scripts/autoload/ads_manager.gd"
 PlayGames="*res://scripts/autoload/play_games.gd"
 GlobalRank="*res://scripts/autoload/global_rank.gd"
+Reminders="*res://scripts/autoload/reminders.gd"
 GodotPlayGameServices="*uid://b78gkjmg80wfi"
 
 [display]
@@ -47,7 +48,7 @@ window/handheld/orientation=1
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/AdmobPlugin/plugin.cfg", "res://addons/GodotPlayGameServices/plugin.cfg")
+enabled=PackedStringArray("res://addons/AdmobPlugin/plugin.cfg", "res://addons/GodotPlayGameServices/plugin.cfg", "res://addons/NotificationSchedulerPlugin/plugin.cfg", "res://addons/zen_android_manifest/plugin.cfg")
 
 [gui]
 

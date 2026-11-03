@@ -35,37 +35,44 @@ custom_minimum_size = Vector2(900, 0)
 layout_mode = 2
 theme_type_variation = &"ModalPanel"
 
-[node name="Content" type="VBoxContainer" parent="Center/Panel"]
+[node name="Scroll" type="ScrollContainer" parent="Center/Panel"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Content" type="VBoxContainer" parent="Center/Panel/Scroll"]
+unique_name_in_owner = true
+size_flags_horizontal = 3
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="Title" type="Label" parent="Center/Panel/Content"]
+[node name="Title" type="Label" parent="Center/Panel/Scroll/Content"]
 layout_mode = 2
 theme_type_variation = &"DialogTitleLabel"
 text = "Settings"
 horizontal_alignment = 1
 
-[node name="MusicRow" type="VBoxContainer" parent="Center/Panel/Content"]
+[node name="MusicRow" type="VBoxContainer" parent="Center/Panel/Scroll/Content"]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="MusicHeader" type="HBoxContainer" parent="Center/Panel/Content/MusicRow"]
+[node name="MusicHeader" type="HBoxContainer" parent="Center/Panel/Scroll/Content/MusicRow"]
 layout_mode = 2
 
-[node name="MusicLabel" type="Label" parent="Center/Panel/Content/MusicRow/MusicHeader"]
+[node name="MusicLabel" type="Label" parent="Center/Panel/Scroll/Content/MusicRow/MusicHeader"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_type_variation = &"DialogBodyLabel"
 text = "Music"
 
-[node name="MusicValue" type="Label" parent="Center/Panel/Content/MusicRow/MusicHeader"]
+[node name="MusicValue" type="Label" parent="Center/Panel/Scroll/Content/MusicRow/MusicHeader"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"HudCaptionLabel"
 theme_override_font_sizes/font_size = 34
 text = "70%"
 
-[node name="MusicSlider" type="HSlider" parent="Center/Panel/Content/MusicRow"]
+[node name="MusicSlider" type="HSlider" parent="Center/Panel/Scroll/Content/MusicRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 120)
 layout_mode = 2
@@ -73,27 +80,27 @@ max_value = 1.0
 step = 0.01
 value = 0.7
 
-[node name="SfxRow" type="VBoxContainer" parent="Center/Panel/Content"]
+[node name="SfxRow" type="VBoxContainer" parent="Center/Panel/Scroll/Content"]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="SfxHeader" type="HBoxContainer" parent="Center/Panel/Content/SfxRow"]
+[node name="SfxHeader" type="HBoxContainer" parent="Center/Panel/Scroll/Content/SfxRow"]
 layout_mode = 2
 
-[node name="SfxLabel" type="Label" parent="Center/Panel/Content/SfxRow/SfxHeader"]
+[node name="SfxLabel" type="Label" parent="Center/Panel/Scroll/Content/SfxRow/SfxHeader"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_type_variation = &"DialogBodyLabel"
 text = "Sound Effects"
 
-[node name="SfxValue" type="Label" parent="Center/Panel/Content/SfxRow/SfxHeader"]
+[node name="SfxValue" type="Label" parent="Center/Panel/Scroll/Content/SfxRow/SfxHeader"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"HudCaptionLabel"
 theme_override_font_sizes/font_size = 34
 text = "70%"
 
-[node name="SfxSlider" type="HSlider" parent="Center/Panel/Content/SfxRow"]
+[node name="SfxSlider" type="HSlider" parent="Center/Panel/Scroll/Content/SfxRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 120)
 layout_mode = 2
@@ -101,27 +108,27 @@ max_value = 1.0
 step = 0.01
 value = 0.7
 
-[node name="AmbienceRow" type="VBoxContainer" parent="Center/Panel/Content"]
+[node name="AmbienceRow" type="VBoxContainer" parent="Center/Panel/Scroll/Content"]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="AmbienceHeader" type="HBoxContainer" parent="Center/Panel/Content/AmbienceRow"]
+[node name="AmbienceHeader" type="HBoxContainer" parent="Center/Panel/Scroll/Content/AmbienceRow"]
 layout_mode = 2
 
-[node name="AmbienceLabel" type="Label" parent="Center/Panel/Content/AmbienceRow/AmbienceHeader"]
+[node name="AmbienceLabel" type="Label" parent="Center/Panel/Scroll/Content/AmbienceRow/AmbienceHeader"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_type_variation = &"DialogBodyLabel"
 text = "Nature Ambience"
 
-[node name="AmbienceValue" type="Label" parent="Center/Panel/Content/AmbienceRow/AmbienceHeader"]
+[node name="AmbienceValue" type="Label" parent="Center/Panel/Scroll/Content/AmbienceRow/AmbienceHeader"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"HudCaptionLabel"
 theme_override_font_sizes/font_size = 34
 text = "70%"
 
-[node name="AmbienceSlider" type="HSlider" parent="Center/Panel/Content/AmbienceRow"]
+[node name="AmbienceSlider" type="HSlider" parent="Center/Panel/Scroll/Content/AmbienceRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 120)
 layout_mode = 2
@@ -129,17 +136,17 @@ max_value = 1.0
 step = 0.01
 value = 0.7
 
-[node name="VibrationRow" type="HBoxContainer" parent="Center/Panel/Content"]
+[node name="VibrationRow" type="HBoxContainer" parent="Center/Panel/Scroll/Content"]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="VibrationLabel" type="Label" parent="Center/Panel/Content/VibrationRow"]
+[node name="VibrationLabel" type="Label" parent="Center/Panel/Scroll/Content/VibrationRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_type_variation = &"DialogBodyLabel"
 text = "Vibration"
 
-[node name="VibrationToggle" type="Button" parent="Center/Panel/Content/VibrationRow"]
+[node name="VibrationToggle" type="Button" parent="Center/Panel/Scroll/Content/VibrationRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(250, 120)
 layout_mode = 2
@@ -147,17 +154,17 @@ theme_type_variation = &"ToggleButton"
 toggle_mode = true
 text = "Off"
 
-[node name="MotionRow" type="HBoxContainer" parent="Center/Panel/Content"]
+[node name="MotionRow" type="HBoxContainer" parent="Center/Panel/Scroll/Content"]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="MotionLabel" type="Label" parent="Center/Panel/Content/MotionRow"]
+[node name="MotionLabel" type="Label" parent="Center/Panel/Scroll/Content/MotionRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_type_variation = &"DialogBodyLabel"
 text = "Reduced Animations"
 
-[node name="MotionToggle" type="Button" parent="Center/Panel/Content/MotionRow"]
+[node name="MotionToggle" type="Button" parent="Center/Panel/Scroll/Content/MotionRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(250, 120)
 layout_mode = 2
@@ -165,17 +172,36 @@ theme_type_variation = &"ToggleButton"
 toggle_mode = true
 text = "Off"
 
-[node name="MuteRow" type="HBoxContainer" parent="Center/Panel/Content"]
+[node name="RemindersRow" type="HBoxContainer" parent="Center/Panel/Scroll/Content"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="MuteLabel" type="Label" parent="Center/Panel/Content/MuteRow"]
+[node name="RemindersLabel" type="Label" parent="Center/Panel/Scroll/Content/RemindersRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"DialogBodyLabel"
+text = "Play Reminders"
+
+[node name="RemindersToggle" type="Button" parent="Center/Panel/Scroll/Content/RemindersRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(250, 120)
+layout_mode = 2
+theme_type_variation = &"ToggleButton"
+toggle_mode = true
+text = "Off"
+
+[node name="MuteRow" type="HBoxContainer" parent="Center/Panel/Scroll/Content"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="MuteLabel" type="Label" parent="Center/Panel/Scroll/Content/MuteRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_type_variation = &"DialogBodyLabel"
 text = "All Sound"
 
-[node name="MuteToggle" type="Button" parent="Center/Panel/Content/MuteRow"]
+[node name="MuteToggle" type="Button" parent="Center/Panel/Scroll/Content/MuteRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(250, 120)
 layout_mode = 2
@@ -183,7 +209,7 @@ theme_type_variation = &"ToggleButton"
 toggle_mode = true
 text = "Off"
 
-[node name="HowToPlayButton" type="Button" parent="Center/Panel/Content"]
+[node name="HowToPlayButton" type="Button" parent="Center/Panel/Scroll/Content"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(560, 120)
 layout_mode = 2
@@ -191,7 +217,7 @@ size_flags_horizontal = 4
 theme_type_variation = &"SecondaryButton"
 text = "How to Play"
 
-[node name="PrivacyButton" type="Button" parent="Center/Panel/Content"]
+[node name="PrivacyButton" type="Button" parent="Center/Panel/Scroll/Content"]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(560, 120)
@@ -200,7 +226,7 @@ size_flags_horizontal = 4
 theme_type_variation = &"SecondaryButton"
 text = "Privacy Options"
 
-[node name="LicencesButton" type="Button" parent="Center/Panel/Content"]
+[node name="LicencesButton" type="Button" parent="Center/Panel/Scroll/Content"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(560, 120)
 layout_mode = 2
@@ -208,12 +234,12 @@ size_flags_horizontal = 4
 theme_type_variation = &"SecondaryButton"
 text = "Credits & Licences"
 
-[node name="Gap" type="Control" parent="Center/Panel/Content"]
+[node name="Gap" type="Control" parent="Center/Panel/Scroll/Content"]
 custom_minimum_size = Vector2(0, 8)
 layout_mode = 2
 mouse_filter = 2
 
-[node name="BackButton" type="Button" parent="Center/Panel/Content"]
+[node name="BackButton" type="Button" parent="Center/Panel/Scroll/Content"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(560, 136)
 layout_mode = 2

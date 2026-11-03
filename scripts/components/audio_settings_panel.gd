@@ -1,11 +1,14 @@
 class_name AudioSettingsPanel
 extends Control
 ## Settings panel: music, sound-effect and nature-ambience volume sliders,
-## vibration, reduced-animation and mute toggles. Changes apply immediately through
+## vibration, reduced-animation, play-reminder and mute toggles. Changes apply immediately through
 ## AudioManager, which saves them. Opening or closing it never touches the
 ## music, so the soundtrack keeps playing.
 
 signal closed
+
+## Room kept above and below the panel (status bar, navigation bar).
+const SCREEN_MARGIN := 240.0
 
 @onready var _music: HSlider = %MusicSlider
 @onready var _sfx: HSlider = %SfxSlider
@@ -16,11 +19,15 @@ signal closed
 @onready var _vibration: Button = %VibrationToggle
 @onready var _motion: Button = %MotionToggle
 @onready var _mute: Button = %MuteToggle
+@onready var _reminders_row: Control = %RemindersRow
+@onready var _reminders: Button = %RemindersToggle
 @onready var _back: Button = %BackButton
 @onready var _how_to_play: Button = %HowToPlayButton
 @onready var _privacy: Button = %PrivacyButton
 @onready var _licences_button: Button = %LicencesButton
 @onready var _licences: CreditsPanel = %CreditsPanel
+@onready var _scroll: ScrollContainer = %Scroll
+@onready var _content: Control = %Content
 
 
 func _ready() -> void:
@@ -43,6 +50,17 @@ func _ready() -> void:
 	_motion.toggled.connect(func(on: bool) -> void:
 		Motion.set_reduced(on)
 		_sync_labels())
+	# Turning reminders on may ask Android first; the answer comes back through
+	# Reminders.changed and sets the toggle.
+	_reminders.toggled.connect(func(on: bool) -> void:
+		if on:
+			Reminders.turn_on(true)
+		else:
+			Reminders.turn_off()
+		_sync_labels())
+	Reminders.changed.connect(func(on: bool) -> void:
+		_reminders.set_pressed_no_signal(on)
+		_sync_labels())
 	_mute.toggled.connect(func(on: bool) -> void:
 		AudioManager.set_muted(on)
 		_sync_labels())
@@ -55,6 +73,7 @@ func _ready() -> void:
 	# Ad consent (AdMob, consent regions only): Google's form, shown again.
 	_privacy.pressed.connect(AdsManager.show_privacy_options)
 	_licences_button.pressed.connect(_licences.open)
+	get_viewport().size_changed.connect(_fit_height)
 
 
 func open(back_label := "Back") -> void:
@@ -65,11 +84,22 @@ func open(back_label := "Back") -> void:
 	_vibration.set_pressed_no_signal(AudioManager.vibration)
 	_motion.set_pressed_no_signal(Motion.reduced)
 	_mute.set_pressed_no_signal(AudioManager.muted)
+	# Only phones with the notification plugin can show reminders.
+	_reminders_row.visible = Reminders.is_available()
+	_reminders.set_pressed_no_signal(Reminders.enabled)
 	_privacy.visible = AdsManager.privacy_options_available()
 	_sync_labels()
 	show()
+	_fit_height.call_deferred()
 	modulate.a = 0.0
 	create_tween().tween_property(self, "modulate:a", 1.0, Motion.duration(0.2)).set_trans(Tween.TRANS_SINE)
+
+
+## The panel is as tall as its rows, and scrolls when that is taller than the
+## screen (short phones, or with every optional row shown).
+func _fit_height() -> void:
+	var needed := _content.get_combined_minimum_size()
+	_scroll.custom_minimum_size = Vector2(needed.x, minf(needed.y, get_viewport_rect().size.y - SCREEN_MARGIN))
 
 
 func _sync_labels() -> void:
@@ -78,6 +108,7 @@ func _sync_labels() -> void:
 	_ambience_value.text = "%d%%" % roundi(_ambience.value * 100.0)
 	_vibration.text = "On" if _vibration.button_pressed else "Off"
 	_motion.text = "On" if _motion.button_pressed else "Off"
+	_reminders.text = "On" if _reminders.button_pressed else "Off"
 	_mute.text = "Muted" if _mute.button_pressed else "Sound on"
 	# Sliders read as inactive while everything is muted.
 	for slider in [_music, _sfx, _ambience]:

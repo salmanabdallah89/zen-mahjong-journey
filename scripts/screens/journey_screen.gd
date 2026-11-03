@@ -53,6 +53,8 @@ func _ready() -> void:
 	AdsManager.banner_changed.connect(_fit_banner_gap)
 	AdsManager.show_banner()
 	_fit_banner_gap()
+	# Play reminders are offered once the map has settled (and only when due).
+	Reminders.offer_later(get_tree())
 
 
 func _exit_tree() -> void:
@@ -66,7 +68,9 @@ func _fit_banner_gap() -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_GO_BACK_REQUEST and is_node_ready():
-		if _sheet.visible:
+		if Reminders.is_offer_open():
+			Reminders.close_offer()
+		elif _sheet.visible:
 			_sheet.close()
 		else:
 			GameSession.go_home()

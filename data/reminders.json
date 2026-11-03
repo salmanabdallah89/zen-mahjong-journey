@@ -1,0 +1,26 @@
+{
+	"daily": {
+		"title": "A new Daily Challenge",
+		"bodies": [
+			"Today's puzzle is waiting in the garden.",
+			"A fresh board is ready. Take a calm moment.",
+			"The lanterns are lit for today's challenge."
+		]
+	},
+	"streak": {
+		"title": "Your {streak}-day streak",
+		"bodies": [
+			"Keep your streak blooming with today's puzzle.",
+			"One calm puzzle keeps your streak growing.",
+			"Your garden streak is waiting for today's visit."
+		]
+	},
+	"journey": {
+		"title": "Your journey continues",
+		"bodies": [
+			"Level {level} is ready when you are.",
+			"The koi are waiting by level {level}.",
+			"A quiet garden and level {level} await."
+		]
+	}
+}

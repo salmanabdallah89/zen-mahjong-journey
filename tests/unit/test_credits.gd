@@ -6,7 +6,7 @@ func test_required_credits_are_on_the_page() -> void:
 	var page := Credits.text()
 	for credit: String in AudioCatalog.MUSIC_CREDITS:
 		assert_true(page.contains(credit), "music credit: " + credit)
-	for name_needed: String in ["Fraunces", "Noto Naskh Arabic", "Noto Emoji", "Godot Engine", "godot-admob", "Godot Play Game Services"]:
+	for name_needed: String in ["Fraunces", "Noto Naskh Arabic", "Noto Emoji", "Godot Engine", "godot-admob", "Notification Scheduler", "Godot Play Game Services"]:
 		assert_true(page.contains(name_needed), "credit: " + name_needed)
 
 

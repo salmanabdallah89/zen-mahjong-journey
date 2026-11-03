@@ -20,6 +20,7 @@ GODOT --headless --path . -s res://tests/run_tests.gd                      # uni
 GODOT --headless --path . res://tests/integration/playthrough_test.tscn    # plays levels via simulated clicks
 GODOT --headless --path . res://tests/integration/audio_test.tscn         # music, sound events, settings
 GODOT --headless --path . res://tests/integration/ads_test.tscn           # ad placements (stand-in ads)
+GODOT --headless --path . res://tests/integration/reminders_test.tscn     # play reminders (fake phone)
 GODOT --path . --audio-driver Dummy res://tests/visual/capture_screens.tscn -- <scratch_dir>    # screenshots; look at them
 ```
 Grep the output for `ERROR`, `WARNING`, `SCRIPT ERROR`, `Parse Error`. The unit runner cannot
@@ -183,6 +184,11 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
 - **Update notice:** `UpdateNotice` (start screen, Android only, once per launch) reads `site/version.json` from
   GitHub Pages and `UpdateNotes` (core) decides; no connection = nothing shown. Change that file only after a
   release is live on Google Play (docs/UPDATES.md).
+- **Play reminders:** autoload `Reminders` (docs/NOTIFICATIONS.md): local notifications only (Notification
+  Scheduler plugin via `AndroidReminderBridge`; `ReminderBridge` no-op elsewhere). `ReminderPlanner` (core) plans on
+  every pause, everything is cancelled on return; the soft question (`offer_later`) comes before Android's dialog.
+  `addons/zen_android_manifest` strips exact-alarm and battery permissions: keep it enabled. Tests set
+  `Reminders.settings_path`, `now_override` and a fake bridge.
 - **Credits:** `Credits` (core) is the page behind Settings > Credits & Licences (`CreditsPanel`); licence
   texts come from the engine. Add a line there for any new third-party art, sound, font or plugin.
 - **Word Garden:** language mode (`word_garden_screen`, a `JourneyWorld` map of stages with a language panel; `GameSession.play_word_stage`). `WordCatalog` (core)

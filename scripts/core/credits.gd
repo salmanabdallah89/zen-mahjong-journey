@@ -7,7 +7,7 @@ const ATTRIBUTIONS: PackedStringArray = [
 	"Fonts: Fraunces, Copyright The Fraunces Project Authors. Noto Naskh Arabic, Copyright 2022 The Noto Project Authors. SIL Open Font License 1.1.",
 	"Pictures: Noto Emoji, Copyright Google LLC (github.com/googlefonts/noto-emoji). SIL Open Font License 1.1 and Apache License 2.0, as applicable.",
 	"Engine: Godot Engine, godotengine.org. MIT License, below. Includes FreeType (The FreeType Project), ENet (Lee Salzman) and Mbed TLS (The Mbed TLS Contributors).",
-	"Plugins: godot-admob, Copyright cengiz-pz. Godot Play Game Services, Copyright 2023 Jacob Ibáñez Sánchez. MIT License.",
+	"Plugins: godot-admob and Notification Scheduler, Copyright cengiz-pz. Godot Play Game Services, Copyright 2023 Jacob Ibáñez Sánchez. MIT License.",
 ]
 ## Licence names in Engine.get_license_info(), in the order shown.
 const LICENCES: PackedStringArray = ["OFL-1.1", "Apache-2.0"]

@@ -32,6 +32,7 @@ func _ready() -> void:
 	_previous.pressed.connect(show_month.bind(-1))
 	_next.pressed.connect(show_month.bind(1))
 	_play.pressed.connect(func() -> void: GameSession.play_daily(today))
+	Reminders.offer_later(get_tree())
 	for weekday in DailyChallenge.WEEKDAY_NAMES:
 		var label := Label.new()
 		label.text = weekday
@@ -51,7 +52,10 @@ func _ready() -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_GO_BACK_REQUEST and is_node_ready():
-		GameSession.go_home()
+		if Reminders.is_offer_open():
+			Reminders.close_offer()
+		else:
+			GameSession.go_home()
 
 
 ## Moves the calendar by whole months (-1 back, 1 forward).
