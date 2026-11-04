@@ -39,3 +39,9 @@ static func should_show(latest: String, current: String, snoozed_version: String
 	if not is_newer(latest, current):
 		return false
 	return latest != snoozed_version or today >= snoozed_day + SNOOZE_DAYS
+
+
+## Google Play already said an update exists (`key` names its version code);
+## only "Later" can keep it quiet.
+static func should_show_play(key: String, snoozed_version: String, snoozed_day: int, today: int) -> bool:
+	return key != snoozed_version or today >= snoozed_day + SNOOZE_DAYS

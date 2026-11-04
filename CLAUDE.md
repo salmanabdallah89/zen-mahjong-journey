@@ -21,6 +21,7 @@ GODOT --headless --path . res://tests/integration/playthrough_test.tscn    # pla
 GODOT --headless --path . res://tests/integration/audio_test.tscn         # music, sound events, settings
 GODOT --headless --path . res://tests/integration/ads_test.tscn           # ad placements (stand-in ads)
 GODOT --headless --path . res://tests/integration/reminders_test.tscn     # play reminders (fake phone)
+GODOT --headless --path . res://tests/integration/purchases_test.tscn     # Remove Ads purchase (fake Play)
 GODOT --path . --audio-driver Dummy res://tests/visual/capture_screens.tscn -- <scratch_dir>    # screenshots; look at them
 ```
 Grep the output for `ERROR`, `WARNING`, `SCRIPT ERROR`, `Parse Error`. The unit runner cannot
@@ -38,7 +39,8 @@ the second run must be clean.
 - All text the player reads is a Godot `Label`/`Button` text (localizable), never baked into art.
   Exception to watch: `bg_sakura_garden.png` has the title logo baked in — do not use it behind
   a Label title; it is only suitable as a splash/marketing image.
-- Ads only through `AdsManager` (docs/ADS.md); no analytics, IAP or other network code until requested.
+- Ads only through `AdsManager` (docs/ADS.md); purchases only through `Purchases` (docs/PURCHASES.md);
+  no analytics or other network code until requested.
   Never put real AdMob ids in tests; `data/ads.json` holds Google's test ids (debug builds, tests),
   `data/ads_release.json` the real ids, used only by release builds on phones.
 - Build features in order; do not start a later feature before the current scene works and is
@@ -181,14 +183,21 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
   per day in `ProgressStore` (section `daily`). Earlier days of the current month can be caught up but never
   repair the streak (`daily_streak`, only `live_` days). Monthly trophy: 10, 20, then every day. Never change
   `level_for` for past dates: saved stars are keyed by day.
-- **Update notice:** `UpdateNotice` (start screen, Android only, once per launch) reads `site/version.json` from
-  GitHub Pages and `UpdateNotes` (core) decides; no connection = nothing shown. Change that file only after a
-  release is live on Google Play (docs/UPDATES.md).
+- **Update notice:** `UpdateNotice` (start screen, Android only, once per launch). Installs from Google Play ask Play
+  itself (`PlayUpdateBridge` → our `addons/zen_play_update` plugin, Java source and build.sh in `android_plugins/play_update`):
+  flexible background download, then "Restart". Other installs read `site/version.json` (GitHub Pages) and `UpdateNotes`
+  decides; the file also gives the notes. No connection = nothing shown (docs/UPDATES.md).
 - **Play reminders:** autoload `Reminders` (docs/NOTIFICATIONS.md): local notifications only (Notification
   Scheduler plugin via `AndroidReminderBridge`; `ReminderBridge` no-op elsewhere). `ReminderPlanner` (core) plans on
   every pause, everything is cancelled on return; the soft question (`offer_later`) comes before Android's dialog.
   `addons/zen_android_manifest` strips exact-alarm and battery permissions: keep it enabled. Tests set
   `Reminders.settings_path`, `now_override` and a fake bridge.
+- **Remove Ads:** autoload `Purchases` (docs/PURCHASES.md): one non-consumable Play product `remove_ads`
+  ($3.99, price always from Play) through `PlayBillingBridge` → our `addons/zen_play_billing` plugin (Billing 8,
+  source and build.sh in `android_plugins/play_billing`). Owning it calls `AdsManager.set_ads_removed(true)`:
+  no interstitials, no banner; rewarded ads stay optional. Play's purchase list is the truth on every launch
+  (restores, refunds); only PURCHASED unlocks, and it is acknowledged. Offered in Settings and rarely on the
+  journey map (`PurchaseRules.should_offer`). Never change the product id. Tests use a fake bridge.
 - **Credits:** `Credits` (core) is the page behind Settings > Credits & Licences (`CreditsPanel`); licence
   texts come from the engine. Add a line there for any new third-party art, sound, font or plugin.
 - **Word Garden:** language mode (`word_garden_screen`, a `JourneyWorld` map of stages with a language panel; `GameSession.play_word_stage`). `WordCatalog` (core)

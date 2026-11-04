@@ -26,13 +26,16 @@ const SAKURA := Color(0.92, 0.42, 0.56)
 const ROSE := Color(0.86, 0.45, 0.45)
 ## Outline for tiles that block the one the player just tapped.
 const BLOCKER := Color(0.2, 0.36, 0.3)
+## Selected tile: a deep forest ring inside a warm glow, so it never reads as
+## a golden lotus tile (gold rim) and stands out on ivory faces.
+const SELECTED_RING := Color(0.20784314, 0.30980393, 0.26666668)
 ## Blocked tiles are dimmed and slightly cooled, not washed out, so their
 ## symbols stay readable for planning ahead while free tiles clearly stand out.
 ## Strength of the soft ivory film over blocked faces (takes the edge off saturation).
-const BLOCKED_VEIL_ALPHA := 0.14
+const BLOCKED_VEIL_ALPHA := 0.2
 ## Brightness of a blocked tile's whole body, edge included.
-const BLOCKED_BODY := Color(0.85, 0.845, 0.84)
-## Darkening per layer below the top one, so stacks read as raised.
+const BLOCKED_BODY := Color(0.76, 0.755, 0.75)
+## Darkening per layer below the top one on blocked tiles, so stacks read as raised.
 const LAYER_DARKEN := 0.05
 const SELECTED_LIFT := 12.0
 const SELECTED_SCALE := 1.05
@@ -113,8 +116,8 @@ func place_at(point: Vector2) -> void:
 	position = point
 
 
-## Shadow depth and a slight darkening grow toward the bottom layer, so stacks
-## read as physically raised.
+## Shadow depth (and, on blocked tiles, a slight darkening) grow toward the
+## bottom layer, so stacks read as physically raised.
 func set_layer(z: int, top_layer: int) -> void:
 	var depth := top_layer - z
 	_layer_tint = Color.WHITE.darkened(LAYER_DARKEN * depth)
@@ -506,7 +509,9 @@ func _apply_look(animate: bool) -> void:
 	var lifted := _highlight == Highlight.SELECTED
 	var blocked := not _free and _highlight == Highlight.NONE
 	var veil_alpha := BLOCKED_VEIL_ALPHA if blocked else 0.0
-	var face_tint := _layer_tint * (BLOCKED_BODY if blocked else Color.WHITE)
+	# Playable tiles show at full brightness on every layer; only blocked ones
+	# take the layer shading and the dim.
+	var face_tint := _layer_tint * BLOCKED_BODY if blocked else Color.WHITE
 	face_tint.a = 1.0
 	var lift_y := -SELECTED_LIFT if lifted else 0.0
 	var shadow_offset := _base_shadow_offset + (Vector2(4, 9) if lifted else Vector2.ZERO)
@@ -535,7 +540,7 @@ func _apply_look(animate: bool) -> void:
 
 	match _highlight:
 		Highlight.SELECTED:
-			_glow.add_theme_stylebox_override("panel", _glow_style(GOLD))
+			_glow.add_theme_stylebox_override("panel", _selected_style())
 			_glow.visible = true
 			_glow.modulate.a = 1.0
 		Highlight.HINT:
@@ -575,6 +580,21 @@ static func _glow_style(color: Color) -> StyleBoxFlat:
 		style.anti_aliasing = true
 		_styles[key] = style
 	return _styles[key]
+
+
+static func _selected_style() -> StyleBoxFlat:
+	if not _styles.has("selected"):
+		var style := StyleBoxFlat.new()
+		style.draw_center = false
+		style.border_color = SELECTED_RING
+		style.set_border_width_all(10)
+		style.set_corner_radius_all(18)
+		style.set_expand_margin_all(4)
+		style.shadow_color = Color(GOLD, 0.95)
+		style.shadow_size = 34
+		style.anti_aliasing = true
+		_styles["selected"] = style
+	return _styles["selected"]
 
 
 static func _gilding_style(size_scale: float) -> StyleBoxFlat:

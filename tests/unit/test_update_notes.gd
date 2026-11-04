@@ -30,3 +30,10 @@ func test_later_keeps_a_version_quiet_for_a_few_days() -> void:
 
 func test_store_link_is_this_app() -> void:
 	assert_true(UpdateNotes.STORE_URL.ends_with("com.zenmahjongjourney.game"), "package id")
+
+
+func test_play_updates_are_quiet_only_after_later() -> void:
+	assert_true(UpdateNotes.should_show_play("play_13", "", 0, 100), "first time")
+	assert_false(UpdateNotes.should_show_play("play_13", "play_13", 100, 102), "snoozed")
+	assert_true(UpdateNotes.should_show_play("play_13", "play_13", 100, 103), "snooze ended")
+	assert_true(UpdateNotes.should_show_play("play_14", "play_13", 100, 101), "a newer build shows at once")

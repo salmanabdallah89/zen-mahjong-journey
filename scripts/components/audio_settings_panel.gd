@@ -1,7 +1,8 @@
 class_name AudioSettingsPanel
 extends Control
 ## Settings panel: music, sound-effect and nature-ambience volume sliders,
-## vibration, reduced-animation, play-reminder and mute toggles. Changes apply immediately through
+## vibration, reduced-animation, play-reminder and mute toggles, and the
+## one-time Remove Ads purchase where Google Play sells it. Changes apply immediately through
 ## AudioManager, which saves them. Opening or closing it never touches the
 ## music, so the soundtrack keeps playing.
 
@@ -21,6 +22,10 @@ const SCREEN_MARGIN := 240.0
 @onready var _mute: Button = %MuteToggle
 @onready var _reminders_row: Control = %RemindersRow
 @onready var _reminders: Button = %RemindersToggle
+@onready var _purchase_row: Control = %PurchaseRow
+@onready var _purchase_status: Label = %PurchaseStatus
+@onready var _remove_ads: Button = %RemoveAdsButton
+@onready var _restore: Button = %RestoreButton
 @onready var _back: Button = %BackButton
 @onready var _how_to_play: Button = %HowToPlayButton
 @onready var _privacy: Button = %PrivacyButton
@@ -64,6 +69,9 @@ func _ready() -> void:
 	_mute.toggled.connect(func(on: bool) -> void:
 		AudioManager.set_muted(on)
 		_sync_labels())
+	_remove_ads.pressed.connect(Purchases.buy)
+	_restore.pressed.connect(Purchases.restore_purchases)
+	Purchases.changed.connect(_sync_purchase)
 	_back.pressed.connect(_close)
 	# Replays the first-play tutorial on level 1.
 	_how_to_play.pressed.connect(func() -> void:
@@ -88,6 +96,7 @@ func open(back_label := "Back") -> void:
 	_reminders_row.visible = Reminders.is_available()
 	_reminders.set_pressed_no_signal(Reminders.enabled)
 	_privacy.visible = AdsManager.privacy_options_available()
+	_sync_purchase()
 	_sync_labels()
 	show()
 	_fit_height.call_deferred()
@@ -100,6 +109,19 @@ func open(back_label := "Back") -> void:
 func _fit_height() -> void:
 	var needed := _content.get_combined_minimum_size()
 	_scroll.custom_minimum_size = Vector2(needed.x, minf(needed.y, get_viewport_rect().size.y - SCREEN_MARGIN))
+
+
+## Remove Ads: the price button and Restore, a pending note, or a thank-you.
+func _sync_purchase() -> void:
+	_purchase_row.visible = Purchases.shows_row()
+	_remove_ads.visible = Purchases.is_available() and not Purchases.ads_removed and not Purchases.pending
+	_remove_ads.text = "Remove Ads · %s" % Purchases.price
+	_restore.visible = not Purchases.ads_removed
+	_purchase_status.visible = Purchases.ads_removed or Purchases.pending
+	_purchase_status.text = "Ads removed. Thank you for supporting the garden!" if Purchases.ads_removed \
+			else "Payment pending: ads switch off once Google Play confirms it."
+	if visible:
+		_fit_height.call_deferred()
 
 
 func _sync_labels() -> void:

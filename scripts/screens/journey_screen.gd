@@ -55,6 +55,9 @@ func _ready() -> void:
 	_fit_banner_gap()
 	# Play reminders are offered once the map has settled (and only when due).
 	Reminders.offer_later(get_tree())
+	# Remove Ads is suggested only after a few ads between levels (and never
+	# together with the reminder question).
+	Purchases.offer_later(get_tree())
 
 
 func _exit_tree() -> void:
@@ -70,6 +73,8 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_GO_BACK_REQUEST and is_node_ready():
 		if Reminders.is_offer_open():
 			Reminders.close_offer()
+		elif Purchases.is_dialog_open():
+			Purchases.close_dialog()
 		elif _sheet.visible:
 			_sheet.close()
 		else:

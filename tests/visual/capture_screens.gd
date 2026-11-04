@@ -41,6 +41,7 @@ func _ready() -> void:
 	get_window().size = SHAPES["phone_9x16"]
 	await _capture_losing()
 	await _capture_update_notice()
+	await _capture_remove_ads()
 	await _capture_daily()
 	await _capture_badges()
 	await _capture_words()
@@ -60,8 +61,67 @@ func _capture_update_notice() -> void:
 		"Daily Challenge with a calendar and monthly trophies", "Badges to earn on your journey"])})
 	await get_tree().create_timer(1.0).timeout
 	await _save("phone_9x16_update_notice")
+	home.get_node("%UpdateNotice").present_ready()
+	await get_tree().create_timer(1.0).timeout
+	await _save("phone_9x16_update_ready")
 	home.queue_free()
 	await _frames(2)
+
+
+## A stand-in Google Play that sells Remove Ads (the real one needs a phone).
+class _ShopBilling extends PlayBillingBridge:
+	func is_available() -> bool:
+		return true
+
+	func start() -> void:
+		connected.emit()
+
+	func query_product(product: String) -> void:
+		product_found.emit(product, "$3.99", "Remove Ads")
+
+	func query_purchases() -> void:
+		purchases_listed.emit([])
+
+
+func _capture_remove_ads() -> void:
+	Purchases.settings_path = "user://capture_purchases.cfg"
+	SafeConfig.remove_all(Purchases.settings_path)
+	Purchases.restore()
+	var shop := _ShopBilling.new()
+	Purchases.use_bridge(shop)
+	var home: Control = load("res://scenes/screens/startup_screen.tscn").instantiate()
+	add_child(home)
+	await _frames(10)
+	var settings: AudioSettingsPanel = home.get_node("%AudioSettings")
+	settings.open()
+	await _wait(0.4)
+	var scroll: ScrollContainer = settings.get_node("%Scroll")
+	scroll.scroll_vertical = int(scroll.get_v_scroll_bar().max_value)
+	await _wait(0.2)
+	await _save("phone_9x16_settings_remove_ads")
+	settings.close()
+	for i in PurchaseRules.OFFER_AFTER_INTERSTITIALS:
+		AdsManager.ad_finished.emit("interstitial", "level_complete", false)
+	Purchases.offer_if_due()
+	await _wait(0.6)
+	await _save("phone_9x16_remove_ads_offer")
+	Purchases.close_dialog()
+	shop.purchase_updated.emit(PurchaseRules.OK, [{"products": [PurchaseRules.REMOVE_ADS], "state": PurchaseRules.PURCHASED, "token": "capture", "acknowledged": true}])
+	await _wait(0.6)
+	await _save("phone_9x16_remove_ads_thanks")
+	Purchases.close_dialog()
+	settings.open()
+	await _wait(0.4)
+	scroll.scroll_vertical = int(scroll.get_v_scroll_bar().max_value)
+	await _wait(0.2)
+	await _save("phone_9x16_settings_ads_removed")
+	settings.close()
+	home.queue_free()
+	await _frames(2)
+	SafeConfig.remove_all(Purchases.settings_path)
+	Purchases.settings_path = UserSettings.DEFAULT_PATH
+	Purchases.use_bridge(PlayBillingBridge.new())
+	Purchases.restore()
 
 
 func _capture_daily() -> void:
@@ -503,6 +563,9 @@ func _capture_level(shape: String, number: int, with_states: bool) -> void:
 		await _wait(0.6)
 		screen.call("_on_undo_pressed")
 		await _wait(0.3)
+		# A selected tile under the pause menu: its glow must stay behind the dialog.
+		screen.call("_on_tile_pressed", first.x)
+		await _wait(0.2)
 		screen.call("_open_pause_menu")
 		await _wait(0.4)
 		await _save("%s_level%02d_paused" % [shape, number])

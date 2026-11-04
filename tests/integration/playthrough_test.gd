@@ -1622,8 +1622,77 @@ func _test_update_notice() -> void:
 	await _frames(2)
 	_check(opened == [UpdateNotes.STORE_URL], "Update: Update Now opens the store page")
 	_check(not notice.visible, "Update: Update Now closes the notice")
+	await _test_play_update(notice, opened)
 	home.queue_free()
+	UpdateNotice.reset_launch()
 	await _frames(1)
+
+
+## Stands in for the ZenPlayUpdate Android plugin: same method and signal
+## names; answers are pushed by the test.
+class _FakePlayUpdate extends Object:
+	signal update_checked(available: bool, flexible: bool, immediate: bool, version_code: int, staleness_days: int)
+	signal check_failed(message: String)
+	signal install_status(status: int, downloaded: int, total: int)
+	signal flow_result(result: int)
+	var calls: Array[String] = []
+
+	func checkForUpdate() -> void:
+		calls.append("check")
+
+	func startUpdate(immediate: bool) -> bool:
+		calls.append("start immediate" if immediate else "start flexible")
+		return true
+
+	func completeUpdate() -> void:
+		calls.append("complete")
+
+
+## Google Play's In-App Updates: Play decides, the download runs in the
+## background, then the notice offers Restart.
+func _test_play_update(notice: UpdateNotice, opened: Array[String]) -> void:
+	SafeConfig.remove_all(ISOLATED_SETTINGS)
+	opened.clear()
+	var fake := _FakePlayUpdate.new()
+	var play := PlayUpdateBridge.new()
+	play.use_plugin(fake)
+	notice.use_play(play)
+	# No notes file: the notice still says an update is ready.
+	notice.transport = func() -> Dictionary: return {}
+	fake.update_checked.emit(false, true, true, 13, 1)
+	await _frames(3)
+	_check(not notice.visible, "Play update: nothing when Play has no update")
+	fake.update_checked.emit(true, true, true, 13, 1)
+	await _frames(3)
+	_check(notice.visible and notice.get_node("%UpdateVersion").text == "A new version is ready", "Play update: Play's update shows the notice")
+	_check(notice.action() == UpdateNotice.Action.FLEXIBLE, "Play update: a background (flexible) download is preferred")
+	await _click_control(notice.get_node("%UpdateNowButton"))
+	await _frames(2)
+	_check(fake.calls.has("start flexible") and opened.is_empty(), "Play update: Update Now opens Play's own update, not the store page")
+	fake.install_status.emit(PlayUpdateBridge.DOWNLOADING, 10, 100)
+	await _frames(2)
+	_check(not notice.visible, "Play update: the game keeps playing while it downloads")
+	fake.install_status.emit(PlayUpdateBridge.DOWNLOADED, 100, 100)
+	await _frames(3)
+	_check(notice.visible and (notice.get_node("%UpdateNowButton") as Button).text == "Restart", "Play update: a finished download offers Restart")
+	await _click_control(notice.get_node("%UpdateNowButton"))
+	await _frames(2)
+	_check(fake.calls.has("complete"), "Play update: Restart installs the update")
+	# Later on Play's update keeps that version code quiet; notes come from the file when newer.
+	notice.transport = func() -> Dictionary: return {"code": 200, "data": {"latest": "99.0", "notes": ["Calmer tiles"]}}
+	fake.update_checked.emit(true, true, false, 14, 1)
+	await _frames(3)
+	_check(notice.get_node("%UpdateVersion").text == "Version 99.0 is ready", "Play update: notes from the published file")
+	await _click_control(notice.get_node("%UpdateLaterButton"))
+	await _frames(2)
+	fake.update_checked.emit(true, true, false, 14, 1)
+	await _frames(3)
+	_check(not notice.visible, "Play update: Later keeps it quiet")
+	fake.update_checked.emit(true, false, true, 15, 30)
+	await _frames(3)
+	_check(notice.visible and notice.action() == UpdateNotice.Action.IMMEDIATE, "Play update: immediate only when Play allows nothing else")
+	notice.hide()
+	fake.free()
 
 
 func _test_daily() -> void:

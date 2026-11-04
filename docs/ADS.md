@@ -15,6 +15,9 @@ chance; the game is otherwise identical.
 | Interstitial | After every 2nd finished level, cleared or lost: when the player leaves the Level Complete popup (Next Level / Replay / Levels) or the loss popup (Retry / Levels). Never during play, and never within 30 s of another ad (e.g. a second-chance ad) | Nothing |
 | Banner | Bottom of the journey map only, never during play | Nothing |
 
+Players who bought **Remove Ads** (docs/PURCHASES.md) get no interstitials and no banner;
+rewarded ads stay available for them, always by choice.
+
 Skipping a rewarded ad early gives no reward. The level clock and all game sound pause while an
 ad shows. Leaving a level mid-ad closes the ad. All numbers are in `data/ads.json`:
 `free_hints_per_level`, `free_shuffles_per_level`, `second_chance_seconds`, `second_chance_hearts`,

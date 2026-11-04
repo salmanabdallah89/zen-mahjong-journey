@@ -8,6 +8,8 @@ const ATTRIBUTIONS: PackedStringArray = [
 	"Pictures: Noto Emoji, Copyright Google LLC (github.com/googlefonts/noto-emoji). SIL Open Font License 1.1 and Apache License 2.0, as applicable.",
 	"Engine: Godot Engine, godotengine.org. MIT License, below. Includes FreeType (The FreeType Project), ENet (Lee Salzman) and Mbed TLS (The Mbed TLS Contributors).",
 	"Plugins: godot-admob and Notification Scheduler, Copyright cengiz-pz. Godot Play Game Services, Copyright 2023 Jacob Ibáñez Sánchez. MIT License.",
+	"In-app updates: Google Play In-App Updates library (com.google.android.play:app-update), Google LLC, under the Play Core Software Development Kit Terms of Service.",
+	"Purchases: Google Play Billing Library (com.android.billingclient:billing), Google LLC, under the Android Software Development Kit License Agreement.",
 ]
 ## Licence names in Engine.get_license_info(), in the order shown.
 const LICENCES: PackedStringArray = ["OFL-1.1", "Apache-2.0"]

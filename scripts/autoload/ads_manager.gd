@@ -42,6 +42,9 @@ var levels_ended := 0
 ## When the last full-screen ad closed (Time.get_ticks_msec), or -1. An
 ## interstitial never follows another ad within "interstitial_min_gap_seconds".
 var last_ad_ended_msec := -1
+## The player bought Remove Ads (Purchases): no interstitials and no banner.
+## Rewarded ads stay, since the player chooses them.
+var ads_removed := false
 ## Recent ad events, newest last: {"kind", "placement", "rewarded"} (tests, debugging).
 var history: Array[Dictionary] = []
 
@@ -177,7 +180,7 @@ func _after_level_end(placement: String, then: Callable) -> void:
 	var every := int(config.get("interstitial_every_levels", 2))
 	var gap_msec := int(config.get("interstitial_min_gap_seconds", 30)) * 1000
 	var too_soon := last_ad_ended_msec >= 0 and Time.get_ticks_msec() - last_ad_ended_msec < gap_msec
-	if provider == "none" or every <= 0 or levels_ended % every != 0 or too_soon 			or (provider == "admob" and not _admob.interstitial_ready()):
+	if provider == "none" or ads_removed or every <= 0 or levels_ended % every != 0 or too_soon 			or (provider == "admob" and not _admob.interstitial_ready()):
 		then.call()
 		return
 	_begin("interstitial", placement)
@@ -195,7 +198,7 @@ func _after_level_end(placement: String, then: Callable) -> void:
 
 func show_banner() -> void:
 	_banner_wanted = true
-	if provider == "none":
+	if provider == "none" or ads_removed:
 		return
 	if provider == "admob":
 		_admob.show_banner()
@@ -207,11 +210,29 @@ func show_banner() -> void:
 
 func hide_banner() -> void:
 	_banner_wanted = false
+	_remove_banner()
+
+
+func _remove_banner() -> void:
 	if _admob:
 		_admob.hide_banner()
 	if _banner:
 		_banner.queue_free()
 		_banner = null
+
+
+## Remove Ads was bought (or refunded): the banner goes at once (or comes back
+## where a screen still wants one).
+func set_ads_removed(removed: bool) -> void:
+	if removed == ads_removed:
+		return
+	ads_removed = removed
+	var wanted := _banner_wanted
+	if removed:
+		_remove_banner()
+	elif wanted:
+		show_banner()
+	banner_changed.emit()
 
 
 func is_banner_visible() -> bool:
@@ -252,7 +273,7 @@ func _end(kind: String, placement: String, rewarded: bool, on_done: Callable) ->
 	_showing = false
 	last_ad_ended_msec = Time.get_ticks_msec()
 	AudioManager.set_ad_playing(false)
-	if _banner and _banner_wanted:
+	if _banner and _banner_wanted and not ads_removed:
 		_banner.show()
 	history.append({"kind": kind, "placement": placement, "rewarded": rewarded})
 	ad_finished.emit(kind, placement, rewarded)
