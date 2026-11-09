@@ -1,6 +1,10 @@
 # Play reminders (local notifications)
 
-Status: **built, Android; untested on a phone.** iOS files are installed (`ios/plugins/`) for the
+Status: **built, Android; scheduling checked on a phone** (Infinix X6880, Android 15, 1.0.13 from Play:
+switch on → Home → alarms for tomorrow, day 3 and day 7 at the usual play time). Not yet seen: a reminder
+actually shown and tapped. That phone had the permission granted but the game's switch off, so the game
+now also reads the permission when it returns from Android's dialog (`_awaiting_permission` in
+`reminders.gd`) instead of relying only on the plugin's answer. iOS files are installed (`ios/plugins/`) for the
 later App Store build but not wired or tested. Nothing here sends data off the phone.
 
 ## Principles

@@ -38,6 +38,11 @@ var _bridge: ReminderBridge
 var _dialog: ModalDialog
 ## The question came from Settings (a refusal there may open system settings).
 var _asked_from_settings := false
+## Android's permission dialog is open. Its answer comes from the plugin, and
+## the game also reads the permission itself when it comes back to the front,
+## in case that answer never arrives (seen on a phone: allowed, but the switch
+## stayed off). Whichever comes first settles it; the other is ignored.
+var _awaiting_permission := false
 
 
 func _ready() -> void:
@@ -62,6 +67,7 @@ func use_bridge(bridge: ReminderBridge) -> void:
 	if _bridge != null:
 		_bridge.queue_free()
 	_bridge = bridge
+	_awaiting_permission = false
 	add_child(bridge)
 	bridge.permission_answered.connect(_on_permission_answered)
 	bridge.opened.connect(_on_opened)
@@ -121,6 +127,8 @@ func returned() -> void:
 	sessions.append(posmod(local, 86400) / 60)
 	settings.set_value(SECTION, "sessions", sessions.slice(-ReminderPlanner.SESSIONS_KEPT))
 	_cancel_all()
+	if _awaiting_permission:
+		_on_permission_answered(_bridge.has_permission())
 
 
 func _cancel_all() -> void:
@@ -180,6 +188,7 @@ func turn_on(from_settings: bool) -> void:
 	if _bridge.has_permission():
 		_set_enabled(true)
 	else:
+		_awaiting_permission = true
 		_bridge.request_permission()
 
 
@@ -201,6 +210,9 @@ func _set_enabled(value: bool) -> void:
 
 
 func _on_permission_answered(granted: bool) -> void:
+	if not _awaiting_permission:
+		return
+	_awaiting_permission = false
 	if granted:
 		_set_enabled(true)
 		return

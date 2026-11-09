@@ -19,6 +19,8 @@ var _checks := 0
 class _FakeBridge extends ReminderBridge:
 	var grant := true
 	var permitted := false
+	## Android answers but the plugin's signal never arrives.
+	var silent := false
 	var requests := 0
 	var scheduled: Array[int] = []
 	var cancelled: Array[int] = []
@@ -36,7 +38,8 @@ class _FakeBridge extends ReminderBridge:
 	func request_permission() -> void:
 		requests += 1
 		permitted = grant
-		permission_answered.emit(grant)
+		if not silent:
+			permission_answered.emit(grant)
 
 	func schedule(reminder: ReminderPlanner.Reminder) -> void:
 		scheduled.append(reminder.id)
@@ -72,6 +75,7 @@ func _ready() -> void:
 	await _test_tap()
 	await _test_denial()
 	await _test_settings_switch()
+	await _test_lost_answer()
 
 	Reminders.close_offer()
 	Reminders.use_bridge(ReminderBridge.new())
@@ -225,6 +229,29 @@ func _test_settings_switch() -> void:
 	await _frames(1)
 	_check(not toggle.button_pressed and toggle.text == "Off", "a refusal puts the switch back")
 	panel.queue_free()
+	await _frames(1)
+
+
+## Android's answer never reaches the game: coming back to the front settles it
+## from the permission itself, and a late answer changes nothing.
+func _test_lost_answer() -> void:
+	var fake := _fresh()
+	fake.silent = true
+	Reminders.turn_on(false)
+	_check(fake.requests == 1 and not Reminders.enabled, "waiting for Android's answer")
+	Reminders.returned()
+	_check(Reminders.enabled, "allowed but no answer: on when the game comes back")
+	Reminders.turn_off()
+	fake.permission_answered.emit(false)
+	_check(int(UserSettings.new(SETTINGS_PATH).get_value("reminders", "denials", 0)) == 0, "a late answer is ignored")
+	fake = _fresh(false)
+	fake.silent = true
+	Reminders.turn_on(false)
+	Reminders.returned()
+	_check(not Reminders.enabled, "refused but no answer: stays off")
+	_check(int(UserSettings.new(SETTINGS_PATH).get_value("reminders", "denials", 0)) == 1, "the refusal is counted once")
+	Reminders.returned()
+	_check(int(UserSettings.new(SETTINGS_PATH).get_value("reminders", "denials", 0)) == 1, "and only once")
 	await _frames(1)
 
 
