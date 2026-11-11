@@ -190,7 +190,9 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
 - **Play reminders:** autoload `Reminders` (docs/NOTIFICATIONS.md): local notifications only (Notification
   Scheduler plugin via `AndroidReminderBridge`; `ReminderBridge` no-op elsewhere). `ReminderPlanner` (core) plans on
   every pause, everything is cancelled on return; the soft question (`offer_later`) comes before Android's dialog.
-  `addons/zen_android_manifest` strips exact-alarm and battery permissions: keep it enabled. Tests set
+  `addons/zen_android_manifest` strips exact-alarm and battery permissions and puts the launch-screen icon
+  (`assets/branding/splash_icon_1152.png`, made by `tools/make_splash_icon.gd`, forest background in the preset)
+  in `drawable-xxxhdpi` so tablets get it sharp: keep it enabled. Tests set
   `Reminders.settings_path`, `now_override` and a fake bridge.
 - **Remove Ads:** autoload `Purchases` (docs/PURCHASES.md): one non-consumable Play product `remove_ads`
   ($3.99, price always from Play) through `PlayBillingBridge` → our `addons/zen_play_billing` plugin (Billing 8,
