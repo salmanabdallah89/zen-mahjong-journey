@@ -631,8 +631,12 @@ func _on_hint_pressed() -> void:
 	if not _model.has_moves():
 		_show_no_moves()
 		return
-	# With ads: a free hint per level, then one hint per rewarded ad.
-	# Without ads (web build) hints stay free.
+	# With ads: a free hint per level, then saved Lotus Gift hints, then one
+	# hint per rewarded ad. Without ads (web build) hints stay free.
+	if AdsManager.is_available() and _free_hints <= 0 and GameSession.progress.spend_saved_tool("hints"):
+		_update_hud()
+		_give_hint()
+		return
 	if AdsManager.is_available() and _free_hints <= 0:
 		_dialog.open("Need a Hint?", "Watch a short ad to reveal a matching pair.")
 		_dialog.add_action("Watch Ad", func() -> void:
@@ -679,8 +683,14 @@ func _give_hint() -> void:
 func _on_shuffle_pressed() -> void:
 	if _model.is_cleared() or _failed or _dialog.visible or _board.is_busy():
 		return
-	# With ads: a free shuffle per level, then one shuffle per rewarded ad.
-	# Without ads (web build, or no ad loaded) shuffles stay free.
+	# With ads: a free shuffle per level, then saved Lotus Gift shuffles, then
+	# one shuffle per rewarded ad. Without ads (web build, or no ad loaded)
+	# shuffles stay free.
+	if AdsManager.is_available() and _free_shuffles <= 0 and GameSession.progress.saved_tools("shuffles") > 0:
+		if _shuffle_tiles():
+			GameSession.progress.spend_saved_tool("shuffles")
+			_update_hud()
+		return
 	if AdsManager.is_available() and _free_shuffles <= 0:
 		_dialog.open("Need a Shuffle?", "Watch a short ad to shuffle the tiles.")
 		_dialog.add_action("Watch Ad", func() -> void:
@@ -784,8 +794,11 @@ func _clear_hint() -> void:
 func _update_hud() -> void:
 	_tiles_value.text = str(_model.remaining)
 	if AdsManager.is_available():
-		_hint_label.text = "Hint (%d)" % _free_hints if _free_hints > 0 else "Ad Hint"
-		_shuffle_label.text = "Shuffle (%d)" % _free_shuffles if _free_shuffles > 0 else "Ad Shuffle"
+		# Free ones of this level plus saved Lotus Gift ones.
+		var hints := _free_hints + GameSession.progress.saved_tools("hints")
+		var shuffles := _free_shuffles + GameSession.progress.saved_tools("shuffles")
+		_hint_label.text = "Hint (%d)" % hints if hints > 0 else "Ad Hint"
+		_shuffle_label.text = "Shuffle (%d)" % shuffles if shuffles > 0 else "Ad Shuffle"
 	else:
 		_hint_label.text = "Hint"
 		_shuffle_label.text = "Shuffle"
@@ -906,8 +919,14 @@ func _show_level_complete() -> void:
 		summary += "\nNew best time!"
 	if earned < LevelRating.MAX_STARS:
 		summary += "\n" + _next_star_tip(earned)
+	var perfect := LotusRewards.is_perfect(_mistakes, _hints_used, _shuffles)
+	if perfect:
+		GameSession.progress.record_perfect(_level.number)
+	if GameSession.progress.is_lotus_ready(_level.number):
+		summary += "\nA Lotus Gift has bloomed on your journey map."
+	var title := "Perfect Clear!" if perfect else "Level Complete!"
 	if GameSession.has_next_level():
-		_dialog.open("Level Complete!", summary)
+		_dialog.open(title, summary)
 		_dialog.add_action("Next Level", func() -> void: AdsManager.after_level_complete(GameSession.play_next_level), true)
 	else:
 		_dialog.open("Journey Complete!", summary + "\nYou have finished every introductory level.")
@@ -917,6 +936,8 @@ func _show_level_complete() -> void:
 	_dialog.add_action("Levels", func() -> void: AdsManager.after_level_complete(GameSession.go_levels))
 	_report_rank()
 	_play_celebration()
+	if perfect:
+		_play_perfect_bloom()
 	AudioManager.vibrate(60)
 	_award_level_badges()
 	_reveal_badges(0.65 + 0.32 * earned + (0.3 if Motion.reduced else 1.5))
@@ -1068,6 +1089,36 @@ func _play_celebration() -> void:
 	var tween := shower.create_tween()
 	tween.tween_interval(shower.lifetime + 1.0)
 	tween.tween_callback(shower.queue_free)
+
+
+## A Perfect Clear: a gold lotus opens as a crest on top of the dialog, with
+## a soft chime (reduced animations: it fades in already open).
+func _play_perfect_bloom() -> void:
+	var bloom := LotusMark.new()
+	bloom.name = "PerfectBloom"
+	bloom.tint = Color(1.0, 0.92, 0.66)
+	bloom.size = Vector2(176, 176)
+	bloom.pivot_offset = bloom.size / 2.0
+	# Above the dialog (z 20), placed once its panel has settled.
+	bloom.z_index = 21
+	bloom.modulate.a = 0.0
+	add_child(bloom)
+	var tween := bloom.create_tween()
+	tween.tween_interval(0.3)
+	tween.tween_callback(func() -> void:
+		var panel := _dialog.get_node("%Panel") as Control
+		var top := get_global_transform().affine_inverse() * panel.get_global_rect().position
+		bloom.position = Vector2(size.x / 2.0 - bloom.size.x / 2.0, top.y - bloom.size.y * 0.62)
+		AudioManager.play_sfx("reward"))
+	if Motion.reduced:
+		tween.tween_property(bloom, "modulate:a", 1.0, 0.3)
+	else:
+		bloom.openness = 0.0
+		bloom.scale = Vector2.ONE * 0.6
+		tween.tween_property(bloom, "modulate:a", 1.0, 0.3)
+		tween.parallel().tween_property(bloom, "openness", 1.0, 0.9).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		tween.parallel().tween_property(bloom, "scale", Vector2.ONE, 0.9).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	# The crest stays while the dialog is open; it leaves with the screen.
 
 
 ## "Matches 1,800 · Time +340 · Flawless +500"

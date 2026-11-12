@@ -139,6 +139,7 @@ func _ready() -> void:
 	_check(not AdsManager.privacy_options_available(), "no privacy options button without AdMob")
 	await _test_hints()
 	await _test_shuffles()
+	await _test_saved_tools()
 	await _test_undos()
 	await _test_second_chance_time()
 	await _test_second_chance_heart()
@@ -194,6 +195,36 @@ func _test_hints() -> void:
 	_check((screen.get("_hint") as Vector2i).x >= 0, "watching the whole ad reveals a hint")
 	_check(AdsManager.history[-1]["placement"] == "hint" and AdsManager.history[-1]["rewarded"], "hint ad recorded as rewarded")
 	await _close(screen)
+
+
+## Lotus Gift hints and shuffles come after the free ones and before any ad.
+func _test_saved_tools() -> void:
+	var store := GameSession.progress
+	for level in range(1, 6):
+		store.record_clear(level, 1, 10.0, LevelCatalog.count())
+	store.open_lotus(5)
+	_check(store.saved_tools("hints") == 1 and store.saved_tools("shuffles") == 1, "the first Lotus Gift saved a hint and a shuffle")
+	var screen := await _open_level(3)
+	var dialog: ModalDialog = screen.get_node("%Dialog")
+	var board: BoardView = screen.get_node("%Board")
+	var hint_label: Label = screen.get_node("SafeArea/Layout/Toolbar/HintTool/HintLabel")
+	var shuffle_label: Label = screen.get_node("SafeArea/Layout/Toolbar/ShuffleTool/ShuffleLabel")
+	_check(hint_label.text == "Hint (2)" and shuffle_label.text == "Shuffle (2)",
+		"free plus saved tools are counted (%s, %s)" % [hint_label.text, shuffle_label.text])
+	screen.call("_on_hint_pressed")
+	screen.call("_clear_hint")
+	screen.call("_on_hint_pressed")
+	_check(not dialog.visible and (screen.get("_hint") as Vector2i).x >= 0, "a saved hint is used without an ad")
+	_check(store.saved_tools("hints") == 0 and hint_label.text == "Ad Hint", "the saved hint is spent")
+	screen.call("_clear_hint")
+	for i in 2:
+		screen.call("_on_shuffle_pressed")
+		while board.is_busy():
+			await _frames(1)
+	_check(not dialog.visible and store.saved_tools("shuffles") == 0, "a saved shuffle is used without an ad")
+	_check(shuffle_label.text == "Ad Shuffle", "then shuffles come from ads again")
+	await _close(screen)
+	store.reset()
 
 
 func _test_shuffles() -> void:

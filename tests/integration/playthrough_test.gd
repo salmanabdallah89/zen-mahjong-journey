@@ -58,6 +58,7 @@ func _ready() -> void:
 	await _test_premium_collections(5)
 	await _test_time_and_mistakes(2)
 	await _test_journey_and_stars()
+	await _test_lotus_gifts()
 	await _test_audit_fixes(3)
 	await _test_background_shading()
 	await _test_tile_animations(4)
@@ -105,8 +106,12 @@ func _test_full_playthrough(level_number: int) -> void:
 	await _wait_dialog(screen)
 	_check(dialog.visible, "level %d: completion dialog shown" % level_number)
 	var title: Label = dialog.get_node("%Title")
-	var expected := "Level Complete!" if level_number < LevelCatalog.count() else "Journey Complete!"
+	# Solved without mistakes, hints or shuffles: a Perfect Clear.
+	var expected := "Perfect Clear!" if level_number < LevelCatalog.count() else "Journey Complete!"
 	_check(title.text == expected, "level %d: dialog title is '%s' (got '%s')" % [level_number, expected, title.text])
+	_check(GameSession.progress.is_perfect(level_number), "level %d: the Perfect Clear is saved" % level_number)
+	if LotusRewards.is_gift_level(level_number):
+		_check((dialog.get_node("%Message") as Label).text.contains("Lotus Gift"), "level %d: the dialog points to the Lotus Gift" % level_number)
 	_check((screen.get_node("%TilesValue") as Label).text == "0", "level %d: HUD shows 0 tiles" % level_number)
 	screen.queue_free()
 	await _frames(2)
@@ -602,6 +607,49 @@ func _test_time_and_mistakes(level_number: int) -> void:
 	_check(int(screen.get("_selected")) == -1, "board is locked after losing")
 	screen.queue_free()
 	await _frames(2)
+
+
+## Lotus Gifts on the map: closed until their level is cleared, then opened
+## with a tap for saved tools; the Perfect Clear stamp on cleared tiles.
+func _test_lotus_gifts() -> void:
+	var store := GameSession.progress
+	store.reset()
+	GameSession.just_unlocked = 0
+	for level in range(1, 6):
+		store.record_clear(level, 3, 10.0, LevelCatalog.count())
+	store.record_perfect(2)
+	var journey: Control = JOURNEY_SCENE.instantiate()
+	_frame.add_child(journey)
+	await _frames(4)
+	var world: JourneyWorld = journey.get_node("%World")
+	world.focus_level(6, false)
+	await _frames(2)
+	var gift := world.gift_for(5)
+	_check(gift != null and gift.state == LotusGift.State.READY, "the gift after level 5 is ready")
+	_check(gift != null and gift.size.x >= 120.0 and gift.size.y >= 120.0, "gift touch target")
+	world.focus_level(10, false)
+	await _frames(2)
+	var later := world.gift_for(10)
+	_check(later != null and later.state == LotusGift.State.CLOSED, "the gift after level 10 is still closed")
+	if later:
+		await _click_at(later.get_global_rect().get_center())
+	_check(store.saved_tools("hints") == 0 and (journey.get_node("%Toast") as Control).visible, "a closed gift explains how to earn it")
+	world.focus_level(6, false)
+	await _frames(2)
+	gift = world.gift_for(5)
+	await _click_at(gift.get_global_rect().get_center())
+	_check(store.saved_tools("hints") == 1 and store.saved_tools("shuffles") == 1, "opening the gift saves a hint and a shuffle")
+	_check((journey.get_node("%ToastLabel") as Label).text.contains("1 hint and 1 shuffle"), "the toast names the gift")
+	_check(gift.state == LotusGift.State.OPENED, "the gift is open")
+	await _click_at(gift.get_global_rect().get_center())
+	_check(store.saved_tools("hints") == 1, "an open gift gives nothing more")
+	world.focus_level(2, false)
+	await _frames(2)
+	_check((journey.call("level_node", 2) as LevelNode).is_perfect_shown(), "a Perfect Clear shows its stamp")
+	_check(not (journey.call("level_node", 3) as LevelNode).is_perfect_shown(), "other cleared levels do not")
+	journey.queue_free()
+	await _frames(2)
+	store.reset()
 
 
 ## The journey map, stars earned on clears, unlocking and best results.

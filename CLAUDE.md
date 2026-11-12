@@ -200,6 +200,11 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
   no interstitials, no banner; rewarded ads stay optional. Play's purchase list is the truth on every launch
   (restores, refunds); only PURCHASED unlocks, and it is acknowledged. Offered in Settings and rarely on the
   journey map (`PurchaseRules.should_offer`). Never change the product id. Tests use a fake bridge.
+- **Lotus Gifts / Perfect Clear:** `LotusRewards` (core, docs/LOTUS_REWARDS.md): a gift bud (`LotusGift`,
+  drawn by `LotusMark`) beside the path after every 5th level; opened on the map for saved hints and
+  shuffles (`ProgressStore` section `rewards`, max 9 each), spent after the level's free one and before any
+  ad. Gifts cleared before the feature count as opened (`baseline`). A clear with no mistakes, hints or
+  shuffles is a Perfect Clear: dialog title, gold crest, stamp on the map tile. Never change `gift_for`.
 - **Credits:** `Credits` (core) is the page behind Settings > Credits & Licences (`CreditsPanel`); licence
   texts come from the engine. Add a line there for any new third-party art, sound, font or plugin.
 - **Word Garden:** language mode (`word_garden_screen`, a `JourneyWorld` map of stages with a language panel; `GameSession.play_word_stage`). `WordCatalog` (core)

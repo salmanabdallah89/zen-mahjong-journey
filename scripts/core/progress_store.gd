@@ -174,6 +174,82 @@ func clear_new_badges() -> void:
 	SafeConfig.save(_config, path)
 
 
+## Lotus Gifts (LotusRewards). Gifts of levels cleared before the feature
+## arrived count as opened, so a returning player is not handed a pile of
+## them at once: `baseline` is the last gift level cleared at that moment.
+func lotus_baseline() -> int:
+	return int(_config.get_value("rewards", "baseline", -1))
+
+
+func _ensure_lotus_baseline() -> void:
+	if lotus_baseline() >= 0:
+		return
+	var level := LotusRewards.EVERY
+	var last := 0
+	while is_cleared(level):
+		last = level
+		level += LotusRewards.EVERY
+	_config.set_value("rewards", "baseline", last)
+
+
+func is_lotus_opened(level: int) -> bool:
+	if level <= maxi(lotus_baseline(), 0):
+		return true
+	return bool(_config.get_value("rewards", "lotus_%d" % level, false))
+
+
+## A gift level that is cleared but whose gift is still closed.
+func is_lotus_ready(level: int) -> bool:
+	_ensure_lotus_baseline()
+	return LotusRewards.is_gift_level(level) and is_cleared(level) and not is_lotus_opened(level)
+
+
+## Opens a ready gift: the tools go to the saved ones (up to MAX_SAVED each).
+## Returns what was added, or an empty gift if it was not ready.
+func open_lotus(level: int) -> Dictionary:
+	if not is_lotus_ready(level):
+		return {"hints": 0, "shuffles": 0}
+	var gift := LotusRewards.gift_for(level)
+	var added := {}
+	for key: String in ["hints", "shuffles"]:
+		var before := saved_tools(key)
+		var after := mini(before + int(gift[key]), LotusRewards.MAX_SAVED)
+		_config.set_value("rewards", "saved_" + key, after)
+		added[key] = after - before
+	_config.set_value("rewards", "lotus_%d" % level, true)
+	SafeConfig.save(_config, path)
+	return added
+
+
+## Saved hints or shuffles: `kind` is "hints" or "shuffles".
+func saved_tools(kind: String) -> int:
+	return int(_config.get_value("rewards", "saved_" + kind, 0))
+
+
+## Spends one saved tool; false if there was none.
+func spend_saved_tool(kind: String) -> bool:
+	var left := saved_tools(kind)
+	if left <= 0:
+		return false
+	_config.set_value("rewards", "saved_" + kind, left - 1)
+	SafeConfig.save(_config, path)
+	return true
+
+
+## Levels ever cleared with no mistakes, hints or shuffles.
+func is_perfect(level: int) -> bool:
+	return bool(_config.get_value(_section(level), "perfect", false))
+
+
+## Saves a Perfect Clear; true if it is the level's first.
+func record_perfect(level: int) -> bool:
+	if is_perfect(level):
+		return false
+	_config.set_value(_section(level), "perfect", true)
+	SafeConfig.save(_config, path)
+	return true
+
+
 func total_stars(level_count: int) -> int:
 	var total := 0
 	for level in range(1, level_count + 1):
@@ -203,6 +279,8 @@ class Result extends RefCounted:
 
 ## Saves a clear, keeping the best stars, best time and best score separately.
 func record_clear(level: int, earned_stars: int, time_left: float, level_count: int, score := 0) -> Result:
+	# Fixes which gifts predate the feature before this clear can open one.
+	_ensure_lotus_baseline()
 	var result := Result.new()
 	result.stars = earned_stars
 	result.previous_stars = stars(level)

@@ -13,12 +13,16 @@ extends Control
 ## Markers are pooled LevelNodes, positioned on screen around the camera and
 ## filled in by `node_setup` (the journey screen) when they come into view;
 ## the thread and beads are drawn for the visible stretch only. A lotus badge
-## marks the current level. Swiping (with momentum) moves the camera.
+## marks the current level. Lotus Gifts sit on the path after every
+## LotusRewards.EVERY levels, halfway to the next stop. Swiping (with momentum)
+## moves the camera.
 ##
 ## Positions along the path are in "level units": level N sits at N - 1.
 ## `camera` is the level unit shown at FOCUS_Y of the screen.
 
 signal camera_moved(camera: float)
+## A Lotus Gift was tapped (the level it belongs to).
+signal gift_pressed(level: int)
 
 const NODE_SCENE := preload("res://scenes/components/level_node.tscn")
 const PETAL := preload("res://assets/effects/petal_02.png")
@@ -40,6 +44,8 @@ const TAP_SLOP := 18.0
 const BACKDROP_LIGHT := 0.74
 const BLEND_LEVELS := 4.0
 const DRIFT := 90.0
+## Lotus Gifts sit this far beside the thread, toward the middle.
+const GIFT_SIDEWAYS := 150.0
 ## Lotus badge: offset above its level's marker.
 const BADGE_LIFT := 186.0
 
@@ -55,6 +61,8 @@ var current_index := 0
 var level_count := 0
 ## Fills a marker for a level: func(node: LevelNode, number: int).
 var node_setup := Callable()
+## Fills a Lotus Gift for a gift level: func(gift: LotusGift, level: int).
+var gift_setup := Callable()
 ## Returns true while something covers the map (a dialog); swipes are ignored then.
 var input_blocker := Callable()
 ## Returns true for a screen point covered by floating UI: func(point: Vector2).
@@ -63,6 +71,7 @@ var ui_hit := Callable()
 var _active := {}
 var _pool: Array[LevelNode] = []
 var _signs := {}
+var _gifts := {}
 var _back: TextureRect
 var _next_back: TextureRect
 var _vignette: TextureRect
@@ -163,6 +172,8 @@ func node_for(number: int) -> LevelNode:
 func refresh_nodes() -> void:
 	for index: int in _active:
 		_fill(_active[index], index)
+	for level: int in _gifts:
+		_fill_gift(_gifts[level], level)
 	_path.queue_redraw()
 
 
@@ -237,6 +248,7 @@ func _refresh_view() -> void:
 	_update_backdrop()
 	_update_markers()
 	_update_signs()
+	_update_gifts()
 	_place_badge()
 	_path.queue_redraw()
 
@@ -398,6 +410,55 @@ func _make_sign(chapter: int) -> Control:
 	lines.add_child(title)
 	plate.reset_size()
 	return plate
+
+
+# --- Lotus Gifts --------------------------------------------------------------
+
+## The gift of `level` if it is on screen (else null).
+func gift_for(level: int) -> LotusGift:
+	return _gifts.get(level)
+
+
+## Path position of a gift: halfway from its level to the next.
+static func gift_position(level: int) -> float:
+	return level - 0.5
+
+
+func _update_gifts() -> void:
+	var shown := {}
+	# Only the level journey has gifts (Word Garden reuses this map without).
+	if not gift_setup.is_valid():
+		return
+	var reach := (size.y + VISIBLE_MARGIN) / SPACING
+	var level := LotusRewards.next_gift_level(maxi(floori(camera - reach), 1))
+	while level <= level_count and level < camera + reach + 1:
+		var point := screen_point(gift_position(level))
+		if point.y > -VISIBLE_MARGIN and point.y < size.y + VISIBLE_MARGIN and level < level_count:
+			shown[level] = true
+			var gift: LotusGift = _gifts.get(level)
+			if gift == null:
+				gift = LotusGift.new()
+				gift.name = "Gift%d" % level
+				add_child(gift)
+				gift.pressed.connect(func() -> void: gift_pressed.emit(gift.level))
+				_gifts[level] = gift
+				_fill_gift(gift, level)
+			# Beside the thread, toward the middle of the screen, where the name
+			# plates (level by level) leave room between two stops.
+			var side := -1.0 if point.x > size.x / 2.0 else 1.0
+			gift.position = point + Vector2(side * GIFT_SIDEWAYS, 0) - gift.size / 2.0
+		level += LotusRewards.EVERY
+	for old: int in _gifts.keys():
+		if not shown.has(old):
+			(_gifts[old] as Control).queue_free()
+			_gifts.erase(old)
+	if _badge != null:
+		move_child(_badge, get_child_count() - 1)
+
+
+func _fill_gift(gift: LotusGift, level: int) -> void:
+	if gift_setup.is_valid():
+		gift_setup.call(gift, level)
 
 
 # --- Badge ---------------------------------------------------------------------

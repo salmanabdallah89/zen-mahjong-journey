@@ -28,6 +28,11 @@ func _ready() -> void:
 		await _capture_store()
 		_finish()
 		return
+	if args.size() > 1 and args[1] == "lotus":
+		get_window().size = SHAPES["phone_9x16"]
+		await _capture_lotus()
+		_finish()
+		return
 	for shape: String in SHAPES:
 		get_window().size = SHAPES[shape]
 		await _frames(4)
@@ -49,6 +54,7 @@ func _ready() -> void:
 	await _capture_zen_small()
 	await _measure_frame_times(10)
 	await _capture_journey()
+	await _capture_lotus()
 	await _capture_ads()
 	_finish()
 
@@ -323,6 +329,46 @@ func _capture_journey() -> void:
 	await _save("phone_9x16_level_complete_stars")
 	screen.queue_free()
 	await _frames(2)
+
+
+## Lotus Gifts on the map (ready, then opened), Perfect Clear stamps, and the
+## Perfect Clear dialog of a gift level with its bloom.
+func _capture_lotus() -> void:
+	get_window().size = SHAPES["phone_9x16"]
+	await _frames(4)
+	var store := GameSession.progress
+	store.reset()
+	for level in range(1, 5):
+		store.record_clear(level, 3 if level != 3 else 2, 60.0, LevelCatalog.count())
+	store.record_perfect(1)
+	store.record_perfect(2)
+	store.record_perfect(4)
+	GameSession.current_level = 5
+	var screen: Control = GAME_SCENE.instantiate()
+	add_child(screen)
+	await _wait(0.4)
+	var level := LevelCatalog.get_level(5)
+	for pair in BoardGenerator.generate(level.load_layout().build_geometry(), level.face_pool(), level.deal_seed).solution:
+		screen.call("_on_tile_pressed", pair.x)
+		screen.call("_on_tile_pressed", pair.y)
+	await _wait(3.4)
+	await _save("phone_9x16_perfect_clear")
+	screen.queue_free()
+	await _frames(2)
+	GameSession.just_unlocked = 0
+	var journey: Control = load("res://scenes/screens/journey_screen.tscn").instantiate()
+	add_child(journey)
+	await _wait(0.6)
+	var world: JourneyWorld = journey.get_node("%World")
+	world.focus_level(5, false)
+	await _wait(0.4)
+	await _save("phone_9x16_lotus_gift_ready")
+	journey.call("_on_gift_pressed", 5)
+	await _wait(1.6)
+	await _save("phone_9x16_lotus_gift_opened")
+	journey.queue_free()
+	await _frames(2)
+	store.reset()
 
 
 ## Stand-in ads: second-chance offer, a rewarded ad, the hint offer, the banner.

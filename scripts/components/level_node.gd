@@ -35,6 +35,8 @@ var _marker_home_x := NAN
 
 
 var _padlock: Control
+## Gold lotus stamp of a Perfect Clear (no mistakes, hints or shuffles).
+var _perfect: LotusMark
 ## Soft shadow under the tile, and the gold halo of the level to play next.
 var _shadow: TextureRect
 var _halo: TextureRect
@@ -64,6 +66,13 @@ func _ready() -> void:
 	_marker.add_child(_padlock)
 	_padlock.position = Vector2(_marker.size.x - 58.0, _marker.size.y - 66.0)
 	_padlock.hide()
+	_perfect = LotusMark.new()
+	_perfect.name = "Perfect"
+	_perfect.tint = Color(1.0, 0.92, 0.66)
+	_perfect.size = Vector2(64, 64)
+	_perfect.position = Vector2(-14.0, -10.0)
+	_marker.add_child(_perfect)
+	_perfect.hide()
 
 
 ## `caption` replaces the difficulty on the plate of an open stop.
@@ -100,6 +109,7 @@ func setup(level: LevelCatalog.LevelDefinition, earned_stars: int, is_unlocked: 
 		_stars.add_child(star)
 	_stars.visible = is_unlocked and earned_stars > 0
 	_padlock.visible = not is_unlocked
+	_perfect.hide()
 	_plate.visible = is_unlocked
 	if _pulse:
 		_pulse.kill()
@@ -109,6 +119,15 @@ func setup(level: LevelCatalog.LevelDefinition, earned_stars: int, is_unlocked: 
 	_halo.modulate.a = 1.0
 	if is_current:
 		_start_breathing()
+
+
+## Shows the Perfect Clear stamp (call after setup).
+func set_perfect(value: bool) -> void:
+	_perfect.visible = value and unlocked
+
+
+func is_perfect_shown() -> bool:
+	return _perfect.visible
 
 
 ## The level to play next gently breathes in its halo (reduced animations:

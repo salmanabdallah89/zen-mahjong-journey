@@ -41,6 +41,8 @@ func _ready() -> void:
 	_world.input_blocker = func() -> bool: return _sheet.visible
 	_world.ui_hit = _covers_map
 	_world.camera_moved.connect(_on_camera_moved)
+	_world.gift_setup = _setup_gift
+	_world.gift_pressed.connect(_on_gift_pressed)
 	refresh()
 	_world.setup(LevelCatalog.count(), _setup_node)
 	_world.focus_level(_current, false)
@@ -101,6 +103,48 @@ func _setup_node(node: LevelNode, number: int) -> void:
 		node.pressed.connect(_on_level_pressed)
 	var progress := GameSession.progress
 	node.setup(LevelCatalog.get_level(number), progress.stars(number), progress.is_unlocked(number), number == _current)
+	node.set_perfect(progress.is_perfect(number))
+
+
+## Fills a Lotus Gift as it comes into view.
+func _setup_gift(gift: LotusGift, level: int) -> void:
+	var progress := GameSession.progress
+	var state := LotusGift.State.CLOSED
+	if progress.is_lotus_ready(level):
+		state = LotusGift.State.READY
+	elif progress.is_lotus_opened(level) and progress.is_cleared(level):
+		state = LotusGift.State.OPENED
+	gift.setup(level, state)
+
+
+## Opens a ready gift; other gifts say how to earn them or what is saved.
+func _on_gift_pressed(level: int) -> void:
+	var progress := GameSession.progress
+	if progress.is_lotus_ready(level):
+		var added := progress.open_lotus(level)
+		var gift := _world.gift_for(level)
+		if gift:
+			gift.play_open()
+		AudioManager.play_sfx("reward")
+		AudioManager.vibrate(30)
+		if int(added.hints) + int(added.shuffles) > 0:
+			_show_toast("Lotus Gift: %s saved for when you need them." % LotusRewards.describe(added))
+		else:
+			_show_toast("Lotus Gift opened. Your saved hints and shuffles are already full.")
+		return
+	AudioManager.play_sfx("button_click")
+	if not progress.is_cleared(level):
+		_show_toast("Clear Level %d to open this Lotus Gift: %s." % [level, LotusRewards.describe(LotusRewards.gift_for(level))])
+	else:
+		_show_toast("Saved for later: %s." % _saved_text())
+
+
+## "2 hints and 1 shuffle", or "no hints or shuffles yet".
+func _saved_text() -> String:
+	var saved := {"hints": GameSession.progress.saved_tools("hints"), "shuffles": GameSession.progress.saved_tools("shuffles")}
+	if int(saved.hints) + int(saved.shuffles) == 0:
+		return "no hints or shuffles yet"
+	return LotusRewards.describe(saved)
 
 
 ## The stop for level `number` if it is on screen (else null).
@@ -120,7 +164,10 @@ func _celebrate_unlock() -> void:
 	var node := _world.node_for(level)
 	if node:
 		node.play_unlock()
-	_show_toast("Level %d unlocked: %s" % [level, LevelCatalog.get_level(level).title])
+	if GameSession.progress.is_lotus_ready(level - 1):
+		_show_toast("Level %d unlocked, and a Lotus Gift has bloomed. Tap it to open!" % level)
+	else:
+		_show_toast("Level %d unlocked: %s" % [level, LevelCatalog.get_level(level).title])
 
 
 func _on_level_pressed(number: int) -> void:
