@@ -205,7 +205,8 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
   4-slot tray (`TileTray` core, `TrayBar` view, docs/TILE_TRAY.md) and its match joins it there; four without
   a pair = Tray Full (ad second chance sends 2 back, Replay, Levels). No hearts. Three waiting = a close call,
   counted in `_mistakes` for stars, flawless and Perfect Clear. Shuffle empties the tray onto the board first. Magnet (4th tool, `TileTray.magnet_target`/`pull`) pulls a
-  waiting tile's match, even buried, into the tray: 1 free per level, then a rewarded ad.
+  waiting tile's match, even buried, into the tray: never free; the first ×5 combo of an attempt earns one
+  (saved, max 9), otherwise a rewarded ad.
   Word Garden keeps the classic two-tap rule (`_selected`, `_register_mistake`).
 - **Lotus Gifts / Perfect Clear:** `LotusRewards` (core, docs/LOTUS_REWARDS.md): a gift bud (`LotusGift`,
   drawn by `LotusMark`) beside the path after every 5th level; opened on the map for saved hints and

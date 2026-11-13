@@ -26,8 +26,9 @@ the classic two-tap rule (it is a learning mode). There are no hearts.
 - **Shuffle:** the waiting tiles go back to the board first, then the board is reshuffled.
 - **Magnet:** pulls the match of the oldest waiting tile out of the board into the tray, even from
   under other tiles (buried matches first); with an empty tray it takes a free tile and pulls its match
-  once that tile lands. One free per level (`free_magnets_per_level`), then one per rewarded ad
-  (placement `magnet`). Counts as a tool: no Perfect Clear, no Quiet Hands. Undo puts the tile back.
+  once that tile lands. Never free: a big score earns one (the first ×5 combo of an attempt saves +1
+  Magnet, kept up to 9 in progress `rewards/saved_magnets`), or a rewarded ad (placement `magnet`)
+  buys one. Saved magnets are spent first. On the web (no ads) only earned magnets work. Counts as a tool: no Perfect Clear, no Quiet Hands. Undo puts the tile back.
 - **Undo:** a waiting tile flies home; undoing a match sends the tapped tile home and puts its
   partner back in its slot (points taken back); undoing a close call removes it. Undoing a shuffle
   puts the waiting tiles back in the tray.

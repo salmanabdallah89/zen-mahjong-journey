@@ -50,6 +50,15 @@ func test_opening_a_gift() -> void:
 	SafeConfig.remove_all(PATH)
 
 
+func test_earned_tools_are_saved_up_to_the_cap() -> void:
+	var store := _fresh()
+	assert_eq(store.add_saved_tool("magnets"), 1, "one magnet earned")
+	assert_eq(store.saved_tools("magnets"), 1, "saved")
+	assert_eq(store.add_saved_tool("magnets", 20), LotusRewards.MAX_SAVED - 1, "never past the cap")
+	assert_eq(ProgressStore.new(PATH).saved_tools("magnets"), LotusRewards.MAX_SAVED, "kept after a restart")
+	SafeConfig.remove_all(PATH)
+
+
 func test_spending_and_the_cap() -> void:
 	var store := _fresh()
 	_clear(store, 40)

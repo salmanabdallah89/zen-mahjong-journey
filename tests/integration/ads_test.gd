@@ -229,8 +229,9 @@ func _test_saved_tools() -> void:
 	store.reset()
 
 
-## Magnet: one free per level, then one per rewarded ad; it pulls a buried
-## match out of the board, and Undo puts it back.
+## Magnet: never free. A big score (the x5 combo) earns one, saved for later,
+## or an ad buys one; it pulls a buried match out of the board, and Undo puts
+## it back.
 func _test_magnet() -> void:
 	var screen := await _open_level(5)
 	var model: BoardModel = screen.get("_model")
@@ -238,7 +239,14 @@ func _test_magnet() -> void:
 	var label: Label = screen.get_node("%MagnetLabel")
 	var magnet: Button = screen.get_node("%MagnetButton")
 	_check(magnet.is_visible_in_tree() and magnet.custom_minimum_size.y >= 120.0, "the Magnet sits in the toolbar")
-	_check(label.text == "Magnet (1)", "one free magnet per level (%s)" % label.text)
+	_check(label.text == "Ad Magnet", "no free magnet: the button offers an ad (%s)" % label.text)
+	# A x5 combo earns one, once per attempt.
+	screen.set("_best_multiplier", LevelScore.MAX_MULTIPLIER)
+	screen.call("_earn_magnet_if_due", 0.0)
+	screen.call("_earn_magnet_if_due", 0.0)
+	_check(GameSession.progress.saved_tools("magnets") == 1 and bool(screen.call("magnet_earned")), "a x5 combo earns one magnet, once")
+	await _wait(1.2)
+	_check(label.text == "Magnet (1)", "the earned magnet is counted on the button (%s)" % label.text)
 	# A tile waits; its match is buried somewhere on the board.
 	var first := -1
 	for index in model.free_tiles():
@@ -254,8 +262,9 @@ func _test_magnet() -> void:
 	var target: Vector2i = (screen.get("_tray") as TileTray).magnet_target(model)
 	_check(target.x == -1 and not model.is_free(target.y), "the magnet aims at the buried match")
 	screen.call("_on_magnet_pressed")
-	_check(model.is_removed(target.y) and (screen.call("tray_tiles") as Array).is_empty(), "the free magnet pulls it into the tray at once")
-	_check(not dialog.visible and label.text == "Ad Magnet", "after the free magnet the button offers an ad magnet")
+	_check(model.is_removed(target.y) and (screen.call("tray_tiles") as Array).is_empty(), "the earned magnet pulls it into the tray at once")
+	_check(not dialog.visible and label.text == "Ad Magnet" and GameSession.progress.saved_tools("magnets") == 0,
+		"once it is spent the button offers an ad magnet")
 	await _wait(1.0)
 	screen.call("_on_undo_pressed")
 	await _wait(0.3)

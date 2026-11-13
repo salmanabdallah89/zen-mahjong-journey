@@ -10,7 +10,7 @@ chance; the game is otherwise identical.
 |-----------|------|-------------|
 | Rewarded: second chance | After losing (time or hearts), once per attempt | +60 s on the clock, or +1 heart, and the same board continues |
 | Rewarded: hint | After the 1 free hint per level is used | One hint per watched ad |
-| Rewarded: magnet | After the 1 free magnet per level is used | One magnet pull per watched ad |
+| Rewarded: magnet | When no earned magnet is saved (a ×5 combo earns one; none are free) | One magnet pull per watched ad |
 | Rewarded: shuffle | After the 1 free shuffle per level is used | One shuffle per watched ad |
 | Rewarded: undo | After the 3 undos of an attempt are used | One undo per watched ad |
 | Interstitial | After every 2nd finished level, cleared or lost: when the player leaves the Level Complete popup (Next Level / Replay / Levels) or the loss popup (Retry / Levels). Never during play, and never within 30 s of another ad (e.g. a second-chance ad) | Nothing |

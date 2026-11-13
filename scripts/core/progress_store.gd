@@ -226,6 +226,15 @@ func saved_tools(kind: String) -> int:
 	return int(_config.get_value("rewards", "saved_" + kind, 0))
 
 
+## Adds earned tools (up to LotusRewards.MAX_SAVED); returns how many were added.
+func add_saved_tool(kind: String, amount := 1) -> int:
+	var before := saved_tools(kind)
+	var after := mini(before + amount, LotusRewards.MAX_SAVED)
+	_config.set_value("rewards", "saved_" + kind, after)
+	SafeConfig.save(_config, path)
+	return after - before
+
+
 ## Spends one saved tool; false if there was none.
 func spend_saved_tool(kind: String) -> bool:
 	var left := saved_tools(kind)

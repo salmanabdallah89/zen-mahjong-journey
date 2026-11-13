@@ -77,6 +77,8 @@ var _free_shuffles := 0
 var _free_magnets := 0
 ## Magnets used this attempt (a tool, like hints and shuffles).
 var _magnets := 0
+## A magnet was earned this attempt (the x5 combo earns one, once).
+var _magnet_earned := false
 var _undos_left := 0
 var _second_chances := 0
 var _last_loss := LossReason.TIME
@@ -244,8 +246,9 @@ func _start_level() -> void:
 	_hints_used = 0
 	_free_hints = int(AdsManager.setting("free_hints_per_level", 1))
 	_free_shuffles = int(AdsManager.setting("free_shuffles_per_level", 1))
-	_free_magnets = int(AdsManager.setting("free_magnets_per_level", 1))
+	_free_magnets = int(AdsManager.setting("free_magnets_per_level", 0))
 	_magnets = 0
+	_magnet_earned = false
 	_undos_left = UNDOS_PER_LEVEL
 	_score = LevelScore.new()
 	_final_score = 0
@@ -488,6 +491,7 @@ func _tray_match(move: TileTray.Move) -> void:
 	var meet := _tray_bar.slot_center_global(move.slot)
 	var contact := _tray_bar.fly_match(b, move.slot, _board, burst)
 	_finish_match(a, contact, step, combo, cleared, factor, points, meet)
+	_earn_magnet_if_due(contact)
 	# The pair's picture lifts out as a glowing emblem and shoots into the
 	# score (the last pair leaves the stage to Level Complete).
 	if not cleared:
@@ -805,22 +809,60 @@ func _give_tray_hint() -> bool:
 
 ## Magnet: pulls the match of a waiting tile out of the board (even from under
 ## other tiles) into the tray; with an empty tray it takes a free tile and pulls
-## its match. A free magnet per level, then one per rewarded ad.
+## its match. Never free: a magnet is earned with a big score (the x5 combo,
+## saved for later) or bought with a rewarded ad.
 func _on_magnet_pressed() -> void:
 	if not _tray_mode() or _model.is_cleared() or _failed or _dialog.visible or _board.is_busy():
 		return
 	if _tray.magnet_target(_model).y < 0:
 		_show_toast("Nothing for the magnet to pull right now.")
 		return
-	if AdsManager.is_available() and _free_magnets <= 0:
-		_dialog.open("Need a Magnet?", "Watch a short ad to pull a matching tile into the tray.")
-		_dialog.add_action("Watch Ad", func() -> void:
-			AdsManager.show_rewarded("magnet", _on_magnet_ad_done), true)
-		_dialog.add_action("No Thanks", func() -> void: pass)
-		return
-	if AdsManager.is_available():
+	if _free_magnets > 0:
 		_free_magnets -= 1
-	_use_magnet()
+		_use_magnet()
+		return
+	if GameSession.progress.spend_saved_tool("magnets"):
+		_use_magnet()
+		return
+	if not AdsManager.is_available():
+		_show_toast("Reach a ×%d combo to earn a magnet." % LevelScore.MAX_MULTIPLIER)
+		return
+	_dialog.open("Need a Magnet?", "Watch a short ad to pull a matching tile into the tray. Tip: a ×%d combo earns one for free." % LevelScore.MAX_MULTIPLIER)
+	_dialog.add_action("Watch Ad", func() -> void:
+		AdsManager.show_rewarded("magnet", _on_magnet_ad_done), true)
+	_dialog.add_action("No Thanks", func() -> void: pass)
+
+
+## A big score earns a magnet: the first ×5 combo of an attempt saves one for
+## later (tray levels with a score only). It is announced once the pair meets.
+func _earn_magnet_if_due(delay: float) -> void:
+	if _magnet_earned or _calm() or not _tray_mode() or _best_multiplier < LevelScore.MAX_MULTIPLIER:
+		return
+	_magnet_earned = true
+	if GameSession.progress.add_saved_tool("magnets") <= 0:
+		return
+	_after(delay + MILESTONE_DELAY, func() -> void:
+		if _dialog.visible or _failed:
+			return
+		_update_hud()
+		_show_toast("×%d combo! +1 Magnet saved for later." % LevelScore.MAX_MULTIPLIER)
+		AudioManager.play_sfx("reward")
+		_pulse_magnet())
+
+
+## The Magnet button swells once when a magnet is earned.
+func _pulse_magnet() -> void:
+	if Motion.reduced:
+		return
+	_magnet_button.pivot_offset = _magnet_button.size / 2.0
+	var tween := _magnet_button.create_tween()
+	tween.tween_property(_magnet_button, "scale", Vector2.ONE * 1.18, 0.16).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(_magnet_button, "scale", Vector2.ONE, 0.24).set_trans(Tween.TRANS_SINE)
+
+
+## Magnets earned this attempt? (tests)
+func magnet_earned() -> bool:
+	return _magnet_earned
 
 
 func _on_magnet_ad_done(rewarded: bool) -> void:
@@ -1023,10 +1065,12 @@ func _update_hud() -> void:
 		_hint_label.text = "Hint"
 		_shuffle_label.text = "Shuffle"
 	_undo_label.text = "Ad Undo" if undo_ad_offered() else "Undo (%d)" % _undos_left
-	if AdsManager.is_available():
-		_magnet_label.text = "Magnet (%d)" % _free_magnets if _free_magnets > 0 else "Ad Magnet"
+	# Earned (saved) magnets first; without any, an ad buys one.
+	var magnets := _free_magnets + GameSession.progress.saved_tools("magnets")
+	if magnets > 0 or not AdsManager.is_available():
+		_magnet_label.text = "Magnet (%d)" % magnets
 	else:
-		_magnet_label.text = "Magnet"
+		_magnet_label.text = "Ad Magnet"
 	_magnet_button.disabled = _model.is_cleared()
 	_update_timer_label()
 	_level_value.text = _level_name()
