@@ -79,6 +79,31 @@ func restore_pair(a: int, b: int) -> void:
 	remaining += 2
 
 
+## Takes one free tile off the board (into the tray, TileTray). False if it
+## is not free.
+func take_tile(index: int) -> bool:
+	if index < 0 or index >= tile_count() or is_removed(index) or not is_free(index):
+		return false
+	removed[index] = 1
+	remaining -= 1
+	return true
+
+
+## Puts one taken tile back on the board (undo, second chance, shuffle).
+func return_tile(index: int) -> void:
+	assert(is_removed(index), "BoardModel: returning a tile that is present")
+	removed[index] = 0
+	remaining += 1
+
+
+## Marks a tile as off the board without the free check (undoing a shuffle
+## puts the tray's tiles back where they were).
+func set_taken(index: int) -> void:
+	if not is_removed(index):
+		removed[index] = 1
+		remaining -= 1
+
+
 func free_tiles() -> PackedInt32Array:
 	return geometry.free_tiles(removed)
 

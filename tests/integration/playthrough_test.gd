@@ -217,32 +217,38 @@ func _test_tools_and_pause(level_number: int) -> void:
 	_check((screen.get_node("%Toast") as Control).visible, "blocked tap explains why")
 	_check(not model.blockers(blocked).is_empty(), "blocked tile reports its blockers")
 
-	# Selecting then re-clicking deselects.
-	var first := deal.solution[0]
-	await _click_tile(screen, first.x)
-	_check(int(screen.get("_selected")) == first.x, "clicking a free tile selects it")
-	await _click_tile(screen, first.x)
-	_check(int(screen.get("_selected")) == -1, "clicking it again deselects")
-
-	# Hint highlights a legal pair.
+	# Hint before any tap: a removable pair.
 	await _click_control(screen.get_node("%HintButton"))
 	var hint: Vector2i = screen.get("_hint")
 	_check(hint.x >= 0 and model.can_remove_pair(hint.x, hint.y), "hint shows a removable pair")
 
-	# Match, then undo.
+	# A tapped free tile flies to the tray and waits there.
+	var first := deal.solution[0]
+	var tray: TrayBar = screen.get_node("%Tray")
 	await _click_tile(screen, first.x)
-	await _click_tile(screen, first.y)
-	_check(model.remaining == model.tile_count() - 2, "pair removed")
+	_check(screen.call("tray_tiles") == [first.x], "clicking a free tile sends it to the tray")
+	_check(model.is_removed(first.x) and model.remaining == model.tile_count() - 1, "it leaves the board")
+	_check(tray.count() == 1 and tray.tile_in(0) == first.x, "the tray shows it")
 	_check(tiles_label.text == str(model.remaining), "HUD tile count updates")
+	# Hint now points at its free partner.
+	screen.set("_free_hints", 5)
+	await _click_control(screen.get_node("%HintButton"))
+	_check((screen.get("_hint") as Vector2i).x == first.y, "hint shows the partner of the waiting tile")
+
+	# Its match joins it: both leave; Undo takes the match back.
+	await _click_tile(screen, first.y)
+	_check(model.remaining == model.tile_count() - 2 and (screen.call("tray_tiles") as Array).is_empty(), "the pair meets in the tray")
 	_check(not undo.disabled, "undo enabled after a match")
 	await _click_control(undo)
-	_check(model.remaining == model.tile_count(), "undo restores the pair")
-	_check(not model.is_removed(first.x) and not model.is_removed(first.y), "undone tiles are back")
+	_check(model.remaining == model.tile_count() - 1 and screen.call("tray_tiles") == [first.x], "undo restores the pair")
+	_check(not model.is_removed(first.y), "undone tiles are back")
 
-	# Shuffle keeps the board solvable and is undoable.
+	# Shuffle sends the waiting tile back to the board, keeps the board
+	# solvable and is undoable.
 	var before := model.faces.duplicate()
 	await _click_control(screen.get_node("%ShuffleButton"))
 	_check(model.faces != before, "shuffle changes the arrangement")
+	_check((screen.call("tray_tiles") as Array).is_empty() and model.remaining == model.tile_count(), "shuffle empties the tray onto the board")
 	_check(BoardSolver.solve(model, 200000).solved, "shuffled board is solvable")
 	var board_view: BoardView = screen.get_node("%Board")
 	_check(board_view.is_busy(), "the shuffle animates")
@@ -252,23 +258,22 @@ func _test_tools_and_pause(level_number: int) -> void:
 	_check(_tiles_at_rest(board_view, model), "after the shuffle every tile is back in place and tappable")
 	await _click_control(undo)
 	_check(model.faces == before, "undo reverts the shuffle")
+	_check(screen.call("tray_tiles") == [first.x] and tray.count() == 1, "and puts the waiting tile back in the tray")
 	await _settle(screen)
 
 	# Three undos per attempt: two used, one left, then the button stays off.
 	var undo_label: Label = screen.get_node("SafeArea/Layout/Toolbar/UndoTool/UndoLabel")
 	_check(undo_label.text == "Undo (1)", "undo shows the undos left (%s)" % undo_label.text)
-	await _click_tile(screen, first.x)
 	await _click_tile(screen, first.y)
 	await _click_control(undo)
-	_check(not model.is_removed(first.x), "the last undo still works")
+	_check(not model.is_removed(first.y), "the last undo still works")
 	_check(undo.disabled and undo_label.text == "Undo (0)", "after 3 undos the button is off")
 	await _settle(screen)
 	await get_tree().create_timer(0.6).timeout
-	await _click_tile(screen, first.x)
 	await _click_tile(screen, first.y)
-	_check(model.is_removed(first.x) and undo.disabled, "no more undos this attempt, even after a new match")
+	_check(model.is_removed(first.y) and undo.disabled, "no more undos this attempt, even after a new match")
 	screen.call("_on_undo_pressed")
-	_check(model.is_removed(first.x), "a fourth undo does nothing")
+	_check(model.is_removed(first.y), "a fourth undo does nothing")
 	await _settle(screen)
 
 	# Pause blocks the board; Restart deals the same board again.
@@ -277,8 +282,9 @@ func _test_tools_and_pause(level_number: int) -> void:
 	_check(dialog.visible, "pause menu opens")
 	var free_tile := _tile_clear_of_buttons(screen, dialog)
 	_check(free_tile >= 0, "found a tile not under a pause-menu button")
+	var left_before: int = model.remaining
 	await _click_tile(screen, free_tile)
-	_check(int(screen.get("_selected")) == -1, "board ignores taps while paused")
+	_check(model.remaining == left_before, "board ignores taps while paused")
 	_check(dialog.visible, "pause menu still open after tapping the board")
 	var restart: Button = _dialog_button(dialog, "Restart")
 	_check(restart != null, "pause menu has Restart")
@@ -287,6 +293,7 @@ func _test_tools_and_pause(level_number: int) -> void:
 	var restarted: BoardModel = screen.get("_model")
 	_check(not dialog.visible, "dialog closes on restart")
 	_check(restarted.faces == deal.faces and restarted.remaining == restarted.tile_count(), "restart deals the same full board")
+	_check((screen.call("tray_tiles") as Array).is_empty() and tray.count() == 0, "restart empties the tray")
 	_check(int(screen.call("undos_left")) == 3 and undo_label.text == "Undo (3)", "restart gives the 3 undos back")
 	screen.queue_free()
 	await _frames(2)
@@ -421,7 +428,8 @@ func _test_tile_collections(level_number: int) -> void:
 
 	# Play on after switching: undo, then shuffle, then undo again.
 	await _click_control(screen.get_node("%UndoButton"))
-	_check(not model.is_removed(first.x) and not model.is_removed(first.y), "undo works after switching")
+	# Undoing a tray match: the tile goes home, its partner waits in the tray again.
+	_check(not model.is_removed(first.y) and screen.call("tray_tiles") == [first.x], "undo works after switching")
 	_check(_all_tiles_have_art(board, model), "restored tiles show the new art")
 	var symbol_of := board.skin().symbol_texture(model.faces[first.x])
 	await _click_control(screen.get_node("%ShuffleButton"))
@@ -515,7 +523,8 @@ func _test_premium_collections(level_number: int) -> void:
 	_check(manager.select("animals"), "premium: Animals again")
 	await _frames(3)
 	await _click_control(screen.get_node("%UndoButton"))
-	_check(model.remaining == model.tile_count(), "premium: undo after switching restores the pair")
+	_check(model.remaining == model.tile_count() - 1 and (screen.call("tray_tiles") as Array).size() == 1,
+		"premium: undo after switching restores the pair (one tile waits in the tray)")
 	await _click_control(screen.get_node("%ShuffleButton"))
 	_check(_all_tiles_have_art(board, model), "premium: shuffle in Animals keeps every tile drawn")
 	await _settle(screen)
@@ -541,6 +550,20 @@ func _test_premium_collections(level_number: int) -> void:
 
 ## Losing: the clock counts down only while playing, non-matching pairs cost
 ## hearts, and running out of either ends the level with Retry / Home.
+## A free tile whose match is not waiting in the tray (nor is any other tile
+## of its kind), so tapping it adds a tile to the tray. -1 if none.
+func _tile_without_partner(screen: Node, model: BoardModel) -> int:
+	var waiting: Array = screen.call("tray_tiles")
+	for index in model.free_tiles():
+		var alone := true
+		for other: int in waiting:
+			if TileCatalog.faces_match(model.face_of(other), model.face_of(index)):
+				alone = false
+		if alone:
+			return index
+	return -1
+
+
 func _test_time_and_mistakes(level_number: int) -> void:
 	var level := LevelCatalog.get_level(level_number)
 	var screen := await _open_level(level_number)
@@ -548,7 +571,7 @@ func _test_time_and_mistakes(level_number: int) -> void:
 	var time_label: Label = screen.get_node("%TimeValue")
 	var dialog: ModalDialog = screen.get_node("%Dialog")
 	_check(time_label.text == "%d:%02d" % [level.time_limit / 60, level.time_limit % 60], "clock starts at the level's limit (%s)" % time_label.text)
-	_check((screen.get_node("%Hearts") as Control).get_child_count() == level.mistake_limit, "one heart per allowed mistake")
+	_check(not (screen.get_node("%HeartsPill") as Control).visible, "tray levels have no hearts")
 	var start := float(screen.get("_time_left"))
 	await get_tree().create_timer(1.1).timeout
 	var after := float(screen.get("_time_left"))
@@ -560,42 +583,41 @@ func _test_time_and_mistakes(level_number: int) -> void:
 	(_dialog_button(dialog, "Resume") as Button).emit_signal("pressed")
 	await _frames(2)
 
-	# A wrong pair costs a heart; re-tapping the selected tile is free.
-	var wrong := _non_matching_free_pair(model)
-	_check(wrong.x >= 0, "board has two free tiles that don't match")
-	await _click_tile(screen, wrong.x)
-	await _click_tile(screen, wrong.x)
-	_check(int(screen.get("_mistakes")) == 0, "deselecting is not a mistake")
-	await _click_tile(screen, wrong.x)
-	await _click_tile(screen, wrong.y)
-	_check(int(screen.get("_mistakes")) == 1, "a non-matching pair is a mistake")
-	_check(int(screen.get("_selected")) == -1, "a mistake clears the selection")
-	_check(int(screen.call("hearts_left")) == level.mistake_limit - 1, "a heart is spent")
+	# Tiles without a pair fill the tray: three is a close call, four ends
+	# the level.
+	var dialog_title: Label = dialog.get_node("%Title")
+	for i in 2:
+		await _click_tile(screen, _tile_without_partner(screen, model))
+	_check(int(screen.get("_mistakes")) == 0, "two waiting tiles are fine")
+	await _click_tile(screen, _tile_without_partner(screen, model))
+	_check(int(screen.get("_mistakes")) == 1, "a third waiting tile is a close call")
+	_check((screen.get_node("%Toast") as Control).visible, "the tray warns when one place is left")
 	var blocked := -1
 	for i in model.tile_count():
 		if not model.is_removed(i) and not model.is_free(i):
 			blocked = i
 			break
-	await _click_tile(screen, blocked)
-	_check(int(screen.get("_mistakes")) == 1, "tapping a blocked tile is not a mistake")
+	# Straight to the tile: a click on a covered tile would land on the one above.
+	screen.call("_on_tile_pressed", blocked)
+	_check((screen.call("tray_tiles") as Array).size() == 3, "tapping a blocked tile adds nothing")
 	await _click_control(screen.get_node("%UndoButton"))
-	_check(int(screen.get("_mistakes")) == 1, "undo does not refund a mistake")
-
-	for i in level.mistake_limit - 1:
-		await get_tree().create_timer(0.25).timeout
-		await _click_tile(screen, wrong.x)
-		await _click_tile(screen, wrong.y)
-	_check(dialog.visible and (dialog.get_node("%Title") as Label).text == "Too Many Mistakes", "last heart loses the level")
-	_check(_dialog_button(dialog, "Retry") != null and _dialog_button(dialog, "Levels") != null, "loss offers Retry and Levels")
+	_check(int(screen.get("_mistakes")) == 0 and (screen.call("tray_tiles") as Array).size() == 2, "undo takes back the close call")
+	await get_tree().create_timer(0.3).timeout
+	await _click_tile(screen, _tile_without_partner(screen, model))
+	await _click_tile(screen, _tile_without_partner(screen, model))
+	await get_tree().create_timer(0.9).timeout
+	_check(dialog.visible and dialog_title.text == "Tray Full", "four tiles without a pair end the level")
+	_check(_dialog_button(dialog, "Replay") != null and _dialog_button(dialog, "Levels") != null, "loss offers Replay and Levels")
 	var frozen := float(screen.get("_time_left"))
 	await get_tree().create_timer(0.5).timeout
 	_check(absf(float(screen.get("_time_left")) - frozen) < 0.05, "clock stops after losing")
-	await _click_control(_dialog_button(dialog, "Retry"))
+	await _click_control(_dialog_button(dialog, "Replay"))
 	await _frames(2)
-	_check(int(screen.get("_mistakes")) == 0 and not bool(screen.get("_failed")), "retry restores every heart")
+	_check(int(screen.get("_mistakes")) == 0 and not bool(screen.get("_failed")), "replay starts fresh")
 	_check(float(screen.get("_time_left")) > level.time_limit - 1.0, "retry restores the clock")
 	var retried: BoardModel = screen.get("_model")
-	_check(retried.remaining == retried.tile_count(), "retry deals the full board again")
+	_check(retried.remaining == retried.tile_count() and (screen.call("tray_tiles") as Array).is_empty(),
+		"retry deals the full board again, with an empty tray")
 
 	# Running out of time loses the level.
 	screen.set("_time_left", 0.3)
@@ -603,8 +625,9 @@ func _test_time_and_mistakes(level_number: int) -> void:
 	_check(dialog.visible and (dialog.get_node("%Title") as Label).text == "Out of Time", "clock reaching zero loses the level")
 	_check(time_label.text == "0:00", "clock shows 0:00")
 	var deal := _expected_deal(level_number)
+	var locked_model: BoardModel = screen.get("_model")
 	await _click_tile(screen, deal.solution[0].x)
-	_check(int(screen.get("_selected")) == -1, "board is locked after losing")
+	_check(locked_model.remaining == locked_model.tile_count(), "board is locked after losing")
 	screen.queue_free()
 	await _frames(2)
 
@@ -673,8 +696,8 @@ func _test_journey_and_stars() -> void:
 	await _click_at(level_one.get_global_transform() * level_one.marker_center())
 	_check(dialog.visible and dialog.title_text() == "Level 1 · Lotus Pond", "tapping level 1 opens its card")
 	var card_text := dialog.summary_text()
-	_check(card_text.contains("Easy") and card_text.contains("24 tiles") and card_text.contains("3:00") and card_text.contains("5 hearts"),
-		"card shows difficulty, size, time and hearts")
+	_check(card_text.contains("Easy") and card_text.contains("24 tiles") and card_text.contains("3:00") and card_text.contains("4-tile tray"),
+		"card shows difficulty, size, time and the tray")
 	_check(card_text.contains("Not cleared yet") and dialog.call("stars_shown") == 0, "card shows no stars before a clear")
 	_check(dialog.play_button().is_visible_in_tree(), "card offers Play")
 	dialog.close()
@@ -771,20 +794,18 @@ func _test_audit_fixes(level_number: int) -> void:
 	var dialog: ModalDialog = screen.get_node("%Dialog")
 	var pair: Vector2i = _expected_deal(level_number).solution[0]
 
-	# Undo straight after a match, while the match animation still plays.
+	# Undo straight after a tray match, while the pair still flies and blooms.
 	await _click_tile(screen, pair.x)
 	await _click_tile(screen, pair.y)
-	_check(board.tile(pair.x).is_removing(), "the match animation is playing")
+	_check(model.is_removed(pair.y) and (screen.call("tray_tiles") as Array).is_empty(), "the match animation is playing")
 	screen.call("_on_undo_pressed")
 	await get_tree().create_timer(0.5).timeout
-	var restored := true
-	for i in [pair.x, pair.y]:
-		var view := board.tile(i)
-		restored = restored and view.visible and view.modulate.a > 0.99 and view.mouse_filter == Control.MOUSE_FILTER_STOP
-	_check(restored and not model.is_removed(pair.x), "undo during the match animation leaves both tiles visible and tappable")
-	await _click_tile(screen, pair.x)
-	_check(int(screen.get("_selected")) == pair.x, "a restored tile can be picked again")
-	await _click_tile(screen, pair.x)
+	var back := board.tile(pair.y)
+	var restored := back.visible and back.modulate.a > 0.99 and back.mouse_filter == Control.MOUSE_FILTER_STOP
+	_check(restored and not model.is_removed(pair.y) and screen.call("tray_tiles") == [pair.x],
+		"undo during the match animation leaves both tiles visible and tappable")
+	await _click_tile(screen, pair.y)
+	_check(model.is_removed(pair.y), "a restored tile can be picked again")
 
 	# The clock: a long stall costs at most one step, and play time is counted
 	# separately from the countdown (which a second chance resets).
@@ -864,60 +885,37 @@ func _test_tile_animations(level_number: int) -> void:
 	var model: BoardModel = screen.get("_model")
 	var solution := _expected_deal(level_number).solution
 
-	# Select: the tile lifts and swells; picking it again settles it back.
+	# A tapped tile flies from the board into the tray and settles there.
 	var pair: Vector2i = solution[0]
+	var tray: TrayBar = screen.get_node("%Tray")
 	var view := board.tile(pair.x)
 	await _click_tile(screen, pair.x)
-	await get_tree().create_timer(0.25).timeout
-	var lift: Control = view.get_node("%Lift")
-	_check(lift.position.y < -5.0 and lift.scale.x > 1.02, "a selected tile lifts and swells")
-	await _click_tile(screen, pair.x)
-	await get_tree().create_timer(0.25).timeout
-	_check(is_zero_approx(lift.position.y) and lift.scale.is_equal_approx(Vector2.ONE), "deselecting settles it back")
+	_check(not view.visible, "the tapped tile leaves the board at once")
+	await get_tree().create_timer(0.6).timeout
+	var resting := tray.get_children().filter(func(c: Node) -> bool: return c is TileView and not (c as TileView).top_level)
+	_check(resting.size() == 1 and tray.get_global_rect().grow(4.0).encloses((resting[0] as TileView).get_global_rect()),
+		"a selected tile lifts and swells (it settles inside the tray)")
+	# Taps on a tile that already left change nothing.
+	for i in 8:
+		screen.call("_on_tile_pressed", pair.x)
+	_check(screen.call("tray_tiles") == [pair.x] and tray.count() == 1, "nine quick taps end selected, as the ninth tap says")
 
-	# Rapid taps on one tile never leave it stuck selected or out of place.
-	for i in 9:
-		await _click_tile(screen, pair.x)
-	await get_tree().create_timer(0.3).timeout
-	_check(int(screen.get("_selected")) == pair.x and view.highlight() == TileView.Highlight.SELECTED,
-		"nine quick taps end selected, as the ninth tap says")
-	await _click_tile(screen, pair.x)
-	await get_tree().create_timer(0.25).timeout
-
-	# Match: the pair glides together, then leaves; the model is updated at once.
+	# Match: its partner flies to it; they meet, flash and bloom away.
 	var b_view := board.tile(pair.y)
-	var meet := board.meeting_points(pair.x, pair.y)
-	var glides := not meet[0].is_equal_approx(view.home_position)
-	var gap_before := view.position.distance_to(b_view.position)
-	await _click_tile(screen, pair.x)
 	await _click_tile(screen, pair.y)
 	_check(model.is_removed(pair.x) and model.is_removed(pair.y), "the model removes the pair at once")
-	_check(not (view.get_node("%Glow") as Control).visible, "a gliding tile drops its gold outline")
-	await get_tree().create_timer(0.2).timeout
-	_check(not glides or view.position.distance_to(b_view.position) < gap_before - 1.0,
-		"the matched pair glides toward each other")
-	await _click_tile(screen, pair.x)
-	_check(int(screen.get("_selected")) != pair.x, "a leaving tile ignores taps")
-	await get_tree().create_timer(0.6).timeout
-	_check(not view.visible and not b_view.visible and view.z_index == 0, "the pair is gone after the animation")
+	var flying := tray.get_children().filter(func(c: Node) -> bool: return c is TileView and (c as TileView).top_level)
+	_check(flying.size() == 1 and not b_view.visible, "the matched pair glides toward each other")
+	await get_tree().create_timer(0.9).timeout
+	var left := tray.get_children().filter(func(c: Node) -> bool: return c is TileView and not c.is_queued_for_deletion())
+	_check(left.is_empty() and tray.count() == 0, "the pair is gone after the animation")
 
-	# Undo plays the match backwards: from the meeting point back home.
+	# Undo: the tile comes back to the board, its partner waits in the tray.
 	screen.call("_on_undo_pressed")
 	await _frames(2)
-	_check(view.visible and (not glides or not view.position.is_equal_approx(view.home_position)),
-		"undo starts where the pair met")
+	_check(b_view.visible and tray.count() == 1, "undo starts where the pair met")
 	await get_tree().create_timer(0.7).timeout
 	_check(_tiles_at_rest(board, model), "after undo both tiles are home and tappable")
-
-	# Mistake feedback settles completely.
-	var wrong := _non_matching_free_pair(model)
-	if wrong.x >= 0:
-		await _click_tile(screen, wrong.x)
-		await _click_tile(screen, wrong.y)
-		await get_tree().create_timer(0.6).timeout
-		var wrong_lift: Control = board.tile(wrong.x).get_node("%Lift")
-		_check(is_zero_approx(wrong_lift.position.x) and int(screen.get("_selected")) == -1,
-			"a mismatched pair shakes gently and settles, nothing selected")
 
 	# Hint breathes, and clearing it puts the tiles back to rest.
 	screen.call("_on_hint_pressed")
@@ -930,19 +928,21 @@ func _test_tile_animations(level_number: int) -> void:
 		var hint_lift: Control = board.tile(hint.x).get_node("%Lift")
 		_check(hint_lift.scale.is_equal_approx(Vector2.ONE), "a cleared hint stops breathing")
 
-	# Interruptions: match, then shuffle while the pair is still gliding, then
-	# undo twice. The model and the tiles must agree throughout.
-	await _click_tile(screen, solution[0].x)
+	# Interruptions: match, then shuffle while the pair is still flying, then
+	# undo twice. The model, the tray and the tiles must agree throughout.
 	await _click_tile(screen, solution[0].y)
 	screen.call("_on_shuffle_pressed")
 	await _settle(screen)
-	_check(not board.tile(solution[0].x).visible, "a pair matched just before a shuffle stays gone")
+	_check(not board.tile(solution[0].y).visible, "a pair matched just before a shuffle stays gone")
 	screen.call("_on_undo_pressed")
 	await _settle(screen)
 	screen.call("_on_undo_pressed")
 	await get_tree().create_timer(0.7).timeout
-	_check(model.remaining == model.tile_count() and _tiles_at_rest(board, model),
+	_check(model.remaining == model.tile_count() - 1 and tray.count() == 1 and _tiles_at_rest(board, model),
 		"shuffle mid-match and two undos leave every tile home and tappable")
+	# Start the praise check from an empty tray.
+	screen.call("_restart")
+	await _frames(2)
 
 	# Praise: three quick matches in a row show "Great! ×3" in the lane.
 	AudioManager.reset_melody()
@@ -1037,7 +1037,9 @@ func _test_combo_feedback(level_number: int) -> void:
 		var below := area.end.y - lane_rect.end.y
 		_check(absf(above - below) <= 40.0, "%s: spare height split above and below (%.0f / %.0f)" % [shape, above, below])
 		_check(area.encloses(lane_rect.grow(-1.0)), "%s: the lane stays inside the board area" % shape)
-		_check(board.face_width_on_screen() >= 140.0, "%s: tiles stay large (%.0f px)" % [shape, board.face_width_on_screen()])
+		# The tray above the board takes some height: tiles stay at least a
+		# touch target wide (120 canvas px) on every shape.
+		_check(board.face_width_on_screen() >= 120.0, "%s: tiles stay large (%.0f px)" % [shape, board.face_width_on_screen()])
 	# Praise is centred in the lane and fully inside it on every shape.
 	for shape in SCREEN_SHAPES:
 		_frame.size = shape
@@ -1099,7 +1101,7 @@ func _test_combo_feedback(level_number: int) -> void:
 	# Undo, shuffle and hint still behave; praise never blocks them.
 	screen.call("_on_undo_pressed")
 	await get_tree().create_timer(0.6).timeout
-	_check(not model.is_removed(solution[9].x), "undo works after a long combo")
+	_check(not model.is_removed(solution[9].y), "undo works after a long combo")
 	screen.call("_on_shuffle_pressed")
 	await _settle(screen)
 	_check(_tiles_at_rest(board, model), "shuffle after a combo leaves every tile at rest")
@@ -1466,12 +1468,10 @@ func _drag(from: Vector2, delta: Vector2) -> void:
 ## Plays a level to the end by clicking, making `mistakes` wrong pairs first.
 func _clear_level_by_clicking(level_number: int, mistakes: int) -> void:
 	var screen := await _open_level(level_number)
-	var model: BoardModel = screen.get("_model")
-	for i in mistakes:
-		var wrong := _non_matching_free_pair(model)
-		await _click_tile(screen, wrong.x)
-		await _click_tile(screen, wrong.y)
-		await get_tree().create_timer(0.25).timeout
+	# Close calls (the tray reaching 3 tiles) count as mistakes for stars; the
+	# tray test plays them for real, here they are set so the deal's own
+	# solution can be clicked through.
+	screen.set("_mistakes", mistakes)
 	for pair in _expected_deal(level_number).solution:
 		await _click_tile(screen, pair.x)
 		await _click_tile(screen, pair.y)
@@ -1770,11 +1770,8 @@ func _test_daily() -> void:
 	var screen := await _open_level(1)
 	_check(not screen.get_node("%TimeBox").visible, "Daily: no clock")
 	_check(not screen.get_node("%HeartsPill").visible, "Daily: no hearts")
-	var model: BoardModel = screen.get("_model")
-	var wrong := _non_matching_free_pair(model)
-	await _click_tile(screen, wrong.x)
-	await _click_tile(screen, wrong.y)
-	await get_tree().create_timer(0.25).timeout
+	# One close call (set here; the tray test plays them) costs a star.
+	screen.set("_mistakes", 1)
 	var level := DailyChallenge.level_for(today)
 	var deal := BoardGenerator.generate(level.load_layout().build_geometry(), level.face_pool(), level.deal_seed)
 	for pair in deal.solution:

@@ -200,6 +200,11 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
   no interstitials, no banner; rewarded ads stay optional. Play's purchase list is the truth on every launch
   (restores, refunds); only PURCHASED unlocks, and it is acknowledged. Offered in Settings and rarely on the
   journey map (`PurchaseRules.should_offer`). Never change the product id. Tests use a fake bridge.
+- **Tile tray:** every mode but Word Garden (`_tray_mode()`): a tapped free tile leaves the board for a
+  4-slot tray (`TileTray` core, `TrayBar` view, docs/TILE_TRAY.md) and its match joins it there; four without
+  a pair = Tray Full (ad second chance sends 2 back, Replay, Levels). No hearts. Three waiting = a close call,
+  counted in `_mistakes` for stars, flawless and Perfect Clear. Shuffle empties the tray onto the board first.
+  Word Garden keeps the classic two-tap rule (`_selected`, `_register_mistake`).
 - **Lotus Gifts / Perfect Clear:** `LotusRewards` (core, docs/LOTUS_REWARDS.md): a gift bud (`LotusGift`,
   drawn by `LotusMark`) beside the path after every 5th level; opened on the map for saved hints and
   shuffles (`ProgressStore` section `rewards`, max 9 each), spent after the level's free one and before any
@@ -226,8 +231,8 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
   centres together with the board; it clips its contents, so messages never cover a tile. Match sound, haptics and praise land
   when the pair touches (`BoardView.play_removal` returns the contact time), in match order.
 - **Background balance:** `BackgroundStyle` holds per-background scenery dim and board-shade
-  strength (measured, gentle). A new background needs an entry there (unit-tested). Hearts live in
-  the top bar (`%Hearts` inside `HeartsPill`); there is no separate hearts panel.
+  strength (measured, gentle). A new background needs an entry there (unit-tested). `HeartsPill`
+  (top bar) stays hidden: tray levels have no hearts.
 - **Living gardens:** `GardenAmbience` (added over the background on the start and game screens)
   draws light rays, shader mist, petals and motes per garden from `AmbienceStyle` (core, needs an
   entry per background, unit-tested; at most 48 particles). Reduced animations keep only still
@@ -300,9 +305,9 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
    by `ProgressStore` (user://progress.cfg) via `GameSession.progress`; stars from
    `LevelRating` (1 clear, 2 at most 1 mistake, 3 no mistakes and half the time left). Tests and
    tools must swap `GameSession.progress` for a throwaway file, never the player's.
-2e. ✅ Lose conditions: per-level countdown (`time_limit`) and mistake hearts (`mistakes`) in
-   levels.json; a mistake = picking two free tiles that don't match (blocked taps and deselecting
-   are free); clock runs only while playing; Out of Time / Too Many Mistakes → Retry / Home.
+2e. ✅ Lose conditions: per-level countdown (`time_limit`) in levels.json and, since the tile tray,
+   a full tray (hearts / `mistakes` in levels.json are no longer used on tray levels); clock runs only
+   while playing; Out of Time / Tray Full → second chance ad / Replay / Levels.
 2d. ✅ Audio: AudioManager, buses, settings panel (menu + pause), all sound events wired, tests.
    Generated SFX + waterfall/wind; music and birds awaiting files (docs/AUDIO_ASSETS.md).
 3. Home screen (Play / Daily Challenge / Journey Map / Settings / Shop as real Controls).

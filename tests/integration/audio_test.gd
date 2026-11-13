@@ -364,8 +364,9 @@ func _test_loss_sounds() -> void:
 	var seq := AudioManager.event_seq
 	screen.call("_on_tile_pressed", wrong.x)
 	screen.call("_on_tile_pressed", wrong.y)
-	_check(AudioManager.count_played("mistake", seq) == 1, "a wrong pair plays the mistake sound")
-	_check(AudioManager.count_requested("tile_select", seq) == 1, "only the first tile played the select sound")
+	# Tray levels: tiles that don't match simply wait in the tray.
+	_check(AudioManager.count_played("mistake", seq) == 0, "tiles that don't match wait quietly in the tray")
+	_check(AudioManager.count_requested("tile_select", seq) == 2, "each tile sent to the tray plays the select sound")
 	seq = AudioManager.event_seq
 	screen.set("_time_left", 0.2)
 	await _wait(0.5)

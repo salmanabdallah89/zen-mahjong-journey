@@ -14,9 +14,9 @@ signal finished(skipped: bool)
 
 enum Step { MATCH, FREE, TOOLS, DONE }
 
-const TEXT_MATCH := "These two glowing tiles match and are free. Tap both!"
+const TEXT_MATCH := "Tap these two glowing tiles. The first waits in the tray until its match joins it!"
 const TEXT_PARTNER := "Now tap its glowing partner."
-const TEXT_FREE := "A tile is free when nothing is on top and a side is open. Find a pair yourself!"
+const TEXT_FREE := "A tile is free when nothing is on top and a side is open. Four tiles without a pair fill the tray!"
 const TEXT_TOOLS := "Stuck? Hint finds a pair, Shuffle mixes the tiles, Undo steps back."
 ## Seconds a passing remark (mistake, blocked tap) replaces the step text.
 const REMARK_SECONDS := 2.6

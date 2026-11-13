@@ -143,6 +143,8 @@ func refresh_all() -> void:
 	for i in _tiles.size():
 		var view := _tiles[i]
 		if _model.is_removed(i):
+			# Dressed anyway: a tile waiting in the tray can come back (shuffle).
+			_apply_art(i)
 			view.hide()
 			continue
 		view.reset_visual()
@@ -218,6 +220,62 @@ func play_restore(a: int, b: int) -> void:
 		_apply_art(i)
 		_tiles[i].play_restore(meet[k], travel)
 	refresh_free_states()
+
+
+## Tray (TileTray): tile `index` leaves the board at once (a copy flies to the
+## tray); tiles it uncovered pop after `reveal_delay`, mystery tiles in
+## `revealed` turn over.
+func play_take(index: int, revealed := PackedInt32Array(), reveal_delay := 0.12) -> void:
+	var view := _tiles[index]
+	view.reset_visual()
+	view.hide()
+	refresh_free_states(reveal_delay)
+	for i in revealed:
+		_tiles[i].play_flip(reveal_delay)
+
+
+## Tray: tile `index` comes back to its spot (undo, second chance).
+func play_return(index: int) -> void:
+	var view := _tiles[index]
+	_apply_art(index)
+	view.reset_visual()
+	view.set_highlight(TileView.Highlight.NONE)
+	if not Motion.reduced:
+		view.scale = Vector2(1.12, 1.12)
+		view.modulate.a = 0.0
+		var tween := view.create_tween()
+		tween.tween_property(view, "modulate:a", 1.0, 0.18).set_trans(Tween.TRANS_SINE)
+		tween.parallel().tween_property(view, "scale", Vector2.ONE, 0.24).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	refresh_free_states()
+
+
+## A new tile that looks exactly like tile `index` (the tray holds these).
+func make_copy(index: int) -> TileView:
+	var view: TileView = TILE_SCENE.instantiate()
+	view.style = _art
+	view.index = index
+	view.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(view)
+	_dress(view, index)
+	view.set_free(true, false)
+	remove_child(view)
+	# Scaled from its top-left corner, so the tray can place it by its body.
+	view.pivot_offset = Vector2.ZERO
+	return view
+
+
+## On-screen scale of the tiles (the board is scaled to fit).
+func tile_scale() -> float:
+	return _layer.scale.x if _layer else 1.0
+
+
+## Screen position of tile `index`'s top-left corner.
+func tile_global_position(index: int) -> Vector2:
+	return _layer.get_global_transform() * _tiles[index].home_position
+
+
+func art() -> TileArtSet:
+	return _art
 
 
 ## Where tiles `a` and `b` meet when matched: side by side (or one above the
@@ -372,8 +430,12 @@ static var _backdrops := {}
 
 
 func _apply_art(index: int) -> void:
+	_dress(_tiles[index], index)
+
+
+## Gives `view` the look of tile `index`: art, word, mystery cover, gold rim.
+func _dress(view: TileView, index: int) -> void:
 	var face := _model.face_of(index)
-	var view := _tiles[index]
 	view.set_art(_skin.tile_texture(face), _skin.symbol_texture(face), _skin.symbol_padding)
 	view.set_word(_skin.word_text(face))
 	var face_down := specials != null and specials.is_mystery(index)

@@ -31,7 +31,7 @@ const FAMILIES: Array[Dictionary] = [
 	{"id": "quiet_hands", "name": "Quiet Hands", "group": "Mastery", "picture": "hand", "counter": true,
 		"goal": "Clear %s levels without hints or shuffles", "goals": [5, 50, 250]},
 	{"id": "last_petal", "name": "Last Petal", "group": "Mastery", "picture": "rose", "counter": true,
-		"goal": "Clear %s levels on your last heart", "goals": [1, 10, 50]},
+		"goal": "Clear %s levels after the tray had one place left", "goals": [1, 10, 50]},
 	{"id": "flowing_river", "name": "Flowing River", "group": "Mastery", "picture": "water_drop", "counter": true,
 		"goal": "Reach the x5 combo in %s levels", "goals": [1, 25, 100]},
 	{"id": "golden_lotus", "name": "Golden Lotus", "group": "Discoveries", "picture": "hibiscus", "counter": true,

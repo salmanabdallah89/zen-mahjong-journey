@@ -28,6 +28,11 @@ func _ready() -> void:
 		await _capture_store()
 		_finish()
 		return
+	if args.size() > 1 and args[1] == "tray":
+		get_window().size = SHAPES["phone_9x16"]
+		await _capture_tray()
+		_finish()
+		return
 	if args.size() > 1 and args[1] == "lotus":
 		get_window().size = SHAPES["phone_9x16"]
 		await _capture_lotus()
@@ -55,6 +60,7 @@ func _ready() -> void:
 	await _measure_frame_times(10)
 	await _capture_journey()
 	await _capture_lotus()
+	await _capture_tray()
 	await _capture_ads()
 	_finish()
 
@@ -327,6 +333,49 @@ func _capture_journey() -> void:
 		screen.call("_on_tile_pressed", pair.y)
 	await _wait(1.6)
 	await _save("phone_9x16_level_complete_stars")
+	screen.queue_free()
+	await _frames(2)
+
+
+## The tile tray: a tile flying in, a pair meeting and bursting, three tiles
+## waiting (warning) and the Tray Full dialog.
+func _capture_tray() -> void:
+	get_window().size = SHAPES["phone_9x16"]
+	await _frames(4)
+	GameSession.current_level = 5
+	var screen: Control = GAME_SCENE.instantiate()
+	add_child(screen)
+	await _wait(0.5)
+	var level := LevelCatalog.get_level(5)
+	var solution := BoardGenerator.generate(level.load_layout().build_geometry(), level.face_pool(), level.deal_seed).solution
+	var model: BoardModel = screen.get("_model")
+	screen.call("_on_tile_pressed", solution[0].x)
+	await _wait(0.15)
+	await _save("phone_9x16_tray_flying")
+	await _wait(0.5)
+	await _save("phone_9x16_tray_one_waiting")
+	screen.call("_on_tile_pressed", solution[0].y)
+	await _wait(0.52)
+	await _save("phone_9x16_tray_match_burst")
+	await _wait(1.0)
+	# Three free tiles from different pairs: the tray warns.
+	var picked: Array[int] = []
+	var groups := {}
+	for index in model.free_tiles():
+		var group := TileCatalog.match_group(model.face_of(index))
+		if not groups.has(group):
+			groups[group] = true
+			picked.append(index)
+		if picked.size() == 4:
+			break
+	for i in mini(3, picked.size()):
+		screen.call("_on_tile_pressed", picked[i])
+		await _wait(0.5)
+	await _save("phone_9x16_tray_three_waiting")
+	if picked.size() == 4:
+		screen.call("_on_tile_pressed", picked[3])
+		await _wait(1.2)
+		await _save("phone_9x16_tray_full")
 	screen.queue_free()
 	await _frames(2)
 

@@ -30,6 +30,8 @@ const BELL_SPACING := 0.09
 ## Longest the Level Complete dialog waits for queued bells after the last
 ## pair touches (only very fast play builds a queue).
 const MAX_BELL_WAIT := 0.25
+## Tiles a rewarded second chance sends back from a full tray.
+const TRAY_SECOND_CHANCE := 2
 ## Milestones: "Last 10 tiles!" on boards larger than twice this.
 const FINAL_TILES := 10
 ## A milestone waits for the match's own praise to be read first.
@@ -44,9 +46,9 @@ const POINTS_RISE := 0.55
 const TIME_NORMAL := Color(0.20784314, 0.30980393, 0.26666668)
 const TIME_WARNING := Color(0.72, 0.22, 0.25)
 
-enum LossReason { TIME, MISTAKES }
+enum LossReason { TIME, MISTAKES, TRAY }
 
-enum UndoKind { MATCH, SHUFFLE }
+enum UndoKind { MATCH, SHUFFLE, TRAY }
 
 var _level: LevelCatalog.LevelDefinition
 var _model: BoardModel
@@ -87,6 +89,10 @@ var _earned_badges: Array[Dictionary] = []
 ## Word Garden: words on this board and those mixed up this attempt.
 var _word_ids := PackedStringArray()
 var _words_missed := PackedStringArray()
+## Tray levels (every mode but Word Garden): a tapped tile waits in the tray
+## until its match joins it (TileTray, docs/TILE_TRAY.md).
+var _tray := TileTray.new()
+@onready var _tray_bar: TrayBar = %Tray
 
 @onready var _background: TextureRect = %Background
 @onready var _board: BoardView = %Board
@@ -225,6 +231,7 @@ func _start_level() -> void:
 	_board.mystery_back = load(TileArtSet.active().back_path(BackgroundStyle.tile_back(_level.background)))
 	_selected = -1
 	_hint = Vector2i(-1, -1)
+	_tray = TileTray.new()
 	_undo_stack.clear()
 	_matches = 0
 	_hints_used = 0
@@ -252,6 +259,8 @@ func _start_level() -> void:
 	_build_hearts()
 	_show_learning_hud()
 	_board.show_board(_model, _board_skin())
+	_tray_bar.visible = _tray_mode()
+	_tray_bar.sync(_tray.tiles, _board)
 	_update_hud()
 	_show_collection_notice()
 	_introduce_specials()
@@ -274,6 +283,16 @@ func _learning() -> bool:
 	return not GameSession.word_language.is_empty()
 
 
+## Every mode but Word Garden plays with the tray (and without hearts).
+func _tray_mode() -> bool:
+	return not _learning()
+
+
+## Tile indices waiting in the tray (tests).
+func tray_tiles() -> Array[int]:
+	return _tray.tiles
+
+
 func _daily() -> bool:
 	return GameSession.daily_day >= 0 and not _learning()
 
@@ -292,7 +311,7 @@ func _board_skin() -> TileSkin:
 ## Word Garden has no clock, hearts or score to watch.
 func _show_learning_hud() -> void:
 	%TimeBox.visible = not _calm()
-	%HeartsPill.visible = not _calm()
+	%HeartsPill.visible = not _calm() and not _tray_mode()
 	_score_meter.visible = not _calm()
 	if _learning():
 		_toast_label.theme_type_variation = &"ToastWordLabel"
@@ -333,6 +352,9 @@ func _on_tile_pressed(index: int) -> void:
 		_explain_blocked(index)
 		return
 	_clear_hint()
+	if _tray_mode():
+		_take_into_tray(index)
+		return
 	if _selected == index:
 		_set_selected(-1)
 		return
@@ -401,8 +423,69 @@ func _remove_pair(a: int, b: int) -> void:
 	var contact := _board.play_removal(a, b, burst, revealed)
 	if not revealed.is_empty():
 		_after(contact, AudioManager.play_sfx.bind("star"))
+	_finish_match(a, contact, step, combo, cleared, factor, points, _board.meeting_point_global(a, b))
+
+
+## A tapped free tile leaves the board for the tray: it waits there, or meets
+## its waiting match and both burst away. Four tiles without a pair stop the
+## level. Three waiting is a close call (it counts like a mistake for stars).
+func _take_into_tray(index: int) -> void:
+	if _tray.is_full():
+		return
+	var move := _tray.take(_model, index)
+	if move == null:
+		return
+	var revealed := _specials.reveal_free(_model)
+	_revealed_count += revealed.size()
+	_board.play_take(index, revealed)
+	if not revealed.is_empty():
+		_after(0.15, AudioManager.play_sfx.bind("star"))
+	if move.matched():
+		_tray_match(move)
+		return
+	_undo_stack.append({"kind": UndoKind.TRAY, "move": move})
+	var lands := _tray_bar.fly_in(index, _board)
+	AudioManager.play_sfx("tile_select")
+	AudioManager.vibrate(10)
+	if tutorial_active():
+		_tutorial.on_selected(index)
+	if move.close_call:
+		_mistakes += 1
+	_update_hud()
+	if move.full:
+		_after(lands + 0.2, _lose.bind(LossReason.TRAY))
+	elif move.close_call and not tutorial_active():
+		_show_toast("Careful: one place left in the tray.")
+
+
+## The tapped tile flies to its waiting partner; they meet in the tray and
+## burst into petals and gold. Scoring, bells and praise as on the board.
+func _tray_match(move: TileTray.Move) -> void:
+	var a := move.partner
+	var b := move.tile
+	var factor := _specials.factor(a, b)
+	_golden_matched = _golden_matched or factor > 1
+	_matches += 1
+	if tutorial_active():
+		_tutorial.on_matched(a, b)
+	var cleared := _model.is_cleared()
+	var step := AudioManager.melody_step() if cleared else AudioManager.next_match_step()
+	var combo := step + 1
+	var points := _score.add_match(combo, factor)
+	_best_multiplier = maxi(_best_multiplier, LevelScore.multiplier(combo))
+	_undo_stack.append({"kind": UndoKind.TRAY, "move": move, "points": points})
+	var burst := FINALE_BURST if cleared else (maxi(combo, GOLDEN_BURST) if factor > 1 else combo)
+	var meet := _tray_bar.slot_center_global(move.slot)
+	var contact := _tray_bar.fly_match(b, move.slot, _board, burst)
+	_finish_match(a, contact, step, combo, cleared, factor, points, meet)
+
+
+## What follows every match, on the board or in the tray, once the pair
+## touches (`contact` seconds from now): points, bells, praise, milestones and
+## the end of the level.
+func _finish_match(a: int, contact: float, step: int, combo: int, cleared: bool, factor: int, points: int, meet: Vector2) -> void:
 	if not _calm():
-		_after(contact, _land_points.bind(points, _board.meeting_point_global(a, b)))
+		_after(contact, _land_points.bind(points, meet))
 	if cleared:
 		_after(contact, _play_edge_glow)
 	_update_hud()
@@ -418,7 +501,7 @@ func _remove_pair(a: int, b: int) -> void:
 		# Let the last pair meet and bloom (and a short bell queue finish) first.
 		var settle := minf(ring_in, contact + MAX_BELL_WAIT)
 		_after(settle + (0.0 if Motion.reduced else LAST_PAIR_PAUSE), _show_level_complete)
-	elif not _model.has_moves():
+	elif not _tray_mode() and not _model.has_moves():
 		_show_no_moves()
 
 
@@ -628,7 +711,10 @@ func _on_hint_pressed() -> void:
 	if _model.is_cleared() or _failed or _dialog.visible or _board.is_busy():
 		return
 	# Never spend a free hint or ask for an ad when there is nothing to show.
-	if not _model.has_moves():
+	if _tray_mode() and _tray.free_match(_model) < 0 and not _model.has_moves():
+		_show_toast("No free pair right now. Shuffle can help.")
+		return
+	if not _tray_mode() and not _model.has_moves():
 		_show_no_moves()
 		return
 	# With ads: a free hint per level, then saved Lotus Gift hints, then one
@@ -657,6 +743,8 @@ func _on_hint_ad_done(rewarded: bool) -> void:
 
 
 func _give_hint() -> void:
+	if _tray_mode() and _give_tray_hint():
+		return
 	var search := BoardSolver.solve(_model, HINT_SEARCH_BUDGET)
 	var pair := Vector2i(-1, -1)
 	if search.solved and not search.moves.is_empty():
@@ -678,6 +766,24 @@ func _give_hint() -> void:
 	AudioManager.play_sfx("hint")
 	if tutorial_active():
 		_tutorial.on_tool_used()
+
+
+## Tray hint: a free tile whose partner waits in the tray glows with that
+## slot. False when no waiting tile has a free partner (a board pair is shown
+## instead).
+func _give_tray_hint() -> bool:
+	var lone := _tray.free_match(_model)
+	if lone < 0:
+		return false
+	_clear_hint()
+	_hint = Vector2i(lone, -1)
+	_board.set_highlight(lone, TileView.Highlight.HINT)
+	_tray_bar.highlight_slot(_tray.tiles.find(_tray.partner_for(_model, lone)))
+	_hints_used += 1
+	AudioManager.play_sfx("hint")
+	if tutorial_active():
+		_tutorial.on_tool_used()
+	return true
 
 
 func _on_shuffle_pressed() -> void:
@@ -711,11 +817,18 @@ func _on_shuffle_ad_done(rewarded: bool) -> void:
 
 ## Rearranges the tiles left; false when no solvable arrangement exists.
 func _shuffle_tiles() -> bool:
+	# Tiles waiting in the tray go back to the board and are shuffled with it.
+	var waiting := _tray.tiles.duplicate()
+	_tray.empty_into(_model)
 	var result := BoardGenerator.reshuffle(_model, _level.deal_seed + 7919 * (_shuffles + 1))
 	if not result.ok:
+		for index in waiting:
+			_model.set_taken(index)
+		_tray.tiles = waiting
 		_show_toast("These tiles can't be rearranged into a solvable board. Try Undo.")
 		return false
-	_undo_stack.append({"kind": UndoKind.SHUFFLE, "faces": _model.faces.duplicate()})
+	_undo_stack.append({"kind": UndoKind.SHUFFLE, "faces": _model.faces.duplicate(), "tray": waiting})
+	_tray_bar.sync(_tray.tiles, _board)
 	_model.set_faces(result.faces)
 	_shuffles += 1
 	AudioManager.play_sfx("shuffle")
@@ -749,7 +862,9 @@ func _on_undo_pressed() -> void:
 		_tutorial.on_tool_used()
 	_set_selected(-1)
 	_clear_hint()
-	if entry["kind"] == UndoKind.MATCH:
+	if entry["kind"] == UndoKind.TRAY:
+		_undo_tray(entry)
+	elif entry["kind"] == UndoKind.MATCH:
 		AudioManager.melody_step_back()
 		var pair: Vector2i = entry["pair"]
 		_model.restore_pair(pair.x, pair.y)
@@ -759,8 +874,34 @@ func _on_undo_pressed() -> void:
 		_board.play_restore(pair.x, pair.y)
 	else:
 		_model.set_faces(entry["faces"])
-		_board.play_shuffle()
+		var waiting: Array[int] = []
+		waiting.assign(entry.get("tray", []))
+		if waiting.is_empty():
+			_board.play_shuffle()
+		else:
+			# The tiles that waited in the tray go back into it.
+			for index in waiting:
+				_model.set_taken(index)
+			_tray.tiles = waiting
+			_board.refresh_all()
+			_tray_bar.sync(_tray.tiles, _board)
 	_update_hud()
+
+
+## Undo in the tray: the tile goes home; a matched partner returns to its slot
+## with the points taken back; a close call no longer counts.
+func _undo_tray(entry: Dictionary) -> void:
+	var move: TileTray.Move = entry["move"]
+	_tray.undo(_model, move)
+	if move.matched():
+		AudioManager.melody_step_back()
+		_matches -= 1
+		_score.take_back(int(entry.get("points", 0)))
+		_score_meter.set_score(_current_score())
+	elif move.close_call:
+		_mistakes = maxi(_mistakes - 1, 0)
+	_board.play_return(move.tile)
+	_tray_bar.sync(_tray.tiles, _board)
 
 
 func _on_undo_ad_done(rewarded: bool) -> void:
@@ -783,6 +924,7 @@ func _set_selected(index: int) -> void:
 
 
 func _clear_hint() -> void:
+	_tray_bar.clear_highlight()
 	if _hint.x >= 0:
 		_board.set_highlight(_hint.x, TileView.Highlight.NONE)
 		_board.set_highlight(_hint.y, TileView.Highlight.NONE)
@@ -863,6 +1005,7 @@ func _on_collection_changed(_collection_id: String) -> void:
 		_set_selected(-1)
 		_clear_hint()
 		_board.apply_skin(TileCollectionManager.skin_for_board(_model.faces, _level.deal_seed))
+		_tray_bar.sync(_tray.tiles, _board)
 		_show_collection_notice()
 
 
@@ -902,7 +1045,7 @@ func _show_level_complete() -> void:
 	var seconds := int(_elapsed)
 	var summary := "%s cleared in %d:%02d with %s left\n%s · %s · %s" % [
 		_level.title, floori(seconds / 60.0), seconds % 60, _clock(_time_left),
-		_count(_mistakes, "mistake", "mistakes"), _count(_hints_used, "hint", "hints"),
+		_mistake_count(), _count(_hints_used, "hint", "hints"),
 		_count(_shuffles, "shuffle", "shuffles")]
 	var earned := LevelRating.stars(_time_left, _level.time_limit, _mistakes)
 	_final_score = _score.total(_time_left, _mistakes)
@@ -975,7 +1118,8 @@ func _award_level_badges() -> void:
 		facts["swift_stream"] = 1
 	if _hints_used == 0 and _shuffles == 0:
 		facts["quiet_hands"] = 1
-	if _level.mistake_limit > 1 and hearts_left() == 1:
+	# On tray levels: cleared after the tray had only one place left.
+	if (_tray_mode() and _mistakes > 0) or (not _tray_mode() and _level.mistake_limit > 1 and hearts_left() == 1):
 		facts["last_petal"] = 1
 	if _best_multiplier >= LevelScore.MAX_MULTIPLIER:
 		facts["flowing_river"] = 1
@@ -1131,9 +1275,20 @@ func _score_breakdown() -> String:
 
 
 func _next_star_tip(earned: int) -> String:
+	if _tray_mode():
+		if earned == 1:
+			return "For 2 stars: let the tray fill to 3 tiles at most once."
+		return "For 3 stars: never fill the tray to 3 tiles, and keep half the time."
 	if earned == 1:
 		return "For 2 stars: make at most 1 mistake."
 	return "For 3 stars: no mistakes and half the time left."
+
+
+## "0 mistakes", or on tray levels "1 close call" (the tray reached 3 tiles).
+func _mistake_count() -> String:
+	if _tray_mode():
+		return _count(_mistakes, "close call", "close calls")
+	return _count(_mistakes, "mistake", "mistakes")
 
 
 func _exit_tree() -> void:
@@ -1243,19 +1398,24 @@ func _lose(reason: LossReason) -> void:
 	AudioManager.play_sfx("level_failed")
 	AudioManager.duck_music_for(3.0)
 	var pairs := int(_model.tile_count() / 2.0)
-	var title := "Out of Time" if reason == LossReason.TIME else "Too Many Mistakes"
-	var why := "The clock ran out." if reason == LossReason.TIME else "You used all %d hearts." % _level.mistake_limit
-	_dialog.open(title, "%s\nLevel %d · %s: %d of %d pairs matched." % [
-		why, _level.number, _level.title, _matches, pairs])
+	var title: String = {LossReason.TIME: "Out of Time", LossReason.MISTAKES: "Too Many Mistakes",
+		LossReason.TRAY: "Tray Full"}[reason]
+	var why: String = {LossReason.TIME: "The clock ran out.",
+		LossReason.MISTAKES: "You used all %d hearts." % _level.mistake_limit,
+		LossReason.TRAY: "%d tiles are waiting without a pair." % TileTray.CAPACITY}[reason]
+	_dialog.open(title, "%s\n%s · %s: %d of %d pairs matched." % [
+		why, _level_name(), _level.title, _matches, pairs])
 	_last_loss = reason
 	var offer_second_chance := AdsManager.is_available() \
 		and _second_chances < int(AdsManager.setting("second_chances_per_attempt", 1))
 	if offer_second_chance:
-		var label := "Watch Ad: +%d s" % int(AdsManager.setting("second_chance_seconds", 60)) if reason == LossReason.TIME \
-			else "Watch Ad: +1 Heart"
+		var label: String = {LossReason.TIME: "Watch Ad: +%d s" % int(AdsManager.setting("second_chance_seconds", 60)),
+			LossReason.MISTAKES: "Watch Ad: +1 Heart",
+			LossReason.TRAY: "Watch Ad: Free %d Places" % TRAY_SECOND_CHANCE}[reason]
 		_dialog.add_action(label, func() -> void: AdsManager.show_rewarded("second_chance", _on_second_chance_done), true)
-	_dialog.add_action("Retry", func() -> void: AdsManager.after_level_lost(_restart), not offer_second_chance)
-	_dialog.add_action("Levels", func() -> void: AdsManager.after_level_lost(GameSession.go_levels))
+	_dialog.add_action("Replay" if reason == LossReason.TRAY else "Retry",
+		func() -> void: AdsManager.after_level_lost(_restart), not offer_second_chance)
+	_dialog.add_action("Calendar" if _daily() else "Levels", func() -> void: AdsManager.after_level_lost(_go_to_list))
 
 
 ## Rewarded second chance: continue the same board with more time or a heart.
@@ -1265,7 +1425,16 @@ func _on_second_chance_done(rewarded: bool) -> void:
 		return
 	_second_chances += 1
 	_failed = false
-	if _last_loss == LossReason.TIME:
+	if _last_loss == LossReason.TRAY:
+		var sent := _tray.send_back(_model, TRAY_SECOND_CHANCE)
+		for index in sent:
+			_board.play_return(index)
+		_tray_bar.release_last(sent.size())
+		# Undo entries for the tiles sent back no longer apply.
+		_undo_stack.clear()
+		_update_hud()
+		_show_toast("%d tiles went back to the board. Keep going!" % sent.size())
+	elif _last_loss == LossReason.TIME:
 		_time_left = float(AdsManager.setting("second_chance_seconds", 60))
 		_shown_seconds = -1
 		_update_timer_label()

@@ -8,6 +8,7 @@ extends Node
 ##   godot --headless --path . res://tests/integration/ads_test.tscn
 
 const GAME_SCENE := preload("res://scenes/screens/game_screen.tscn")
+const GameScreenScript := preload("res://scripts/screens/game_screen.gd")
 const JOURNEY_SCENE := preload("res://scenes/screens/journey_screen.tscn")
 const STARTUP_SCENE := preload("res://scenes/screens/startup_screen.tscn")
 const AD_SECONDS := 0.4
@@ -283,14 +284,15 @@ func _test_undos() -> void:
 	await _press(dialog, "Watch Ad")
 	AdsManager.press_simulated_close()
 	await _frames(2)
-	_check(model.is_removed(pair.x), "skipping the ad gives no undo")
+	_check(model.is_removed(pair.y), "skipping the ad gives no undo")
 
 	screen.call("_on_undo_pressed")
 	await _press(dialog, "Watch Ad")
 	await _wait(AD_SECONDS + 0.3)
 	AdsManager.press_simulated_close()
 	await _frames(2)
-	_check(not model.is_removed(pair.x), "watching the whole ad takes the move back")
+	# The tile goes home; its partner waits in the tray again.
+	_check(not model.is_removed(pair.y) and screen.call("tray_tiles") == [pair.x], "watching the whole ad takes the move back")
 	_check(int(screen.call("undos_left")) == 0, "the ad pays for exactly one undo")
 	_check(AdsManager.history[-1]["placement"] == "undo" and AdsManager.history[-1]["rewarded"], "undo ad recorded as rewarded")
 	await _close(screen)
@@ -319,27 +321,44 @@ func _test_second_chance_time() -> void:
 	await _close(screen)
 
 
+## A full tray: the second chance sends the two newest tiles back to the board.
 func _test_second_chance_heart() -> void:
 	var screen := await _open_level(4)
 	var model: BoardModel = screen.get("_model")
 	var dialog: ModalDialog = screen.get_node("%Dialog")
-	var limit := LevelCatalog.get_level(4).mistake_limit
-	var wrong := _non_matching_free_pair(model)
-	for i in limit:
-		screen.call("_on_tile_pressed", wrong.x)
-		screen.call("_on_tile_pressed", wrong.y)
-		await _wait(0.25)
-	_check(dialog.visible and _button(dialog, "Watch Ad: +1 Heart") != null, "losing all hearts offers +1 heart for an ad")
-	await _press(dialog, "Watch Ad: +1 Heart")
+	var label := "Watch Ad: Free %d Places" % GameScreenScript.TRAY_SECOND_CHANCE
+	var taken: Array[int] = []
+	for i in TileTray.CAPACITY:
+		var index := _tile_without_partner(screen, model)
+		taken.append(index)
+		screen.call("_on_tile_pressed", index)
+	await _wait(1.0)
+	_check(dialog.visible and _button(dialog, label) != null, "a full tray offers two free places for an ad")
+	_check(_button(dialog, "Replay") != null, "the Tray Full dialog offers Replay")
+	await _press(dialog, label)
 	AdsManager.press_simulated_close()
 	await _frames(3)
 	_check(dialog.visible and bool(screen.get("_failed")), "skipping the ad keeps the level lost")
-	await _press(dialog, "Watch Ad: +1 Heart")
+	await _press(dialog, label)
 	await _wait(AD_SECONDS + 0.3)
 	AdsManager.press_simulated_close()
 	await _frames(3)
-	_check(not bool(screen.get("_failed")) and int(screen.call("hearts_left")) == 1, "a watched ad gives back one heart")
+	_check(not bool(screen.get("_failed")) and (screen.call("tray_tiles") as Array).size() == TileTray.CAPACITY - 2
+		and not model.is_removed(taken[3]) and not model.is_removed(taken[2]), "a watched ad sends the two newest tiles back to the board")
 	await _close(screen)
+
+
+## A free tile whose kind is not waiting in the tray yet.
+func _tile_without_partner(screen: Node, model: BoardModel) -> int:
+	var waiting: Array = screen.call("tray_tiles")
+	for index in model.free_tiles():
+		var alone := true
+		for other: int in waiting:
+			if TileCatalog.faces_match(model.face_of(other), model.face_of(index)):
+				alone = false
+		if alone:
+			return index
+	return -1
 
 
 func _test_interstitial_cadence() -> void:

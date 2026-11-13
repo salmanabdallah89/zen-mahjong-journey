@@ -85,7 +85,7 @@ FEATURES
 • Six tile collections: Classic Mahjong, Cute Animals, Fruits, Vegetables, Alphabet and Mixed
 • Every board is guaranteed to be solvable
 • Helpful tools when you need them: Hint, Shuffle and Undo (up to 3 moves back)
-• Gentle challenge: a relaxed timer and hearts for mistakes, with a second chance if you need one
+• Gentle challenge: a 4-tile tray and a relaxed timer. Tap a tile and it waits in the tray until its match joins it, with a second chance if the tray fills up
 • Soft music, nature sounds and smooth, calming animations
 • Reduced Animations option and large, easy-to-read tiles
 • Plays offline

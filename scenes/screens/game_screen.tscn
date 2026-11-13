@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://scripts/screens/game_screen.gd" id="1_script"]
 [ext_resource type="PackedScene" path="res://scenes/components/audio_settings.tscn" id="11_settings"]
@@ -14,6 +14,7 @@
 [ext_resource type="PackedScene" path="res://scenes/components/badge_reveal.tscn" id="12_badge_reveal"]
 [ext_resource type="PackedScene" path="res://scenes/components/collection_picker.tscn" id="10_picker"]
 [ext_resource type="Script" path="res://scripts/components/score_meter.gd" id="13_score"]
+[ext_resource type="Script" path="res://scripts/components/tray_bar.gd" id="14_tray"]
 
 [sub_resource type="Gradient" id="Gradient_shade"]
 offsets = PackedFloat32Array(0, 0.2, 0.75, 1)
@@ -184,6 +185,13 @@ size_flags_horizontal = 4
 mouse_filter = 2
 theme_type_variation = &"ScorePill"
 script = ExtResource("13_score")
+
+[node name="Tray" type="Control" parent="SafeArea/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("14_tray")
 
 [node name="Board" type="Control" parent="SafeArea/Layout"]
 unique_name_in_owner = true
