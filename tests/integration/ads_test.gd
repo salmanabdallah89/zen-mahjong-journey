@@ -141,6 +141,7 @@ func _ready() -> void:
 	await _test_hints()
 	await _test_shuffles()
 	await _test_saved_tools()
+	await _test_magnet()
 	await _test_undos()
 	await _test_second_chance_time()
 	await _test_second_chance_heart()
@@ -226,6 +227,49 @@ func _test_saved_tools() -> void:
 	_check(shuffle_label.text == "Ad Shuffle", "then shuffles come from ads again")
 	await _close(screen)
 	store.reset()
+
+
+## Magnet: one free per level, then one per rewarded ad; it pulls a buried
+## match out of the board, and Undo puts it back.
+func _test_magnet() -> void:
+	var screen := await _open_level(5)
+	var model: BoardModel = screen.get("_model")
+	var dialog: ModalDialog = screen.get_node("%Dialog")
+	var label: Label = screen.get_node("%MagnetLabel")
+	var magnet: Button = screen.get_node("%MagnetButton")
+	_check(magnet.is_visible_in_tree() and magnet.custom_minimum_size.y >= 120.0, "the Magnet sits in the toolbar")
+	_check(label.text == "Magnet (1)", "one free magnet per level (%s)" % label.text)
+	# A tile waits; its match is buried somewhere on the board.
+	var first := -1
+	for index in model.free_tiles():
+		var found := -1
+		for other in model.remaining_tiles():
+			if other != index and not model.is_free(other) and TileCatalog.faces_match(model.face_of(other), model.face_of(index)):
+				found = other
+		if found >= 0:
+			first = index
+			break
+	_check(first >= 0, "a free tile with a buried match")
+	screen.call("_on_tile_pressed", first)
+	var target: Vector2i = (screen.get("_tray") as TileTray).magnet_target(model)
+	_check(target.x == -1 and not model.is_free(target.y), "the magnet aims at the buried match")
+	screen.call("_on_magnet_pressed")
+	_check(model.is_removed(target.y) and (screen.call("tray_tiles") as Array).is_empty(), "the free magnet pulls it into the tray at once")
+	_check(not dialog.visible and label.text == "Ad Magnet", "after the free magnet the button offers an ad magnet")
+	await _wait(1.0)
+	screen.call("_on_undo_pressed")
+	await _wait(0.3)
+	_check(not model.is_removed(target.y) and screen.call("tray_tiles") == [first], "undo puts the pulled tile back")
+	screen.call("_on_magnet_pressed")
+	_check(dialog.visible and (dialog.get_node("%Title") as Label).text == "Need a Magnet?", "the next magnet asks to watch an ad")
+	await _press(dialog, "Watch Ad")
+	await _wait(AD_SECONDS + 0.3)
+	AdsManager.press_simulated_close()
+	await _frames(2)
+	_check(model.is_removed(target.y), "watching the whole ad pulls the tile")
+	_check(AdsManager.history[-1]["placement"] == "magnet" and AdsManager.history[-1]["rewarded"], "magnet ad recorded as rewarded")
+	_check(int(screen.call("magnets_used")) == 2, "both magnets are counted (no Perfect Clear)")
+	await _close(screen)
 
 
 func _test_shuffles() -> void:

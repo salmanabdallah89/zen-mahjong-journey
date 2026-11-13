@@ -88,6 +88,34 @@ func test_second_chance_and_shuffle_send_tiles_back() -> void:
 	assert_true(tray.is_empty() and model.remaining == 8, "a shuffle starts from an empty tray")
 
 
+func test_the_magnet_pulls_a_buried_match() -> void:
+	# A row: dots_1 | bamboo_2 | dots_1 | bamboo_2; only the ends are free.
+	var model := _row(PackedStringArray(["dots_1", "bamboo_2", "dots_1", "bamboo_2"]))
+	var tray := TileTray.new()
+	tray.take(model, 0)
+	assert_eq(tray.magnet_target(model), Vector2i(-1, 2), "pulls the waiting tile's match, even blocked")
+	var move := tray.pull(model, 2)
+	assert_true(move.matched() and move.partner == 0, "it meets its partner")
+	assert_true(tray.is_empty() and model.remaining == 2, "both leave")
+	tray.undo(model, move)
+	assert_false(model.is_removed(2), "undo puts the pulled tile back")
+	assert_eq(tray.tiles, [0] as Array[int], "and its partner back in the tray")
+	assert_eq(tray.pull(model, 1), null, "a tile without a waiting partner can't be pulled")
+
+
+func test_the_magnet_with_an_empty_tray() -> void:
+	var model := _row(PackedStringArray(["dots_1", "bamboo_2", "dots_1", "bamboo_2"]))
+	var tray := TileTray.new()
+	var target := tray.magnet_target(model)
+	assert_true(model.is_free(target.x), "it takes a free tile first")
+	assert_true(TileCatalog.faces_match(model.face_of(target.x), model.face_of(target.y)) and target.x != target.y, "then pulls its match")
+	assert_false(model.is_free(target.y), "a buried match is preferred")
+	var cleared := _apart(PackedStringArray(["dots_1", "dots_1"]))
+	tray.take(cleared, 0)
+	tray.take(cleared, 1)
+	assert_eq(tray.magnet_target(cleared), Vector2i(-1, -1), "nothing left to pull")
+
+
 func test_hint_finds_the_partner_of_a_waiting_tile() -> void:
 	var model := _apart(PackedStringArray(["dots_1", "dots_2", "dots_1", "dots_2"]))
 	var tray := TileTray.new()

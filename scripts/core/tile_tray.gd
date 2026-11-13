@@ -98,6 +98,52 @@ func empty_into(model: BoardModel) -> Array[int]:
 	return send_back(model, tiles.size())
 
 
+## Magnet: pulls tile `index` off the board into the tray even when it is
+## blocked, to meet its waiting partner. Null if it has no partner waiting.
+func pull(model: BoardModel, index: int) -> Move:
+	if model.is_removed(index) or partner_for(model, index) < 0:
+		return null
+	model.set_taken(index)
+	var move := Move.new()
+	move.tile = index
+	move.partner = partner_for(model, index)
+	move.slot = tiles.find(move.partner)
+	tiles.remove_at(move.slot)
+	return move
+
+
+## What the Magnet does now: Vector2i(free tile to take first or -1, tile to
+## pull). With tiles waiting, it pulls the match of the oldest one that has a
+## match on the board; with an empty tray, it takes a free tile and pulls its
+## match. Buried matches are preferred: that is where a magnet helps.
+## (-1, -1) when there is nothing to pull.
+func magnet_target(model: BoardModel) -> Vector2i:
+	for waiting in tiles:
+		var found := _board_match(model, waiting, -1)
+		if found >= 0:
+			return Vector2i(-1, found)
+	if is_full():
+		return Vector2i(-1, -1)
+	for index in model.free_tiles():
+		var found := _board_match(model, index, index)
+		if found >= 0:
+			return Vector2i(index, found)
+	return Vector2i(-1, -1)
+
+
+## A board tile matching `index` (not `skip`), blocked ones first.
+func _board_match(model: BoardModel, index: int, skip: int) -> int:
+	var free_one := -1
+	for other in model.remaining_tiles():
+		if other == skip or other == index or not TileCatalog.faces_match(model.face_of(other), model.face_of(index)):
+			continue
+		if not model.is_free(other):
+			return other
+		if free_one < 0:
+			free_one = other
+	return free_one
+
+
 ## A free board tile whose partner waits in the tray, or -1 (Hint).
 func free_match(model: BoardModel) -> int:
 	for index in model.free_tiles():

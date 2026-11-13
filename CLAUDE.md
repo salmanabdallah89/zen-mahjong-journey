@@ -163,7 +163,8 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
   tweens so `reset_visual()` can stop it and put the tile back at `home_position`. Tests point
   `Motion.settings_path` at their throwaway settings file.
 - **Score:** `LevelScore` (core): 100 per match × combo multiplier (x1..x5), undo takes it back,
-  clear adds 10/s left and 500 flawless. `ScoreMeter` (`%ScoreMeter` under the HUD) shows the
+  clear adds 10/s left and 500 flawless. `ScoreMeter` (`%ScoreMeter` in the top bar beside the level name; the tile counter `TilesBox` is hidden so the
+  tray costs the board no tile size) shows the
   points, multiplier and a combo bar (the melody window, `AudioManager.melody_time_left()`); points
   glide from the pair into it. Milestones "Halfway there!" / "Last 10 tiles!" (sweep, chord, music
   lift) use `ComboFeedback.show_message`. Best score per level in `ProgressStore`; the total goes to
@@ -203,7 +204,8 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
 - **Tile tray:** every mode but Word Garden (`_tray_mode()`): a tapped free tile leaves the board for a
   4-slot tray (`TileTray` core, `TrayBar` view, docs/TILE_TRAY.md) and its match joins it there; four without
   a pair = Tray Full (ad second chance sends 2 back, Replay, Levels). No hearts. Three waiting = a close call,
-  counted in `_mistakes` for stars, flawless and Perfect Clear. Shuffle empties the tray onto the board first.
+  counted in `_mistakes` for stars, flawless and Perfect Clear. Shuffle empties the tray onto the board first. Magnet (4th tool, `TileTray.magnet_target`/`pull`) pulls a
+  waiting tile's match, even buried, into the tray: 1 free per level, then a rewarded ad.
   Word Garden keeps the classic two-tap rule (`_selected`, `_register_mistake`).
 - **Lotus Gifts / Perfect Clear:** `LotusRewards` (core, docs/LOTUS_REWARDS.md): a gift bud (`LotusGift`,
   drawn by `LotusMark`) beside the path after every 5th level; opened on the map for saved hints and

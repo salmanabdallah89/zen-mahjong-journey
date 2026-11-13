@@ -357,7 +357,11 @@ func _capture_tray() -> void:
 	screen.call("_on_tile_pressed", solution[0].y)
 	await _wait(0.52)
 	await _save("phone_9x16_tray_match_burst")
-	await _wait(1.0)
+	await _wait(0.4)
+	await _save("phone_9x16_tray_emblem")
+	await _wait(0.4)
+	await _save("phone_9x16_tray_emblem_fly")
+	await _wait(0.6)
 	# Three free tiles from different pairs: the tray warns.
 	var picked: Array[int] = []
 	var groups := {}
@@ -376,6 +380,19 @@ func _capture_tray() -> void:
 		screen.call("_on_tile_pressed", picked[3])
 		await _wait(1.2)
 		await _save("phone_9x16_tray_full")
+	screen.queue_free()
+	await _frames(2)
+	# The Magnet pulling a match out from under other tiles.
+	GameSession.current_level = 6
+	screen = GAME_SCENE.instantiate()
+	add_child(screen)
+	await _wait(0.5)
+	model = screen.get("_model")
+	screen.call("_on_tile_pressed", model.free_tiles()[0])
+	await _wait(0.6)
+	screen.call("_on_magnet_pressed")
+	await _wait(0.2)
+	await _save("phone_9x16_tray_magnet")
 	screen.queue_free()
 	await _frames(2)
 

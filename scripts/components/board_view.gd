@@ -23,7 +23,7 @@ const MAX_FACE_WIDTH := 230.0
 const MAX_FACE_WIDTH_TALL := 250.0
 const TALL_RATIO := 1.3
 ## Gap between the board's bottom edge and the footer (the message lane).
-const FOOTER_GAP := 24.0
+const FOOTER_GAP := 14.0
 ## Share of the available width / height the board may use.
 const FIT_WIDTH := 0.98
 const FIT_HEIGHT := 0.98
@@ -262,6 +262,30 @@ func make_copy(index: int) -> TileView:
 	# Scaled from its top-left corner, so the tray can place it by its body.
 	view.pivot_offset = Vector2.ZERO
 	return view
+
+
+## The picture shown on tile `index`: the collection's symbol, or the face
+## part of a full tile image (MatchEmblem). Null for words.
+func face_picture(index: int) -> Texture2D:
+	var face := _model.face_of(index)
+	if not _skin.word_text(face).is_empty():
+		return null
+	var symbol := _skin.symbol_texture(face)
+	if symbol:
+		return symbol
+	var whole := _skin.tile_texture(face)
+	if whole == null:
+		return null
+	var key := [whole, _art.face_rect]
+	if not _faces.has(key):
+		var cut := AtlasTexture.new()
+		cut.atlas = whole
+		cut.region = _art.face_rect
+		_faces[key] = cut
+	return _faces[key]
+
+
+static var _faces := {}
 
 
 ## On-screen scale of the tiles (the board is scaled to fit).

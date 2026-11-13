@@ -906,7 +906,11 @@ func _test_tile_animations(level_number: int) -> void:
 	_check(model.is_removed(pair.x) and model.is_removed(pair.y), "the model removes the pair at once")
 	var flying := tray.get_children().filter(func(c: Node) -> bool: return c is TileView and (c as TileView).top_level)
 	_check(flying.size() == 1 and not b_view.visible, "the matched pair glides toward each other")
-	await get_tree().create_timer(0.9).timeout
+	await get_tree().create_timer(0.55).timeout
+	var emblem := MatchEmblem.current()
+	_check(emblem != null and emblem.picture != null and emblem.mouse_filter == Control.MOUSE_FILTER_IGNORE,
+		"the pair's picture lifts out as an emblem (and never blocks taps)")
+	await get_tree().create_timer(0.35).timeout
 	var left := tray.get_children().filter(func(c: Node) -> bool: return c is TileView and not c.is_queued_for_deletion())
 	_check(left.is_empty() and tray.count() == 0, "the pair is gone after the animation")
 
@@ -1037,9 +1041,7 @@ func _test_combo_feedback(level_number: int) -> void:
 		var below := area.end.y - lane_rect.end.y
 		_check(absf(above - below) <= 40.0, "%s: spare height split above and below (%.0f / %.0f)" % [shape, above, below])
 		_check(area.encloses(lane_rect.grow(-1.0)), "%s: the lane stays inside the board area" % shape)
-		# The tray above the board takes some height: tiles stay at least a
-		# touch target wide (120 canvas px) on every shape.
-		_check(board.face_width_on_screen() >= 120.0, "%s: tiles stay large (%.0f px)" % [shape, board.face_width_on_screen()])
+		_check(board.face_width_on_screen() >= 140.0, "%s: tiles stay large (%.0f px)" % [shape, board.face_width_on_screen()])
 	# Praise is centred in the lane and fully inside it on every shape.
 	for shape in SCREEN_SHAPES:
 		_frame.size = shape

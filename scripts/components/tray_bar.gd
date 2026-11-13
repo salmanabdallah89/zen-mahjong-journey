@@ -16,8 +16,8 @@ const GOLD := Color(0.78, 0.65, 0.42)
 const IVORY := Color(0.96, 0.93, 0.87)
 const ROSE := Color(0.86, 0.45, 0.45)
 ## Panel height (canvas px) and gaps.
-const HEIGHT := 200.0
-const PAD := 18.0
+const HEIGHT := 160.0
+const PAD := 12.0
 const GAP := 12.0
 ## Seconds of a tile's flight from the board.
 const FLIGHT := 0.32

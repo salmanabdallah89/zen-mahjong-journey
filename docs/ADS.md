@@ -10,6 +10,7 @@ chance; the game is otherwise identical.
 |-----------|------|-------------|
 | Rewarded: second chance | After losing (time or hearts), once per attempt | +60 s on the clock, or +1 heart, and the same board continues |
 | Rewarded: hint | After the 1 free hint per level is used | One hint per watched ad |
+| Rewarded: magnet | After the 1 free magnet per level is used | One magnet pull per watched ad |
 | Rewarded: shuffle | After the 1 free shuffle per level is used | One shuffle per watched ad |
 | Rewarded: undo | After the 3 undos of an attempt are used | One undo per watched ad |
 | Interstitial | After every 2nd finished level, cleared or lost: when the player leaves the Level Complete popup (Next Level / Replay / Levels) or the loss popup (Retry / Levels). Never during play, and never within 30 s of another ad (e.g. a second-chance ad) | Nothing |
@@ -20,7 +21,7 @@ rewarded ads stay available for them, always by choice.
 
 Skipping a rewarded ad early gives no reward. The level clock and all game sound pause while an
 ad shows. Leaving a level mid-ad closes the ad. All numbers are in `data/ads.json`:
-`free_hints_per_level`, `free_shuffles_per_level`, `second_chance_seconds`, `second_chance_hearts`,
+`free_hints_per_level`, `free_shuffles_per_level`, `free_magnets_per_level`, `second_chance_seconds`, `second_chance_hearts`,
 `second_chances_per_attempt`, `interstitial_every_levels` and `interstitial_min_gap_seconds`.
 
 ## How it works

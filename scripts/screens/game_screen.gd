@@ -74,6 +74,9 @@ var _failed := false
 ## Ads: free hints and shuffles left this attempt, and second chances used this attempt.
 var _free_hints := 0
 var _free_shuffles := 0
+var _free_magnets := 0
+## Magnets used this attempt (a tool, like hints and shuffles).
+var _magnets := 0
 var _undos_left := 0
 var _second_chances := 0
 var _last_loss := LossReason.TIME
@@ -93,6 +96,8 @@ var _words_missed := PackedStringArray()
 ## until its match joins it (TileTray, docs/TILE_TRAY.md).
 var _tray := TileTray.new()
 @onready var _tray_bar: TrayBar = %Tray
+@onready var _magnet_button: Button = %MagnetButton
+@onready var _magnet_label: Label = %MagnetLabel
 
 @onready var _background: TextureRect = %Background
 @onready var _board: BoardView = %Board
@@ -130,6 +135,8 @@ func _ready() -> void:
 	_hint_button.pressed.connect(_on_hint_pressed)
 	_shuffle_button.pressed.connect(_on_shuffle_pressed)
 	_undo_button.pressed.connect(_on_undo_pressed)
+	_magnet_button.pressed.connect(_on_magnet_pressed)
+	_magnet_button.set_meta("custom_sound", true)
 	# These buttons play their own sound, and only when the action succeeds.
 	for button in [_hint_button, _shuffle_button, _undo_button]:
 		button.set_meta("custom_sound", true)
@@ -237,6 +244,8 @@ func _start_level() -> void:
 	_hints_used = 0
 	_free_hints = int(AdsManager.setting("free_hints_per_level", 1))
 	_free_shuffles = int(AdsManager.setting("free_shuffles_per_level", 1))
+	_free_magnets = int(AdsManager.setting("free_magnets_per_level", 1))
+	_magnets = 0
 	_undos_left = UNDOS_PER_LEVEL
 	_score = LevelScore.new()
 	_final_score = 0
@@ -260,6 +269,7 @@ func _start_level() -> void:
 	_show_learning_hud()
 	_board.show_board(_model, _board_skin())
 	_tray_bar.visible = _tray_mode()
+	%MagnetTool.visible = _tray_mode()
 	_tray_bar.sync(_tray.tiles, _board)
 	_update_hud()
 	_show_collection_notice()
@@ -478,6 +488,13 @@ func _tray_match(move: TileTray.Move) -> void:
 	var meet := _tray_bar.slot_center_global(move.slot)
 	var contact := _tray_bar.fly_match(b, move.slot, _board, burst)
 	_finish_match(a, contact, step, combo, cleared, factor, points, meet)
+	# The pair's picture lifts out as a glowing emblem and shoots into the
+	# score (the last pair leaves the stage to Level Complete).
+	if not cleared:
+		var picture := _board.face_picture(b)
+		_after(contact, func() -> void:
+			var target := _score_meter.target_global() if _score_meter.is_visible_in_tree() else meet
+			MatchEmblem.release(self, picture, meet, target, combo, factor > 1, _score_meter.pulse))
 
 
 ## What follows every match, on the board or in the tray, once the pair
@@ -786,6 +803,67 @@ func _give_tray_hint() -> bool:
 	return true
 
 
+## Magnet: pulls the match of a waiting tile out of the board (even from under
+## other tiles) into the tray; with an empty tray it takes a free tile and pulls
+## its match. A free magnet per level, then one per rewarded ad.
+func _on_magnet_pressed() -> void:
+	if not _tray_mode() or _model.is_cleared() or _failed or _dialog.visible or _board.is_busy():
+		return
+	if _tray.magnet_target(_model).y < 0:
+		_show_toast("Nothing for the magnet to pull right now.")
+		return
+	if AdsManager.is_available() and _free_magnets <= 0:
+		_dialog.open("Need a Magnet?", "Watch a short ad to pull a matching tile into the tray.")
+		_dialog.add_action("Watch Ad", func() -> void:
+			AdsManager.show_rewarded("magnet", _on_magnet_ad_done), true)
+		_dialog.add_action("No Thanks", func() -> void: pass)
+		return
+	if AdsManager.is_available():
+		_free_magnets -= 1
+	_use_magnet()
+
+
+func _on_magnet_ad_done(rewarded: bool) -> void:
+	if not rewarded:
+		_show_toast("Watch the whole ad to use the magnet.")
+	elif not (_model.is_cleared() or _failed):
+		_use_magnet()
+
+
+func _use_magnet() -> void:
+	var target := _tray.magnet_target(_model)
+	if target.y < 0:
+		return
+	_clear_hint()
+	_magnets += 1
+	AudioManager.play_sfx("hint")
+	if tutorial_active():
+		_tutorial.on_tool_used()
+	if target.x < 0:
+		_magnet_pull(target.y)
+		return
+	# Empty tray: a free tile goes first; its match is pulled once it lands.
+	_take_into_tray(target.x)
+	_after(Motion.duration(TrayBar.FLIGHT + 0.12), _magnet_pull.bind(target.y))
+
+
+func _magnet_pull(index: int) -> void:
+	if _failed or _model.is_cleared():
+		return
+	var move := _tray.pull(_model, index)
+	if move == null:
+		return
+	var revealed := _specials.reveal_free(_model)
+	_revealed_count += revealed.size()
+	_board.play_take(index, revealed)
+	_tray_match(move)
+
+
+## Magnets used this attempt (tests).
+func magnets_used() -> int:
+	return _magnets
+
+
 func _on_shuffle_pressed() -> void:
 	if _model.is_cleared() or _failed or _dialog.visible or _board.is_busy():
 		return
@@ -945,6 +1023,11 @@ func _update_hud() -> void:
 		_hint_label.text = "Hint"
 		_shuffle_label.text = "Shuffle"
 	_undo_label.text = "Ad Undo" if undo_ad_offered() else "Undo (%d)" % _undos_left
+	if AdsManager.is_available():
+		_magnet_label.text = "Magnet (%d)" % _free_magnets if _free_magnets > 0 else "Ad Magnet"
+	else:
+		_magnet_label.text = "Magnet"
+	_magnet_button.disabled = _model.is_cleared()
 	_update_timer_label()
 	_level_value.text = _level_name()
 	_level_caption.text = _level.title.to_upper()
@@ -1062,7 +1145,7 @@ func _show_level_complete() -> void:
 		summary += "\nNew best time!"
 	if earned < LevelRating.MAX_STARS:
 		summary += "\n" + _next_star_tip(earned)
-	var perfect := LotusRewards.is_perfect(_mistakes, _hints_used, _shuffles)
+	var perfect := LotusRewards.is_perfect(_mistakes, _hints_used + _magnets, _shuffles)
 	if perfect:
 		GameSession.progress.record_perfect(_level.number)
 	if GameSession.progress.is_lotus_ready(_level.number):
@@ -1116,7 +1199,7 @@ func _award_level_badges() -> void:
 		facts["still_mind"] = 1
 	if _time_left >= _level.time_limit * 0.75:
 		facts["swift_stream"] = 1
-	if _hints_used == 0 and _shuffles == 0:
+	if _hints_used == 0 and _shuffles == 0 and _magnets == 0:
 		facts["quiet_hands"] = 1
 	# On tray levels: cleared after the tray had only one place left.
 	if (_tray_mode() and _mistakes > 0) or (not _tray_mode() and _level.mistake_limit > 1 and hearts_left() == 1):

@@ -24,6 +24,10 @@ the classic two-tap rule (it is a learning mode). There are no hearts.
 - **Hint:** a free tile whose partner waits in the tray (both glow), else a free pair on the board.
   Nothing to show: a toast, and no hint is spent.
 - **Shuffle:** the waiting tiles go back to the board first, then the board is reshuffled.
+- **Magnet:** pulls the match of the oldest waiting tile out of the board into the tray, even from
+  under other tiles (buried matches first); with an empty tray it takes a free tile and pulls its match
+  once that tile lands. One free per level (`free_magnets_per_level`), then one per rewarded ad
+  (placement `magnet`). Counts as a tool: no Perfect Clear, no Quiet Hands. Undo puts the tile back.
 - **Undo:** a waiting tile flies home; undoing a match sends the tapped tile home and puts its
   partner back in its slot (points taken back); undoing a close call removes it. Undoing a shuffle
   puts the waiting tiles back in the tray.
@@ -33,7 +37,13 @@ the classic two-tap rule (it is a learning mode). There are no hearts.
 - A tapped tile flies to its slot along a gentle arc and settles with a small bounce.
 - A match: the tile flies to its partner, both swell with a warm gold flash, then bloom away in
   petals and gold (MatchBurst), and the remaining tiles slide together.
-- Reduced animations: tiles fade in and out in place; no flight, burst or sliding.
+- The pair's picture is released (`MatchEmblem`): it lifts out of the tray into the middle of the
+  screen as a glowing medallion with turning light rays, a halo and orbiting sparkles (more and
+  bigger with the combo, gold for a golden lotus pair), holds a breath, then shoots into the score,
+  which pulses, and bursts into a little shower of light. One at a time: a new match sends the
+  previous one straight to the score. Not on the last pair (Level Complete takes over). It never
+  takes taps.
+- Reduced animations: tiles fade in and out in place; no flight, burst or sliding. The emblem only fades in beside the tray.
 
 ## Code
 | Piece | File |

@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://scripts/screens/game_screen.gd" id="1_script"]
 [ext_resource type="PackedScene" path="res://scenes/components/audio_settings.tscn" id="11_settings"]
@@ -15,6 +15,7 @@
 [ext_resource type="PackedScene" path="res://scenes/components/collection_picker.tscn" id="10_picker"]
 [ext_resource type="Script" path="res://scripts/components/score_meter.gd" id="13_score"]
 [ext_resource type="Script" path="res://scripts/components/tray_bar.gd" id="14_tray"]
+[ext_resource type="Script" path="res://scripts/components/magnet_glyph.gd" id="15_magnet"]
 
 [sub_resource type="Gradient" id="Gradient_shade"]
 offsets = PackedFloat32Array(0, 0.2, 0.75, 1)
@@ -73,7 +74,7 @@ base_margin = 24
 [node name="Layout" type="VBoxContainer" parent="SafeArea"]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 8
 
 [node name="Hud" type="PanelContainer" parent="SafeArea/Layout"]
 layout_mode = 2
@@ -144,7 +145,16 @@ custom_minimum_size = Vector2(0, 12)
 layout_mode = 2
 mouse_filter = 2
 
+[node name="ScoreMeter" type="PanelContainer" parent="SafeArea/Layout/Hud/Row"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_type_variation = &"ScorePill"
+script = ExtResource("13_score")
+
 [node name="TilesBox" type="VBoxContainer" parent="SafeArea/Layout/Hud/Row"]
+visible = false
 custom_minimum_size = Vector2(160, 0)
 layout_mode = 2
 size_flags_vertical = 4
@@ -178,17 +188,9 @@ icon = ExtResource("5_pause")
 icon_alignment = 1
 expand_icon = true
 
-[node name="ScoreMeter" type="PanelContainer" parent="SafeArea/Layout"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 4
-mouse_filter = 2
-theme_type_variation = &"ScorePill"
-script = ExtResource("13_score")
-
 [node name="Tray" type="Control" parent="SafeArea/Layout"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 200)
+custom_minimum_size = Vector2(0, 160)
 layout_mode = 2
 mouse_filter = 2
 script = ExtResource("14_tray")
@@ -233,7 +235,7 @@ autowrap_mode = 3
 
 [node name="Toolbar" type="HBoxContainer" parent="SafeArea/Layout"]
 layout_mode = 2
-theme_override_constants/separation = 80
+theme_override_constants/separation = 44
 alignment = 1
 
 [node name="HintTool" type="VBoxContainer" parent="SafeArea/Layout/Toolbar"]
@@ -242,7 +244,7 @@ theme_override_constants/separation = 4
 
 [node name="HintButton" type="Button" parent="SafeArea/Layout/Toolbar/HintTool"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(150, 150)
+custom_minimum_size = Vector2(132, 132)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_type_variation = &"CircleButton"
@@ -256,13 +258,46 @@ theme_type_variation = &"ToolLabel"
 text = "Hint"
 horizontal_alignment = 1
 
+[node name="MagnetTool" type="VBoxContainer" parent="SafeArea/Layout/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="MagnetButton" type="Button" parent="SafeArea/Layout/Toolbar/MagnetTool"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(132, 132)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"CircleButton"
+
+[node name="MagnetGlyph" type="Control" parent="SafeArea/Layout/Toolbar/MagnetTool/MagnetButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 38.0
+offset_top = 38.0
+offset_right = -38.0
+offset_bottom = -38.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("15_magnet")
+
+[node name="MagnetLabel" type="Label" parent="SafeArea/Layout/Toolbar/MagnetTool"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ToolLabel"
+text = "Magnet"
+horizontal_alignment = 1
+
 [node name="ShuffleTool" type="VBoxContainer" parent="SafeArea/Layout/Toolbar"]
 layout_mode = 2
 theme_override_constants/separation = 4
 
 [node name="ShuffleButton" type="Button" parent="SafeArea/Layout/Toolbar/ShuffleTool"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(150, 150)
+custom_minimum_size = Vector2(132, 132)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_type_variation = &"CircleButton"
@@ -293,7 +328,7 @@ theme_override_constants/separation = 4
 
 [node name="UndoButton" type="Button" parent="SafeArea/Layout/Toolbar/UndoTool"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(150, 150)
+custom_minimum_size = Vector2(132, 132)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_type_variation = &"CircleButton"
