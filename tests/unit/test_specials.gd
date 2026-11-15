@@ -11,12 +11,28 @@ func _plan(level_number: int) -> Array:
 
 
 func test_first_levels_stay_plain() -> void:
-	for number in [1, 2]:
-		var specials: TileSpecials = _plan(number)[0]
-		assert_true(specials.golden.is_empty() and specials.mystery.is_empty(), "level %d has no special tiles" % number)
+	var first: TileSpecials = _plan(1)[0]
+	assert_true(first.golden.is_empty() and first.mystery.is_empty(), "level 1 has no special tiles")
+	var second: TileSpecials = _plan(TileSpecials.FIRST_MYSTERY_LEVEL)[0]
+	assert_true(second.golden.is_empty() and not second.mystery.is_empty(), "face-down tiles arrive on level 2")
 	var third: TileSpecials = _plan(TileSpecials.FIRST_GOLDEN_LEVEL)[0]
-	assert_eq(third.golden.size(), 2, "the golden lotus arrives first as one pair")
-	assert_true(third.mystery.is_empty(), "no face-down tiles yet on level %d" % TileSpecials.FIRST_GOLDEN_LEVEL)
+	assert_eq(third.golden.size(), 2, "the golden lotus arrives as one pair")
+
+
+func test_harder_levels_hide_more_tiles() -> void:
+	var last := 0.0
+	for difficulty in [1, 2, 3, 4]:
+		var share := float(TileSpecials.MYSTERY_SHARE[difficulty])
+		assert_true(share > last and share <= 0.9, "difficulty %d hides more than the one before" % difficulty)
+		last = share
+	# Most blocked tiles of an expert board are face-down.
+	var plan := _plan(10)
+	var specials: TileSpecials = plan[0]
+	var model: BoardModel = plan[1]
+	var blocked := 0
+	for i in model.tile_count():
+		blocked += 0 if model.is_free(i) else 1
+	assert_true(specials.mystery.size() >= blocked * 0.8, "level 10 hides most of its blocked tiles (%d of %d)" % [specials.mystery.size(), blocked])
 
 
 func test_golden_tiles_are_a_matching_pair() -> void:
@@ -39,7 +55,8 @@ func test_mystery_tiles_start_blocked_and_never_golden() -> void:
 		for index: int in specials.mystery:
 			assert_false(model.is_free(index), "level %d: face-down tile %d starts blocked" % [number, index])
 			assert_false(specials.is_golden(index), "level %d: tile %d is not both golden and face-down" % [number, index])
-		assert_true(specials.mystery.size() <= ceili(model.tile_count() * 0.5), "level %d: at most half the board face-down" % number)
+		# Every free tile shows its face, so there is always something to read.
+		assert_true(specials.mystery.size() <= model.tile_count() - model.free_tiles().size(), "level %d: only blocked tiles lie face-down" % number)
 
 
 func test_plans_are_reproducible() -> void:

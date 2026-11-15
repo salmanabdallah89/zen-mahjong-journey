@@ -202,7 +202,7 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
   (restores, refunds); only PURCHASED unlocks, and it is acknowledged. Offered in Settings and rarely on the
   journey map (`PurchaseRules.should_offer`). Never change the product id. Tests use a fake bridge.
 - **Tile tray:** every mode but Word Garden (`_tray_mode()`): a tapped free tile leaves the board for a
-  4-slot tray (`TileTray` core, `TrayBar` view, docs/TILE_TRAY.md) and its match joins it there; four without
+  tray of 4 places (3 on Hard, Expert and chapter-end levels: `TileTray.capacity_for`) (`TileTray` core, `TrayBar` view, docs/TILE_TRAY.md) and its match joins it there; four without
   a pair = Tray Full (ad second chance sends 2 back, Replay, Levels). No hearts. Three waiting = a close call,
   counted in `_mistakes` for stars, flawless and Perfect Clear. Shuffle empties the tray onto the board first. Magnet (4th tool, `TileTray.magnet_target`/`pull`) pulls a
   waiting tile's match, even buried, into the tray: never free; the first ×5 combo of an attempt earns one
@@ -225,8 +225,8 @@ export preset's "non-resource files" filter, and exclude `tests/*` from the expo
   check every language before release.
 - **Special tiles:** `TileSpecials` (core) picks per level, from its own RNG seeded from the deal
   seed (deals unchanged): one golden lotus pair from level 3 (×2 points, gold rim + "×2" badge,
-  "Golden Lotus" praise) and, from level 4, face-down mystery tiles (a share of the tiles that start
-  blocked, by difficulty; tile back per garden in `BackgroundStyle`). The screen calls
+  "Golden Lotus" praise) and, from level 2, face-down mystery tiles (45% to 90% of the tiles that start
+  blocked, by difficulty: the main source of difficulty with the tray; tile back per garden in `BackgroundStyle`). The screen calls
   `reveal_free()` after each removal and `BoardView.play_removal` flips them. Undo never hides a
   tile again; solver, hints and shuffles see the real faces.
 - **Feedback lane:** game-screen messages (toasts, combo praise `ComboFeedback`) appear only in

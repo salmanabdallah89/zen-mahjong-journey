@@ -12,10 +12,10 @@ extends RefCounted
 ## same specials, and the deal itself is untouched.
 
 const FIRST_GOLDEN_LEVEL := 3
-const FIRST_MYSTERY_LEVEL := 4
+const FIRST_MYSTERY_LEVEL := 2
 const GOLDEN_FACTOR := 2
 ## Share of the tiles that start blocked which lie face-down, by difficulty.
-const MYSTERY_SHARE := {1: 0.2, 2: 0.3, 3: 0.4, 4: 0.5}
+const MYSTERY_SHARE := {1: 0.45, 2: 0.6, 3: 0.75, 4: 0.9}
 ## Mixed into the deal seed so this RNG never follows the deal's.
 const SEED_SALT := 0x5EC1A1
 

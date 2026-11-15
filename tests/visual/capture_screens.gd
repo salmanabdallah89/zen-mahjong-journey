@@ -382,6 +382,14 @@ func _capture_tray() -> void:
 		await _save("phone_9x16_tray_full")
 	screen.queue_free()
 	await _frames(2)
+	# A hard level: 3 places in the tray and most blocked tiles face-down.
+	GameSession.current_level = 8
+	screen = GAME_SCENE.instantiate()
+	add_child(screen)
+	await _wait(2.8)
+	await _save("phone_9x16_tray_hard_level")
+	screen.queue_free()
+	await _frames(2)
 	# The Magnet pulling a match out from under other tiles.
 	GameSession.current_level = 6
 	screen = GAME_SCENE.instantiate()

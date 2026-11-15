@@ -240,7 +240,8 @@ func _start_level() -> void:
 	_board.mystery_back = load(TileArtSet.active().back_path(BackgroundStyle.tile_back(_level.background)))
 	_selected = -1
 	_hint = Vector2i(-1, -1)
-	_tray = TileTray.new()
+	_tray = TileTray.new(TileTray.capacity_for(_level.difficulty, 0 if _daily() else _level.number))
+	_tray_bar.capacity = _tray.capacity
 	_undo_stack.clear()
 	_matches = 0
 	_hints_used = 0
@@ -290,10 +291,20 @@ func _introduce_specials() -> void:
 		_show_toast("Golden lotus tiles score double points. Find their pair!")
 	elif _level.number == TileSpecials.FIRST_MYSTERY_LEVEL:
 		_show_toast("Face-down tiles turn over when you uncover them.")
+	elif _tray_mode() and not _daily() and _tray.capacity < TileTray.CAPACITY and _level.number == _first_small_tray_level():
+		_show_toast("Harder levels have only %d places in the tray." % _tray.capacity)
 
 
 func _learning() -> bool:
 	return not GameSession.word_language.is_empty()
+
+
+## The first level of the journey with the smaller tray.
+static func _first_small_tray_level() -> int:
+	for number in range(1, LevelCatalog.count() + 1):
+		if TileTray.capacity_for(LevelCatalog.get_level(number).difficulty, number) < TileTray.CAPACITY:
+			return number
+	return -1
 
 
 ## Every mode but Word Garden plays with the tray (and without hearts).
@@ -1404,8 +1415,8 @@ func _score_breakdown() -> String:
 func _next_star_tip(earned: int) -> String:
 	if _tray_mode():
 		if earned == 1:
-			return "For 2 stars: let the tray fill to 3 tiles at most once."
-		return "For 3 stars: never fill the tray to 3 tiles, and keep half the time."
+			return "For 2 stars: leave the tray one tile from full at most once."
+		return "For 3 stars: always keep two places free in the tray, and half the time."
 	if earned == 1:
 		return "For 2 stars: make at most 1 mistake."
 	return "For 3 stars: no mistakes and half the time left."
@@ -1529,7 +1540,7 @@ func _lose(reason: LossReason) -> void:
 		LossReason.TRAY: "Tray Full"}[reason]
 	var why: String = {LossReason.TIME: "The clock ran out.",
 		LossReason.MISTAKES: "You used all %d hearts." % _level.mistake_limit,
-		LossReason.TRAY: "%d tiles are waiting without a pair." % TileTray.CAPACITY}[reason]
+		LossReason.TRAY: "%d tiles are waiting without a pair." % _tray.capacity}[reason]
 	_dialog.open(title, "%s\n%s · %s: %d of %d pairs matched." % [
 		why, _level_name(), _level.title, _matches, pairs])
 	_last_loss = reason

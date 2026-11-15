@@ -28,6 +28,11 @@ const SLIDE := 0.22
 ## Lift of the arc a flying tile follows.
 const ARC := 70.0
 
+## Places shown (the level's tray size); set before sync().
+var capacity := TileTray.CAPACITY:
+	set(value):
+		capacity = value
+		_layout_resting()
 ## Tile copies resting in the slots, in tray order.
 var _resting: Array[TileView] = []
 var _warning := 0.0
@@ -46,7 +51,9 @@ func _ready() -> void:
 ## Slot `i` in this control's coordinates.
 func slot_rect(i: int) -> Rect2:
 	var inner := Rect2(Vector2(PAD, PAD), size - Vector2(PAD, PAD) * 2.0)
+	# Slots keep the width of a 4-place tray; a smaller tray is centred.
 	var width := (inner.size.x - GAP * (TileTray.CAPACITY - 1)) / TileTray.CAPACITY
+	inner.position.x += (TileTray.CAPACITY - capacity) * (width + GAP) / 2.0
 	var side := minf(width, inner.size.y)
 	var x := inner.position.x + i * (width + GAP) + (width - side * 0.82) / 2.0
 	return Rect2(Vector2(x, inner.position.y), Vector2(side * 0.82, inner.size.y))
@@ -258,7 +265,7 @@ func _resting_transform(view: TileView, i: int) -> Dictionary:
 
 ## Three tiles waiting: the rim warms and breathes; a full tray stays warm.
 func _update_warning() -> void:
-	var target := 1.0 if _resting.size() >= TileTray.CLOSE_CALL else 0.0
+	var target := 1.0 if _resting.size() >= capacity - 1 else 0.0
 	if _warning_tween:
 		_warning_tween.kill()
 	_warning_tween = create_tween()
@@ -281,13 +288,13 @@ func _draw() -> void:
 	_draw_round(panel.grow(-2.0), 28.0, Color(0.04, 0.07, 0.06, 0.35))
 	_draw_round(panel.grow(-6.0), 26.0, Color(FOREST, 0.92))
 	_draw_round_outline(panel.grow(-6.0), 26.0, rim, 4.0)
-	for i in TileTray.CAPACITY:
+	for i in capacity:
 		var slot := slot_rect(i)
 		_draw_round(slot, 14.0, Color(0.03, 0.06, 0.05, 0.38))
 		_draw_round_outline(slot, 14.0, Color(IVORY, 0.22), 2.0)
 	# One place left: a small "!" on the last free slot (not colour alone).
-	if _resting.size() == TileTray.CAPACITY - 1:
-		var last := slot_rect(TileTray.CAPACITY - 1)
+	if _resting.size() == capacity - 1:
+		var last := slot_rect(capacity - 1)
 		var font := get_theme_default_font()
 		var font_size := 64
 		var mark := "!"

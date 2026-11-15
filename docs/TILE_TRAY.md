@@ -20,6 +20,15 @@ the classic two-tap rule (it is a learning mode). There are no hearts.
 - Deals are unchanged and every deal stays solvable: playing the deal's solution pair by pair
   never holds more than one tile in the tray.
 
+## Difficulty
+- **Tray size** (`TileTray.capacity_for`): 4 places on Easy and Medium levels; 3 on Hard and
+  Expert levels and on the last level of every chapter (and on a Daily Challenge of that
+  difficulty). The first small tray is announced with a toast; the level card shows the size.
+  A close call is always "one place left".
+- **Face-down tiles** (`TileSpecials.MYSTERY_SHARE`): from level 2, 45% (Easy), 60% (Medium),
+  75% (Hard) and 90% (Expert) of the tiles that start blocked lie face-down until uncovered.
+  Free tiles always show their faces. Deals are unchanged, so saved stars stay valid.
+
 ## Tools
 - **Hint:** a free tile whose partner waits in the tray (both glow), else a free pair on the board.
   Nothing to show: a toast, and no hint is spent.

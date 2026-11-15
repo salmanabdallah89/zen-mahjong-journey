@@ -49,6 +49,20 @@ func test_a_full_tray_stops_the_level() -> void:
 	assert_false(model.is_removed(4), "and the tile stays on the board")
 
 
+func test_hard_levels_have_a_smaller_tray() -> void:
+	assert_eq(TileTray.capacity_for(1, 1), 4, "easy levels: 4 places")
+	assert_eq(TileTray.capacity_for(2, 6), 4, "medium levels: 4 places")
+	assert_eq(TileTray.capacity_for(3, 7), 3, "hard levels: 3 places")
+	assert_eq(TileTray.capacity_for(4, 9), 3, "expert levels: 3 places")
+	assert_eq(TileTray.capacity_for(2, 40), 3, "the last level of a chapter: 3 places")
+	var model := _apart(PackedStringArray(["dots_1", "dots_2", "dots_3", "dots_1", "dots_2", "dots_3"]))
+	var tray := TileTray.new(TileTray.SMALL_CAPACITY)
+	assert_false(tray.take(model, 0).close_call, "one waiting is fine")
+	assert_true(tray.take(model, 1).close_call, "two waiting is a close call in a 3-place tray")
+	assert_true(tray.take(model, 2).full, "three without a pair fill it")
+	assert_eq(tray.magnet_target(model).x, -1, "a full tray takes no new tile for the magnet")
+
+
 func test_only_free_tiles_can_be_taken() -> void:
 	var model := _row(PackedStringArray(["dots_1", "dots_2", "dots_1"]))
 	var tray := TileTray.new()

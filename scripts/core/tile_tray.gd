@@ -6,10 +6,31 @@ extends RefCounted
 ## of a BoardModel, in arrival order; the board model treats them as removed.
 
 const CAPACITY := 4
-## A tray this full is a close call (it counts like a mistake for stars).
-const CLOSE_CALL := 3
+## Hard and Expert levels, and the last level of each chapter, play with a
+## smaller tray.
+const SMALL_CAPACITY := 3
+const SMALL_FROM_DIFFICULTY := 3
 
 var tiles: Array[int] = []
+## Places in this tray.
+var capacity := CAPACITY
+
+
+func _init(places := CAPACITY) -> void:
+	capacity = places
+
+
+## Places in the tray of a level.
+static func capacity_for(difficulty: int, level_number: int) -> int:
+	if difficulty >= SMALL_FROM_DIFFICULTY or (level_number > 0 and level_number % LevelRecipe.CHAPTER_SIZE == 0):
+		return SMALL_CAPACITY
+	return CAPACITY
+
+
+## A tray this full has one place left: a close call (it counts like a
+## mistake for stars).
+func close_call_size() -> int:
+	return capacity - 1
 
 
 func size() -> int:
@@ -21,7 +42,7 @@ func is_empty() -> bool:
 
 
 func is_full() -> bool:
-	return tiles.size() >= CAPACITY
+	return tiles.size() >= capacity
 
 
 func has(index: int) -> bool:
@@ -46,7 +67,7 @@ class Move extends RefCounted:
 	var slot := -1
 	## The tray is full of tiles without a pair: the level stops.
 	var full := false
-	## The tray reached CLOSE_CALL tiles with this move.
+	## The tray had one place left after this move.
 	var close_call := false
 
 	func matched() -> bool:
@@ -68,7 +89,7 @@ func take(model: BoardModel, index: int) -> Move:
 		tiles.append(index)
 		move.slot = tiles.size() - 1
 		move.full = is_full()
-		move.close_call = tiles.size() == CLOSE_CALL
+		move.close_call = tiles.size() == close_call_size()
 	return move
 
 

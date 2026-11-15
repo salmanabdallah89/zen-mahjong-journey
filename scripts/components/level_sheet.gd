@@ -54,7 +54,8 @@ func open(level: LevelCatalog.LevelDefinition, tile_count: int, earned_stars: in
 	var clock := "%d:%02d" % [floori(level.time_limit / 60.0), level.time_limit % 60]
 	_tiles_value.text = str(tile_count)
 	_time_value.text = clock
-	_hearts_value.text = str(TileTray.CAPACITY)
+	var places := TileTray.capacity_for(level.difficulty, level.number)
+	_hearts_value.text = str(places)
 	for i in LevelRating.MAX_STARS:
 		var lit := i < earned_stars
 		_stars[i].modulate = Color.WHITE if lit else STAR_DARK
@@ -64,7 +65,7 @@ func open(level: LevelCatalog.LevelDefinition, tile_count: int, earned_stars: in
 		_best.text = "Best: %d of 3 stars, %d:%02d left" % [earned_stars, floori(whole / 60.0), whole % 60]
 	else:
 		_best.text = "Not cleared yet"
-	_summary = "%s · %d tiles · %s · %d-tile tray\n%s" % [difficulty, tile_count, clock, TileTray.CAPACITY, _best.text]
+	_summary = "%s · %d tiles · %s · %d-tile tray\n%s" % [difficulty, tile_count, clock, places, _best.text]
 	show()
 	_slide_in()
 

@@ -6,14 +6,14 @@ extends RefCounted
 ##   3 stars - cleared with no mistakes and at least THREE_STAR_TIME_SHARE of
 ##             the clock left
 ## On tray levels a "mistake" is a close call: the tray reaching
-## TileTray.CLOSE_CALL tiles.
+## one place left.
 
 const MAX_STARS := 3
 const TWO_STAR_MISTAKES := 1
 const THREE_STAR_TIME_SHARE := 0.5
 
 ## Rules for the level card. Words, not star glyphs: the UI font may not have them.
-const RULES := "1 star: clear the level\n2 stars: the tray fills to 3 tiles at most once\n3 stars: it never does, with half the time left"
+const RULES := "1 star: clear the level\n2 stars: the tray is one tile from full at most once\n3 stars: it never is, with half the time left"
 
 
 static func stars(time_left: float, time_limit: float, mistakes: int) -> int:
