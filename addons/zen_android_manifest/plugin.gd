@@ -65,4 +65,8 @@ class StripPermissions extends EditorExportPlugin:
 		var contents := ""
 		for permission in REMOVED:
 			contents += "\n    <uses-permission android:name=\"%s\" tools:node=\"remove\" />" % permission
+		# The game is locked to portrait, which Android reads as "requires a
+		# portrait screen", and Google Play then hides it from some tablets,
+		# Chromebooks, PCs and XR devices. Portrait is preferred, not required.
+		contents += "\n    <uses-feature android:name=\"android.hardware.screen.portrait\" android:required=\"false\" />"
 		return contents + "\n"
