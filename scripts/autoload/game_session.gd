@@ -24,6 +24,9 @@ var just_unlocked := 0
 var scene_changes_enabled := true
 ## Tests that click through end-of-level dialogs turn the badge reveal off.
 var badge_reveals_enabled := true
+## Off only while the promo film is recorded (tests/visual/record_promo.gd):
+## the recording window loses focus when the desktop is used.
+var pause_on_focus_loss := true
 var last_requested_scene := ""
 
 const FADE_OUT := 0.22

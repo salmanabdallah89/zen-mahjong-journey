@@ -179,7 +179,8 @@ func _notification(what: int) -> void:
 		# The app going to the background, or the window/tab losing focus
 		# (split screen, notification shade, another browser tab), pauses.
 		NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT:
-			_pause_if_playing()
+			if GameSession.pause_on_focus_loss:
+				_pause_if_playing()
 
 
 ## Android back: closes whatever is on top; on the board it pauses, and on the
