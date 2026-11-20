@@ -22,7 +22,7 @@ summer, and after any Godot upgrade.
 | Real AdMob ids (release only) | `data/ads_release.json`; App ID also in `addons/AdmobPlugin/android_export.cfg` |
 | App icon 512×512 | `store/play_icon_512.png` |
 | Feature graphic 1024×500 | `store/feature_graphic_1024x500.png` |
-| Phone screenshots 1080×1920 | `store/screenshots/store_01…06.png` (`capture_screens.tscn -- <dir> store`) |
+| Phone screenshots 1080×1920 | `store/screenshots/store_01…11.png` (`capture_screens.tscn -- <dir> store`) |
 | Launcher icon (adaptive) | `assets/branding/app_icon_adaptive_*_432.png`, `app_icon_full_512.png` |
 | Privacy policy | `site/privacy.html` → https://salmanabdallah89.github.io/zen-mahjong-journey/privacy.html |
 
@@ -98,7 +98,7 @@ Take a breath, find a match, and enjoy the journey.
 ```
 
 **Graphics:** icon `store/play_icon_512.png`, feature graphic `store/feature_graphic_1024x500.png`,
-phone screenshots `store/screenshots/` (upload 4–6; order 01 → 06).
+phone screenshots `store/screenshots/` (Play takes at most 8: pick from 01 → 11).
 
 **Category:** Game → Puzzle (tags: Mahjong, Tile matching, Relaxing). **Contact email:**
 salman.abdallah.89@gmail.com. **Privacy policy:** the URL above.

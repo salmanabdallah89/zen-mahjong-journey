@@ -166,13 +166,17 @@ func _draw() -> void:
 		return
 	var center := size / 2.0
 	var side := (BASE_SIZE + SIZE_PER_COMBO * (combo - 1)) * _grow
+	# Too small to see (the first and last frames): shapes this thin cannot
+	# be filled and the engine reports each one as an error.
+	if side < 8.0:
+		return
 	var light := GOLD if golden else IVORY
 	var accent := GOLD if golden else SAKURA
 	if not Motion.reduced and _glow > 0.0:
 		# Turning rays: more and longer with the combo.
 		var rays := 8 + combo * 2
 		var reach := side * (0.95 + 0.12 * combo) * _glow
-		for k in rays:
+		for k in rays if reach > side * 0.4 else 0:
 			var angle := _spin + TAU * k / rays
 			var tip := center + Vector2.from_angle(angle) * reach
 			var left := center + Vector2.from_angle(angle - 0.07) * side * 0.3
@@ -202,6 +206,8 @@ func _draw() -> void:
 
 
 func _draw_star(at: Vector2, radius: float, color: Color) -> void:
+	if radius < 1.0:
+		return
 	var points := PackedVector2Array()
 	for i in 8:
 		var r := radius if i % 2 == 0 else radius * 0.35

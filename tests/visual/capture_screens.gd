@@ -268,16 +268,34 @@ func _capture_store() -> void:
 	startup.queue_free()
 	await _frames(2)
 
-	var shots := [["classic", 13, "store_02_board"], ["animals", 24, "store_03_animals"], ["fruits", 40, "store_04_fruits"]]
+	# Boards in play: two tiles waiting in the tray, and (animals) a pair's
+	# picture released over the board.
+	var shots := [["zen_garden", 13, "store_02_board", false], ["animals", 24, "store_03_animals", true],
+		["fruits", 40, "store_04_fruits", false]]
 	for shot: Array in shots:
 		manager.select(str(shot[0]))
 		GameSession.current_level = int(shot[1])
 		var screen: Control = GAME_SCENE.instantiate()
 		add_child(screen)
-		await _wait(0.8)
+		await _wait(2.6)
 		var model: BoardModel = screen.get("_model")
-		screen.call("_on_tile_pressed", model.available_matches()[0].x)
-		await _wait(0.5)
+		var pair: Vector2i = model.available_matches()[0]
+		var pair_group := TileCatalog.match_group(model.face_of(pair.x))
+		var groups := {pair_group: true}
+		var waiting := 0
+		for index in model.free_tiles():
+			var group := TileCatalog.match_group(model.face_of(index))
+			if groups.has(group) or waiting == (1 if shot[3] else mini(2, (screen.get("_tray") as TileTray).capacity - 2)):
+				continue
+			groups[group] = true
+			waiting += 1
+			screen.call("_on_tile_pressed", index)
+			await _wait(0.5)
+		if shot[3]:
+			screen.call("_on_tile_pressed", pair.x)
+			await _wait(0.5)
+			screen.call("_on_tile_pressed", pair.y)
+			await _wait(1.0)
 		await _save(str(shot[2]))
 		screen.queue_free()
 		await _frames(2)
@@ -289,10 +307,86 @@ func _capture_store() -> void:
 	journey.queue_free()
 	await _frames(2)
 
+	# A Perfect Clear with its stars.
+	await _store_window()
+	manager.select("zen_garden")
+	GameSession.current_level = 5
+	var clear: Control = GAME_SCENE.instantiate()
+	add_child(clear)
+	await _wait(0.4)
+	var level := LevelCatalog.get_level(5)
+	for pair in BoardGenerator.generate(level.load_layout().build_geometry(), level.face_pool(), level.deal_seed).solution:
+		clear.set("_elapsed", 132.0)
+		clear.set("_time_left", float(level.time_limit) - 132.0)
+		clear.call("_on_tile_pressed", pair.x)
+		clear.call("_on_tile_pressed", pair.y)
+	await _wait(3.4)
+	await _save("store_07_perfect_clear")
+	clear.queue_free()
+	await _frames(2)
+
+	# The Daily Challenge calendar.
+	await _store_window()
+	var today := 20759 + 12
+	for day in range(today - 13, today):
+		if day % 5 != 0:
+			GameSession.progress.record_daily(day, 1 + day % 3, true)
+	var daily: Control = load(GameSession.DAILY_SCENE).instantiate()
+	daily.today = today
+	add_child(daily)
+	await _wait(0.8)
+	await _save("store_08_daily")
+	daily.queue_free()
+	await _frames(2)
+
+	# Word Garden: the language choice, the stage map and a Spanish stage.
+	await _store_window()
+	var native := GameSession.word_native
+	GameSession.word_native = "en"
+	var words: Control = load(GameSession.WORDS_SCENE).instantiate()
+	words.settings_path = "user://capture_words.cfg"
+	var word_settings := UserSettings.new(words.settings_path)
+	word_settings.set_value(words.SETTINGS_SECTION, words.SETTINGS_KEY, "es")
+	word_settings.set_value(words.SETTINGS_SECTION, words.SETTINGS_KEY_NATIVE, "en")
+	for stage in range(1, 8):
+		GameSession.progress.record_word_stage("es", stage, 3 if stage % 3 != 0 else 2, PackedStringArray(), PackedStringArray())
+	add_child(words)
+	await _wait(0.8)
+	words.get_node("%LanguagePanel").show()
+	await _wait(0.4)
+	await _save("store_09_word_languages")
+	words.get_node("%LanguagePanel").hide()
+	await _wait(0.4)
+	await _save("store_10_word_map")
+	words.queue_free()
+	await _frames(2)
+	GameSession.word_language = "es"
+	GameSession.word_stage = 8
+	var lesson: Control = GAME_SCENE.instantiate()
+	add_child(lesson)
+	await _wait(1.2)
+	var lesson_model: BoardModel = lesson.get("_model")
+	lesson.call("_on_tile_pressed", lesson_model.available_matches()[0].x)
+	await _wait(0.5)
+	await _save("store_11_word_stage")
+	lesson.queue_free()
+	await _frames(2)
+	GameSession.word_native = native
+	GameSession.word_language = ""
+	SafeConfig.remove_all("user://capture_words.cfg")
+
 	manager.select("classic")
 	SafeConfig.remove_all(manager.settings_path)
 	manager.settings_path = real_settings
 	manager.restore()
+
+
+## The store shots need the full canvas; put the window back if the desktop
+## resized it (it is taller than most monitors).
+func _store_window() -> void:
+	get_window().mode = Window.MODE_WINDOWED
+	get_window().size = Vector2i(1080, 1920)
+	await _frames(4)
 
 
 ## The journey map with some progress, a level card, and a 3-star clear.
