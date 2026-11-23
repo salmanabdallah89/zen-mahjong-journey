@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="ad.orientation" content="portrait">
+<meta name="theme-color" content="#354F44">
+<title>Word Garden: try a round | Zen Mahjong Journey</title>
+<meta name="description" content="Play one round of Word Garden: match each picture with its word and learn a language while you play. Free on Google Play.">
+<style>
+/*FONT*/
+@font-face { font-family: "Fraunces"; src: url("Fraunces.ttf") format("truetype"); font-display: swap; }
+/*/FONT*/
+:root { --ivory:#F6EEDF; --sage:#91A88C; --sakura:#E8B4BD; --gold:#C7A56A; --forest:#354F44; --night:#273B50; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; background: var(--forest); overflow: hidden; }
+body { font-family: "Fraunces", Georgia, "Times New Roman", "Noto Naskh Arabic", serif; color: var(--ivory);
+  -webkit-user-select: none; user-select: none; touch-action: manipulation; }
+#app { position: relative; height: 100%; max-width: 520px; margin: 0 auto; overflow: hidden;
+  background: var(--forest) url("img/bg.jpg") center / cover no-repeat; }
+#app::before { content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(39,59,80,.7), rgba(39,59,80,.42) 35%, rgba(39,59,80,.3) 70%, rgba(39,59,80,.78)); }
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center;
+  padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)); transition: opacity .35s ease; }
+.screen[hidden] { display: none; }
+#start, #done { background: rgba(39,59,80,.42); }
+.fade { opacity: 0; }
+h1 { margin: 0; font-size: clamp(34px, 10vw, 52px); font-weight: 700; color: var(--gold);
+  text-shadow: 0 2px 0 rgba(39,59,80,.8), 0 6px 18px rgba(0,0,0,.45); text-align: center; }
+p { margin: 0; text-align: center; }
+.lead { font-size: clamp(19px, 5.6vw, 26px); line-height: 1.35; text-shadow: 0 2px 8px rgba(0,0,0,.6); }
+.small { font-size: 15px; opacity: .92; text-shadow: 0 1px 6px rgba(0,0,0,.6); }
+.panel { width: 100%; background: rgba(246,238,223,.96); color: var(--forest); border: 3px solid var(--gold);
+  border-radius: 22px; padding: 18px 16px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+.panel h2 { margin: 0 0 12px; font-size: 20px; text-align: center; font-weight: 600; }
+.chips { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+button { font: inherit; cursor: pointer; border: 0; }
+.chip { min-height: 56px; border-radius: 16px; background: var(--forest); color: var(--ivory); font-size: 19px;
+  font-weight: 600; border: 2px solid var(--gold); box-shadow: 0 3px 0 rgba(39,59,80,.5); }
+.chip:active, .cta:active { transform: translateY(2px); }
+.speak { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 6px; }
+.speak button { min-height: 48px; min-width: 64px; padding: 0 10px; background: none; color: var(--ivory); font-size: 15px;
+  text-shadow: 0 1px 6px rgba(0,0,0,.7); opacity: .8; border-radius: 12px; }
+.speak button[aria-pressed="true"] { opacity: 1; text-decoration: underline; text-decoration-color: var(--gold);
+  text-underline-offset: 5px; font-weight: 700; }
+.cta { width: 100%; min-height: 62px; border-radius: 18px; background: var(--forest); color: var(--ivory);
+  font-size: 21px; font-weight: 700; border: 3px solid var(--gold); box-shadow: 0 4px 0 rgba(39,59,80,.55), 0 8px 22px rgba(0,0,0,.3); }
+.cta.light { background: var(--ivory); color: var(--forest); min-height: 52px; font-size: 18px; font-weight: 600; }
+.grow { flex: 1 1 0; min-height: 8px; }
+
+/* Play */
+#bar { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  background: rgba(246,238,223,.95); color: var(--forest); border: 2px solid var(--gold); border-radius: 16px; padding: 8px 14px; }
+#bar b { font-size: 18px; }
+#dots { display: flex; gap: 6px; direction: ltr; }
+#dots i { width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--gold); background: transparent; transition: background .3s; }
+#dots i.on { background: var(--forest); }
+#how { margin-top: 10px; }
+#boardwrap { flex: 1 1 0; width: 100%; min-height: 0; display: flex; align-items: center; justify-content: center; }
+#board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5%; direction: ltr; }
+.tile { position: relative; aspect-ratio: 204 / 232; background: url("img/tile.png") center / 100% 100% no-repeat; padding: 0;
+  filter: drop-shadow(0 5px 6px rgba(0,0,0,.35)); transition: transform .22s ease, opacity .35s ease, filter .22s ease; }
+.tile .face { position: absolute; left: 2%; top: 1.5%; width: 93%; height: 92%; display: flex; align-items: center; justify-content: center; }
+.tile img { max-width: 78%; max-height: 78%; pointer-events: none; }
+.tile span { color: var(--forest); font-weight: 700; text-align: center; line-height: 1.05; padding: 0 4%; overflow-wrap: anywhere; }
+.tile.sel { transform: translateY(-6%) scale(1.06); filter: drop-shadow(0 0 10px var(--gold)) drop-shadow(0 10px 10px rgba(0,0,0,.35)); z-index: 2; }
+.tile.sel::after { content: ""; position: absolute; left: 1%; top: .5%; width: 95%; height: 94%; border: 4px solid var(--gold); border-radius: 12%; }
+.tile.gone { opacity: 0; transform: scale(1.25); pointer-events: none; }
+.tile.no { animation: no .32s ease; }
+@keyframes no { 25% { transform: translateX(-5%); } 75% { transform: translateX(5%); } }
+#said { min-height: 70px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+#said b { font-size: clamp(28px, 8.5vw, 40px); color: var(--ivory); text-shadow: 0 2px 0 rgba(39,59,80,.8), 0 4px 14px rgba(0,0,0,.6); }
+#said span { font-size: 18px; color: var(--sakura); text-shadow: 0 1px 6px rgba(0,0,0,.7); }
+#said.pop b { animation: pop .5s ease; }
+@keyframes pop { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.12); opacity: 1; } 100% { transform: scale(1); } }
+#mini { background: none; color: var(--ivory); font-size: 16px; min-height: 48px; text-decoration: underline;
+  text-decoration-color: var(--gold); text-underline-offset: 5px; text-shadow: 0 1px 6px rgba(0,0,0,.7); }
+
+/* Done */
+#list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; font-size: 17px; }
+#list li { display: flex; justify-content: space-between; gap: 8px; border-bottom: 1px solid rgba(53,79,68,.18); padding: 3px 0; }
+#list li b { font-weight: 700; }
+#list li span { opacity: .75; }
+.stars { font-size: 34px; color: var(--gold); letter-spacing: 6px; text-shadow: 0 2px 8px rgba(0,0,0,.5); }
+[dir="rtl"] #list li { flex-direction: row-reverse; }
+@media (prefers-reduced-motion: reduce) {
+  .tile, .screen { transition: opacity .2s ease; }
+  .tile.sel { transform: none; } .tile.gone { transform: none; }
+  .tile.no, #said.pop b { animation: none; }
+}
+@media (max-height: 620px) { #how { display: none; } #said { min-height: 54px; } h1 { font-size: 32px; } }
+</style>
+</head>
+<body>
+<div id="app">
+  <section class="screen" id="start">
+    <div class="grow"></div>
+    <h1>Word Garden</h1>
+    <div style="height:10px"></div>
+    <p class="lead" data-t="lead"></p>
+    <div class="grow"></div>
+    <div class="panel">
+      <h2 data-t="choose"></h2>
+      <div class="chips" id="learn"></div>
+    </div>
+    <div class="grow"></div>
+    <p class="small" data-t="ispeak"></p>
+    <div class="speak" id="speak"></div>
+  </section>
+
+  <section class="screen" id="play" hidden>
+    <div id="bar"><b id="stage"></b><span id="dots"></span></div>
+    <p class="small" id="how" data-t="how"></p>
+    <div id="boardwrap"><div id="board"></div></div>
+    <div id="said" aria-live="polite"><b></b><span></span></div>
+    <button id="mini" data-t="cta"></button>
+  </section>
+
+  <section class="screen" id="done" hidden>
+    <div class="grow"></div>
+    <div class="stars" aria-hidden="true">★★★</div>
+    <h1 data-t="done"></h1>
+    <p class="lead" data-t="learned"></p>
+    <div style="height:14px"></div>
+    <div class="panel"><ul id="list"></ul></div>
+    <div style="height:14px"></div>
+    <p class="lead" style="font-size:18px" data-t="more"></p>
+    <div class="grow"></div>
+    <button class="cta" id="get" data-t="cta"></button>
+    <div style="height:6px"></div>
+    <p class="small" data-t="store"></p>
+    <div style="height:10px"></div>
+    <button class="cta light" id="again" data-t="again"></button>
+  </section>
+</div>
+<script>
+(function () {
+  "use strict";
+  var STORE = "https://play.google.com/store/apps/details?id=com.zenmahjongjourney.game&referrer=utm_source%3Dtry_word_garden";
+  var PAIRS = 6;
+  var WORDS = [
+    {id:"cat",en:"Cat",es:"Gato",fr:"Chat",ar:"قطة"},
+    {id:"dog",en:"Dog",es:"Perro",fr:"Chien",ar:"كلب"},
+    {id:"rabbit",en:"Rabbit",es:"Conejo",fr:"Lapin",ar:"أرنب"},
+    {id:"bird",en:"Bird",es:"Pájaro",fr:"Oiseau",ar:"طائر"},
+    {id:"apple",en:"Apple",es:"Manzana",fr:"Pomme",ar:"تفاحة"},
+    {id:"banana",en:"Banana",es:"Plátano",fr:"Banane",ar:"موزة"},
+    {id:"teapot",en:"Teapot",es:"Tetera",fr:"Théière",ar:"إبريق شاي"},
+    {id:"moon",en:"Moon",es:"Luna",fr:"Lune",ar:"قمر"},
+    {id:"frog",en:"Frog",es:"Rana",fr:"Grenouille",ar:"ضفدع"},
+    {id:"butterfly",en:"Butterfly",es:"Mariposa",fr:"Papillon",ar:"فراشة"},
+    {id:"tree",en:"Tree",es:"Árbol",fr:"Arbre",ar:"شجرة"},
+    {id:"flower",en:"Flower",es:"Flor",fr:"Fleur",ar:"زهرة"}
+  ];
+  var LANGS = [["en", "English", "en-US"], ["es", "Español", "es-ES"], ["fr", "Français", "fr-FR"], ["ar", "العربية", "ar-SA"]];
+  var T = {
+    en: { lead: "Learn a language while you play", choose: "I want to learn", ispeak: "I speak",
+      how: "Match each picture with its word", stage: "Word Garden", done: "Well done!",
+      learned: "You learned 6 new words", more: "Over 1,000 words and 1,000 mahjong levels in the free game",
+      cta: "Get the free game", store: "On Google Play, for Android", again: "Play again" },
+    ar: { lead: "تعلّم لغة جديدة وأنت تلعب", choose: "أريد أن أتعلّم", ispeak: "أتحدّث",
+      how: "طابق كل صورة مع كلمتها", stage: "حديقة الكلمات", done: "أحسنت!",
+      learned: "تعلّمت 6 كلمات جديدة", more: "أكثر من 1000 كلمة و1000 مرحلة ماجونغ في اللعبة المجانية",
+      cta: "حمّل اللعبة مجانًا", store: "على Google Play لأجهزة أندرويد", again: "العب مرة أخرى" },
+    es: { lead: "Aprende un idioma mientras juegas", choose: "Quiero aprender", ispeak: "Hablo",
+      how: "Une cada imagen con su palabra", stage: "Jardín de palabras", done: "¡Muy bien!",
+      learned: "Has aprendido 6 palabras nuevas", more: "Más de 1000 palabras y 1000 niveles de mahjong en el juego gratuito",
+      cta: "Descarga el juego gratis", store: "En Google Play, para Android", again: "Jugar otra vez" },
+    fr: { lead: "Apprends une langue en jouant", choose: "Je veux apprendre", ispeak: "Je parle",
+      how: "Associe chaque image à son mot", stage: "Jardin des mots", done: "Bravo !",
+      learned: "Tu as appris 6 nouveaux mots", more: "Plus de 1000 mots et 1000 niveaux de mahjong dans le jeu gratuit",
+      cta: "Télécharge le jeu gratuit", store: "Sur Google Play, pour Android", again: "Rejouer" }
+  };
+
+  var query = {};
+  location.search.replace(/[?&]([^=&]+)=([^&]*)/g, function (_, k, v) { query[k] = decodeURIComponent(v); });
+  function known(code) { return LANGS.some(function (l) { return l[0] === code; }); }
+  var speak = known(query.speak) ? query.speak : (navigator.language || "en").slice(0, 2).toLowerCase();
+  if (!known(speak)) speak = "en";
+  var learn = "";
+  var selected = null, left = 0, round = [], busy = false, audio = null;
+  var $ = function (id) { return document.getElementById(id); };
+  var reduced = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function texts() {
+    document.documentElement.lang = speak;
+    document.documentElement.dir = speak === "ar" ? "rtl" : "ltr";
+    var nodes = document.querySelectorAll("[data-t]");
+    for (var i = 0; i < nodes.length; i++) nodes[i].textContent = T[speak][nodes[i].getAttribute("data-t")];
+    $("stage").textContent = T[speak].stage;
+    var learnBox = $("learn"), speakBox = $("speak");
+    learnBox.innerHTML = ""; speakBox.innerHTML = "";
+    LANGS.forEach(function (l) {
+      if (l[0] !== speak) {
+        var chip = document.createElement("button");
+        chip.className = "chip"; chip.textContent = l[1]; chip.lang = l[0];
+        chip.onclick = function () { start(l[0]); };
+        learnBox.appendChild(chip);
+      }
+      var b = document.createElement("button");
+      b.textContent = l[1]; b.lang = l[0]; b.setAttribute("aria-pressed", l[0] === speak ? "true" : "false");
+      b.onclick = function () { speak = l[0]; texts(); };
+      speakBox.appendChild(b);
+    });
+  }
+
+  function show(id) {
+    ["start", "play", "done"].forEach(function (name) { $(name).hidden = name !== id; });
+  }
+
+  function shuffle(list) {
+    for (var i = list.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1)), t = list[i]; list[i] = list[j]; list[j] = t;
+    }
+    return list;
+  }
+
+  function fitBoard() {
+    var wrap = $("boardwrap"), board = $("board");
+    var w = wrap.clientWidth, h = wrap.clientHeight;
+    // 3 columns x 4 rows of 204:232 tiles.
+    var width = Math.min(w, h * (3 * 204) / (4 * 232) * 0.98, 420);
+    board.style.width = Math.floor(width) + "px";
+    var size = width / 3;
+    var spans = board.querySelectorAll("span");
+    for (var i = 0; i < spans.length; i++) {
+      var len = spans[i].textContent.length;
+      spans[i].style.fontSize = Math.max(13, Math.floor(size * (len > 8 ? 0.17 : len > 5 ? 0.21 : 0.26))) + "px";
+    }
+  }
+
+  function start(language) {
+    learn = language;
+    chime(0, true);
+    round = shuffle(WORDS.slice()).slice(0, PAIRS);
+    var tiles = [];
+    round.forEach(function (w) { tiles.push({ w: w, pic: true }); tiles.push({ w: w, pic: false }); });
+    shuffle(tiles);
+    var board = $("board"); board.innerHTML = "";
+    tiles.forEach(function (t) {
+      var b = document.createElement("button");
+      b.className = "tile";
+      b.setAttribute("data-w", t.w.id);
+      var face = document.createElement("div"); face.className = "face";
+      if (t.pic) {
+        var img = document.createElement("img"); img.src = "img/w_" + t.w.id + ".png"; img.alt = t.w[speak];
+        face.appendChild(img);
+      } else {
+        var s = document.createElement("span"); s.textContent = t.w[learn]; s.lang = learn;
+        if (learn === "ar") s.dir = "rtl";
+        face.appendChild(s);
+      }
+      b.appendChild(face);
+      b.onclick = function () { tap(b, t); };
+      board.appendChild(b);
+    });
+    var dots = $("dots"); dots.innerHTML = "";
+    for (var i = 0; i < PAIRS; i++) dots.appendChild(document.createElement("i"));
+    left = PAIRS; selected = null; busy = false;
+    $("said").firstElementChild.textContent = ""; $("said").lastElementChild.textContent = "";
+    show("play");
+    fitBoard();
+  }
+
+  function tap(button, tile) {
+    if (busy || button.classList.contains("gone")) return;
+    if (selected && selected.button === button) { button.classList.remove("sel"); selected = null; return; }
+    if (!selected) { selected = { button: button, tile: tile }; button.classList.add("sel"); return; }
+    var first = selected; selected = null;
+    if (first.tile.w === tile.w && first.tile.pic !== tile.pic) {
+      button.classList.add("sel");
+      busy = true;
+      chime(PAIRS - left, false);
+      say(tile.w);
+      setTimeout(function () {
+        first.button.classList.add("gone"); button.classList.add("gone");
+        left--;
+        var dots = $("dots").children;
+        if (dots[PAIRS - left - 1]) dots[PAIRS - left - 1].className = "on";
+        busy = false;
+        if (left === 0) setTimeout(finish, reduced ? 500 : 1100);
+      }, reduced ? 150 : 380);
+    } else {
+      first.button.classList.remove("sel");
+      [first.button, button].forEach(function (b) {
+        b.classList.remove("no"); void b.offsetWidth; b.classList.add("no");
+      });
+    }
+  }
+
+  function say(word) {
+    var box = $("said");
+    box.firstElementChild.textContent = word[learn];
+    box.firstElementChild.lang = learn;
+    box.lastElementChild.textContent = word[speak];
+    box.classList.remove("pop"); void box.offsetWidth; box.classList.add("pop");
+    try {
+      if (window.speechSynthesis && window.SpeechSynthesisUtterance) {
+        var u = new SpeechSynthesisUtterance(word[learn]);
+        LANGS.forEach(function (l) { if (l[0] === learn) u.lang = l[2]; });
+        u.rate = 0.9;
+        speechSynthesis.cancel(); speechSynthesis.speak(u);
+      }
+    } catch (e) { /* no voice on this device */ }
+  }
+
+  // A soft bell that climbs with each pair; made here, no sound files.
+  function chime(step, silent) {
+    try {
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      if (!audio) audio = new Ctx();
+      if (audio.state === "suspended") audio.resume();
+      if (silent) return;
+      var scale = [523.25, 587.33, 659.25, 783.99, 880.0, 1046.5];
+      var now = audio.currentTime;
+      [1, 2].forEach(function (mult, i) {
+        var o = audio.createOscillator(), g = audio.createGain();
+        o.type = "sine"; o.frequency.value = scale[Math.min(step, scale.length - 1)] * mult;
+        g.gain.setValueAtTime(0, now);
+        g.gain.linearRampToValueAtTime(i ? 0.05 : 0.16, now + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.9);
+        o.connect(g); g.connect(audio.destination); o.start(now); o.stop(now + 1);
+      });
+    } catch (e) { /* silent */ }
+  }
+
+  function finish() {
+    var list = $("list"); list.innerHTML = "";
+    round.forEach(function (w) {
+      var li = document.createElement("li"), b = document.createElement("b"), s = document.createElement("span");
+      b.textContent = w[learn]; b.lang = learn; s.textContent = w[speak];
+      li.appendChild(b); li.appendChild(s); list.appendChild(li);
+    });
+    show("done");
+  }
+
+  // Ad networks give their own way to open the store; a plain page opens the link.
+  function getGame() {
+    try {
+      if (window.FbPlayableAd && FbPlayableAd.onCTAClick) { FbPlayableAd.onCTAClick(); return; }
+      if (window.ExitApi && ExitApi.exit) { ExitApi.exit(); return; }
+      if (window.mraid && mraid.open) { mraid.open(STORE); return; }
+    } catch (e) { /* fall through */ }
+    window.open(STORE, "_blank");
+  }
+
+  $("mini").onclick = getGame;
+  $("get").onclick = getGame;
+  $("again").onclick = function () { start(learn); };
+  window.addEventListener("resize", fitBoard);
+  texts();
+  if (known(query.learn) && query.learn !== speak) start(query.learn);
+})();
+</script>
+</body>
+</html>

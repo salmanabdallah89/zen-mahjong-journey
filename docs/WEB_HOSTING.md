@@ -50,3 +50,14 @@ opened), and `window.__zenAudioContexts` lists the audio contexts and their stat
 
 GitHub Pages already serves `index.wasm` and `index.pck` gzip-compressed (measured: about 10 MB and
 7 MB on the wire, both downloaded about 3.6 s after the page opened on a fast connection).
+
+## Word Garden demo page (`site/try/`)
+A small hand-written page (no Godot, about 650 KB with its font) where a visitor plays one Word
+Garden round (6 picture-and-word pairs) and then gets a "Get the free game" button to Google Play.
+Published with the rest of `site/` at `<pages url>/try/`. It is the landing page for paid ads.
+- `?speak=ar&learn=en` skips the language choice (`speak` and `learn`: `en`, `es`, `fr`, `ar`);
+  without them the page follows the browser language and asks what to learn.
+- Pictures in `site/try/img/` are small copies made from `assets/` (the originals are untouched);
+  the words are copied from `data/words/words.json`: keep the two in step.
+- `python -I tools/build_playable_ad.py` writes the single-file playable ads to `store/ads/`
+  (one HTML for Meta and others, a zip for Google Ads). Rebuild after changing the page.
