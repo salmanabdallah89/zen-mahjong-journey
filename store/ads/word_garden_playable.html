@@ -30,10 +30,10 @@ p { margin: 0; text-align: center; }
 .panel { width: 100%; background: rgba(246,238,223,.96); color: var(--forest); border: 3px solid var(--gold);
   border-radius: 22px; padding: 18px 16px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
 .panel h2 { margin: 0 0 12px; font-size: 20px; text-align: center; font-weight: 600; }
-.chips { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.chips { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(6px, 2.4vw, 10px); }
 button { font: inherit; cursor: pointer; border: 0; }
-.chip { min-height: 56px; border-radius: 16px; background: var(--forest); color: var(--ivory); font-size: 19px;
-  font-weight: 600; border: 2px solid var(--gold); box-shadow: 0 3px 0 rgba(39,59,80,.5); }
+.chip { min-height: 56px; border-radius: 16px; background: var(--forest); color: var(--ivory);
+  font-size: clamp(13px, 4.4vw, 19px); padding: 0 2px; font-weight: 600; border: 2px solid var(--gold); box-shadow: 0 3px 0 rgba(39,59,80,.5); }
 .chip:active, .cta:active { transform: translateY(2px); }
 .speak { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 6px; }
 .speak button { min-height: 48px; min-width: 64px; padding: 0 10px; background: none; color: var(--ivory); font-size: 15px;
